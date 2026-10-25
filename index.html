@@ -440,6 +440,7 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .acc{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.acck{min-width:44px;height:44px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.3rem;font-family:"Andika",sans-serif}
 .dcmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dcmp>div{background:var(--surface);border-radius:12px;padding:8px;text-align:center}.dcmp small{color:var(--muted)}
 #ecran-parent details summary{cursor:pointer;font-weight:700;color:var(--sea)}
+.btn.wait{opacity:.55;cursor:not-allowed}
 .seg{display:flex;gap:0;border:2px solid var(--line);border-radius:999px;padding:3px;align-self:flex-start;background:var(--surface)}
 .seg button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font-family:"Andika","Atkinson Hyperlegible",sans-serif;font-weight:700;color:var(--muted)}
 .seg button.on{background:var(--i6);color:var(--on-i)}
@@ -521,7 +522,7 @@ function bestVoice(){
 const FEM_EN=/samantha|karen|moira|tessa|serena|victoria|allison|ava|susan|zira|jenny|aria|clara|linda|heather|catherine|female|google us english|google uk english female/i,MALE_EN=/daniel|alex|fred|tom|david|mark|guy|ryan|aaron|arthur|oliver|george|\bmale\b/i;
 function bestVoiceEN(){const sc=v=>(/en[-_]CA/i.test(v.lang)?3:/en[-_]US/i.test(v.lang)?2:0)+(FEM_EN.test(v.name)?3:0)-(MALE_EN.test(v.name)?6:0)+(/enhanced|premium|natural|neural/i.test(v.name)?2:0);return VOICES_EN.slice().sort((a,b)=>sc(b)-sc(a))[0]||null}
 let SEQ=0;
-function speakSeq(list,onend){const id=++SEQ;let i=0;const nxt=()=>{if(id!==SEQ)return;if(i>=list.length){onend&&onend();return}const [t,l,r]=list[i++];speak(t,nxt,l,r,id)};nxt()}
+function speakSeq(list,onend){const id=++SEQ;let i=0;const nxt=()=>{if(id!==SEQ){onend&&onend();onend=null;return}if(i>=list.length){onend&&onend();return}const [t,l,r]=list[i++];speak(t,nxt,l,r,id)};nxt()}
 const VLOG=[];const vlog=m=>{VLOG.push(m);if(VLOG.length>6)VLOG.shift();const el=$("#p-vdiag");if(el)el.textContent=VLOG.join(" · ")};
 function speak(text,onend,lang,rate,sid){
   if(sid===undefined)SEQ++;
@@ -1287,10 +1288,12 @@ function evText(e){const n=KID();switch(e.k){
   case"dicteeN":return`${e.n} mots de dictée bien rangés dans ta mémoire! Tu ne les oublies plus.`;
   case"poke":return pick([`Je crois en toi${n}!`,`Une île de plus aujourd'hui?`,`Chaque erreur t'apprend quelque chose.`,`J'adore explorer avec toi${n}!`,`Prête pour une Course Éclair?`]);
  }return""}
+/* Cadeau en vrai : au plus un toutes les 2 semaines, à la première boîte surprise après ce délai */
+const GIFT_GAP=14*864e5;
+function giftNext(){const g=S.gifts;if(g.last===undefined)g.last=(g.pending||[]).reduce((m,x)=>Math.max(m,x.t||0),0);return g.last?g.last+GIFT_GAP:0}
 function drawPrize(){
   const g=S.gifts,list=(g.list||[]).map(x=>x.trim()).filter(Boolean);S.boxes.n++;
-  if(g.on&&list.length){S.boxes.since++;const p={rare:.25,parfois:.34,souvent:.5}[g.freq]||.34,gap={rare:5,parfois:4,souvent:3}[g.freq]||4;
-    if(Math.random()<p||S.boxes.since>=gap){S.boxes.since=0;const txt=pick(list);g.pending.push({t:Date.now(),txt});save();return{real:true,txt}}}
+  if(g.on&&list.length&&Date.now()>=giftNext()){const txt=pick(list);g.last=Date.now();g.pending.push({t:g.last,txt});save();return{real:true,txt}}
   const next=OBJETS.find(o=>!S.comp.items.includes(o[0]));
   if(next){S.comp.items.push(next[0]);save();return{item:next}}
   S.comp.gold++;save();return{gold:S.comp.gold};
@@ -1503,14 +1506,22 @@ function answer(v,btn){
   const EN=q.lang==="en",title=timeout?"Temps écoulé!":fast?`<span class="bolt">${BOLT}Éclair!</span>`:ok?pick(EN?["Great job!","Well done!","Awesome!","Yes!"]:["Bravo!","Bonne réponse!","Tu l'as!","Bien joué!"]):(EN?"Almost!":"Presque!");
   const time=BRD?(ok?"Tu as pris le temps de bien écrire. Bravo!":"Recopie la bonne réponse au tableau pour bien la retenir."):timeout?`L'objectif était ${secs(G.target)} s. Tu feras mieux à la prochaine!`:fast?`Réponse en ${secs(ms)} s : plus vite que l'objectif de ${secs(G.target)} s!`:ok?`Réponse en ${secs(ms)} s. Objectif : ${secs(G.target)} s. Essaie d'aller un peu plus vite!`:`Temps : ${secs(ms)} s.`;
   $("#fb").innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${title}</h3><p class="fbtime">${time}</p>${ok||BRD?"":`<p>La bonne réponse est <b>${q.disp?q.disp[q.answer]:show(q.answer)}</b>.</p>`}${ok&&Math.random()<.6&&!EN?"":`<p>${q.explain}</p>`}${q.rep&&TTS?`<button class="listen rep" id="b-rep">${SPK}Répète après moi : <b lang="en">${esc(q.rep)}</b></button>`:""}${!ok?reviewHTML(REV,"fb-rev"):""}<button class="btn" id="b-cont">${last?"Voir mon résultat":"Question suivante"}</button></div>`;
-  const c=$("#b-cont");c.onclick=()=>{G.i++;if(G.i>=G.n)finish();else next()};c.focus({preventScroll:true});
+  const c=$("#b-cont");c.onclick=()=>{if(c.disabled)return;G.i++;if(G.i>=G.n)finish();else next()};
+  /* Après une erreur, le bouton reste bloqué tant que l'explication n'est pas terminée */
+  const LBLC=c.textContent;let unlock=null;
+  if(!ok){c.disabled=true;c.classList.add("wait");c.textContent=EN?"Écoute bien l'explication…":"Écoute bien l'explication…";
+    unlock=()=>{if(!c.isConnected||!c.disabled)return;c.disabled=false;c.classList.remove("wait");c.textContent=LBLC;c.focus({preventScroll:true})};
+    setTimeout(()=>unlock&&unlock(),45000);
+    if(!canSpeak()){let n=Math.min(25,Math.max(6,Math.round($("#fb").textContent.length/14)));c.textContent=`Lis bien l'explication… ${n}`;
+      const t=setInterval(()=>{if(!c.isConnected){clearInterval(t);return}if(PAUSED)return;n--;if(n<=0){clearInterval(t);unlock()}else c.textContent=`Lis bien l'explication… ${n}`},1000)}}
+  else c.focus({preventScroll:true});
   $("#fb").scrollIntoView({behavior:"smooth",block:"nearest"});
   bindReview($("#fb"),G.subj,true);
   const br=$("#b-rep");if(br)br.onclick=()=>{const was=S.voice;S.voice=true;speak(q.rep,null,"en",.72);S.voice=was};
   if(canSpeak()){const ttl=timeout?"Temps écoulé!":fast?"Éclair!":ok?$("#fb h3").textContent:(EN?"Almost!":"Presque!");
-    if(BRD)speak(ok?"Bravo! Tu as bien écrit.":"Pas grave! Recopie la bonne réponse au tableau pour bien la retenir. "+revSay(REV));
-    else if(EN)speakSeq(ok?[[ttl,"en"],[q.rep,"en",.75]]:[["Presque! La bonne réponse est :","fr"],[q.rep||q.answer,"en",.75],[normSay(q.explain),"fr"],[revSay(REV),"fr"]]);
-    else speak(ok?ttl:`${ttl} La bonne réponse est ${sayAns(q.answer)}. ${normSay(q.explain)} ${revSay(REV)}`)}
+    if(BRD)speak(ok?"Bravo! Tu as bien écrit.":"Pas grave! Recopie la bonne réponse au tableau pour bien la retenir. "+revSay(REV),unlock);
+    else if(EN)speakSeq(ok?[[ttl,"en"],[q.rep,"en",.75]]:[["Presque! La bonne réponse est :","fr"],[q.rep||q.answer,"en",.75],[normSay(q.explain),"fr"],[revSay(REV),"fr"]],unlock);
+    else speak(ok?ttl:`${ttl} La bonne réponse est ${sayAns(q.answer)}. ${normSay(q.explain)} ${revSay(REV)}`,unlock)}
 }
 function finish(){
   const sc=G.score,N=G.n,st=sc>=N?3:sc>=N*.75?2:sc>=N*.5?1:0;let lvlMsg="",recMsg="";
@@ -1614,12 +1625,10 @@ function renderParent(){
   <div class="tablewrap"><table><thead><tr><th>Île</th><th>Niveau</th><th>Parties</th><th>Questions</th><th>Réussite</th><th>Record de temps</th><th>Étoiles</th></tr></thead><tbody>${rows}</tbody></table></div></div>
   <div class="panel"><h3>Notions à surveiller</h3><p>Les notions les plus difficiles apparaissent en premier. Une notion se lit bien après 5 questions ou plus.</p>
   <div class="nlist">${nl.length?nl.map(n=>`<div class="nrow"><div><b>${n.notion}</b><br><small>${byId(n.isl).nom} · ${n.r}/${n.t} réussies${n.tm}</small></div><div class="meter"><i style="width:${Math.round(n.p*100)}%;background:${col(n.p)}"></i></div><div class="pct">${Math.round(n.p*100)} %</div></div>`).join(""):`<p>Aucune question répondue pour l'instant. Les résultats apparaîtront ici après la première partie.</p>`}</div></div>
-  <div class="panel"><h2>Cadeaux en vrai</h2><p>Aux grandes étapes (niveau supérieur, 3 étoiles sur une île, notion maîtrisée, record important, chaque 50 bonnes réponses), le compagnon offre une boîte surprise, au plus une par mission. La plupart du temps, elle contient un objet pour le compagnon. Parfois, elle contient un cadeau de cette liste, que vous lui remettez en vrai.</p>
+  <div class="panel"><h2>Cadeaux en vrai</h2><p>Aux grandes étapes (niveau supérieur, 3 étoiles sur une île, notion maîtrisée, record important, chaque 50 bonnes réponses), le compagnon offre une boîte surprise, au plus une par mission. La plupart du temps, elle contient un objet pour le compagnon. Une fois toutes les 2 semaines, elle contient un cadeau de cette liste, que vous lui remettez en vrai.</p>
   ${S.gifts.pending.length?`<h3>À remettre</h3><div class="gifts-list">${S.gifts.pending.map((g,i)=>`<div class="g"><span><b>${esc(g.txt)}</b><br><small>Débloqué le ${new Date(g.t).toLocaleDateString("fr-CA",{day:"numeric",month:"long"})}</small></span><button class="btn ghost" data-given="${i}">Remis</button></div>`).join("")}</div>`:`<p><b>Aucun cadeau à remettre pour l'instant.</b>${S.gifts.given?` Déjà remis : ${S.gifts.given}.`:""}</p>`}
   <label class="toggle" for="p-gon"><input type="checkbox" id="p-gon" ${S.gifts.on?"checked":""}><span><b>Activer les cadeaux en vrai</b><br><small>Désactivé, les boîtes contiennent seulement des objets pour le compagnon.</small></span></label>
-  <label for="p-gfreq"><b>Fréquence</b></label>
-  <select id="p-gfreq">${[["rare","Rarement (environ 1 boîte sur 4)"],["parfois","Parfois (environ 1 boîte sur 3)"],["souvent","Souvent (environ 1 boîte sur 2)"]].map(([v,l])=>`<option value="${v}" ${S.gifts.freq===v?"selected":""}>${l}</option>`).join("")}</select>
-  <p><small>C'est aléatoire, mais jamais trop long : il y a au moins un cadeau toutes les 5, 4 ou 3 boîtes selon la fréquence choisie.</small></p>
+  <p><b>Fréquence : un cadeau en vrai toutes les 2 semaines.</b> <small>Il arrive à la première boîte surprise gagnée après ce délai; les autres boîtes contiennent des objets pour le compagnon. ${giftNext()>Date.now()?`Prochain cadeau possible à partir du <b>${new Date(giftNext()).toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"})}</b>.`:"Le prochain cadeau peut arriver dès la prochaine boîte surprise."}</small></p>
   <label class="toggle" for="p-greveal"><input type="checkbox" id="p-greveal" ${S.gifts.reveal?"checked":""}><span><b>Lui dire quel cadeau elle a gagné</b><br><small>Décoché, le compagnon annonce « un cadeau surprise » et vous gardez le choix.</small></span></label>
   <label for="p-glist"><b>Liste des cadeaux</b> <small>(un par ligne, tiré au hasard)</small></label>
   <textarea id="p-glist">${esc(S.gifts.list.join("\n"))}</textarea>
@@ -1678,7 +1687,7 @@ function renderParent(){
   el.querySelectorAll("[data-goal]").forEach(x=>x.onchange=()=>{S.goals[x.dataset.goal]=+x.value;save();renderBar();renderParent()});
   el.querySelectorAll("[data-given]").forEach(b=>b.onclick=()=>{S.gifts.pending.splice(+b.dataset.given,1);S.gifts.given++;save();renderParent()});
   $("#p-gon").onchange=e=>{S.gifts.on=e.target.checked;save()};
-  $("#p-gfreq").onchange=e=>{S.gifts.freq=e.target.value;save()};
+
   $("#p-greveal").onchange=e=>{S.gifts.reveal=e.target.checked;save()};
   $("#p-gsave").onclick=()=>{S.gifts.list=$("#p-glist").value.split("\n").map(x=>x.trim()).filter(Boolean);save();$("#p-gsave").textContent="Liste enregistrée"};
   $("#p-comp-save").onclick=()=>{const v=$("#p-comp").value.trim();if(v){S.comp.name=v;save();$("#p-comp-save").textContent="Nom enregistré ✓"}else $("#p-comp-save").textContent="Écrivez un nom"};
@@ -2442,7 +2451,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261025-015649";
+const APP_VER="20261025-165714";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
