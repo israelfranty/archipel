@@ -2436,5 +2436,15 @@ syncSon();renderCarte();go("carte");
 })();
 </script>
 
-<script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))</script>
+<div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
+<script>
+const APP_VER="20261025-001424";
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
+let UPD_T=0;
+function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
+  fetch("version.txt?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(v=>{v=(v||"").trim();if(v&&v!==APP_VER){const b=document.getElementById("upd");b.hidden=false;b.style.display="flex"}}).catch(()=>{})}
+document.getElementById("upd-go").onclick=async()=>{try{const r=await navigator.serviceWorker.getRegistration();if(r)await r.update()}catch(e){}location.reload()};
+setTimeout(checkUpd,3000);setInterval(checkUpd,15*60000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkUpd()});window.addEventListener("pageshow",()=>checkUpd());
+</script>
 </body></html>
