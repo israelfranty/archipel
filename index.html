@@ -1174,7 +1174,8 @@ anglais(L,zone){
 }};
 const boardFor=(subj,L,zone)=>{const q=BOARD[subj](L,zone);q.kind="board";q.choices=[];return q};
 /* ---------- Mots de la semaine (listes de l'école, entrées par le parent) ---------- */
-const weekFR=()=>((S.week&&S.week.fr)||[]).filter(Boolean);
+/* Français : les mots de la semaine viennent maintenant de la liste de la dictée (semaine en cours choisie par le parent) */
+const weekFR=()=>{try{const W=dLists().W[dCur()];return W?W.w.map(e=>e.w):[]}catch(e){return[]}};
 const weekEN=()=>((S.week&&S.week.en)||[]).filter(x=>x&&x.w);
 const weekList=subj=>subj==="francais"?weekFR():subj==="anglais"?weekEN():[];
 function variants(w,rules){const out=new Set();for(const [re,rep] of rules){if(re.test(w)){const v=w.replace(re,rep);if(v&&v!==w)out.add(v)}}return[...out]}
@@ -1213,7 +1214,6 @@ GEN.en_week=function(L,force){
  GEN.orthographe=L=>weekFR().length&&Math.random()<.35?Object.assign(GEN.fr_week(L,"spell"),{isl:"orthographe"}):o1(L);
  GEN.en_spell=L=>weekEN().length&&Math.random()<.35?Object.assign(GEN.en_week(L,"spell"),{isl:"en_spell"}):o2(L);}
 const WEEK_ISL=[
- {id:"fr_week",subj:"francais",week:true,a:"dans tes mots de la semaine",nom:"Mes mots de la semaine",sous:"La liste de l'école, en exercices et en dictée",glyph:"ABC",c:"--i3"},
  {id:"en_week",subj:"anglais",week:true,a:"dans tes words of the week",nom:"My Words of the Week",sous:"La liste d'anglais de l'école",glyph:"Wk",c:"--i3"}];
 {const b1=BOARD.francais,b2=BOARD.anglais;
  BOARD.francais=(L,zone)=>{const ws=weekFR();if(ws.length&&(zone==="fr_week"||(zone==="orthographe"&&Math.random()<.5))){const pk=shuffle(ws).slice(0,Math.min(ws.length,L===1?3:4));
@@ -1627,14 +1627,11 @@ function renderParent(){
   <p><small>Conseil : privilégiez des moments partagés (une sortie, un jeu, choisir le dessert) plutôt que des achats. Le compagnon lui rappelle toujours que c'est le geste qui compte.</small></p></div>
   <div class="panel"><h2>Atelier d'écriture</h2><p>Les caractères tracés sans modèle. « À l'envers » compte les fois où le jeu a reconnu le caractère retourné (par exemple un d au lieu d'un b).</p>
   ${Object.keys(S.trace||{}).length?`<div class="items tglyphs">${Object.entries(S.trace).sort((a,b)=>b[1].rev-a[1].rev||a[0].localeCompare(b[0])).map(([c,t])=>`<span class="${t.rev?"warnc":""}">${c} · réussi ${t.ok}${t.rev?` · à l'envers ${t.rev}`:""}</span>`).join("")}</div>`:`<p><b>Aucun exercice d'écriture pour l'instant.</b></p>`}</div>
-  <div class="panel"><h2>Mots de la semaine</h2><p>Entrez la liste de mots envoyée par l'école. Le jeu en fait des exercices dans une zone « Mes mots de la semaine » (français et anglais), dans les dictées au tableau, et de temps en temps dans les zones d'orthographe.</p>
-  <label for="p-wfr"><b>Français</b> <small>(un mot par ligne)</small></label>
-  <textarea id="p-wfr" placeholder="maison&#10;toujours&#10;beaucoup">${esc(weekFR().join("\n"))}</textarea>
-  ${weekFR().length?`<div class="items">${weekFR().map(w=>{const x=S.wstats[w];return`<span>${esc(w)}${x?` · ${x.r}/${x.t}`:""}</span>`}).join("")}</div>`:""}
+  <div class="panel"><h2>Mots de la semaine en anglais</h2><p>Entrez la liste de mots d'anglais envoyée par l'école. Le jeu en fait des exercices dans la zone « My Words of the Week », dans les dictées au tableau et de temps en temps dans « Write the word ». En français, les mots de la semaine viennent automatiquement de la liste de la dictée du jour (semaine choisie dans « Dictée du jour »).</p>
   <label for="p-wen"><b>Anglais</b> <small>(un mot par ligne; la traduction après « = » est facultative : apple = pomme)</small></label>
   <textarea id="p-wen" placeholder="apple = pomme&#10;house = maison&#10;friend = ami">${esc(weekEN().map(x=>x.fr?`${x.w} = ${x.fr}`:x.w).join("\n"))}</textarea>
   ${weekEN().length?`<div class="items">${weekEN().map(e=>{const x=S.wstats[e.w];return`<span>${esc(e.w)}${x?` · ${x.r}/${x.t}`:""}</span>`}).join("")}</div>`:""}
-  <button class="btn ghost" id="p-wsave" style="align-self:flex-start">Enregistrer les listes</button>
+  <button class="btn ghost" id="p-wsave" style="align-self:flex-start">Enregistrer la liste d'anglais</button>
   <p><small>Les chiffres à côté de chaque mot indiquent ses réussites (réussi / essayé). Avec la traduction en anglais, le jeu peut aussi demander « Comment dit-on pomme en anglais? ». Pour une nouvelle semaine, remplacez simplement la liste. ${S.week.updated?`Dernière mise à jour : ${new Date(S.week.updated).toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"})}.`:""}</small></p></div>
   <div class="panel"><h2>Temps d'étude</h2><p>Le temps compte seulement pendant les missions, la Course Éclair et les défis au tableau, application ouverte et sans pause. Chaque minute va à la matière en cours. Laisser la tablette ouverte sans jouer ne compte pas.</p>
   <h3>Objectifs quotidiens</h3>
@@ -1676,7 +1673,7 @@ function renderParent(){
       $("#p-ino").onclick=renderParent;
       $("#p-iyes").onclick=()=>{S=Object.assign(fresh(),d,{v:1});if(S.rateV!==2){S.rate=.81;S.rateV=2}PEND.splice(0);rollDay();save();renderBar();syncVoix();renderParent();const n=$("#p-xzone");if(n)n.innerHTML=`<p><b style="color:var(--good)">Progression importée ✓</b></p>`}}};
   $("#p-strict").onchange=e=>{S.strict=e.target.checked;save()};
-  $("#p-wsave").onclick=()=>{S.week={fr:parseWeek($("#p-wfr").value,false),en:parseWeek($("#p-wen").value,true),updated:Date.now()};save();renderParent()};
+  $("#p-wsave").onclick=()=>{S.week={fr:[],en:parseWeek($("#p-wen").value,true),updated:Date.now()};save();renderParent()};
   $("#p-board").onchange=e=>{S.boardOn=e.target.checked;save()};
   el.querySelectorAll("[data-goal]").forEach(x=>x.onchange=()=>{S.goals[x.dataset.goal]=+x.value;save();renderBar();renderParent()});
   el.querySelectorAll("[data-given]").forEach(b=>b.onclick=()=>{S.gifts.pending.splice(+b.dataset.given,1);S.gifts.given++;save();renderParent()});
@@ -2445,7 +2442,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261025-002820";
+const APP_VER="20261025-015649";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
