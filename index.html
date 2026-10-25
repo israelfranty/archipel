@@ -428,6 +428,18 @@ b.en{color:var(--sea)}
 .q-none{margin:0;color:var(--muted)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .xzone{display:flex;flex-direction:column;gap:8px}.xzone:empty{display:none}.xzone textarea{width:100%;font:12px ui-monospace,monospace;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);padding:8px;word-break:break-all}
+.dictz{border-color:var(--i7)!important;border-style:solid!important}.dictz .badge{background:var(--i7);color:var(--on-i)}.dictz .badge svg{width:30px;height:30px}
+.dnote{display:flex;align-items:center;gap:8px;background:var(--surface);border:2px solid var(--i7);border-radius:12px;padding:8px 12px;margin-top:8px!important;color:var(--ink)!important}.dnote svg{width:22px;height:22px;flex:none;color:var(--i7)}
+.dword{font-family:"Andika","Atkinson Hyperlegible",sans-serif;font-size:clamp(2.2rem,9vw,3.2rem);font-weight:700;text-align:center;letter-spacing:.04em;color:var(--ink);overflow-wrap:anywhere}
+.dword.sm{font-size:clamp(1.5rem,6vw,2rem);display:block}.dword mark{border-radius:6px;padding:0 .05em}
+mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}mark.dg{background:var(--sun);color:#2A2100}
+.dcls{text-align:center;color:var(--muted);margin:0}.dctx{text-align:center;font-size:1.25rem;margin:0}
+.dform{display:flex;flex-direction:column;gap:10px;align-items:stretch}
+.din{font-family:"Andika","Atkinson Hyperlegible",sans-serif;font-size:2rem;text-align:center;border:3px solid var(--c);border-radius:16px;padding:8px 12px;background:var(--bg);color:var(--ink);width:100%}
+.din.right{border-color:var(--good);background:var(--good-bg)}.din.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.acc{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.acck{min-width:44px;height:44px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.3rem;font-family:"Andika",sans-serif}
+.dcmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dcmp>div{background:var(--surface);border-radius:12px;padding:8px;text-align:center}.dcmp small{color:var(--muted)}
+#ecran-parent details summary{cursor:pointer;font-weight:700;color:var(--sea)}
 .seg{display:flex;gap:0;border:2px solid var(--line);border-radius:999px;padding:3px;align-self:flex-start;background:var(--surface)}
 .seg button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font-family:"Andika","Atkinson Hyperlegible",sans-serif;font-weight:700;color:var(--muted)}
 .seg button.on{background:var(--i6);color:var(--on-i)}
@@ -473,7 +485,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function IS(id){return S.isl[id]||(S.isl[id]={level:1,stars:0,played:0,r:0,t:0})}
 
 /* ---------- Export / import de la progression ---------- */
-function exportCode(){const j=JSON.stringify(S);return "ARCHIPEL1:"+btoa(unescape(encodeURIComponent(j)))}
+function exportCode(){const o=Object.assign({},S);if(S.dict&&!S.dict.txt&&LISTE_DEF)o.dict=Object.assign({},S.dict,{txt:LISTE_DEF});const j=JSON.stringify(o);return "ARCHIPEL1:"+btoa(unescape(encodeURIComponent(j)))}
 function importCode(t){try{t=String(t||"").replace(/\s+/g,"");if(!t.startsWith("ARCHIPEL1:"))return null;const d=JSON.parse(decodeURIComponent(escape(atob(t.slice(10)))));return d&&d.v===1&&typeof d.isl==="object"?d:null}catch(e){return null}}
 
 /* ---------- Son ---------- */
@@ -1271,6 +1283,8 @@ function evText(e){const n=KID();switch(e.k){
   case"courage":return`C'était difficile, et tu as continué quand même. C'est comme ça qu'on progresse. On réessaie ensemble?`;
   case"objectif":return`Tu as atteint tous tes objectifs d'étude d'aujourd'hui! Bravo pour ta persévérance.`;
   case"objectifS":return`Objectif ${DE[e.s]} atteint pour aujourd'hui : ${S.goals[e.s]} minutes! ${allDone()?"":"Il te reste "+resteTxt()+"."}`;
+  case"dictee":return`Tu sais maintenant écrire tous les mots de la semaine ${e.wk} sans regarder! Ta mémoire devient super forte.`;
+  case"dicteeN":return`${e.n} mots de dictée bien rangés dans ta mémoire! Tu ne les oublies plus.`;
   case"poke":return pick([`Je crois en toi${n}!`,`Une île de plus aujourd'hui?`,`Chaque erreur t'apprend quelque chose.`,`J'adore explorer avec toi${n}!`,`Prête pour une Course Éclair?`]);
  }return""}
 function drawPrize(){
@@ -1378,12 +1392,12 @@ function renderCarte(){
   const buddy=`<button class="buddycard" id="b-buddy" aria-label="Parler à ${esc(BN())}">${buddySVG(S.comp.type,S.comp.items,"idle")}<span class="info"><span class="bname">${esc(BN())}</span><small>Objets trouvés : ${S.comp.items.length} sur ${OBJETS.length}${S.comp.gold?` · ${S.comp.gold} étoile${S.comp.gold>1?"s":""} dorée${S.comp.gold>1?"s":""}`:""}</small>${S.comp.items.length?`<span class="items">${OBJETS.filter(o=>S.comp.items.includes(o[0])).map(o=>`<span>${o[0]}</span>`).join("")}</span>`:""}${pend?`<span class="giftnote">${GIFTICON}${pend} cadeau${pend>1?"x":""} à réclamer auprès de papa et maman</span>`:""}</span></button>`;
   let h;
   if(!CUR){
-    h=`<div class="hello"><h2>Bonjour, ${esc(S.name)}!</h2><p>Sur quelle île veux-tu aller aujourd'hui?</p></div>`+searchBox(null)+buddy
+    h=`<div class="hello"><h2>Bonjour, ${esc(S.name)}!</h2><p>Sur quelle île veux-tu aller aujourd'hui?</p>${dDue()?`<p class="dnote">${PENICON}Ta dictée du jour t'attend à L'Île aux Mots : <b>${dDue()} mot${dDue()>1?"s":""}</b> à réviser.</p>`:""}</div>`+searchBox(null)+buddy
      +`<div class="subjects">${Object.entries(SUBJ).map(([k,s])=>{const st=starsOf(k),max=zones(k).length*3;return`<button class="subject" data-subj="${k}" style="--c:var(${s.c})"><span class="sbadge">${s.glyph}</span><span class="sbody"><span class="nom">${s.nom}</span><span class="sous">${s.sous}</span><span class="smeta">${stars(Math.min(3,Math.floor(st/max*3+0.0001)))}<span class="lvl">${st} étoile${st>1?"s":""} sur ${max}</span></span></span></button>`}).join("")}<button class="subject" id="b-atelier" style="--c:var(--i6)"><span class="sbadge tglyph">${PENICON}<span>a b 3</span></span><span class="sbody"><span class="nom">L'Atelier d'écriture</span><span class="sous">Tracer les chiffres et les lettres dans le bon sens, avec ton stylet ou ton doigt</span></span></button></div>`;
   }else{
     const s=SUBJ[CUR],zs=zones(CUR),st=starsOf(CUR);
     h=`<div class="gamebar"><button class="back" id="b-home">← Les îles</button><span class="gtitle">${s.nom}</span></div><button class="btn notions" id="b-notions">${BOOKICON}Les notions : revoir les règles</button>${searchBox(CUR)}<div class="hello"><p>Choisis une zone à explorer. Tu as gagné ${st} étoile${st>1?"s":""} sur ${zs.length*3} ici.</p></div>`
-     +`<div class="isles">`+zs.map(i=>{const z=IS(i.id);return`<button class="isle${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="badge">${i.glyph}</span><span class="body"><span class="nom">${i.nom}</span><span class="sous">${i.sous}</span><span class="meta">${stars(z.stars)}<span class="lvl">Niveau ${z.level}</span></span></span></button>`}).join("")
+     +`<div class="isles">`+(CUR==="francais"?`<button class="isle defi dictz" id="b-dict"><span class="badge">${PENICON}</span><span class="body"><span class="nom">Ma dictée du jour</span><span class="sous">${dWeeks().length?(dDue()?`<b>${dDue()} mot${dDue()>1?"s":""}</b> de tes listes à réviser aujourd'hui. Les mots reviennent juste avant que tu les oublies!`:"Tout est révisé pour aujourd'hui. Tu peux t'entraîner encore!"):"Les mots de tes listes d'orthographe, révisés jour après jour."}</span></span></button>`:"")+zs.map(i=>{const z=IS(i.id);return`<button class="isle${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="badge">${i.glyph}</span><span class="body"><span class="nom">${i.nom}</span><span class="sous">${i.sous}</span><span class="meta">${stars(z.stars)}<span class="lvl">Niveau ${z.level}</span></span></span></button>`}).join("")
      +`<button class="isle defi" data-isle="defi"><span class="badge">?</span><span class="body"><span class="nom">Le Grand Défi</span><span class="sous">${ROUND} questions mélangées de toutes les zones de ${s.nom}</span></span></button>`
      +`<button class="isle defi" data-isle="tableau"><span class="badge chalkb">${CHALKICON}</span><span class="body"><span class="nom">Mission tableau</span><span class="sous">4 défis à écrire ou dessiner à la main, sur ton tableau ou une feuille.</span></span></button>`
      +`<button class="isle defi" data-isle="sprint"><span class="badge">${BOLT}</span><span class="body"><span class="nom">La Course Éclair</span><span class="sous">${CUR==="maths"?"60 secondes pour réussir le plus de calculs possible.":CUR==="francais"?"60 secondes de questions rapides : homophones et conjugaison.":"60 secondes de vocabulaire : images, mots et couleurs."} ${SPR(CUR).best?`Ton record : ${SPR(CUR).best} bonnes réponses.`:"Établis ton premier record!"}</span></span></button></div>`;
@@ -1394,6 +1408,7 @@ function renderCarte(){
   const bnot=$("#b-notions");if(bnot)bnot.onclick=()=>openLessons(CUR,null);
   bindSearch(CUR);
   const bat=$("#b-atelier");if(bat)bat.onclick=renderAtelier;
+  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;
   el.querySelectorAll("[data-subj]").forEach(b=>b.onclick=()=>{CUR=b.dataset.subj;tone([[659,.08],[880,.12]]);renderCarte();window.scrollTo(0,0)});
   el.querySelectorAll("[data-isle]").forEach(b=>b.addEventListener("click",()=>b.dataset.isle==="sprint"?startSprint():start(b.dataset.isle)));
 }
@@ -1639,11 +1654,13 @@ function renderParent(){
   <div class="namerow"><input id="p-comp" maxlength="16" value="${esc(S.comp.name)}" placeholder="Nom du compagnon" aria-label="Nom du compagnon"><button class="btn ghost" id="p-comp-save">Renommer le compagnon</button></div>
   ${S.comp.type?`<div class="namerow"><select id="p-ctype" aria-label="Animal du compagnon">${Object.entries(ANIMAUX).map(([k,a])=>`<option value="${k}" ${S.comp.type===k?"selected":""}>${a.nom}</option>`).join("")}</select><button class="btn ghost" id="p-ctype-save">Changer d'animal</button></div>`:""}
   <p><small>L'espace parent est protégé par un mot de passe. Pour le changer, demandez-le à Claude.</small></p>
+  ${dParentHTML()}
   <h3>Sauvegarde de la progression</h3><p><small>Pour passer la progression d'un appareil ou d'une adresse à l'autre : « Exporter » sur l'ancien, puis « Importer » sur le nouveau.</small></p>
   <div class="confirm"><button class="btn ghost" id="p-exp">Exporter la progression</button><button class="btn ghost" id="p-imp">Importer une progression</button></div><div id="p-xzone" class="xzone"></div>
   <h3>Effacer</h3><div class="confirm" id="p-reset-zone"><button class="btn ghost" id="p-reset">Effacer les progrès seulement</button><button class="btn ghost" id="p-wipe" style="border-color:var(--bad);color:var(--bad)">Tout effacer et recommencer</button></div>
   <p><small>« Effacer les progrès » garde le prénom, le compagnon et les cadeaux à remettre. « Tout effacer » remet le jeu à neuf : prénom, compagnon, objets, cadeaux, temps d'étude et statistiques. Le mot de passe et les réglages de voix sont conservés.</small></p></div>`;
   $("#p-retour").onclick=()=>{PARENT_OK=false;renderCarte();go("carte")};G=null;
+  dParentBind();
   $("#p-exp").onclick=()=>{const code=exportCode(),z=$("#p-xzone");
     z.innerHTML=`<p><small>Code de sauvegarde de ${esc(S.name||"l'enfant")} (${new Date().toLocaleDateString("fr-CA")}). Copiez-le ou téléchargez le fichier, puis importez-le sur l'autre appareil.</small></p><textarea id="p-xcode" readonly rows="4"></textarea><div class="confirm"><button class="btn" id="p-xcopy">Copier le code</button><button class="btn ghost" id="p-xdl">Télécharger le fichier</button></div>`;
     $("#p-xcode").value=code;
@@ -2246,6 +2263,162 @@ function bindSearch(subj){const inp=$("#q-search"),out=$("#q-res");if(!inp)retur
     out.innerHTML=res.length?res.map(r=>`<button class="qbtn" data-s="${r.subj}" data-z="${r.zone}" data-i="${r.i}" style="--c:var(${byId(r.zone).c})"><span class="zdot"></span><span class="qt">${lesHTML(r.t)}</span><small>${r.zname}${subj?"":" · "+SUBJ[r.subj].court}</small></button>`).join(""):`<p class="q-none">Aucune notion trouvée pour « ${esc(v)} ». Essaie un autre mot, par exemple : heure, pluriel, verbe.</p>`;
     out.querySelectorAll(".qbtn").forEach(b=>b.onclick=()=>{openLessons(b.dataset.s,b.dataset.z,null,false);LES.i=+b.dataset.i;renderLes()})};
   inp.addEventListener("input",run);inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();const f=out.querySelector(".qbtn");if(f)f.click()}})}
+
+/* ---------- Ma dictée du jour : les listes de l'école, révisées à intervalles grandissants ----------
+   Chaque mot vit dans une « boîte ». Réussi sans aide : il monte d'une boîte et revient plus tard
+   (1, 2, 4, 8, 16 puis 35 jours). Raté : il retourne à la boîte 1 et revient dès le lendemain.
+   C'est la révision espacée : on se rappelle le mot juste au moment où on allait l'oublier. */
+const LISTE_DEF=/*LISTE*/""/*FIN-LISTE*/;
+const DINT=[0,1,2,4,8,16,35],DN=10,DMAST=5;
+const DALT={"clé":["clef"],"boîte":["boite"],"paraître":["paraitre"],"août":["aout"],"fraîche":["fraiche"],"fou":["fol"]};
+const dayNum=()=>Math.floor(Date.parse(today()+"T12:00:00")/864e5);
+function DS(){if(!S.dict||typeof S.dict!=="object")S.dict={};const d=S.dict;if(!d.bank)d.bank={};if(typeof d.txt!=="string")d.txt="";if(!d.cur)d.cur=0;return d}
+function parseListes(txt){const W={};let cur=null;
+  String(txt||"").split(/\r?\n/).forEach(l=>{l=l.trim();if(!l)return;
+    const m=l.match(/^semaine\s+(\d+)\s*[|:–-]?\s*(.*)$/i);if(m){cur=+m[1];W[cur]={t:m[2].trim(),w:[]};return}
+    if(!cur)return;
+    l.split(";").forEach(it=>{it=it.trim();if(!it)return;const mm=it.match(/^([^({]+?)\s*(?:\(([^)]*)\))?\s*(?:\{([^}]*)\})?\s*$/);if(!mm)return;
+      const w=mm[1].trim();if(w)W[cur].w.push({w,c:(mm[2]||"").trim(),p:(mm[3]||"").trim(),wk:cur})})});
+  Object.keys(W).forEach(k=>{if(!W[k].w.length)delete W[k]});return W}
+let DLC={txt:null,W:{},by:{}};
+function dLists(){const t=DS().txt||LISTE_DEF;if(DLC.txt!==t){const W=parseListes(t),by={};Object.keys(W).map(Number).sort((a,b)=>a-b).forEach(k=>W[k].w.forEach(e=>{if(!by[e.w])by[e.w]=e}));DLC={txt:t,W,by}}return DLC}
+const dWeeks=()=>Object.keys(dLists().W).map(Number).sort((a,b)=>a-b);
+/* Semaine scolaire estimée (rentrée vers le 31 août); le parent la confirme dans son espace */
+function dGuessWeek(){const ws=dWeeks();if(!ws.length)return 0;const y=new Date().getMonth()>=7?new Date().getFullYear():new Date().getFullYear()-1;
+  const n=Math.floor((Date.now()-new Date(y,7,31).getTime())/(7*864e5))+1;return Math.min(ws[ws.length-1],Math.max(ws[0],n))}
+function dCur(){const d=DS();if(!d.cur||!dLists().W[d.cur]){const g=dGuessWeek();if(g&&!d.cur)d.cur=g;else if(g&&!dLists().W[d.cur])d.cur=dWeeks().filter(w=>w<=d.cur).pop()||g}return d.cur}
+/* Ajoute à la banque les mots des semaines déjà passées (à réviser, étalés ~15 par jour) et ceux de la semaine en cours (nouveaux) */
+function dSync(){const d=DS(),L=dLists(),cur=dCur();if(!cur)return;const dn=dayNum();let k=0;
+  dWeeks().filter(w=>w<=cur).sort((a,b)=>b-a).forEach(wk=>L.W[wk].w.forEach(e=>{if(d.bank[e.w]||L.by[e.w]!==e)return;
+    d.bank[e.w]=wk<cur?{b:1,due:dn+Math.floor(k++/15),wk,miss:0,ok:0,seen:0}:{b:0,due:dn,wk,miss:0,ok:0,seen:0};DSYNC_ADD=1}));if(DSYNC_ADD){DSYNC_ADD=0;save()}}
+let DSYNC_ADD=0;
+const dInfo=w=>dLists().by[w]||{w,c:"",p:"",wk:0};
+function dDue(){dSync();const d=DS(),dn=dayNum(),cur=dCur();return Object.entries(d.bank).filter(([w,x])=>dLists().by[w]&&((x.b>=1&&x.due<=dn)||(x.b===0&&x.wk<=cur))).length}
+const dMastered=()=>Object.entries(DS().bank).filter(([w,x])=>dLists().by[w]&&x.b>=DMAST).length;
+function dPick(){dSync();const d=DS(),dn=dayNum(),cur=dCur(),E=Object.entries(d.bank).filter(([w])=>dLists().by[w]);
+  const due=E.filter(([,x])=>x.b>=1&&x.due<=dn).sort((a,b)=>a[1].due-b[1].due||a[1].b-b[1].b).map(([w])=>({w,mode:"rev"}));
+  const nw=E.filter(([,x])=>x.b===0&&x.wk<=cur).sort((a,b)=>b[1].wk-a[1].wk).map(([w])=>({w,mode:"new"}));
+  let out=[...due.slice(0,7),...shuffle(nw).slice(0,Math.max(3,DN-Math.min(7,due.length)))];
+  if(out.length<DN)out.push(...due.slice(7,7+DN-out.length));
+  if(out.length<DN){const have=new Set(out.map(x=>x.w));
+    const ex=E.filter(([w,x])=>!have.has(w)&&x.b>=1).sort((a,b)=>(b[1].miss-a[1].miss)||(a[1].b-b[1].b)||(a[1].due-b[1].due)).slice(0,DN-out.length).map(([w])=>({w,mode:"extra"}));out.push(...ex)}
+  return shuffle(out.slice(0,DN))}
+const CLS={"n.":"nom","m.":"masculin","f.":"féminin","pl.":"pluriel","adj.":"adjectif","v.":"verbe","pron.":"pronom","dét.":"déterminant","inv.":"invariable","mot":"mot","ou":"ou"};
+const sayClass=c=>c.split(/\s+/).map(t=>CLS[t]||t).join(" ").replace("verbe","verbe à l'infinitif");
+const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+function blankIn(p,w){const re=new RegExp("(^|[^\\p{L}'])("+reEsc(w)+")(?![\\p{L}])","iu");return re.test(p)?esc(p).replace(new RegExp("(^|[^\\p{L}'])("+reEsc(esc(w))+")(?![\\p{L}])","iu"),"$1<span class=\"blank\"></span>"):""}
+const dNorm=s=>String(s||"").normalize("NFC").trim().toLowerCase().replace(/[’`ʼ]/g,"'").replace(/\s+/g," ").replace(/\s*-\s*/g,"-");
+const dOk=(t,w)=>dNorm(t)===dNorm(w)||(DALT[w]||[]).some(a=>dNorm(t)===dNorm(a));
+/* Alignement lettre à lettre (plus longue sous-suite commune) pour montrer où est l'erreur */
+function dDiff(a,b){a=[...dNorm(a)];b=[...b];const n=a.length,m=b.length,T=Array.from({length:n+1},()=>new Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)T[i][j]=a[i]===b[j].toLowerCase()?T[i+1][j+1]+1:Math.max(T[i+1][j],T[i][j+1]);
+  const ka=new Array(n).fill(false),kb=new Array(m).fill(false);let i=0,j=0;while(i<n&&j<m){if(a[i]===b[j].toLowerCase()){ka[i]=kb[j]=true;i++;j++}else if(T[i+1][j]>=T[i][j+1])i++;else j++}
+  return{you:a.map((c,i)=>ka[i]?esc(c):`<mark class="dx">${esc(c)}</mark>`).join("")||"&nbsp;",good:b.map((c,j)=>kb[j]?esc(c):`<mark class="dg">${esc(c)}</mark>`).join("")}}
+const DACC=["é","è","ê","à","â","ç","î","ï","ô","û","ë","'","-"];
+let DC=null;
+function startDictee(){dSync();const list=dPick();
+  if(!list.length){alertDict();return}
+  G={mode:"dict",subj:"francais",events:[]};DC={list,i:0,res:{},first:{},retried:new Set(),ok:0,n:list.length,flash:0};dWord()}
+function alertDict(){const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i7)");G={mode:"dict",subj:"francais"};
+  el.innerHTML=`<div class="gamebar"><button class="back" id="d-back">← L'Île aux Mots</button><span class="gtitle">Ma dictée du jour</span></div><div class="card"><p class="prompt">${dWeeks().length?"Tous tes mots sont révisés pour aujourd'hui. Reviens demain!":"Papa ou maman doit d'abord ajouter les listes de mots dans l'espace parent."}</p></div>`;
+  $("#d-back").onclick=()=>{G=null;renderCarte();go("carte")};go("jeu")}
+function dSay(e){return`${e.w}. ${e.p?e.p+" ":""}${e.w}. ${e.c?sayClass(e.c)+".":""}`}
+function dWord(){
+  clearTimeout(DC.flash);const it=DC.list[DC.i],e=dInfo(it.w),x=DS().bank[it.w]||{b:0};DC.cur={it,e,phase:it.mode==="new"?"look":"write",tries:0};
+  const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i7)");
+  const voice=canSpeak();
+  el.innerHTML=`<div class="gamebar"><button class="back" id="d-back">← L'Île aux Mots</button><span class="gtitle">Ma dictée du jour</span><span class="levelchip">${Math.min(DC.i+1,DC.list.length)} / ${DC.list.length}</span></div>
+  <div class="dots">${DC.list.map((_,i)=>`<span class="${i<DC.i?(DC.res[i]?"ok":"ko"):i===DC.i?"now":""}"></span>`).join("")}</div>
+  <div class="card pop dcard" style="--c:var(--i7)"><div class="cardtop"><div class="notion">${it.mode==="new"?"Mot nouveau · semaine "+e.wk:it.mode==="retry"?"On réessaie":"Dictée · semaine "+e.wk}</div><span class="cardbtns">${voice?`<button class="listen" id="d-listen">${SPK}Réécouter</button>`:""}</span></div>
+  <div id="d-body"></div><div id="fb"></div></div>`;
+  $("#d-back").onclick=()=>{clearTimeout(DC.flash);G=null;DC=null;renderCarte();go("carte")};
+  const bl=$("#d-listen");if(bl)bl.onclick=()=>speak(DC.cur.phase==="look"?`${e.w}. ${e.p}`:dSay(e));
+  go("jeu");
+  if(DC.cur.phase==="look")dLook();else if(!voice)dFlash();else dWrite(true);
+}
+function dLook(){const {e}=DC.cur;
+  $("#d-body").innerHTML=`<p class="prompt">Regarde bien ce mot. Dis chaque lettre dans ta tête, puis cache-le.</p><div class="dword">${esc(e.w)}</div>${e.c?`<p class="dcls">(${esc(sayClass(e.c))})</p>`:""}${e.p?`<p class="dctx">${esc(e.p)}</p>`:""}<button class="btn" id="d-hide">Je l'ai bien regardé : je le cache</button>`;
+  $("#d-hide").onclick=()=>{DC.cur.phase="write";dWrite(false)};$("#d-hide").focus({preventScroll:true});
+  speak(`Mot nouveau : ${e.w}. ${e.p?e.p+" ":""}Regarde bien comment il s'écrit.`)}
+/* Sans la voix : le mot apparaît 3 secondes, puis disparaît */
+function dFlash(){const {e}=DC.cur;let n=3;
+  $("#d-body").innerHTML=`<p class="prompt">Regarde bien ce mot, il va disparaître!</p><div class="dword">${esc(e.w)}</div><p class="dcls" id="d-count">${n}</p>`;
+  const t=()=>{n--;const c=$("#d-count");if(!c)return;if(n<=0){dWrite(false);return}c.textContent=n;DC.flash=setTimeout(t,1000)};DC.flash=setTimeout(t,1000)}
+function dWrite(sayIt){const {e}=DC.cur,ctx=e.p?blankIn(e.p,e.w):"";
+  $("#d-body").innerHTML=`<p class="prompt">${canSpeak()?"Écoute le mot et écris-le.":"Écris le mot que tu viens de voir."}</p>${ctx?`<p class="dctx">${ctx}</p>`:""}${e.c?`<p class="dcls">(${esc(sayClass(e.c))})</p>`:""}
+  <form id="d-form" class="dform" autocomplete="off"><input id="d-in" class="din" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" lang="fr" aria-label="Écris le mot ici" enterkeyhint="done">
+  <div class="acc">${DACC.map(a=>`<button type="button" class="acck" data-a="${a}">${a}</button>`).join("")}</div><button class="btn" type="submit">Valider</button></form>`;
+  const inp=$("#d-in");
+  $("#d-body").querySelectorAll(".acck").forEach(b=>b.onpointerdown=ev=>{ev.preventDefault();const s=inp.selectionStart??inp.value.length,en=inp.selectionEnd??s;inp.value=inp.value.slice(0,s)+b.dataset.a+inp.value.slice(en);inp.focus();inp.setSelectionRange(s+1,s+1)});
+  $("#d-form").addEventListener("submit",ev=>{ev.preventDefault();if(inp.value.trim())dCheck(inp.value)});
+  inp.focus({preventScroll:true});
+  if(sayIt)speak(dSay(e))}
+function dRecord(it,ok){const d=DS(),x=d.bank[it.w]||(d.bank[it.w]={b:0,due:0,wk:dInfo(it.w).wk,miss:0,ok:0,seen:0}),dn=dayNum(),was=x.b;
+  x.seen++;x.last=dn;if(ok)x.ok++;else x.miss++;
+  if(it.mode==="new"){x.b=1;x.due=dn+1}
+  else if(it.mode==="rev"){if(ok){x.b=Math.min(6,x.b+1);x.due=dn+DINT[x.b]}else{x.b=1;x.due=dn+1}}
+  else if(!ok){x.b=1;x.due=dn+1}
+  const w=(S.wstats[it.w]||(S.wstats[it.w]={r:0,t:0}));w.t++;if(ok)w.r++;
+  if(ok&&was<DMAST&&x.b>=DMAST){const wk=x.wk,all=dLists().W[wk];if(all&&all.w.every(e=>(d.bank[e.w]||{}).b>=DMAST||dLists().by[e.w]!==e))G.events.push({k:"dictee",wk,box:true});
+    const m=dMastered();if(m>0&&m%25===0)G.events.push({k:"dicteeN",n:m,box:true})}
+  save()}
+function dCheck(val){const C=DC.cur,{it,e}=C,ok=dOk(val,e.w);if(C.phase!=="write")return;C.phase="done";
+  const firstTime=it.mode!=="retry"&&!(it.w in DC.first);
+  if(firstTime){DC.first[it.w]=ok;dRecord(it,ok);if(ok)DC.ok++}
+  DC.res[DC.i]=ok;
+  const inp=$("#d-in");inp.readOnly=true;inp.classList.add(ok?"right":"wrong");$("#d-form").querySelectorAll("button").forEach(b=>b.disabled=true);
+  tone(ok?[[660,.1],[880,.16]]:[[300,.18]]);
+  if(ok){const x=DS().bank[it.w]||{};const next=x.due-dayNum();
+    $("#fb").innerHTML=`<div class="feedback good pop"><h3>${pick(["Bravo!","Parfait!","Tu l'as!","Bien écrit!"])}</h3><p>${it.mode==="new"?"Super! Ce mot reviendra demain pour bien rester dans ta mémoire.":it.mode==="retry"?"Cette fois, c'est la bonne!":x.b>=DMAST&&firstTime?"Ce mot est maintenant bien rangé dans ta mémoire!":firstTime&&it.mode==="rev"?`Ce mot reviendra dans ${next} jour${next>1?"s":""}.`:"Bien joué!"}</p><button class="btn" id="b-cont">${DC.i>=DC.list.length-1?"Voir mon résultat":"Mot suivant"}</button></div>`;
+    speak(pick(["Bravo!","Parfait!","Bien écrit!"]))}
+  else{const df=dDiff(val,e.w);
+    if(it.mode!=="retry"&&!DC.retried.has(it.w)){DC.retried.add(it.w);DC.list.push({w:it.w,mode:"retry"})}
+    $("#fb").innerHTML=`<div class="feedback bad pop"><h3>Presque!</h3><div class="dcmp"><div><small>Tu as écrit</small><span class="dword sm">${df.you}</span></div><div><small>On écrit</small><span class="dword sm">${df.good}</span></div></div>
+    <p>Les lettres en couleur sont celles à corriger. Recopie le mot correctement pour bien le retenir :</p>
+    <form id="d-fix" class="dform" autocomplete="off"><input id="d-fixin" class="din" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" lang="fr" aria-label="Recopie le mot"><div class="acc">${DACC.map(a=>`<button type="button" class="acck" data-a="${a}">${a}</button>`).join("")}</div><button class="btn" type="submit">Vérifier</button></form>
+    <p id="d-fixmsg" aria-live="polite"></p>${it.mode!=="retry"?`<p><small>Ce mot reviendra à la fin de la dictée, puis demain.</small></p>`:""}</div>`;
+    const fi=$("#d-fixin");fi.focus({preventScroll:true});
+    $("#fb").querySelectorAll(".acck").forEach(b=>b.onpointerdown=ev=>{ev.preventDefault();const s=fi.selectionStart??fi.value.length,en=fi.selectionEnd??s;fi.value=fi.value.slice(0,s)+b.dataset.a+fi.value.slice(en);fi.focus();fi.setSelectionRange(s+1,s+1)});
+    $("#d-fix").addEventListener("submit",ev=>{ev.preventDefault();if(dOk(fi.value,e.w)){fi.readOnly=true;fi.classList.add("right");$("#d-fix").querySelectorAll("button").forEach(b=>b.disabled=true);tone([[660,.1],[880,.12]]);
+        $("#d-fixmsg").innerHTML="";$("#fb .feedback").insertAdjacentHTML("beforeend",`<button class="btn" id="b-cont">${DC.i>=DC.list.length-1?"Voir mon résultat":"Mot suivant"}</button>`);bindCont()}
+      else{$("#d-fixmsg").innerHTML=`<b style="color:var(--bad)">Pas tout à fait. Regarde bien chaque lettre et réessaie.</b>`;fi.select()}});
+    speak(`Presque! On écrit ${e.w}. ${[...e.w].filter(c=>c!==" ").join(", ")}. Recopie le mot.`)}
+  bindCont();$("#fb").scrollIntoView({behavior:"smooth",block:"nearest"})}
+function bindCont(){const c=$("#b-cont");if(!c)return;c.onclick=()=>{DC.i++;if(DC.i>=DC.list.length)dFinish();else dWord()};c.focus({preventScroll:true})}
+function dFinish(){const words=Object.keys(DC.first),ok=DC.ok,N=words.length,miss=words.filter(w=>!DC.first[w]);const st=ok>=N?3:ok>=N*.8?2:ok>=N*.5?1:0;
+  const tom=Object.entries(DS().bank).filter(([w,x])=>dLists().by[w]&&x.b>=1&&x.due===dayNum()+1).length,left=dDue(),mast=dMastered(),tot=Object.keys(dLists().by).filter(w=>DS().bank[w]).length;
+  const el=$("#ecran-fin");el.style.setProperty("--c","var(--i7)");
+  const msg=ok===N?"Tous les mots sont bien écrits du premier coup!":ok>=N*.8?"Très bonne dictée! Les mots ratés reviendront demain.":"Les mots difficiles vont revenir souvent jusqu'à ce que ta mémoire les garde. C'est normal!";
+  el.innerHTML=`<div class="card result pop" style="--c:var(--i7)"><div class="notion">Ma dictée du jour</div><h2>Dictée terminée${S.name?", "+esc(S.name):""}!</h2><div class="score">${ok} / ${N}</div>${stars(st)}<p class="msg">${msg}</p>
+  ${miss.length?`<p class="msg"><b>Mots à revoir demain :</b></p><div class="redo">${miss.map(w=>`<span class="rv">${esc(w)}</span>`).join("")}</div>`:""}
+  <p class="msg">Mots bien rangés dans ta mémoire : <b>${mast}</b> sur ${tot}.<br>${left?`Il reste <b>${left} mot${left>1?"s":""}</b> à réviser aujourd'hui.`:"Tout est révisé pour aujourd'hui!"}${tom?` Demain : ${tom} mot${tom>1?"s":""}.`:""}</p>
+  <div class="row-btns">${left?`<button class="btn" id="d-again">Encore ${Math.min(DN,left)} mots</button>`:`<button class="btn" id="d-again">M'entraîner encore</button>`}<button class="btn ghost" id="d-map">Retour à l'île</button></div></div>`;
+  $("#d-again").onclick=startDictee;$("#d-map").onclick=()=>{G=null;DC=null;renderCarte();go("carte")};
+  tone(st>=2?[[523,.12],[659,.12],[784,.12],[1047,.25]]:[[523,.15],[659,.2]]);go("fin");
+  speak(`Dictée terminée! ${ok} sur ${N}. ${msg}`);
+  if(!S.ms.first){S.ms.first=1;G.events.unshift({k:"first"})}save();
+  const evs=G.events.concat(PEND.splice(0));if(evs.length&&S.comp.type)setTimeout(()=>{if(!$("#ecran-fin").hidden&&!BYE)celebrate(evs);else PEND.push(...evs)},1200)}
+
+/* Espace parent : listes, semaine en cours, mots difficiles */
+function dParentHTML(){const d=DS(),L=dLists(),ws=dWeeks(),cur=dCur();
+  if(!ws.length)return`<h3>Dictée du jour (listes d'orthographe)</h3><p><small>Collez les listes de l'école ci-dessous (une ligne « Semaine N | titre », puis les mots séparés par des points-virgules).</small></p>${dListBox(true)}`;
+  const rows=ws.map(wk=>{const W=L.W[wk].w.filter(e=>L.by[e.w]===e),seen=W.filter(e=>d.bank[e.w]),m=W.filter(e=>(d.bank[e.w]||{}).b>=DMAST).length,lr=W.filter(e=>(d.bank[e.w]||{}).b>=3).length;
+    return wk>cur?"":`<div class="d"><span><b>Semaine ${wk}</b>${wk===cur?" (en cours)":""}<br><span class="dsub">${esc(L.W[wk].t)}</span></span><span class="meter"><i style="width:${W.length?m/W.length*100:0}%;background:var(--good)"></i></span><span>${m}/${W.length}${seen.length?"":" · à venir"}</span></div>`}).join("");
+  const hard=Object.entries(d.bank).filter(([w,x])=>L.by[w]&&x.miss>0).sort((a,b)=>b[1].miss-a[1].miss||a[1].b-b[1].b).slice(0,12);
+  return`<h3>Dictée du jour (listes d'orthographe)</h3><p><small>Chaque mot revient après 1, 2, 4, 8, 16 puis 35 jours s'il est réussi; un mot raté revient le lendemain. Un mot est « maîtrisé » après 5 réussites espacées.</small></p>
+  <label>Semaine en cours à l'école : <select id="p-dcur">${ws.map(w=>`<option value="${w}" ${w===cur?"selected":""}>Semaine ${w}</option>`).join("")}</select></label>${d.curSet?"":`<p><small><b>À confirmer :</b> semaine estimée selon la date. Choisissez la bonne semaine.</small></p>`}
+  <p><small>Aujourd'hui : <b>${dDue()}</b> mot${dDue()>1?"s":""} à réviser · <b>${dMastered()}</b> mots maîtrisés.</small></p>
+  <div class="days">${rows}</div>
+  ${hard.length?`<p><small><b>Mots les plus difficiles :</b></small></p><div class="redo">${hard.map(([w,x])=>`<span class="rv" title="${x.miss} erreur(s)">${esc(w)} <small>×${x.miss}</small></span>`).join("")}</div>`:""}
+  <details><summary>Modifier les listes de mots</summary>${dListBox(false)}</details>
+  <div class="confirm" id="p-dreset-zone"><button class="btn ghost" id="p-dreset">Recommencer les révisions de dictée</button></div>`}
+function dListBox(open){return`<textarea id="p-dtxt" rows="${open?8:10}" placeholder="Semaine 2 | Mots avec un accent&#10;âge (n. m.); année (n. f.); bâton (n. m.)">${esc(DS().txt||LISTE_DEF)}</textarea><button class="btn ghost" id="p-dsave">Enregistrer les listes</button><span id="p-dmsg"></span>`}
+function dParentBind(){const d=DS();
+  const sel=$("#p-dcur");if(sel)sel.onchange=()=>{d.cur=+sel.value;d.curSet=1;dSync();renderParent()};
+  const sv=$("#p-dsave");if(sv)sv.onclick=()=>{const t=$("#p-dtxt").value,W=parseListes(t),n=Object.values(W).reduce((a,x)=>a+x.w.length,0);
+    if(!n){$("#p-dmsg").textContent=" Aucun mot trouvé : vérifiez le format.";return}d.txt=t.trim()===LISTE_DEF.trim()?"":t;dLists();dSync();$("#p-dmsg").textContent=` ${Object.keys(W).length} semaines, ${n} mots enregistrés ✓`;setTimeout(renderParent,1200)};
+  const rs=$("#p-dreset");if(rs)rs.onclick=()=>{$("#p-dreset-zone").innerHTML=`<span>Effacer l'historique de la dictée? Les listes sont conservées.</span><button class="btn" id="p-dyes" style="background:var(--bad)">Oui, recommencer</button><button class="btn ghost" id="p-dno">Annuler</button>`;
+    $("#p-dyes").onclick=()=>{d.bank={};dSync();renderParent()};$("#p-dno").onclick=renderParent}}
 
 /* ---------- Démarrage ---------- */
 function syncSon(){const b=$("#btn-son");b.textContent="Son : "+(S.sound?"oui":"non");b.setAttribute("aria-pressed",String(S.sound))}
