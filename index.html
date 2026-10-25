@@ -2273,12 +2273,16 @@ const DINT=[0,1,2,4,8,16,35],DN=10,DMAST=5;
 const DALT={"clé":["clef"],"boîte":["boite"],"paraître":["paraitre"],"août":["aout"],"fraîche":["fraiche"],"fou":["fol"]};
 const dayNum=()=>Math.floor(Date.parse(today()+"T12:00:00")/864e5);
 function DS(){if(!S.dict||typeof S.dict!=="object")S.dict={};const d=S.dict;if(!d.bank)d.bank={};if(typeof d.txt!=="string")d.txt="";if(!d.cur)d.cur=0;return d}
+/* Lit deux formats : « Semaine N | titre » puis « mot (classe) {phrase}; mot… »,
+   ou bien une liste à puces (« - court → courte », « - clé, clef » où la virgule donne une autre orthographe acceptée) */
 function parseListes(txt){const W={};let cur=null;
+  const add=(w,c,p,a)=>{w=w.replace(/[’ʼ]/g,"'").trim();if(w&&cur)W[cur].w.push({w,c:c||"",p:p||"",a:(a||[]).map(x=>x.replace(/[’ʼ]/g,"'").trim()).filter(Boolean),wk:cur})};
   String(txt||"").split(/\r?\n/).forEach(l=>{l=l.trim();if(!l)return;
-    const m=l.match(/^semaine\s+(\d+)\s*[|:–-]?\s*(.*)$/i);if(m){cur=+m[1];W[cur]={t:m[2].trim(),w:[]};return}
-    if(!cur)return;
-    l.split(";").forEach(it=>{it=it.trim();if(!it)return;const mm=it.match(/^([^({]+?)\s*(?:\(([^)]*)\))?\s*(?:\{([^}]*)\})?\s*$/);if(!mm)return;
-      const w=mm[1].trim();if(w)W[cur].w.push({w,c:(mm[2]||"").trim(),p:(mm[3]||"").trim(),wk:cur})})});
+    const m=l.match(/^(?:section\s+\d+\s*[—–:-]\s*)?semaine\s+(\d+)\s*[|:—–-]?\s*(.*)$/i);if(m){cur=+m[1];W[cur]={t:m[2].trim(),w:[]};return}
+    if(/^section\s+\d+\s*$/i.test(l)||/^liste des mots/i.test(l)||!cur)return;
+    if(/^[-•*]\s*/.test(l)){l.replace(/^[-•*]\s*/,"").split(/\s*→\s*/).forEach(f=>{const v=f.split(/\s*,\s*/);add(v[0],"","",v.slice(1))});return}
+    if(!W[cur].w.length&&!W[cur].t&&!/[;({]/.test(l)){W[cur].t=l;return}
+    l.split(";").forEach(it=>{it=it.trim();if(!it)return;const mm=it.match(/^([^({]+?)\s*(?:\(([^)]*)\))?\s*(?:\{([^}]*)\})?\s*$/);if(!mm)return;add(mm[1],(mm[2]||"").trim(),(mm[3]||"").trim())})});
   Object.keys(W).forEach(k=>{if(!W[k].w.length)delete W[k]});return W}
 let DLC={txt:null,W:{},by:{}};
 function dLists(){const t=DS().txt||LISTE_DEF;if(DLC.txt!==t){const W=parseListes(t),by={};Object.keys(W).map(Number).sort((a,b)=>a-b).forEach(k=>W[k].w.forEach(e=>{if(!by[e.w])by[e.w]=e}));DLC={txt:t,W,by}}return DLC}
@@ -2308,7 +2312,7 @@ const sayClass=c=>c.split(/\s+/).map(t=>CLS[t]||t).join(" ").replace("verbe","ve
 const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
 function blankIn(p,w){const re=new RegExp("(^|[^\\p{L}'])("+reEsc(w)+")(?![\\p{L}])","iu");return re.test(p)?esc(p).replace(new RegExp("(^|[^\\p{L}'])("+reEsc(esc(w))+")(?![\\p{L}])","iu"),"$1<span class=\"blank\"></span>"):""}
 const dNorm=s=>String(s||"").normalize("NFC").trim().toLowerCase().replace(/[’`ʼ]/g,"'").replace(/\s+/g," ").replace(/\s*-\s*/g,"-");
-const dOk=(t,w)=>dNorm(t)===dNorm(w)||(DALT[w]||[]).some(a=>dNorm(t)===dNorm(a));
+const dOk=(t,w)=>dNorm(t)===dNorm(w)||[...(DALT[w]||[]),...(dInfo(w).a||[])].some(a=>dNorm(t)===dNorm(a));
 /* Alignement lettre à lettre (plus longue sous-suite commune) pour montrer où est l'erreur */
 function dDiff(a,b){a=[...dNorm(a)];b=[...b];const n=a.length,m=b.length,T=Array.from({length:n+1},()=>new Array(m+1).fill(0));
   for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)T[i][j]=a[i]===b[j].toLowerCase()?T[i+1][j+1]+1:Math.max(T[i+1][j],T[i][j+1]);
@@ -2412,9 +2416,12 @@ function dParentHTML(){const d=DS(),L=dLists(),ws=dWeeks(),cur=dCur();
   ${hard.length?`<p><small><b>Mots les plus difficiles :</b></small></p><div class="redo">${hard.map(([w,x])=>`<span class="rv" title="${x.miss} erreur(s)">${esc(w)} <small>×${x.miss}</small></span>`).join("")}</div>`:""}
   <details><summary>Modifier les listes de mots</summary>${dListBox(false)}</details>
   <div class="confirm" id="p-dreset-zone"><button class="btn ghost" id="p-dreset">Recommencer les révisions de dictée</button></div>`}
-function dListBox(open){return`<textarea id="p-dtxt" rows="${open?8:10}" placeholder="Semaine 2 | Mots avec un accent&#10;âge (n. m.); année (n. f.); bâton (n. m.)">${esc(DS().txt||LISTE_DEF)}</textarea><button class="btn ghost" id="p-dsave">Enregistrer les listes</button><span id="p-dmsg"></span>`}
+function dListBox(open){return`${open?`<button class="btn" id="p-dpaste">Coller les listes</button><p><small>Copiez d'abord le fichier de listes (dans votre projet Claude), puis appuyez ici.</small></p>`:`<button class="btn ghost" id="p-dpaste">Coller les listes</button>`}<textarea id="p-dtxt" rows="${open?8:10}" placeholder="Semaine 2 | Mots avec un accent&#10;âge (n. m.); année (n. f.); bâton (n. m.)">${esc(DS().txt||LISTE_DEF)}</textarea><button class="btn ghost" id="p-dsave">Enregistrer les listes</button><span id="p-dmsg"></span>`}
 function dParentBind(){const d=DS();
   const sel=$("#p-dcur");if(sel)sel.onchange=()=>{d.cur=+sel.value;d.curSet=1;dSync();renderParent()};
+  const pb=$("#p-dpaste");if(pb)pb.onclick=async()=>{let t="";try{t=await navigator.clipboard.readText()}catch(e){}
+    if(t&&Object.keys(parseListes(t)).length){$("#p-dtxt").value=t;$("#p-dsave").click()}
+    else{const ta=$("#p-dtxt");const det=ta.closest("details");if(det)det.open=true;ta.value="";ta.focus();$("#p-dmsg").textContent=t?" Ce texte ne ressemble pas à une liste de mots.":" Appuyez longuement dans la zone ci-dessus, choisissez « Coller », puis « Enregistrer les listes »."}};
   const sv=$("#p-dsave");if(sv)sv.onclick=()=>{const t=$("#p-dtxt").value,W=parseListes(t),n=Object.values(W).reduce((a,x)=>a+x.w.length,0);
     if(!n){$("#p-dmsg").textContent=" Aucun mot trouvé : vérifiez le format.";return}d.txt=t.trim()===LISTE_DEF.trim()?"":t;dLists();dSync();$("#p-dmsg").textContent=` ${Object.keys(W).length} semaines, ${n} mots enregistrés ✓`;setTimeout(renderParent,1200)};
   const rs=$("#p-dreset");if(rs)rs.onclick=()=>{$("#p-dreset-zone").innerHTML=`<span>Effacer l'historique de la dictée? Les listes sont conservées.</span><button class="btn" id="p-dyes" style="background:var(--bad)">Oui, recommencer</button><button class="btn ghost" id="p-dno">Annuler</button>`;
@@ -2438,7 +2445,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261025-001424";
+const APP_VER="20261025-002820";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
