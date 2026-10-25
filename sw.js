@@ -1,0 +1,7 @@
+/* Hors ligne : on essaie toujours le réseau d'abord (pour recevoir les mises à jour), sinon la copie gardée. */
+const C="archipel-v1",FILES=["./","index.html","musique.mp3","manifest.webmanifest","icon-192.png","icon-512.png","apple-touch-icon.png"];
+self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(FILES)));self.skipWaiting()});
+self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
+self.addEventListener("fetch",e=>{const r=e.request;if(r.method!=="GET")return;
+  if(r.url.endsWith(".mp3")||r.headers.has("range")){e.respondWith(caches.match(r.url.split("?")[0],{ignoreSearch:true}).then(m=>m||fetch(r)));return}
+  e.respondWith(fetch(r).then(res=>{if(res.ok&&new URL(r.url).origin===location.origin){const cp=res.clone();caches.open(C).then(c=>c.put(r,cp))}return res}).catch(()=>caches.match(r,{ignoreSearch:true}).then(m=>m||caches.match("index.html"))))});
