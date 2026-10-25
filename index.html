@@ -485,6 +485,8 @@ let S=load();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function IS(id){return S.isl[id]||(S.isl[id]={level:1,stars:0,played:0,r:0,t:0})}
 
+/* Version affichée dans l'espace parent (ex. 20261025-165714 → 25 octobre 2026, 16 h 57) */
+function verTxt(v){const m=String(v).match(/^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})/);if(!m)return esc(v);return new Date(+m[1],+m[2]-1,+m[3]).toLocaleDateString("fr-CA",{day:"numeric",month:"long",year:"numeric"})+`, ${+m[4]} h ${m[5]}`}
 /* ---------- Export / import de la progression ---------- */
 function exportCode(){const o=Object.assign({},S);if(S.dict&&!S.dict.txt&&LISTE_DEF)o.dict=Object.assign({},S.dict,{txt:LISTE_DEF});const j=JSON.stringify(o);return "ARCHIPEL1:"+btoa(unescape(encodeURIComponent(j)))}
 function importCode(t){try{t=String(t||"").replace(/\s+/g,"");if(!t.startsWith("ARCHIPEL1:"))return null;const d=JSON.parse(decodeURIComponent(escape(atob(t.slice(10)))));return d&&d.v===1&&typeof d.isl==="object"?d:null}catch(e){return null}}
@@ -1660,6 +1662,7 @@ function renderParent(){
   <div class="namerow"><input id="p-comp" maxlength="16" value="${esc(S.comp.name)}" placeholder="Nom du compagnon" aria-label="Nom du compagnon"><button class="btn ghost" id="p-comp-save">Renommer le compagnon</button></div>
   ${S.comp.type?`<div class="namerow"><select id="p-ctype" aria-label="Animal du compagnon">${Object.entries(ANIMAUX).map(([k,a])=>`<option value="${k}" ${S.comp.type===k?"selected":""}>${a.nom}</option>`).join("")}</select><button class="btn ghost" id="p-ctype-save">Changer d'animal</button></div>`:""}
   <p><small>L'espace parent est protégé par un mot de passe. Pour le changer, demandez-le à Claude.</small></p>
+  <h3>Version du jeu</h3>${typeof APP_VER!=="undefined"?`<p><small>Version installée : <b>${verTxt(APP_VER)}</b></small></p><div class="confirm"><button class="btn ghost" id="p-upd">Vérifier les mises à jour</button><span id="p-updmsg" aria-live="polite"></span></div>`:`<p><small>Version Claude : elle est toujours à jour automatiquement.</small></p>`}
   ${dParentHTML()}
   <h3>Sauvegarde de la progression</h3><p><small>Pour passer la progression d'un appareil ou d'une adresse à l'autre : « Exporter » sur l'ancien, puis « Importer » sur le nouveau.</small></p>
   <div class="confirm"><button class="btn ghost" id="p-exp">Exporter la progression</button><button class="btn ghost" id="p-imp">Importer une progression</button></div><div id="p-xzone" class="xzone"></div>
@@ -1667,6 +1670,11 @@ function renderParent(){
   <p><small>« Effacer les progrès » garde le prénom, le compagnon et les cadeaux à remettre. « Tout effacer » remet le jeu à neuf : prénom, compagnon, objets, cadeaux, temps d'étude et statistiques. Le mot de passe et les réglages de voix sont conservés.</small></p></div>`;
   $("#p-retour").onclick=()=>{PARENT_OK=false;renderCarte();go("carte")};G=null;
   dParentBind();
+  const pu=$("#p-upd");if(pu)pu.onclick=async()=>{const m=$("#p-updmsg");m.textContent=" Vérification…";
+    try{const v=(await (await fetch("version.txt?t="+Date.now(),{cache:"no-store"})).text()).trim();
+      if(!v)throw 0;if(v===APP_VER){m.innerHTML=" <b style=\"color:var(--good)\">Le jeu est à jour ✓</b>"}
+      else{m.innerHTML=` Nouvelle version : <b>${verTxt(v)}</b> `;const b=document.createElement("button");b.className="btn";b.textContent="Mettre à jour maintenant";b.onclick=async()=>{save();try{const r=await navigator.serviceWorker.getRegistration();if(r)await r.update()}catch(e){}location.reload()};m.appendChild(b)}}
+    catch(e){m.textContent=" Impossible de vérifier : la tablette semble hors ligne."}};
   $("#p-exp").onclick=()=>{const code=exportCode(),z=$("#p-xzone");
     z.innerHTML=`<p><small>Code de sauvegarde de ${esc(S.name||"l'enfant")} (${new Date().toLocaleDateString("fr-CA")}). Copiez-le ou téléchargez le fichier, puis importez-le sur l'autre appareil.</small></p><textarea id="p-xcode" readonly rows="4"></textarea><div class="confirm"><button class="btn" id="p-xcopy">Copier le code</button><button class="btn ghost" id="p-xdl">Télécharger le fichier</button></div>`;
     $("#p-xcode").value=code;
@@ -2451,7 +2459,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261025-165714";
+const APP_VER="20261025-171037";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
