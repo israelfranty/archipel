@@ -427,6 +427,7 @@ b.en{color:var(--sea)}
 .qt{font-weight:700;flex:1;min-width:0}.qbtn small{color:var(--muted)}
 .q-none{margin:0;color:var(--muted)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.xzone{display:flex;flex-direction:column;gap:8px}.xzone:empty{display:none}.xzone textarea{width:100%;font:12px ui-monospace,monospace;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);padding:8px;word-break:break-all}
 .seg{display:flex;gap:0;border:2px solid var(--line);border-radius:999px;padding:3px;align-self:flex-start;background:var(--surface)}
 .seg button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font-family:"Andika","Atkinson Hyperlegible",sans-serif;font-weight:700;color:var(--muted)}
 .seg button.on{background:var(--i6);color:var(--on-i)}
@@ -470,6 +471,10 @@ function load(){let r=null;try{r=JSON.parse(localStorage.getItem(KEY))}catch(e){
 let S=load();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function IS(id){return S.isl[id]||(S.isl[id]={level:1,stars:0,played:0,r:0,t:0})}
+
+/* ---------- Export / import de la progression ---------- */
+function exportCode(){const j=JSON.stringify(S);return "ARCHIPEL1:"+btoa(unescape(encodeURIComponent(j)))}
+function importCode(t){try{t=String(t||"").replace(/\s+/g,"");if(!t.startsWith("ARCHIPEL1:"))return null;const d=JSON.parse(decodeURIComponent(escape(atob(t.slice(10)))));return d&&d.v===1&&typeof d.isl==="object"?d:null}catch(e){return null}}
 
 /* ---------- Son ---------- */
 let AC=null;
@@ -1634,9 +1639,25 @@ function renderParent(){
   <div class="namerow"><input id="p-comp" maxlength="16" value="${esc(S.comp.name)}" placeholder="Nom du compagnon" aria-label="Nom du compagnon"><button class="btn ghost" id="p-comp-save">Renommer le compagnon</button></div>
   ${S.comp.type?`<div class="namerow"><select id="p-ctype" aria-label="Animal du compagnon">${Object.entries(ANIMAUX).map(([k,a])=>`<option value="${k}" ${S.comp.type===k?"selected":""}>${a.nom}</option>`).join("")}</select><button class="btn ghost" id="p-ctype-save">Changer d'animal</button></div>`:""}
   <p><small>L'espace parent est protégé par un mot de passe. Pour le changer, demandez-le à Claude.</small></p>
+  <h3>Sauvegarde de la progression</h3><p><small>Pour passer la progression d'un appareil ou d'une adresse à l'autre : « Exporter » sur l'ancien, puis « Importer » sur le nouveau.</small></p>
+  <div class="confirm"><button class="btn ghost" id="p-exp">Exporter la progression</button><button class="btn ghost" id="p-imp">Importer une progression</button></div><div id="p-xzone" class="xzone"></div>
   <h3>Effacer</h3><div class="confirm" id="p-reset-zone"><button class="btn ghost" id="p-reset">Effacer les progrès seulement</button><button class="btn ghost" id="p-wipe" style="border-color:var(--bad);color:var(--bad)">Tout effacer et recommencer</button></div>
   <p><small>« Effacer les progrès » garde le prénom, le compagnon et les cadeaux à remettre. « Tout effacer » remet le jeu à neuf : prénom, compagnon, objets, cadeaux, temps d'étude et statistiques. Le mot de passe et les réglages de voix sont conservés.</small></p></div>`;
   $("#p-retour").onclick=()=>{PARENT_OK=false;renderCarte();go("carte")};G=null;
+  $("#p-exp").onclick=()=>{const code=exportCode(),z=$("#p-xzone");
+    z.innerHTML=`<p><small>Code de sauvegarde de ${esc(S.name||"l'enfant")} (${new Date().toLocaleDateString("fr-CA")}). Copiez-le ou téléchargez le fichier, puis importez-le sur l'autre appareil.</small></p><textarea id="p-xcode" readonly rows="4"></textarea><div class="confirm"><button class="btn" id="p-xcopy">Copier le code</button><button class="btn ghost" id="p-xdl">Télécharger le fichier</button></div>`;
+    $("#p-xcode").value=code;
+    $("#p-xcopy").onclick=async()=>{const t=$("#p-xcode");let ok=false;try{await navigator.clipboard.writeText(code);ok=true}catch(e){try{t.focus();t.select();ok=document.execCommand("copy")}catch(x){}}$("#p-xcopy").textContent=ok?"Code copié ✓":"Sélectionnez le code et copiez-le"};
+    $("#p-xdl").onclick=()=>{try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([code],{type:"text/plain"}));a.download=`archipel-${(S.name||"progression").replace(/[^\w-]+/g,"")}-${new Date().toISOString().slice(0,10)}.txt`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);$("#p-xdl").textContent="Fichier téléchargé ✓"}catch(e){$("#p-xdl").textContent="Téléchargement impossible : copiez le code"}}};
+  $("#p-imp").onclick=()=>{const z=$("#p-xzone");
+    z.innerHTML=`<p><small>Collez le code de sauvegarde ou choisissez le fichier exporté.</small></p><textarea id="p-icode" rows="4" placeholder="ARCHIPEL1:…"></textarea><div class="confirm"><label class="btn ghost">Choisir le fichier<input type="file" id="p-ifile" accept=".txt,text/plain" hidden></label><button class="btn" id="p-igo">Vérifier le code</button></div><p id="p-imsg"></p>`;
+    $("#p-ifile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$("#p-icode").value=String(r.result).trim();$("#p-igo").click()};r.readAsText(f)};
+    $("#p-igo").onclick=()=>{const d=importCode($("#p-icode").value),m=$("#p-imsg");
+      if(!d){m.innerHTML=`<b style="color:var(--bad)">Ce code n'est pas valide.</b> Vérifiez qu'il est complet (il commence par ARCHIPEL1:).`;return}
+      const st=Object.values(d.isl||{}).reduce((a,x)=>a+(x.stars||0),0);
+      m.innerHTML=`<span>Progression trouvée : <b>${esc(d.name||"sans prénom")}</b>, ${st} étoile${st>1?"s":""}, ${d.totalOk||0} bonnes réponses. Elle <b>remplacera</b> la progression actuelle de cet appareil.</span> <button class="btn" id="p-iyes" style="background:var(--bad)">Oui, importer</button> <button class="btn ghost" id="p-ino">Annuler</button>`;
+      $("#p-ino").onclick=renderParent;
+      $("#p-iyes").onclick=()=>{S=Object.assign(fresh(),d,{v:1});if(S.rateV!==2){S.rate=.81;S.rateV=2}PEND.splice(0);rollDay();save();renderBar();syncVoix();renderParent();const n=$("#p-xzone");if(n)n.innerHTML=`<p><b style="color:var(--good)">Progression importée ✓</b></p>`}}};
   $("#p-strict").onchange=e=>{S.strict=e.target.checked;save()};
   $("#p-wsave").onclick=()=>{S.week={fr:parseWeek($("#p-wfr").value,false),en:parseWeek($("#p-wen").value,true),updated:Date.now()};save();renderParent()};
   $("#p-board").onchange=e=>{S.boardOn=e.target.checked;save()};
