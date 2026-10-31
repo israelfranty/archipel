@@ -527,6 +527,27 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .wallq input{width:110px;font-family:var(--f-display);font-size:1.8rem;text-align:center;border:3px solid var(--c);border-radius:14px;padding:4px 8px;background:var(--bg);color:var(--ink)}
 .tilt{animation:tilt1 .7s ease}@keyframes tilt1{25%{transform:rotate(-3deg)}60%{transform:rotate(2deg)}100%{transform:none}}
 @media (max-width:480px){.b10cols{gap:6px}.b10col{padding:6px}.stepb{width:40px;height:40px}.bp{width:36px;height:36px}}
+/* Espace parent : tableau de bord + onglets + cartes */
+.pdash{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.pdh{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}.pdh h2{margin:0;font-family:var(--f-display);font-size:1.4rem}.pdh span{color:var(--muted);font-weight:700}
+.pdgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.pdi{background:var(--bg);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}.pdi small{color:var(--muted);font-weight:700}.pdi b{font-family:var(--f-display);font-size:1.15rem}
+.pdi .meter{height:8px;border-radius:4px;background:var(--line);overflow:hidden}.pdi .meter i{display:block;height:100%;background:var(--sun)}.pdi.ok .meter i{background:var(--good)}
+.pdalerts{display:flex;flex-wrap:wrap;gap:8px}.pdalerts:empty{display:none}
+.pda{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:8px 14px;font-weight:600;text-align:left}.pda.warn{border-color:var(--sun)}.pda.gift{border-color:var(--i5)}
+.ptabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0}
+.ptab-b{display:flex;flex-direction:column;align-items:center;gap:2px;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:8px 4px;font-weight:700;font-size:.85rem;line-height:1.15;text-align:center}
+.ptab-b .emo{font-size:1.3rem}.ptab-b.on{border-color:var(--sea);background:var(--sea);color:var(--sea-ink)}
+.ptab{display:flex;flex-direction:column;gap:14px}
+.pcard{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.pcard h3{margin:0;font-family:var(--f-display);font-size:1.2rem}.pcard .pdesc{margin:0;color:var(--muted);font-size:.92rem}
+.pcard textarea{width:100%;min-height:110px;border:2px solid var(--line);border-radius:12px;background:var(--bg);padding:10px;font:inherit;color:var(--ink)}
+.pcard>.btn{align-self:flex-start}.pcard.danger{border-color:var(--bad)}.pcard.danger h3{color:var(--bad)}
+.pfield{display:flex;flex-direction:column;gap:6px;font-weight:700}.pfield select,.lvlgrid select{border:2px solid var(--line);border-radius:10px;padding:8px;background:var(--bg);max-width:100%}
+.plist{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
+.lvlgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.lvlgrid>div{display:flex;flex-direction:column;gap:6px}.lvlh{font-family:var(--f-display)}
+.lvlgrid label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.92rem}
+@media (max-width:560px){.ptab-b span:last-child{font-size:.7rem}.ptab-b{padding:6px 2px}}
 .seg{display:flex;gap:0;border:2px solid var(--line);border-radius:999px;padding:3px;align-self:flex-start;background:var(--surface)}
 .seg button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font-family:"Andika","Atkinson Hyperlegible",sans-serif;font-weight:700;color:var(--muted)}
 .seg button.on{background:var(--i6);color:var(--on-i)}
@@ -1712,65 +1733,97 @@ function finishSprint(){
 /* ---------- Espace parent ---------- */
 const PW_H=407487093,pwH=t=>{let h=5381;for(const c of t)h=((h*33)^c.charCodeAt(0))>>>0;return h};
 let PARENT_OK=false;
+/* ======================================================================
+   ESPACE PARENT
+   Principe : un tableau de bord « Aujourd'hui » (seulement ce qui demande
+   l'attention), puis 5 onglets qui répondent chacun à UNE question :
+   - Suivi         : Comment progresse-t-elle?       (consultation seulement)
+   - Matière       : Qu'apprend-elle cette semaine?  (contenu scolaire)
+   - Réglages      : Comment le jeu se comporte-t-il?
+   - Récompenses   : Qu'est-ce qui la motive?
+   - Données       : Comment gérer et protéger?      (actions irréversibles tout en bas, en rouge)
+   Tout ajout futur : une carte (.pcard) dans l'onglet qui répond à sa question.
+   ====================================================================== */
+const PTABS=[["suivi","📊","Suivi"],["matiere","📚","Matière scolaire"],["reglages","⚙️","Réglages"],["recompenses","🎁","Récompenses"],["donnees","🛠️","Données"]];
+const pcard=(title,desc,body,cls)=>`<section class="pcard${cls?" "+cls:""}"><h3>${title}</h3>${desc?`<p class="pdesc">${desc}</p>`:""}${body}</section>`;
 function renderParent(){
   const el=$("#ecran-parent");
   if(!PARENT_OK){el.innerHTML=`<div class="gamebar"><button class="back" id="p-retour">← Carte</button><span class="gtitle">Espace parent</span></div><form class="panel pinbox" id="p-pin"><h2>Mot de passe parent</h2><p>Entrez le mot de passe pour ouvrir l'espace parent.</p><input id="p-pin-in" type="password" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Mot de passe parent"><p id="p-pin-err" hidden>Ce n'est pas le bon mot de passe. Attention aux majuscules.</p><button class="btn" type="submit">Ouvrir</button></form>`;
     $("#p-retour").onclick=()=>{renderCarte();go("carte")};
     $("#p-pin").addEventListener("submit",e=>{e.preventDefault();if(pwH($("#p-pin-in").value)===PW_H){PARENT_OK=true;renderParent()}else{$("#p-pin-err").hidden=false;$("#p-pin-in").value=""}});
     go("parent");$("#p-pin-in").focus({preventScroll:true});return}
-  const rows=Object.keys(SUBJ).map(sj=>`<tr><th colspan="7">${SUBJ[sj].nom}</th></tr>`+zones(sj).map(i=>{const s=IS(i.id),p=s.t?Math.round(100*s.r/s.t):null;return`<tr><td><span class="dot" style="background:var(${i.c})"></span>${i.nom}</td><td><select id="niv-${i.id}" data-isle="${i.id}" aria-label="Niveau ${i.nom}">${[1,2,3].map(n=>`<option ${n===s.level?"selected":""}>${n}</option>`).join("")}</select></td><td>${s.played}</td><td>${s.t}</td><td>${p===null?"—":p+" %"}</td><td>${S.rec[i.id]?fmtDur(S.rec[i.id]):"—"}</td><td>${stars(s.stars)}</td></tr>`}).join("")).join("");
+  const tab=PTABS.some(t=>t[0]===S.ptab)?S.ptab:"suivi";
+  /* --- données calculées --- */
+  const rows=Object.keys(SUBJ).map(sj=>`<tr><th colspan="6">${SUBJ[sj].nom}</th></tr>`+zones(sj).map(i=>{const s=IS(i.id),p=s.t?Math.round(100*s.r/s.t):null;return`<tr><td><span class="dot" style="background:var(${i.c})"></span>${i.nom}</td><td>${s.level}</td><td>${s.t}</td><td>${p===null?"—":p+" %"}</td><td>${S.rec[i.id]?fmtDur(S.rec[i.id]):"—"}</td><td>${stars(s.stars)}</td></tr>`}).join("")).join("");
   const nl=Object.entries(S.notions).filter(([,v])=>v.t>0).map(([k,v])=>{const[isl,notion]=k.split("|");const a=S.times[k]||[];let tm="";if(a.length){tm=` · ${secs(median(a.slice(-5)))} s par bonne réponse`;if(a.length>=6){const d=median(a.slice(0,3))-median(a.slice(-3));if(d>=1000)tm+=` (${secs(d)} s plus vite qu'au début)`;else if(d<=-1000)tm+=` (${secs(-d)} s plus lent qu'au début)`}}return{isl,notion,tm,...v,p:v.r/v.t}}).sort((a,b)=>a.p-b.p||b.t-a.t);
   const col=p=>p>=.8?"var(--good)":p>=.6?"var(--sun)":"var(--bad)";
-  el.innerHTML=`<div class="gamebar"><button class="back" id="p-retour">← Carte</button><span class="gtitle">Espace parent</span></div>
-  <div class="panel"><h2>Progrès par île</h2><p>Le niveau s'ajuste seul : il monte à 7 bonnes réponses sur 8 et descend à 3 ou moins. Vous pouvez aussi le changer ici. Le record de temps compte seulement les parties avec au moins 6 bonnes réponses sur 8, pour ne pas récompenser la vitesse au détriment de la justesse.</p>
-  <div class="tablewrap"><table><thead><tr><th>Île</th><th>Niveau</th><th>Parties</th><th>Questions</th><th>Réussite</th><th>Record de temps</th><th>Étoiles</th></tr></thead><tbody>${rows}</tbody></table></div></div>
-  <div class="panel"><h3>Notions à surveiller</h3><p>Les notions les plus difficiles apparaissent en premier. Une notion se lit bien après 5 questions ou plus.</p>
-  <div class="nlist">${nl.length?nl.map(n=>`<div class="nrow"><div><b>${n.notion}</b><br><small>${byId(n.isl).nom} · ${n.r}/${n.t} réussies${n.tm}</small></div><div class="meter"><i style="width:${Math.round(n.p*100)}%;background:${col(n.p)}"></i></div><div class="pct">${Math.round(n.p*100)} %</div></div>`).join(""):`<p>Aucune question répondue pour l'instant. Les résultats apparaîtront ici après la première partie.</p>`}</div></div>
-  <div class="panel"><h2>Cadeaux en vrai</h2><p>Aux grandes étapes (niveau supérieur, 3 étoiles sur une île, notion maîtrisée, record important, chaque 50 bonnes réponses), le compagnon offre une boîte surprise, au plus une par mission. La plupart du temps, elle contient un objet pour le compagnon. Une fois toutes les 2 semaines, elle contient un cadeau de cette liste, que vous lui remettez en vrai.</p>
-  ${S.gifts.pending.length?`<h3>À remettre</h3><div class="gifts-list">${S.gifts.pending.map((g,i)=>`<div class="g"><span><b>${esc(g.txt)}</b><br><small>Débloqué le ${new Date(g.t).toLocaleDateString("fr-CA",{day:"numeric",month:"long"})}</small></span><button class="btn ghost" data-given="${i}">Remis</button></div>`).join("")}</div>`:`<p><b>Aucun cadeau à remettre pour l'instant.</b>${S.gifts.given?` Déjà remis : ${S.gifts.given}.`:""}</p>`}
-  <label class="toggle" for="p-gon"><input type="checkbox" id="p-gon" ${S.gifts.on?"checked":""}><span><b>Activer les cadeaux en vrai</b><br><small>Désactivé, les boîtes contiennent seulement des objets pour le compagnon.</small></span></label>
-  <p><b>Fréquence : un cadeau en vrai toutes les 2 semaines.</b> <small>Il arrive à la première boîte surprise gagnée après ce délai; les autres boîtes contiennent des objets pour le compagnon. ${giftNext()>Date.now()?`Prochain cadeau possible à partir du <b>${new Date(giftNext()).toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"})}</b>.`:"Le prochain cadeau peut arriver dès la prochaine boîte surprise."}</small></p>
-  <label class="toggle" for="p-greveal"><input type="checkbox" id="p-greveal" ${S.gifts.reveal?"checked":""}><span><b>Lui dire quel cadeau elle a gagné</b><br><small>Décoché, le compagnon annonce « un cadeau surprise » et vous gardez le choix.</small></span></label>
-  <label for="p-glist"><b>Liste des cadeaux</b> <small>(un par ligne, tiré au hasard)</small></label>
-  <textarea id="p-glist">${esc(S.gifts.list.join("\n"))}</textarea>
-  <button class="btn ghost" id="p-gsave" style="align-self:flex-start">Enregistrer la liste</button>
-  <p><small>Conseil : privilégiez des moments partagés (une sortie, un jeu, choisir le dessert) plutôt que des achats. Le compagnon lui rappelle toujours que c'est le geste qui compte.</small></p></div>
-  <div class="panel"><h2>Atelier d'écriture</h2><p>Les caractères tracés sans modèle. « À l'envers » compte les fois où le jeu a reconnu le caractère retourné (par exemple un d au lieu d'un b).</p>
-  ${Object.keys(S.trace||{}).length?`<div class="items tglyphs">${Object.entries(S.trace).sort((a,b)=>b[1].rev-a[1].rev||a[0].localeCompare(b[0])).map(([c,t])=>`<span class="${t.rev?"warnc":""}">${c} · réussi ${t.ok}${t.rev?` · à l'envers ${t.rev}`:""}</span>`).join("")}</div>`:`<p><b>Aucun exercice d'écriture pour l'instant.</b></p>`}</div>
-  <div class="panel"><h2>Mots de la semaine en anglais</h2><p>Entrez la liste de mots d'anglais envoyée par l'école. Le jeu en fait des exercices dans la zone « My Words of the Week », dans les dictées au tableau et de temps en temps dans « Write the word ». En français, les mots de la semaine viennent automatiquement de la liste de la dictée du jour (semaine choisie dans « Dictée du jour »).</p>
-  <label for="p-wen"><b>Anglais</b> <small>(un mot par ligne; la traduction après « = » est facultative : apple = pomme)</small></label>
-  <textarea id="p-wen" placeholder="apple = pomme&#10;house = maison&#10;friend = ami">${esc(weekEN().map(x=>x.fr?`${x.w} = ${x.fr}`:x.w).join("\n"))}</textarea>
-  ${weekEN().length?`<div class="items">${weekEN().map(e=>{const x=S.wstats[e.w];return`<span>${esc(e.w)}${x?` · ${x.r}/${x.t}`:""}</span>`}).join("")}</div>`:""}
-  <button class="btn ghost" id="p-wsave" style="align-self:flex-start">Enregistrer la liste d'anglais</button>
-  <p><small>Les chiffres à côté de chaque mot indiquent ses réussites (réussi / essayé). Avec la traduction en anglais, le jeu peut aussi demander « Comment dit-on pomme en anglais? ». Pour une nouvelle semaine, remplacez simplement la liste. ${S.week.updated?`Dernière mise à jour : ${new Date(S.week.updated).toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"})}.`:""}</small></p></div>
-  <div class="panel"><h2>Temps d'étude</h2><p>Le temps compte seulement pendant les missions, la Course Éclair et les défis au tableau, application ouverte et sans pause. Chaque minute va à la matière en cours. Laisser la tablette ouverte sans jouer ne compte pas.</p>
-  <h3>Objectifs quotidiens</h3>
-  <div class="goals">${SUBJS.map(k=>`<label for="p-goal-${k}"><b>${LBL[k]}</b><select id="p-goal-${k}" data-goal="${k}">${[0,5,10,15,20,25,30,45].map(m=>`<option value="${m}" ${(S.goals[k]??0)===m?"selected":""}>${m?m+" minutes":"aucun objectif"}</option>`).join("")}</select></label>`).join("")}</div>
-  <p><small>Total actuel : ${SUBJS.reduce((t,k)=>t+(S.goals[k]||0),0)} minutes par jour.</small></p>
-  <h3>Remettre la journée à zéro</h3><p><small>Utile après vos tests, pour qu'ils ne comptent pas dans la journée d'Olivia.</small></p>
-  <div class="confirm" id="p-rday-zone"><button class="btn ghost" id="p-rtime">Remettre à zéro le temps d'aujourd'hui</button>${getSnap()?`<button class="btn ghost" id="p-rday" style="border-color:var(--bad);color:var(--bad)">Annuler tout ce qui s'est passé aujourd'hui</button>`:""}</div>
-  <p><small>« Temps » : remet à 0 les minutes d'étude et le nombre de mots de dictée d'aujourd'hui; les réponses et les progrès sont gardés. ${getSnap()?"« Tout annuler » : remet le jeu exactement comme il était ce matin avant la première activité (temps, réponses, niveaux, étoiles, dictée, cadeaux gagnés aujourd'hui). Les réglages que vous avez changés sont gardés.":"« Tout annuler » sera disponible à partir de demain (le jeu garde maintenant une copie de chaque début de journée)."}</small></p>
-  <h3>7 derniers jours</h3>
-  <div class="days">${(()=>{const all=[...S.hist,{d:S.day.d,sec:S.day.sec,subj:S.day.subj,goals:S.goals}],out=[];for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);const k=dt.toLocaleDateString("en-CA"),r=all.find(x=>x.d===k),sj=(r&&r.subj)||{},gs=(r&&r.goals)||S.goals,ok=r&&r.subj&&SUBJS.every(x=>(sj[x]||0)>=(gs[x]||0)*60);
-    out.push(`<div class="d"><span>${i===0?"Aujourd'hui":dt.toLocaleDateString("fr-CA",{weekday:"long",day:"numeric"})}</span><span class="dsub">${r&&r.subj?SUBJS.map(x=>`${LBL[x].slice(0,2)}. ${mins(sj[x]||0)}`).join(" · "):r?mins(r.sec)+" min":"—"}</span><b>${r?mins(r.sec):0} min${ok?" ✓":""}</b></div>`)}return out.join("")})()}</div></div>
-  <div class="panel"><h3>Vitesse</h3><p>Chaque question affiche une barre de temps. L'objectif est calculé à partir de ses propres réponses : 10 % plus rapide que son temps habituel sur cette notion. Il se resserre donc à mesure qu'elle progresse. Une bonne réponse sous l'objectif donne un « éclair ».</p>
-  ${Object.keys(SUBJ).map(sj=>{const r=SPR(sj);return`<p><b>Course Éclair ${SUBJ[sj].court} :</b> record de ${r.best} bonnes réponses en 60 s. ${r.hist.length?`Dernières parties : ${r.hist.slice(-8).map(h=>h.s).join(", ")}.`:"Aucune partie jouée pour l'instant."}</p>`}).join("")}
-  <label class="toggle" for="p-games"><input type="checkbox" id="p-games" ${S.gamesOn!==false?"checked":""}><span><b>La Bibliothèque de jeux</b><br><small>Décoché, la carte « La Bibliothèque de jeux » disparaît de l'accueil et les jeux ne sont plus accessibles. Les pièces, pierres et records sont gardés.</small></span></label>
-  <label class="toggle" for="p-board"><input type="checkbox" id="p-board" ${S.boardOn!==false?"checked":""}><span><b>Un défi au tableau dans chaque mission</b><br><small>La dernière question de chaque mission lui demande d'écrire ou de dessiner à la main, puis de vérifier avec la bonne réponse. Si elle n'a pas son tableau (dans la voiture, par exemple), elle peut la passer : une question ordinaire la remplace. La Mission tableau reste toujours disponible.</small></span></label>
-  <label class="toggle" for="p-strict"><input type="checkbox" id="p-strict" ${S.strict?"checked":""}><span><b>Compte à rebours strict</b><br><small>Quand le temps est écoulé, la question compte comme une erreur. À activer seulement quand elle réussit bien au mode normal : trop de pression peut la pousser à deviner au lieu de réfléchir.</small></span></label></div>
-  <div class="panel"><h3>Voix de lecture</h3><p>La voix lit chaque question, puis l'explication quand elle se trompe. Le chrono démarre seulement quand la lecture est terminée. Elle se désactive avec le bouton « Voix » en haut de l'écran.</p>
-  ${TTS?`<div class="voicebox"><select id="p-voice" aria-label="Voix de lecture"></select><select id="p-rate" aria-label="Vitesse de la voix">${[[0.72,"Lente"],[0.81,"Normale"],[0.95,"Rapide"]].map(([v,l])=>`<option value="${v}" ${S.rate===v?"selected":""}>${l}</option>`).join("")}</select><button class="btn ghost" id="p-test">Écouter un exemple</button></div><p><small id="p-vdiag" aria-live="polite"></small></p><p><small>Les voix viennent de l'appareil, donc leur qualité varie. Sur iPad, une voix plus naturelle se télécharge généralement dans Réglages › Accessibilité › Contenu énoncé › Voix › Français (Canada), par exemple Amélie (améliorée).</small></p>`:`<p>La lecture à voix haute n'est pas disponible dans ce navigateur.</p>`}</div>
-  <div class="panel"><h3>Réglages</h3><p>Les progrès sont enregistrés seulement dans ce navigateur, sur cet appareil.</p>
-  <div class="namerow"><input id="p-nom" maxlength="20" value="${esc(S.name)}" placeholder="Prénom de l'enfant" aria-label="Prénom de l'enfant"><button class="btn ghost" id="p-save">Enregistrer le prénom</button></div>
-  <div class="namerow"><input id="p-comp" maxlength="16" value="${esc(S.comp.name)}" placeholder="Nom du compagnon" aria-label="Nom du compagnon"><button class="btn ghost" id="p-comp-save">Renommer le compagnon</button></div>
-  ${S.comp.type?`<div class="namerow"><select id="p-ctype" aria-label="Animal du compagnon">${Object.entries(ANIMAUX).map(([k,a])=>`<option value="${k}" ${S.comp.type===k?"selected":""}>${a.nom}</option>`).join("")}</select><button class="btn ghost" id="p-ctype-save">Changer d'animal</button></div>`:""}
-  <p><small>L'espace parent est protégé par un mot de passe. Pour le changer, demandez-le à Claude.</small></p>
-  <h3>Version du jeu</h3>${typeof APP_VER!=="undefined"?`<p><small>Version installée : <b>${verTxt(APP_VER)}</b></small></p><div class="confirm"><button class="btn ghost" id="p-upd">Vérifier les mises à jour</button><span id="p-updmsg" aria-live="polite"></span></div>`:`<p><small>Version Claude : elle est toujours à jour automatiquement.</small></p>`}
-  ${dParentHTML()}
-  <h3>Sauvegarde de la progression</h3><p><small>Pour passer la progression d'un appareil ou d'une adresse à l'autre : « Exporter » sur l'ancien, puis « Importer » sur le nouveau.</small></p>
-  <div class="confirm"><button class="btn ghost" id="p-exp">Exporter la progression</button><button class="btn ghost" id="p-imp">Importer une progression</button></div><div id="p-xzone" class="xzone"></div>
-  <h3>Effacer</h3><div class="confirm" id="p-reset-zone"><button class="btn ghost" id="p-reset">Effacer les progrès seulement</button><button class="btn ghost" id="p-wipe" style="border-color:var(--bad);color:var(--bad)">Tout effacer et recommencer</button></div>
-  <p><small>« Effacer les progrès » garde le prénom, le compagnon et les cadeaux à remettre. « Tout effacer » remet le jeu à neuf : prénom, compagnon, objets, cadeaux, temps d'étude et statistiques. Le mot de passe et les réglages de voix sont conservés.</small></p></div>`;
+  const weak=nl.find(n=>n.t>=5&&n.p<.7);
+  const days=(()=>{const all=[...S.hist,{d:S.day.d,sec:S.day.sec,subj:S.day.subj,goals:S.goals}],out=[];for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);const k=dt.toLocaleDateString("en-CA"),r=all.find(x=>x.d===k),sj=(r&&r.subj)||{},gs=(r&&r.goals)||S.goals,ok=r&&r.subj&&SUBJS.every(x=>(sj[x]||0)>=(gs[x]||0)*60);
+    out.push(`<div class="d"><span>${i===0?"Aujourd'hui":dt.toLocaleDateString("fr-CA",{weekday:"long",day:"numeric"})}</span><span class="dsub">${r&&r.subj?SUBJS.map(x=>`${LBL[x].slice(0,2)}. ${mins(sj[x]||0)}`).join(" · "):r?mins(r.sec)+" min":"—"}</span><b>${r?mins(r.sec):0} min${ok?" ✓":""}</b></div>`)}return out.join("")})();
+  const g=GS(),b=S.games&&S.games.bat;
+  /* --- tableau de bord --- */
+  const dash=`<section class="pdash" aria-label="Aujourd'hui"><div class="pdh"><h2>Aujourd'hui</h2><span>${new Date().toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"})}</span></div>
+   <div class="pdgrid">${SUBJS.filter(k=>goalOf(k)>0).map(k=>{const s=subjSec(k),gl=goalOf(k),ok=s>=gl;return`<div class="pdi${ok?" ok":""}"><small>${LBL[k]}</small><b>${mins(s)} / ${gl/60} min${ok?" ✓":""}</b><span class="meter"><i style="width:${Math.min(100,s/gl*100)}%"></i></span></div>`}).join("")}</div>
+   <div class="pdalerts">${dWeeks().length?`<button class="pda" data-go="suivi">📝 <b>${dDue()}</b> mot${dDue()>1?"s":""} de dictée à réviser aujourd'hui</button>`:`<button class="pda warn" data-go="matiere">📝 Ajouter les listes de dictée</button>`}
+   ${S.gifts.pending.length?`<button class="pda gift" data-go="recompenses">🎁 <b>${S.gifts.pending.length}</b> cadeau${S.gifts.pending.length>1?"x":""} à remettre</button>`:""}
+   ${weak?`<button class="pda warn" data-go="suivi">⚠️ À surveiller : <b>${esc(weak.notion)}</b> (${Math.round(weak.p*100)} %)</button>`:""}
+   ${dWeeks().length&&!DS().curSet?`<button class="pda warn" data-go="matiere">📅 Confirmer la semaine de dictée</button>`:""}</div></section>`;
+  /* --- onglet Suivi --- */
+  const tSuivi=
+   pcard("Temps d'étude — 7 derniers jours","Le temps compte seulement pendant les activités, application ouverte et sans pause. Laisser la tablette ouverte sans jouer ne compte pas.",`<div class="days">${days}</div>`)+
+   pcard("Notions à surveiller","Les plus difficiles d'abord. Une notion se lit bien après 5 questions ou plus.",`<div class="nlist">${nl.length?nl.map(n=>`<div class="nrow"><div><b>${n.notion}</b><br><small>${byId(n.isl).nom} · ${n.r}/${n.t} réussies${n.tm}</small></div><div class="meter"><i style="width:${Math.round(n.p*100)}%;background:${col(n.p)}"></i></div><div class="pct">${Math.round(n.p*100)} %</div></div>`).join(""):`<p>Aucune question répondue pour l'instant.</p>`}</div>`)+
+   pcard("Progrès par île","Le niveau s'ajuste seul : il monte à 7 bonnes réponses sur 8 et descend à 3 ou moins (à changer au besoin dans Réglages). Le record de temps ne compte que les parties d'au moins 6 sur 8.",`<div class="tablewrap"><table><thead><tr><th>Île</th><th>Niveau</th><th>Questions</th><th>Réussite</th><th>Record</th><th>Étoiles</th></tr></thead><tbody>${rows}</tbody></table></div>`)+
+   pcard("Dictée du jour","Un mot revient après 1, 2, 4, 8, 16 puis 35 jours s'il est réussi; un mot raté revient le lendemain. Il est « maîtrisé » après 5 réussites espacées.",dStatsHTML())+
+   pcard("Écriture","Caractères tracés sans modèle. « À l'envers » : le jeu a reconnu le caractère retourné (un d au lieu d'un b, par exemple).",Object.keys(S.trace||{}).length?`<div class="items tglyphs">${Object.entries(S.trace).sort((a,b)=>b[1].rev-a[1].rev||a[0].localeCompare(b[0])).map(([c,t])=>`<span class="${t.rev?"warnc":""}">${c} · réussi ${t.ok}${t.rev?` · à l'envers ${t.rev}`:""}</span>`).join("")}</div>`:`<p>Aucun exercice d'écriture pour l'instant.</p>`)+
+   pcard("Vitesse et jeux","Records de la Course Éclair et de la Bibliothèque de jeux.",
+     `<ul class="plist">${Object.keys(SUBJ).map(sj=>{const r=SPR(sj);return`<li><b>Course Éclair ${SUBJ[sj].court} :</b> record de ${r.best} bonnes réponses en 60 s${r.hist.length?` (dernières : ${r.hist.slice(-6).map(h=>h.s).join(", ")})`:""}.</li>`}).join("")}
+     <li><b>Donjon des nombres :</b> ${Object.keys(g.donjon||{}).length?Object.entries(g.donjon).map(([k,v])=>`${(DTHEMES[k]||{nom:k}).nom} : étage ${v.lvl}, record ${v.best||0}/15`).join(" · "):"pas encore joué"}. 🪙 ${g.coins||0} · 💎 ${g.gems||0}</li>
+     <li><b>Les bâtisseurs :</b> ${b?`${b.village.length} bâtiment${b.village.length>1?"s":""} · construire le nombre niveau ${b.lvl.nombre} · mur niveau ${b.lvl.mur}`:"pas encore joué"}.</li></ul>`);
+  /* --- onglet Matière scolaire --- */
+  const tMatiere=dContentHTML()+
+   pcard("Mots d'anglais de la semaine","La liste d'anglais de l'école : exercices dans « My Words of the Week », dictées au tableau et « Write the word ». Un mot par ligne; la traduction après « = » est facultative.",
+     `<textarea id="p-wen" placeholder="apple = pomme&#10;house = maison&#10;friend = ami">${esc(weekEN().map(x=>x.fr?`${x.w} = ${x.fr}`:x.w).join("\n"))}</textarea>
+     ${weekEN().length?`<div class="items">${weekEN().map(e=>{const x=S.wstats[e.w];return`<span>${esc(e.w)}${x?` · ${x.r}/${x.t}`:""}</span>`}).join("")}</div>`:""}
+     <button class="btn ghost" id="p-wsave">Enregistrer la liste d'anglais</button>${S.week.updated?`<p class="pdesc">Dernière mise à jour : ${new Date(S.week.updated).toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"})}.</p>`:""}`);
+  /* --- onglet Réglages --- */
+  const tReglages=
+   pcard("Objectifs quotidiens","Minutes d'étude visées chaque jour, par matière.",`<div class="goals">${SUBJS.map(k=>`<label for="p-goal-${k}"><b>${LBL[k]}</b><select id="p-goal-${k}" data-goal="${k}">${[0,5,10,15,20,25,30,45].map(m=>`<option value="${m}" ${(S.goals[k]??0)===m?"selected":""}>${m?m+" minutes":"aucun objectif"}</option>`).join("")}</select></label>`).join("")}</div><p class="pdesc">Total : ${SUBJS.reduce((t,k)=>t+(S.goals[k]||0),0)} minutes par jour.</p>`)+
+   pcard("Missions","Chaque question a un objectif de temps : 10 % plus rapide que son temps habituel sur la notion. Une bonne réponse sous l'objectif donne un « éclair ».",
+     `<label class="toggle" for="p-board"><input type="checkbox" id="p-board" ${S.boardOn!==false?"checked":""}><span><b>Un défi au tableau dans chaque mission</b><br><small>La dernière question se fait à la main. Elle peut la passer si elle n'a pas son tableau.</small></span></label>
+     <label class="toggle" for="p-strict"><input type="checkbox" id="p-strict" ${S.strict?"checked":""}><span><b>Compte à rebours strict</b><br><small>Le temps écoulé compte comme une erreur. Seulement quand elle réussit bien en mode normal.</small></span></label>`)+
+   pcard("Niveaux des îles","Le niveau s'ajuste seul. Changez-le ici seulement pour la faire avancer ou reculer volontairement.",`<div class="lvlgrid">${Object.keys(SUBJ).map(sj=>`<div><b class="lvlh">${SUBJ[sj].court}</b>${zones(sj).map(i=>`<label><span>${i.nom}</span><select data-isle="${i.id}" aria-label="Niveau ${i.nom}">${[1,2,3].map(n=>`<option ${n===IS(i.id).level?"selected":""}>${n}</option>`).join("")}</select></label>`).join("")}</div>`).join("")}</div>`)+
+   pcard("Bibliothèque de jeux","Les jeux d'aventure (Donjon des nombres, Bâtisseurs…).",`<label class="toggle" for="p-games"><input type="checkbox" id="p-games" ${S.gamesOn!==false?"checked":""}><span><b>Accès à la Bibliothèque de jeux</b><br><small>Décoché, la carte disparaît de l'accueil. Pièces, pierres et records sont gardés.</small></span></label>`)+
+   pcard("Voix de lecture","La voix lit les questions et les explications. Dans la dictée, elle parle toujours.",TTS?`<div class="voicebox"><select id="p-voice" aria-label="Voix de lecture"></select><select id="p-rate" aria-label="Vitesse de la voix">${[[0.72,"Lente"],[0.81,"Normale"],[0.95,"Rapide"]].map(([v,l])=>`<option value="${v}" ${S.rate===v?"selected":""}>${l}</option>`).join("")}</select><button class="btn ghost" id="p-test">Écouter un exemple</button></div><p class="pdesc" id="p-vdiag" aria-live="polite"></p><p class="pdesc">Sur iPad, une voix plus naturelle se télécharge dans Réglages › Accessibilité › Contenu énoncé › Voix › Français (Canada), par exemple Amélie (améliorée).</p>`:`<p>La lecture à voix haute n'est pas disponible dans ce navigateur.</p>`)+
+   pcard("Prénom et compagnon","",`<div class="namerow"><input id="p-nom" maxlength="20" value="${esc(S.name)}" placeholder="Prénom de l'enfant" aria-label="Prénom de l'enfant"><button class="btn ghost" id="p-save">Enregistrer le prénom</button></div>
+     <div class="namerow"><input id="p-comp" maxlength="16" value="${esc(S.comp.name)}" placeholder="Nom du compagnon" aria-label="Nom du compagnon"><button class="btn ghost" id="p-comp-save">Renommer le compagnon</button></div>
+     ${S.comp.type?`<div class="namerow"><select id="p-ctype" aria-label="Animal du compagnon">${Object.entries(ANIMAUX).map(([k,a])=>`<option value="${k}" ${S.comp.type===k?"selected":""}>${a.nom}</option>`).join("")}</select><button class="btn ghost" id="p-ctype-save">Changer d'animal</button></div>`:""}`);
+  /* --- onglet Récompenses --- */
+  const tRecomp=
+   pcard("À remettre","Les cadeaux en vrai qu'elle a débloqués.",S.gifts.pending.length?`<div class="gifts-list">${S.gifts.pending.map((x,i)=>`<div class="g"><span><b>${esc(x.txt)}</b><br><small>Débloqué le ${new Date(x.t).toLocaleDateString("fr-CA",{day:"numeric",month:"long"})}</small></span><button class="btn ghost" data-given="${i}">Remis</button></div>`).join("")}</div>`:`<p><b>Aucun cadeau à remettre pour l'instant.</b>${S.gifts.given?` Déjà remis : ${S.gifts.given}.`:""}</p>`)+
+   pcard("Cadeaux en vrai",`Aux grandes étapes, le compagnon offre une boîte surprise (au plus une par mission). D'habitude, elle contient un objet pour le compagnon; <b>une fois toutes les 2 semaines</b>, un cadeau de votre liste. ${giftNext()>Date.now()?`Prochain cadeau possible à partir du <b>${new Date(giftNext()).toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"})}</b>.`:"Le prochain peut arriver dès la prochaine boîte."}`,
+     `<label class="toggle" for="p-gon"><input type="checkbox" id="p-gon" ${S.gifts.on?"checked":""}><span><b>Activer les cadeaux en vrai</b><br><small>Désactivé, les boîtes contiennent seulement des objets pour le compagnon.</small></span></label>
+     <label class="toggle" for="p-greveal"><input type="checkbox" id="p-greveal" ${S.gifts.reveal?"checked":""}><span><b>Lui dire quel cadeau elle a gagné</b><br><small>Décoché, le compagnon annonce « un cadeau surprise ».</small></span></label>
+     <label for="p-glist"><b>Liste des cadeaux</b> <small>(un par ligne, tiré au hasard)</small></label><textarea id="p-glist">${esc(S.gifts.list.join("\n"))}</textarea>
+     <button class="btn ghost" id="p-gsave">Enregistrer la liste</button><p class="pdesc">Conseil : des moments partagés (une sortie, un jeu, choisir le dessert) plutôt que des achats.</p>`);
+  /* --- onglet Données (le dangereux tout en bas) --- */
+  const tDonnees=
+   pcard("Version du jeu","",typeof APP_VER!=="undefined"?`<p>Version installée : <b>${verTxt(APP_VER)}</b></p><div class="confirm"><button class="btn ghost" id="p-upd">Vérifier les mises à jour</button><span id="p-updmsg" aria-live="polite"></span></div>`:`<p>Version Claude : toujours à jour automatiquement.</p>`)+
+   pcard("Sauvegarde de la progression","Pour passer la progression d'un appareil à l'autre : « Exporter » sur l'ancien, puis « Importer » sur le nouveau. Les progrès sont enregistrés seulement sur cet appareil.",
+     `<div class="confirm"><button class="btn ghost" id="p-exp">Exporter la progression</button><button class="btn ghost" id="p-imp">Importer une progression</button></div><div id="p-xzone" class="xzone"></div>`)+
+   pcard("Remettre la journée à zéro","Après vos tests, pour qu'ils ne comptent pas dans sa journée.",
+     `<div class="confirm" id="p-rday-zone"><button class="btn ghost" id="p-rtime">Remettre à zéro le temps d'aujourd'hui</button>${getSnap()?`<button class="btn ghost" id="p-rday" style="border-color:var(--bad);color:var(--bad)">Annuler tout ce qui s'est passé aujourd'hui</button>`:""}</div>
+     <p class="pdesc">« Temps » : remet à 0 les minutes et la dictée du jour; les progrès sont gardés. ${getSnap()?"« Tout annuler » : remet le jeu comme il était ce matin (temps, réponses, niveaux, étoiles, dictée, cadeaux d'aujourd'hui); vos réglages sont gardés.":"« Tout annuler » sera disponible à partir de demain."}</p>`)+
+   pcard("Zone de danger","Ces actions sont irréversibles. Chacune demande une confirmation.",
+     `<div class="confirm" id="p-dreset-zone"><button class="btn ghost" id="p-dreset">Recommencer les révisions de dictée</button></div>
+     <div class="confirm" id="p-reset-zone"><button class="btn ghost" id="p-reset">Effacer les progrès seulement</button><button class="btn ghost" id="p-wipe" style="border-color:var(--bad);color:var(--bad)">Tout effacer et recommencer</button></div>
+     <p class="pdesc">« Effacer les progrès » garde le prénom, le compagnon et les cadeaux à remettre. « Tout effacer » remet le jeu à neuf. Le mot de passe parent ne change pas (pour le changer, demandez-le à Claude).</p>`,"danger");
+  const T={suivi:tSuivi,matiere:tMatiere,reglages:tReglages,recompenses:tRecomp,donnees:tDonnees};
+  el.innerHTML=`<div class="gamebar"><button class="back" id="p-retour">← Carte</button><span class="gtitle">Espace parent</span></div>${dash}
+  <nav class="ptabs" role="tablist" aria-label="Sections de l'espace parent">${PTABS.map(([k,ic,l])=>`<button role="tab" class="ptab-b${k===tab?" on":""}" data-tab="${k}" aria-selected="${k===tab}"><span class="emo">${ic}</span><span>${l}</span></button>`).join("")}</nav>
+  ${PTABS.map(([k])=>`<div class="ptab" role="tabpanel" data-panel="${k}" ${k===tab?"":"hidden"}>${T[k]}</div>`).join("")}`;
+  const showTab=k=>{S.ptab=k;save();el.querySelectorAll(".ptab-b").forEach(x=>{const on=x.dataset.tab===k;x.classList.toggle("on",on);x.setAttribute("aria-selected",on)});el.querySelectorAll(".ptab").forEach(p=>p.hidden=p.dataset.panel!==k)};
+  el.querySelectorAll(".ptab-b").forEach(x=>x.onclick=()=>showTab(x.dataset.tab));
+  el.querySelectorAll("[data-go]").forEach(x=>x.onclick=()=>{showTab(x.dataset.go);$(".ptabs").scrollIntoView({behavior:"smooth",block:"start"})});
   $("#p-retour").onclick=()=>{PARENT_OK=false;renderCarte();go("carte")};G=null;
   dParentBind();
   const pu=$("#p-upd");if(pu)pu.onclick=async()=>{const m=$("#p-updmsg");m.textContent=" Vérification…";
@@ -2560,19 +2613,21 @@ function dFinish(){const words=Object.keys(DC.first),ok=DC.ok,N=words.length,mis
   const evs=G.events.concat(PEND.splice(0));if(evs.length&&S.comp.type)setTimeout(()=>{if(!$("#ecran-fin").hidden&&!BYE)celebrate(evs);else PEND.push(...evs)},1200)}
 
 /* Espace parent : listes, semaine en cours, mots difficiles */
-function dParentHTML(){const d=DS(),L=dLists(),ws=dWeeks(),cur=dCur();
-  if(!ws.length)return`<h3>Dictée du jour (listes d'orthographe)</h3><p><small>Collez les listes de l'école ci-dessous (une ligne « Semaine N | titre », puis les mots séparés par des points-virgules).</small></p>${dListBox(true)}`;
-  const rows=ws.map(wk=>{const W=L.W[wk].w.filter(e=>L.by[e.w]===e),seen=W.filter(e=>d.bank[e.w]),m=W.filter(e=>(d.bank[e.w]||{}).b>=DMAST).length,lr=W.filter(e=>(d.bank[e.w]||{}).b>=3).length;
+function dStatsHTML(){const d=DS(),L=dLists(),ws=dWeeks(),cur=dCur();
+  if(!ws.length)return`<p>Aucune liste de dictée pour l'instant : ajoutez-les dans l'onglet <b>Matière scolaire</b>.</p>`;
+  const rows=ws.map(wk=>{const W=L.W[wk].w.filter(e=>L.by[e.w]===e),seen=W.filter(e=>d.bank[e.w]),m=W.filter(e=>(d.bank[e.w]||{}).b>=DMAST).length;
     return wk>cur?"":`<div class="d"><span><b>Semaine ${wk}</b>${wk===cur?" (en cours)":""}<br><span class="dsub">${esc(L.W[wk].t)}</span></span><span class="meter"><i style="width:${W.length?m/W.length*100:0}%;background:var(--good)"></i></span><span>${m}/${W.length}${seen.length?"":" · à venir"}</span></div>`}).join("");
   const hard=Object.entries(d.bank).filter(([w,x])=>L.by[w]&&x.miss>0).sort((a,b)=>b[1].miss-a[1].miss||a[1].b-b[1].b).slice(0,12);
-  return`<h3>Dictée du jour (listes d'orthographe)</h3><p><small>Chaque mot revient après 1, 2, 4, 8, 16 puis 35 jours s'il est réussi; un mot raté revient le lendemain. Un mot est « maîtrisé » après 5 réussites espacées.</small></p>
-  ${Object.values(L.by).filter(e=>e.c||e.p).length<Object.keys(L.by).length*.5?`<p class="help"><b>Attention :</b> cette liste n'a pas les classes de mots ni les petites phrases. À l'oreille, certains mots se confondent (mer / mère, marché / marcher, but…). Collez plutôt le fichier <b>listes-orthographe-3e-annee.txt</b> de votre projet Claude.</p>`:""}
-  <label>Semaine en cours à l'école : <select id="p-dcur">${ws.map(w=>`<option value="${w}" ${w===cur?"selected":""}>Semaine ${w}</option>`).join("")}</select></label>${d.curSet?"":`<p><small><b>À confirmer :</b> semaine estimée selon la date. Choisissez la bonne semaine.</small></p>`}
-  <p><small>Aujourd'hui : <b>${dDue()}</b> mot${dDue()>1?"s":""} à réviser (maximum ${DCAP} par jour; le surplus passe au lendemain${dDueAll()>dDue()?` : ${dDueAll()-dDue()} en attente`:""}) · <b>${dMastered()}</b> mots maîtrisés.</small></p>
-  <div class="days">${rows}</div>
-  ${hard.length?`<p><small><b>Mots les plus difficiles :</b></small></p><div class="redo">${hard.map(([w,x])=>`<span class="rv" title="${x.miss} erreur(s)">${esc(w)} <small>×${x.miss}</small></span>`).join("")}</div>`:""}
-  <details><summary>Modifier les listes de mots</summary>${dListBox(false)}</details>
-  <div class="confirm" id="p-dreset-zone"><button class="btn ghost" id="p-dreset">Recommencer les révisions de dictée</button></div>`}
+  return`<p>Aujourd'hui : <b>${dDue()}</b> mot${dDue()>1?"s":""} à réviser (maximum ${DCAP} par jour${dDueAll()>dDue()?`; ${dDueAll()-dDue()} en attente pour les jours suivants`:""}) · <b>${dMastered()}</b> mots maîtrisés.</p>
+  ${hard.length?`<p class="pdesc"><b>Mots les plus difficiles :</b></p><div class="redo">${hard.map(([w,x])=>`<span class="rv" title="${x.miss} erreur(s)">${esc(w)} <small>×${x.miss}</small></span>`).join("")}</div>`:""}
+  <div class="days">${rows}</div>`}
+function dContentHTML(){const d=DS(),L=dLists(),ws=dWeeks(),cur=dCur();
+  if(!ws.length)return pcard("Listes d'orthographe (dictée)","Collez les listes de l'école : une ligne « Semaine N | titre », puis les mots.",dListBox(true));
+  return pcard("Semaine de dictée","Choisissez la semaine en cours à l'école (à changer chaque lundi). Les mots des semaines passées reviennent en révision.",
+    `<label class="pfield">Semaine en cours : <select id="p-dcur">${ws.map(w=>`<option value="${w}" ${w===cur?"selected":""}>Semaine ${w} — ${esc(L.W[w].t.slice(0,48))}${L.W[w].t.length>48?"…":""}</option>`).join("")}</select></label>${d.curSet?"":`<p class="help"><b>À confirmer :</b> semaine estimée selon la date.</p>`}`)+
+   pcard("Listes d'orthographe",`${ws.length} semaines, ${Object.keys(L.by).length} mots. Les phrases d'exemple et les définitions s'ajoutent automatiquement.`,
+    `${Object.values(L.by).filter(e=>e.c||e.p).length<Object.keys(L.by).length*.5?`<p class="help"><b>Attention :</b> cette liste n'a pas les classes de mots ni les phrases. Collez plutôt le fichier <b>listes-orthographe-3e-annee.txt</b> de votre projet Claude.</p>`:""}
+    <details><summary>Remplacer ou modifier les listes</summary>${dListBox(false)}</details>`)}
 function dListBox(open){return`${open?`<button class="btn" id="p-dpaste">Coller les listes</button><p><small>Copiez d'abord le fichier de listes (dans votre projet Claude), puis appuyez ici.</small></p>`:`<button class="btn ghost" id="p-dpaste">Coller les listes</button>`}<textarea id="p-dtxt" rows="${open?8:10}" placeholder="Semaine 2 | Mots avec un accent&#10;âge (n. m.); année (n. f.); bâton (n. m.)">${esc(DS().txt||LISTE_DEF)}</textarea><button class="btn ghost" id="p-dsave">Enregistrer les listes</button><span id="p-dmsg"></span>`}
 function dParentBind(){const d=DS();
   const sel=$("#p-dcur");if(sel)sel.onchange=()=>{d.cur=+sel.value;d.curSet=1;dSync();renderParent()};
@@ -3003,7 +3058,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261031-031400";
+const APP_VER="20261031-095805";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
