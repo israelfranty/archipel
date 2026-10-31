@@ -499,6 +499,31 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .djstats .meter{width:100%;height:8px;border-radius:4px;background:var(--line);overflow:hidden}.djstats .meter i{display:block;height:100%;background:var(--good)}
 .djrev{width:100%;max-width:520px;display:flex;flex-direction:column;gap:8px;text-align:left}
 @media (max-width:440px){.djstats{grid-template-columns:1fr}}
+/* Les bâtisseurs */
+.village{border-radius:20px;overflow:hidden;border:2px solid var(--line);background:linear-gradient(#9ED8F5,#CDEFFF 60%);position:relative}
+.vsky{height:46px;position:relative}.vsun{position:absolute;right:16px;top:6px;font-size:1.9rem}.vcloud{position:absolute;left:22%;top:8px;font-size:1.6rem;opacity:.9}
+.vground{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;padding:10px 10px 14px;background:linear-gradient(#7CC56A,#4E9A47)}
+.vb{display:grid;place-items:center;font-size:clamp(1.7rem,6vw,2.4rem);height:clamp(42px,9vw,58px)}.vempty{border:2px dashed rgba(255,255,255,.35);border-radius:10px;font-size:1.3rem}
+.village.sm{width:100%;max-width:520px}.village.sm .vsky{height:34px}
+.btorder{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.btclient{font-size:3.2rem;line-height:1}.btbub{flex:1;min-width:200px;text-align:left;display:flex;flex-direction:column;gap:2px}
+.btbub::before{display:none}.btbub small{color:var(--muted);font-weight:700}
+#bt-work{display:flex;flex-direction:column;gap:16px;align-items:stretch}
+.b10cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.b10col{background:var(--bg);border:2px solid var(--line);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:8px;align-items:center;min-width:0}
+.b10h{text-align:center;line-height:1.2}.b10h b{display:block;font-size:.95rem}.b10h small{color:var(--muted)}
+.b10pile{flex:1;min-height:120px;width:100%;display:flex;flex-wrap:wrap;gap:3px;align-content:flex-end;justify-content:center}
+.b10{display:block}.bp{width:46px;height:46px}.bb{width:8px;height:50px}.bc{width:13px;height:13px}.b10empty{color:var(--muted);font-size:.85rem;align-self:center}
+.b10ctl{display:flex;align-items:center;gap:10px}.b10n{font-family:var(--f-display);font-weight:700;font-size:1.6rem;min-width:1.6em;text-align:center;font-variant-numeric:tabular-nums}
+.stepb{width:48px;height:48px;border-radius:14px;border:3px solid var(--c);background:var(--surface);color:var(--ink);font-size:1.6rem;font-weight:700;line-height:1;touch-action:manipulation}
+.stepb:disabled{opacity:.35}.stepb:active:not(:disabled){transform:scale(.92)}
+.btgo{min-height:54px}
+.wallbox{display:flex;justify-content:center;align-items:flex-end;min-height:150px;background:var(--bg);border-radius:16px;padding:14px;border-bottom:8px solid #8A6A4A}
+.wall{width:100%;height:auto;display:block}
+.wallctl{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}.wallctl>div{display:flex;flex-direction:column;align-items:center;gap:6px}.wallctl small{color:var(--muted);font-weight:700}
+.wallq{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;font-weight:700;font-size:1.1rem}
+.wallq input{width:110px;font-family:var(--f-display);font-size:1.8rem;text-align:center;border:3px solid var(--c);border-radius:14px;padding:4px 8px;background:var(--bg);color:var(--ink)}
+.tilt{animation:tilt1 .7s ease}@keyframes tilt1{25%{transform:rotate(-3deg)}60%{transform:rotate(2deg)}100%{transform:none}}
+@media (max-width:480px){.b10cols{gap:6px}.b10col{padding:6px}.stepb{width:40px;height:40px}.bp{width:36px;height:36px}}
 .seg{display:flex;gap:0;border:2px solid var(--line);border-radius:999px;padding:3px;align-self:flex-start;background:var(--surface)}
 .seg button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font-family:"Andika","Atkinson Hyperlegible",sans-serif;font-weight:700;color:var(--muted)}
 .seg button.on{background:var(--i6);color:var(--on-i)}
@@ -1354,6 +1379,7 @@ function evText(e){const n=KID();switch(e.k){
   case"dictee":return`Tu sais maintenant écrire tous les mots de la semaine ${e.wk} sans regarder! Ta mémoire devient super forte.`;
   case"dicteeN":return`${e.n} mots de dictée bien rangés dans ta mémoire! Tu ne les oublies plus.`;
   case"donjon":return`Trois pierres précieuses dans le Donjon des nombres (${e.th})! Tu as été rapide et précise.`;
+  case"village":return`Ton village compte maintenant ${e.n} bâtiments! Tu es une vraie bâtisseuse.`;
   case"poke":return pick([`Je crois en toi${n}!`,`Une île de plus aujourd'hui?`,`Chaque erreur t'apprend quelque chose.`,`J'adore explorer avec toi${n}!`,`Prête pour une Course Éclair?`]);
  }return""}
 /* Cadeau en vrai : au plus un toutes les 2 semaines, à la première boîte surprise après ce délai */
@@ -2634,7 +2660,7 @@ function dChallenge(theme,L){
 /* ---------- Écrans : bibliothèque, choix du héros, choix du thème ---------- */
 const GAMES=[
   {id:"donjon",nom:"Le Donjon des nombres",sous:"Mathématiques",ready:true,c:"#3B2A6B",art:"🏰"},
-  {id:"batisseurs",nom:"Les bâtisseurs",sous:"Mathématiques",art:"🧱",c:"#2F6B4F"},
+  {id:"batisseurs",nom:"Les bâtisseurs",sous:"Mathématiques",ready:true,art:"🧱",c:"#2F6B4F"},
   {id:"galaxie",nom:"Mission Galaxie",sous:"Mathématiques",art:"🚀",c:"#1F3A6B"},
   {id:"tresor",nom:"La chasse au trésor",sous:"Mathématiques",art:"🏝️",c:"#1F6B6B"},
   {id:"royaume",nom:"Le royaume des mots",sous:"Français",art:"📚",c:"#6B2F5A"},
@@ -2647,7 +2673,7 @@ function renderBiblio(){if(S.gamesOn===false){stopDonjon();G=null;renderCarte();
   <div class="hello"><p>Choisis un jeu. Chaque jeu fait pratiquer les notions de l'école en s'amusant!</p></div>
   <div class="gamegrid">${GAMES.map(x=>`<button class="gcard${x.ready?"":" locked"}" data-game="${x.id}" style="--gc:${x.c}" ${x.ready?"":"aria-disabled=\"true\""}><span class="gart emo">${x.art}</span><span class="gname">${x.nom}</span><span class="gsub">${x.ready?x.sous:"Bientôt"}</span></button>`).join("")}</div>`;
   $("#bb-home").onclick=()=>{G=null;renderCarte();go("carte")};
-  el.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>{if(b.dataset.game==="donjon")(heroOf()?donjonMenu():pickHero(donjonMenu));else{tone([[300,.1]]);b.classList.add("shake1");setTimeout(()=>b.classList.remove("shake1"),400)}});
+  el.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>{const nx={donjon:donjonMenu,batisseurs:batMenu}[b.dataset.game];if(nx)(heroOf()?nx():pickHero(nx));else{tone([[300,.1]]);b.classList.add("shake1");setTimeout(()=>b.classList.remove("shake1"),400)}});
   go("jeu")}
 function pickHero(next){G={mode:"biblio",subj:null};const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");const cur=(S.games||{}).hero;
   el.innerHTML=`<div class="gamebar"><button class="back" id="ph-back">← Bibliothèque</button><span class="gtitle">Choisis ton héros</span></div>
@@ -2819,6 +2845,125 @@ function djHero(c,x,y,k,D){const h=D.hero,t=D.t*(D.phase==="fail"?0:D.boost?17:1
   if(h.style==="long"||h.style==="straight"){c.beginPath();c.moveTo(-16,-88);c.lineTo(-15,-56+Math.sin(t)*2);c.lineTo(15,-56-Math.sin(t)*2);c.lineTo(16,-88);c.closePath();c.fill()}
   c.restore()}
 
+/* ======================================================================
+   BIBLIOTHÈQUE DE JEUX — 2e jeu : Les bâtisseurs
+   Des habitants passent des commandes; Olivia construit avec des blocs
+   (valeur de position) ou des briques (multiplication en rectangle).
+   Chaque commande réussie ajoute un bâtiment à son village.
+   ====================================================================== */
+const BCLIENTS=[["🦫","Castor"],["🐢","Tortue"],["🦉","Hibou"],["🦊","Renard"],["🐻","Ourson"],["🐰","Lapine"],["🦝","Raton"],["🐸","Grenouille"]];
+const BBATS=["🏠","🏡","🏰","🗼","⛲","🏪","🏫","⛪","🌉","🎡","🏛️","🛖","🏯","🗽","🎠","🏬"];
+const BTYPES={nombre:{nom:"Construis le nombre",glyph:"347",isl:"port",notion:"Valeur de position"},mur:{nom:"Le mur de briques",glyph:"3×6",isl:"volcan",notion:"Multiplication en rectangle"},melange:{nom:"Commandes mélangées",glyph:"?",isl:"port",notion:"Mélange"}};
+const BAT_N=6;
+function BS(){const g=GS();if(!g.bat)g.bat={lvl:{nombre:1,mur:1},village:[],orders:0,best:{}};if(!g.bat.best)g.bat.best={};return g.bat}
+/* Nombres en lettres (jusqu'à 999), orthographe traditionnelle */
+const UN=["zéro","un","deux","trois","quatre","cinq","six","sept","huit","neuf","dix","onze","douze","treize","quatorze","quinze","seize","dix-sept","dix-huit","dix-neuf"],DIZ=["","","vingt","trente","quarante","cinquante","soixante","soixante","quatre-vingt","quatre-vingt"];
+function enLettres(n){if(n<20)return UN[n];if(n<100){const d=Math.floor(n/10),u=n%10;
+    if(d===7||d===9)return DIZ[d]+(d===7&&u===1?" et ":"-")+UN[10+u];
+    if(u===0)return d===8?"quatre-vingts":DIZ[d];return DIZ[d]+(u===1&&d!==8?" et ":"-")+UN[u]}
+  const c=Math.floor(n/100),r=n%100;return(c===1?"cent":UN[c]+" cent"+(r===0?"s":""))+(r?" "+enLettres(r):"")}
+function bOrder(type,L){if(type==="melange")type=Math.random()<.5?"nombre":"mur";const [emo,nom]=pick(BCLIENTS);
+  if(type==="nombre"){let n,maxC=9,lettres=false;
+    if(L===1)n=R(11,99);else if(L===2)n=R(101,999);else if(L===3){n=R(120,989);maxC=Math.floor(n/100)-1}else{n=R(101,999);lettres=true}
+    const lab=lettres?`« ${enLettres(n)} »`:`<b>${nf(n)}</b>`;
+    return{type,emo,nom,n,maxC,lettres,txt:`Je voudrais une tour de ${lab}${maxC<Math.floor(n/100)?`, mais il ne me reste que <b>${maxC} plaque${maxC>1?"s":""} de 100</b>!`:"!"}`,
+      say:`Je voudrais une tour de ${lettres?enLettres(n):n}${maxC<Math.floor(n/100)?`, mais il ne me reste que ${maxC} plaque${maxC>1?"s":""} de cent`:""}.`}}
+  let r,c;if(L===1){r=R(2,3);c=pick([2,5,10])}else if(L===2){r=R(2,5);c=R(2,5)}else{r=R(2,9);c=R(2,10)}if(Math.random()<.5&&L<4)[r,c]=[c,r];
+  if(L>=4){r=R(2,6);c=R(2,9);return{type,emo,nom,r,c,div:true,txt:`J'ai <b>${r*c} briques</b>. Fais un mur de <b>${r} rangées</b> pareilles. Combien de briques dans chaque rangée?`,say:`J'ai ${r*c} briques. Fais un mur de ${r} rangées pareilles. Combien de briques dans chaque rangée?`}}
+  return{type,emo,nom,r,c,txt:`Construis-moi un mur de <b>${r} rangée${r>1?"s":""}</b> de <b>${c} briques</b>.`,say:`Construis-moi un mur de ${r} rangées de ${c} briques.`}}
+
+let BG=null;
+function batMenu(){if(S.gamesOn===false)return renderBiblio();stopDonjon();G={mode:"biblio",subj:"maths"};const b=BS(),g=GS();const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i2)");
+  el.innerHTML=`<div class="gamebar"><button class="back" id="bm-back">← Bibliothèque</button><span class="gtitle">Les bâtisseurs</span><span class="levelchip">🏗️ ${b.village.length} bâtiment${b.village.length>1?"s":""}</span></div>
+  <div class="village" aria-label="Ton village">${villageHTML(b.village)}</div>
+  <div class="dmhead"><div class="dmhero">${heroSVG(g.hero)}</div><div><p class="dmtxt">Avec <b>${heroOf().nom}</b>, tu es la bâtisseuse du village! Les habitants passent des commandes : construis exactement ce qu'ils demandent. Chaque commande réussie ajoute un bâtiment à ton village.</p><button class="btn ghost" id="bm-hero">Changer de héros</button></div></div>
+  <h3 class="cg-h">Choisis tes commandes</h3>
+  <div class="isles">${Object.entries(BTYPES).map(([k,t])=>{const lv=k==="melange"?null:b.lvl[k];return`<button class="isle" data-bt="${k}" style="--c:var(--i2)"><span class="badge">${t.glyph}</span><span class="body"><span class="nom">${t.nom}</span><span class="meta"><span class="lvl">${lv?"Niveau "+lv:"Les deux"}</span><span class="lvl">${b.best[k]?`Record : ${b.best[k]}/${BAT_N}`:"Nouveau!"}</span></span></span></button>`}).join("")}</div>`;
+  $("#bm-back").onclick=renderBiblio;$("#bm-hero").onclick=()=>pickHero(batMenu);
+  el.querySelectorAll("[data-bt]").forEach(x=>x.onclick=()=>startBat(x.dataset.bt));go("jeu")}
+function villageHTML(v){const plots=Math.max(12,Math.ceil((v.length+1)/6)*6);
+  return`<div class="vsky"><span class="vsun">☀️</span><span class="vcloud">☁️</span></div><div class="vground">${Array.from({length:plots},(_,i)=>v[i]?`<span class="vb emo" title="Bâtiment ${i+1}">${v[i].e}</span>`:`<span class="vb vempty">${i===v.length?"🏗️":""}</span>`).join("")}</div>`}
+function startBat(type){if(S.gamesOn===false)return renderBiblio();const b=BS();G={mode:"bat",subj:"maths",events:[]};
+  BG={type,i:0,ok:0,first:true,tries:0,built:[],ord:null};batNext()}
+function batLevel(o){return BS().lvl[o.type]}
+function batNext(){if(!BG)return;if(BG.i>=BAT_N)return batEnd();const t=BG.type==="melange"?(Math.random()<.5?"nombre":"mur"):BG.type;
+  BG.ord=bOrder(t,BS().lvl[t]);BG.tries=0;BG.st=t==="nombre"?{c:0,d:0,u:0}:{r:1,c:1,ans:""};batRender();if(canSpeak())speak(BG.ord.say.replace(/<[^>]+>/g,""))}
+function batRender(){const o=BG.ord,el=$("#ecran-jeu");el.style.setProperty("--c","var(--i2)");
+  el.innerHTML=`<div class="gamebar"><button class="back" id="bt-quit">← Quitter</button><span class="gtitle">Les bâtisseurs</span><span class="levelchip">Niveau ${BS().lvl[o.type]}</span></div>
+  <div class="dots">${Array.from({length:BAT_N},(_,i)=>`<span class="${i<BG.i?(BG.built[i]?"ok":"ko"):i===BG.i?"now":""}"></span>`).join("")}</div>
+  <div class="card pop btcard" style="--c:var(--i2)"><div class="btorder"><span class="btclient emo">${o.emo}</span><div class="bubble btbub"><small>${o.nom}</small><span>${o.txt}</span></div>${canSpeak()?`<button class="listen" id="bt-say">${SPK}Réécouter</button>`:""}</div>
+  <div id="bt-work"></div><div id="fb"></div></div>`;
+  $("#bt-quit").onclick=()=>{BG=null;G=null;batMenu()};const bs=$("#bt-say");if(bs)bs.onclick=()=>speak(o.say);
+  o.type==="nombre"?batNombreUI():batMurUI();go("jeu")}
+
+/* --- Commande 1 : construire le nombre avec plaques, barres et cubes --- */
+const PLAQUE=`<svg class="b10 bp" viewBox="0 0 50 50" aria-hidden="true"><rect x="1" y="1" width="48" height="48" rx="3" fill="#F2B544" stroke="#9C6A12" stroke-width="2"/>${[...Array(9)].map((_,i)=>`<path d="M${5.8+i*4.8} 2v46M2 ${5.8+i*4.8}h46" stroke="#9C6A12" stroke-width=".6" opacity=".55"/>`).join("")}</svg>`;
+const BARRE=`<svg class="b10 bb" viewBox="0 0 8 50" aria-hidden="true"><rect x="1" y="1" width="6" height="48" rx="2" fill="#4FA3E0" stroke="#1F5F8F" stroke-width="1.4"/>${[...Array(9)].map((_,i)=>`<path d="M1 ${5.8+i*4.8}h6" stroke="#1F5F8F" stroke-width=".6"/>`).join("")}</svg>`;
+const CUBE=`<svg class="b10 bc" viewBox="0 0 10 10" aria-hidden="true"><rect x="1" y="1" width="8" height="8" rx="1.5" fill="#E8607A" stroke="#8F2438" stroke-width="1.2"/></svg>`;
+function batNombreUI(){const s=BG.st,o=BG.ord,lim={c:o.maxC,d:19,u:19},lab={c:["Plaques de 100","centaines"],d:["Barres de 10","dizaines"],u:["Petits cubes","unités"]};
+  $("#bt-work").innerHTML=`<div class="b10cols">${["c","d","u"].map(k=>`<div class="b10col"><div class="b10h"><b>${lab[k][0]}</b><small>${lab[k][1]}</small></div>
+    <div class="b10pile b10-${k}">${(k==="c"?PLAQUE:k==="d"?BARRE:CUBE).repeat(s[k])||`<span class="b10empty">vide</span>`}</div>
+    <div class="b10ctl"><button class="stepb" data-k="${k}" data-v="-1" ${s[k]<=0?"disabled":""} aria-label="Enlever">−</button><span class="b10n">${s[k]}</span><button class="stepb" data-k="${k}" data-v="1" ${s[k]>=lim[k]?"disabled":""} aria-label="Ajouter">+</button></div></div>`).join("")}</div>
+    <button class="btn btgo" id="bt-go">Livrer la tour</button>`;
+  $("#bt-work").querySelectorAll(".stepb").forEach(b=>b.onclick=()=>{s[b.dataset.k]+= +b.dataset.v;tone([[b.dataset.v>0?660:440,.05]]);batNombreUI()});
+  $("#bt-go").onclick=()=>batCheck()}
+/* --- Commande 2 : le mur de briques --- */
+function wallSVG(r,c){const bw=24,bh=12,W=c*bw+bw/2+4,H=r*bh+4;let s=`<svg class="wall" viewBox="0 0 ${W} ${H}" style="max-width:${Math.min(100,c*9+10)}%" aria-label="Mur de ${r} rangées de ${c} briques">`;
+  for(let i=0;i<r;i++)for(let j=0;j<c;j++){const x=2+j*bw+(i%2?bw/2:0),y=H-2-(i+1)*bh;s+=`<rect x="${x}" y="${y}" width="${bw-2}" height="${bh-2}" rx="2" fill="#C4553B" stroke="#7A2E1C" stroke-width="1"/>`}return s+`</svg>`}
+function batMurUI(){const s=BG.st,o=BG.ord;
+  $("#bt-work").innerHTML=`<div class="wallbox">${wallSVG(s.r,s.c)}</div>
+  <div class="wallctl"><div><small>Rangées</small><div class="b10ctl"><button class="stepb" data-k="r" data-v="-1" ${s.r<=1?"disabled":""}>−</button><span class="b10n">${s.r}</span><button class="stepb" data-k="r" data-v="1" ${s.r>=10?"disabled":""}>+</button></div></div>
+  <div><small>Briques par rangée</small><div class="b10ctl"><button class="stepb" data-k="c" data-v="-1" ${s.c<=1?"disabled":""}>−</button><span class="b10n">${s.c}</span><button class="stepb" data-k="c" data-v="1" ${s.c>=12?"disabled":""}>+</button></div></div></div>
+  <label class="wallq">${o.div?"Combien de briques dans chaque rangée?":"Combien de briques en tout?"} <input id="bt-ans" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="${esc(s.ans)}" autocomplete="off"></label>
+  <button class="btn btgo" id="bt-go">Livrer le mur</button>`;
+  $("#bt-work").querySelectorAll(".stepb").forEach(b=>b.onclick=()=>{s[b.dataset.k]+= +b.dataset.v;s.ans=$("#bt-ans").value;tone([[b.dataset.v>0?660:440,.05]]);batMurUI()});
+  $("#bt-ans").oninput=e=>{s.ans=e.target.value.replace(/\D/g,"");e.target.value=s.ans};
+  $("#bt-ans").onkeydown=e=>{if(e.key==="Enter")batCheck()};$("#bt-go").onclick=()=>batCheck()}
+
+/* --- Vérification, aide et récompense --- */
+function batCheck(){const o=BG.ord,s=BG.st;let ok,msg,show="";
+  if(o.type==="nombre"){const v=s.c*100+s.d*10+s.u;ok=v===o.n&&s.c<=o.maxC;
+    const parts=`${s.c} centaine${s.c>1?"s":""}, ${s.d} dizaine${s.d>1?"s":""} et ${s.u} unité${s.u>1?"s":""}`;
+    if(ok)msg=`Exactement ${nf(o.n)} : ${parts}!${s.d>=10||s.u>=10?" Bravo pour les échanges : 10 dizaines valent 1 centaine, et 10 unités valent 1 dizaine.":""}`;
+    else{const diff=o.n-v;msg=`Ta tour vaut ${nf(v)} (${parts}). ${diff>0?`Il manque ${nf(diff)}.`:`C'est ${nf(-diff)} de trop.`}`;
+      if(BG.tries>=1){const c=Math.min(Math.floor(o.n/100),o.maxC),rest=o.n-c*100;show=`${o.lettres?`« ${enLettres(o.n)} », c'est ${nf(o.n)}. `:""}Une façon : ${c} plaque${c>1?"s":""} de 100, ${Math.floor(rest/10)} barres de 10 et ${rest%10} cubes.`}}}
+  else{const tot=o.r*o.c,ans=+s.ans;
+    if(o.div){ok=s.r===o.r&&s.c===o.c&&ans===o.c;msg=ok?`${tot} briques en ${o.r} rangées : ${o.c} dans chaque rangée. ${o.r} × ${o.c} = ${tot}!`:
+      s.r*s.c!==tot?`Ton mur a ${s.r*s.c} briques, mais il en faut ${tot}.`:s.r!==o.r?`Il faut ${o.r} rangées.`:`Ton mur est bon! Compte les briques d'une rangée pour répondre.`;
+      if(!ok&&BG.tries>=1)show=`${tot} ÷ ${o.r} = ${o.c}, parce que ${o.r} × ${o.c} = ${tot}.`}
+    else{const wallOk=s.r===o.r&&s.c===o.c;ok=wallOk&&ans===tot;
+      msg=ok?`${o.r} rangées de ${o.c} briques : ${o.r} × ${o.c} = ${tot} briques!`:!wallOk?`Ton mur a ${s.r} rangée${s.r>1?"s":""} de ${s.c} briques. Le client en voulait ${o.r} de ${o.c}.`:!s.ans?`Ton mur est parfait! Combien de briques en tout?`:`Ton mur est parfait, mais il n'a pas ${ans} briques. Compte ${o.r} fois ${o.c}.`;
+      if(!ok&&BG.tries>=1)show=`${o.r} × ${o.c} = ${tot}. Tu peux compter par bonds de ${o.c} : ${Array.from({length:o.r},(_,i)=>(i+1)*o.c).join(", ")}.`}}
+  const firstTry=BG.tries===0;BG.tries++;
+  const nk=(o.type==="nombre"?"port|Valeur de position":"volcan|Multiplication en rectangle"),n=S.notions[nk]||(S.notions[nk]={r:0,t:0});
+  if(firstTry){n.t++;if(ok){n.r++;S.totalOk++}}
+  if(ok){BG.built[BG.i]=firstTry;if(firstTry)BG.ok++;const v=BS().village,e=pick(BBATS);v.push({e,t:Date.now()});BS().orders++;save();
+    tone([[523,.08],[659,.08],[784,.1],[1047,.18]]);
+    $("#fb").innerHTML=`<div class="feedback good pop"><h3>Commande livrée! <span class="emo">${e}</span></h3><p>${msg}</p><p><small>${o.emo} ${o.nom} : « Merci, ${esc(S.name||"bâtisseuse")}! »</small> Un nouveau bâtiment apparaît dans ton village.</p><button class="btn" id="b-cont">${BG.i>=BAT_N-1?"Voir mon village":"Commande suivante"}</button></div>`;
+    $("#bt-go").disabled=true;$("#bt-work").querySelectorAll("button,input").forEach(x=>x.disabled=true);
+    speak(`Commande livrée! ${msg}`);
+    $("#b-cont").onclick=()=>{BG.i++;batNext()}}
+  else{save();tone([[300,.18]]);const w=$("#bt-work .b10cols,#bt-work .wallbox");if(w){w.classList.remove("tilt");void w.offsetWidth;w.classList.add("tilt")}
+    $("#fb").innerHTML=`<div class="feedback bad pop"><h3>Oups, ça penche!</h3><p>${msg}</p>${show?`<p class="ddef">${show}</p>`:""}<p><small>Corrige ta construction, puis livre-la de nouveau.</small></p></div>`;
+    speak(`Oups! ${msg} ${show}`)}
+  $("#fb").scrollIntoView({behavior:"smooth",block:"nearest"})}
+function batEnd(){const b=BS(),N=BAT_N,ok=BG.ok,t=BG.type;const st=ok>=N?3:ok>=N-1?2:ok>=N/2?1:0;let lvlMsg="";
+  const up=k=>{if(b.lvl[k]<4){b.lvl[k]++;return true}return false},down=k=>{if(b.lvl[k]>1){b.lvl[k]--;return true}return false};
+  const ks=t==="melange"?["nombre","mur"]:[t];
+  if(ok>=N-1){if(ks.map(up).some(Boolean))lvlMsg="Tu passes au niveau suivant : les commandes seront un peu plus difficiles!"}
+  else if(ok<=2){if(ks.map(down).some(Boolean))lvlMsg="On revient au niveau précédent pour bien pratiquer."}
+  if(ok>(b.best[t]||0))b.best[t]=ok;
+  const vb=b.village.length;if(vb&&vb%10===0)G.events.push({k:"village",n:vb,box:true});
+  if(!S.ms.first){S.ms.first=1;G.events.unshift({k:"first"})}save();
+  const el=$("#ecran-fin");el.style.setProperty("--c","var(--i2)");
+  el.innerHTML=`<div class="card result pop" style="--c:var(--i2)"><div class="notion">Les bâtisseurs · ${BTYPES[t].nom}</div><h2>${ok>=N-1?"Superbe travail":"Bon travail"}${S.name?", "+esc(S.name):""}!</h2>
+  <div class="score">${ok} / ${N}</div>${stars(st)}<p class="msg">Commandes réussies du premier coup. Ton village compte maintenant <b>${vb} bâtiment${vb>1?"s":""}</b>.</p>${lvlMsg?`<p class="msg"><b>${lvlMsg}</b></p>`:""}
+  <div class="village sm">${villageHTML(b.village)}</div>
+  <div class="row-btns"><button class="btn" id="bt-again">Encore des commandes</button><button class="btn ghost" id="bt-menu">Retour au village</button></div></div>`;
+  $("#bt-again").onclick=()=>startBat(t);$("#bt-menu").onclick=batMenu;BG=null;go("fin");
+  tone(st>=2?[[523,.12],[659,.12],[784,.12],[1047,.25]]:[[523,.15],[659,.2]]);speak(`Bravo! ${ok} commandes sur ${N} du premier coup. Ton village compte ${vb} bâtiments.`);
+  const evs=G.events.concat(PEND.splice(0));if(evs.length&&S.comp.type)setTimeout(()=>{if(!$("#ecran-fin").hidden&&!BYE)celebrate(evs);else PEND.push(...evs)},1300)}
+
 /* ---------- Démarrage ---------- */
 function syncSon(){const b=$("#btn-son");b.textContent="Son : "+(S.sound?"oui":"non");b.setAttribute("aria-pressed",String(S.sound))}
 $("#btn-son").onclick=()=>{S.sound=!S.sound;save();syncSon();tone([[660,.08]])};
@@ -2846,7 +2991,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261031-025334";
+const APP_VER="20261031-030440";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
