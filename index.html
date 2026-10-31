@@ -537,7 +537,8 @@ let VOICES=[];
 let VOICES_EN=[];
 function loadVoices(){try{const all=TTS.getVoices();VOICES=all.filter(v=>/^fr/i.test(v.lang));VOICES_EN=all.filter(v=>/^en/i.test(v.lang))}catch(e){VOICES=[];VOICES_EN=[]}}
 if(TTS){loadVoices();try{TTS.addEventListener("voiceschanged",()=>{loadVoices();fillVoices()})}catch(e){TTS.onvoiceschanged=()=>{loadVoices();fillVoices()}}}
-const canSpeak=()=>!!(TTS&&(S.voice||(LES&&LES.force)));
+let FORCEV=false;
+const canSpeak=()=>!!(TTS&&(S.voice||FORCEV||(LES&&LES.force)));
 const SPK=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>`;
 const FEM=/am[ée]lie|sylvie|caroline|chantal|audrey|marie|julie|hortense|denise|c[ée]line|aur[ée]lie|virginie|elsa|ariane|brigitte|[ée]lo[iï]se|vivienne|female|femme/i;
 const MALE=/thomas|nicolas|daniel|jean|paul|henri|claude|antoine|jacques|guillaume|f[ée]lix|mathieu|r[ée]my|\bmale\b|homme/i;
@@ -1403,7 +1404,7 @@ function bye(){BYE=true;PAUSED=false;G=null;save();if(MUS)MUS.pause();if(TTS)try
   $("#b-reopen").onclick=()=>{BYE=false;renderCarte();go("carte");musicSync()}}
 
 /* ---------- Écrans ---------- */
-function go(id){const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||BYE;SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);window.scrollTo(0,0)}
+function go(id){if(!(G&&G.mode==="dict"))FORCEV=false;const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||BYE;SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);window.scrollTo(0,0)}
 
 let OB=null,CUR=null;
 const SUBJ={maths:{nom:"L'Île aux Nombres",court:"Maths",sous:"Mathématique : nombres, calculs, fractions, mesures, formes",glyph:"123",c:"--i1",a:"à l'Île aux Nombres"},
@@ -2359,7 +2360,7 @@ function dPick(){dSync();const d=DS(),dn=dayNum(),cur=dCur(),E=Object.entries(d.
 const CLS={"n.":"nom","m.":"masculin","f.":"féminin","pl.":"pluriel","adj.":"adjectif","v.":"verbe","pron.":"pronom","dét.":"déterminant","inv.":"invariable","mot":"mot","ou":"ou"};
 const sayClass=c=>c.split(/\s+/).map(t=>CLS[t]||t).join(" ").replace("verbe","verbe à l'infinitif");
 const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
-function blankIn(p,w){const re=new RegExp("(^|[^\\p{L}'])("+reEsc(w)+")(?![\\p{L}])","iu");return re.test(p)?esc(p).replace(new RegExp("(^|[^\\p{L}'])("+reEsc(esc(w))+")(?![\\p{L}])","iu"),"$1<span class=\"blank\"></span>"):""}
+function blankIn(p,w){const re=new RegExp("(^|[^\\p{L}])("+reEsc(w)+")(?![\\p{L}])","iu");return re.test(p)?esc(p).replace(new RegExp("(^|[^\\p{L}])("+reEsc(esc(w))+")(?![\\p{L}])","iu"),"$1<span class=\"blank\"></span>"):""}
 const dNorm=s=>String(s||"").normalize("NFC").trim().replace(/[.!?,;:]+$/,"").trim().toLowerCase().replace(/[’`ʼ]/g,"'").replace(/\s+/g," ").replace(/\s*-\s*/g,"-");
 const dOk=(t,w)=>dNorm(t)===dNorm(w)||[...(DALT[w]||[]),...(dInfo(w).a||[])].some(a=>dNorm(t)===dNorm(a));
 /* Alignement lettre à lettre (plus longue sous-suite commune) pour montrer où est l'erreur */
@@ -2373,7 +2374,7 @@ const DACC=["é","è","ê","à","â","ç","î","ô","û","'","-"];
 let DC=null;
 function startDictee(){dSync();const list=dPick();
   if(!list.length){alertDict();return}
-  G={mode:"dict",subj:"francais",events:[]};DC={list,i:0,res:{},first:{},retried:new Set(),ok:0,n:list.length,flash:0};dWord()}
+  FORCEV=true;G={mode:"dict",subj:"francais",events:[]};DC={list,i:0,res:{},first:{},retried:new Set(),ok:0,n:list.length,flash:0};dWord()}
 function alertDict(){const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i7)");G={mode:"dict",subj:"francais"};
   el.innerHTML=`<div class="gamebar"><button class="back" id="d-back">← L'Île aux Mots</button><span class="gtitle">Ma dictée du jour</span></div><div class="card"><p class="prompt">${dWeeks().length?"Tous tes mots sont révisés pour aujourd'hui. Reviens demain!":"Papa ou maman doit d'abord ajouter les listes de mots dans l'espace parent."}</p></div>`;
   $("#d-back").onclick=()=>{G=null;renderCarte();go("carte")};go("jeu")}
@@ -2414,8 +2415,6 @@ function dWrite(sayIt){const {e}=DC.cur,ctx=e.p?blankIn(e.p,e.w):"";
   $("#d-body").querySelectorAll(".acck").forEach(b=>b.onpointerdown=ev=>{ev.preventDefault();const s=inp.selectionStart??inp.value.length,en=inp.selectionEnd??s;inp.value=inp.value.slice(0,s)+b.dataset.a+inp.value.slice(en);inp.focus();inp.setSelectionRange(s+1,s+1)});
   $("#d-form").addEventListener("submit",ev=>{ev.preventDefault();if(inp.value.trim())dCheck(inp.value)});
   inp.focus({preventScroll:true});
-  if(canSpeak()&&DC.cur.it.mode!=="new"&&!DC.cur.hinted){$("#d-form").insertAdjacentHTML("afterend",`<button class="dhint" id="d-hint" type="button">${SPK}Je n'entends pas le mot</button>`);
-    $("#d-hint").onclick=()=>{DC.cur.hinted=true;DC.cur.it={...DC.cur.it,hint:true};speak("");dFlash()}}
   if(sayIt)speakSeq(dSaySeq(e))}
 function dRecord(it,ok){const d=DS(),x=d.bank[it.w]||(d.bank[it.w]={b:0,due:0,wk:dInfo(it.w).wk,miss:0,ok:0,seen:0}),dn=dayNum(),was=x.b;
   x.seen++;x.last=dn;if(ok)x.ok++;else x.miss++;if(it.mode!=="extra")dToday().n++;
@@ -2518,7 +2517,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261031-011714";
+const APP_VER="20261031-012535";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
