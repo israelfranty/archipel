@@ -491,7 +491,9 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .djctrl{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .djbtn{width:84px;height:64px;border-radius:18px;border:3px solid var(--i5);background:var(--surface);color:var(--ink);font-size:1.8rem;touch-action:manipulation}
 .djbtn:active{transform:scale(.94);background:var(--bg)}
-.djcount{font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.djcount{font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center;margin:0}
+.djboost{width:auto;flex:1;max-width:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;gap:2px;border-color:var(--sun);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.djboost small{font-size:.8rem;font-weight:700;color:var(--muted)}.djboost.on{background:var(--sun);color:#2A2100;transform:scale(.96)}.djboost.on small{color:#2A2100}
 .djendhero{width:110px}.djstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%;max-width:520px}
 .djstats>div{background:var(--bg);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:4px;align-items:center}.djstats small{color:var(--muted)}.djstats b{font-family:var(--f-display);font-size:1.4rem}
 .djstats .meter{width:100%;height:8px;border-radius:4px;background:var(--line);overflow:hidden}.djstats .meter i{display:block;height:100%;background:var(--good)}
@@ -2661,7 +2663,7 @@ function donjonMenu(){stopDonjon();G={mode:"biblio",subj:"maths"};const g=GS(),h
 /* ---------- Le jeu ---------- */
 let DG=null;
 const DN_ROWS=15,DOORCOL=["#3FA9F5","#F5B83F","#A66BF0"],DLVL_T=[0,7.5,6.5,5.5,4.7,4];
-function stopDonjon(){if(DG){cancelAnimationFrame(DG.raf);DG.stop=true;window.removeEventListener("keydown",DG.key);window.removeEventListener("resize",DG.resize)}DG=null}
+function stopDonjon(){if(DG){cancelAnimationFrame(DG.raf);DG.stop=true;window.removeEventListener("keydown",DG.key);window.removeEventListener("keyup",DG.keyup);window.removeEventListener("resize",DG.resize)}DG=null}
 function startDonjon(theme){stopDonjon();const g=GS(),st=g.donjon[theme]||(g.donjon[theme]={lvl:1,best:0,gems3:0,played:0});
   G={mode:"donjon",subj:"maths",events:[]};
   const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");
@@ -2670,7 +2672,8 @@ function startDonjon(theme){stopDonjon();const g=GS(),st=g.donjon[theme]||(g.don
   <div class="djwrap" id="dj-wrap"><canvas id="dj-c" aria-label="Le donjon : change de voie pour passer par la bonne porte"></canvas>
    <div class="djmsg" id="dj-msg" hidden></div>
    <div class="djprog"><i id="dj-bar"></i></div></div>
-  <div class="djctrl"><button class="djbtn" id="dj-l" aria-label="Aller à gauche">◀</button><span class="djcount" id="dj-count"></span><button class="djbtn" id="dj-r" aria-label="Aller à droite">▶</button></div>`;
+  <div class="djctrl"><button class="djbtn" id="dj-l" aria-label="Aller à gauche">◀</button><button class="djbtn djboost" id="dj-u" aria-label="Accélérer (garder appuyé)">▲<small>Plus vite</small></button><button class="djbtn" id="dj-r" aria-label="Aller à droite">▶</button></div>
+  <p class="djcount" id="dj-count"></p>`;
   go("jeu");
   const cv=$("#dj-c"),ctx=cv.getContext("2d");
   DG={theme,st,lvl:st.lvl,T:DLVL_T[st.lvl],cv,ctx,W:0,H:0,dpr:1,lane:1,lx:1,row:null,coins:[],parts:[],hearts:3,done:0,ok:0,coinsGot:0,gems:0,streak:0,
@@ -2679,8 +2682,13 @@ function startDonjon(theme){stopDonjon();const g=GS(),st=g.donjon[theme]||(g.don
     cv.width=W*DG.dpr;cv.height=H*DG.dpr;cv.style.height=H+"px";DG.W=W;DG.H=H;ctx.setTransform(DG.dpr,0,0,DG.dpr,0,0)};
   DG.resize();window.addEventListener("resize",DG.resize);
   const move=d=>{if(!DG||DG.phase==="end")return;DG.lane=Math.max(0,Math.min(2,DG.lane+d));LAST_ACT=Date.now()};
-  DG.key=e=>{if(!DG)return;if(e.key==="ArrowLeft"){e.preventDefault();move(-1)}else if(e.key==="ArrowRight"){e.preventDefault();move(1)}};
-  window.addEventListener("keydown",DG.key);
+  /* Accélérer : garder la flèche du haut appuyée (bouton ▲ ou touche ↑) */
+  const boost=on=>{if(!DG)return;DG.boost=on;const b=$("#dj-u");if(b)b.classList.toggle("on",on);if(on)LAST_ACT=Date.now()};
+  DG.key=e=>{if(!DG)return;if(e.key==="ArrowLeft"){e.preventDefault();move(-1)}else if(e.key==="ArrowRight"){e.preventDefault();move(1)}else if(e.key==="ArrowUp"){e.preventDefault();boost(true)}};
+  DG.keyup=e=>{if(DG&&e.key==="ArrowUp")boost(false)};
+  window.addEventListener("keydown",DG.key);window.addEventListener("keyup",DG.keyup);
+  const bu=$("#dj-u");bu.onpointerdown=e=>{e.preventDefault();try{bu.setPointerCapture(e.pointerId)}catch(x){}boost(true)};
+  ["pointerup","pointercancel","lostpointercapture"].forEach(t=>bu.addEventListener(t,()=>boost(false)));bu.oncontextmenu=e=>e.preventDefault();
   $("#dj-l").onpointerdown=e=>{e.preventDefault();move(-1)};$("#dj-r").onpointerdown=e=>{e.preventDefault();move(1)};
   let sx=0,sy=0,st0=0;cv.addEventListener("pointerdown",e=>{sx=e.clientX;sy=e.clientY;st0=performance.now()});
   cv.addEventListener("pointerup",e=>{const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>28&&Math.abs(dx)>Math.abs(dy))move(dx>0?1:-1);
@@ -2703,7 +2711,7 @@ function djStep(dt){const D=DG;D.t+=dt;D.lx+=(D.lane-D.lx)*Math.min(1,dt*14);
   if(D.phase==="intro"){D.phaseT+=dt;D.scroll+=dt*3;if(D.phaseT>2.2){D.phase="run";djMsg("",false);djSpawn()}return}
   if(D.phase==="fail"){D.phaseT+=dt;if(D.phaseT>3.2&&D.failSaid){D.phase="run";djMsg("",false);D.row=null;D.gap=.6;if(D.hearts<=0||D.done>=DN_ROWS)return djEnd()}return}
   if(D.phase==="end")return;
-  const v=32/D.T;D.scroll+=v*dt;
+  const v=32/D.T*(D.boost?2.2:1);D.scroll+=v*dt;
   if(!D.row){D.gap-=dt;if(D.gap<=0){if(D.done>=DN_ROWS)return djEnd();djSpawn()}}
   else{D.row.d-=v*dt;if(D.row.d<=.9&&!D.row.hit){D.row.hit=true;djJudge()}}
   D.coins.forEach(c=>{c.d-=v*dt;if(!c.got&&c.d<.7&&c.d>-.3&&c.lane===D.lane){c.got=true;D.coinsGot++;tone([[1175,.05],[1568,.07]]);djBurst(c.lane,"#F5C542");djHud()}});
@@ -2768,6 +2776,8 @@ function djDraw(){const D=DG;if(!D)return;const c=D.ctx,W=D.W,H=D.H;if(!W)return
   /* objets du plus loin au plus près */
   const objs=[];D.coins.forEach(o=>objs.push({d:o.d,f:()=>djCoin(c,o,P,cx,LW)}));if(D.row)objs.push({d:D.row.d,f:()=>djDoors(c,D.row,P,cx,LW)});
   objs.sort((a,b)=>b.d-a.d).forEach(o=>o.f());
+  /* traits de vitesse */
+  if(D.boost&&D.phase==="run"){c.strokeStyle="rgba(255,255,255,.35)";c.lineWidth=2;for(let i=0;i<14;i++){const a=(i/14)*Math.PI*2+D.t*3,r0=W*.18+((D.t*900+i*97)%(W*.5));c.beginPath();c.moveTo(cx+Math.cos(a)*r0,hz+Math.sin(a)*r0*.6);c.lineTo(cx+Math.cos(a)*(r0+40),hz+Math.sin(a)*(r0+40)*.6);c.stroke()}}
   /* héros */
   djHero(c,cx+(D.lx-1)*LW,by+H*.03,H*.0019,D);
   /* étincelles */
@@ -2786,7 +2796,7 @@ function djDoors(c,r,P,cx,LW){const p=P(r.d);if(p.y<0)return;const D=DG;
 function djCoin(c,o,P,cx,LW){const p=P(o.d);if(p.y<0||o.d<-.5)return;const x=cx+(o.lane-1)*LW*p.s,r=LW*.11*p.s,y=p.y-r*1.6,sq=Math.abs(Math.cos(DG.t*5+o.d));
   c.fillStyle="#B8860B";c.beginPath();c.ellipse(x,y,r*sq+1,r,0,0,7);c.fill();c.fillStyle="#F5C542";c.beginPath();c.ellipse(x,y,r*sq*.8+1,r*.8,0,0,7);c.fill()}
 /* Héros vu de dos, qui court */
-function djHero(c,x,y,k,D){const h=D.hero,t=D.t*(D.phase==="fail"?0:11),sw=Math.sin(t),bob=Math.abs(Math.cos(t))*6*k;
+function djHero(c,x,y,k,D){const h=D.hero,t=D.t*(D.phase==="fail"?0:D.boost?17:11),sw=Math.sin(t),bob=Math.abs(Math.cos(t))*6*k;
   c.save();c.translate(x,y-bob);c.scale(k,k);
   c.fillStyle="rgba(0,0,0,.35)";c.beginPath();c.ellipse(0,bob/k+2,22,6,0,0,7);c.fill();
   /* jambes */
@@ -2834,7 +2844,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261031-024049";
+const APP_VER="20261031-024805";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
