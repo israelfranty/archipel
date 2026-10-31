@@ -1364,7 +1364,10 @@ const goalOf=k=>((S.goals||{})[k]??0)*60;
 function rollDay(){if(!S.goals)S.goals={francais:20,maths:15,anglais:10};
   if(S.day&&S.day.d===today()){if(!S.day.subj)S.day.subj={};if(typeof S.day.done!=="object")S.day.done={};return}
   if(S.day&&S.day.sec>0){S.hist.push({d:S.day.d,sec:S.day.sec,subj:S.day.subj||{},goals:{...S.goals}});if(S.hist.length>60)S.hist.shift()}
-  S.day={d:today(),sec:0,subj:{},done:{}};save()}
+  S.day={d:today(),sec:0,subj:{},done:{}};save();snapDay()}
+const SNAPKEY=KEY+"-debut-journee";
+function snapDay(){try{localStorage.setItem(SNAPKEY,JSON.stringify({d:today(),s:S}))}catch(e){}}
+function getSnap(){try{const x=JSON.parse(localStorage.getItem(SNAPKEY));return x&&x.d===today()?x:null}catch(e){return null}}
 const mins=sec=>Math.floor(sec/60);
 const subjSec=k=>(S.day.subj||{})[k]||0;
 const leftOf=k=>Math.max(0,goalOf(k)-subjSec(k));
@@ -1679,6 +1682,9 @@ function renderParent(){
   <h3>Objectifs quotidiens</h3>
   <div class="goals">${SUBJS.map(k=>`<label for="p-goal-${k}"><b>${LBL[k]}</b><select id="p-goal-${k}" data-goal="${k}">${[0,5,10,15,20,25,30,45].map(m=>`<option value="${m}" ${(S.goals[k]??0)===m?"selected":""}>${m?m+" minutes":"aucun objectif"}</option>`).join("")}</select></label>`).join("")}</div>
   <p><small>Total actuel : ${SUBJS.reduce((t,k)=>t+(S.goals[k]||0),0)} minutes par jour.</small></p>
+  <h3>Remettre la journée à zéro</h3><p><small>Utile après vos tests, pour qu'ils ne comptent pas dans la journée d'Olivia.</small></p>
+  <div class="confirm" id="p-rday-zone"><button class="btn ghost" id="p-rtime">Remettre à zéro le temps d'aujourd'hui</button>${getSnap()?`<button class="btn ghost" id="p-rday" style="border-color:var(--bad);color:var(--bad)">Annuler tout ce qui s'est passé aujourd'hui</button>`:""}</div>
+  <p><small>« Temps » : remet à 0 les minutes d'étude et le nombre de mots de dictée d'aujourd'hui; les réponses et les progrès sont gardés. ${getSnap()?"« Tout annuler » : remet le jeu exactement comme il était ce matin avant la première activité (temps, réponses, niveaux, étoiles, dictée, cadeaux gagnés aujourd'hui). Les réglages que vous avez changés sont gardés.":"« Tout annuler » sera disponible à partir de demain (le jeu garde maintenant une copie de chaque début de journée)."}</small></p>
   <h3>7 derniers jours</h3>
   <div class="days">${(()=>{const all=[...S.hist,{d:S.day.d,sec:S.day.sec,subj:S.day.subj,goals:S.goals}],out=[];for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);const k=dt.toLocaleDateString("en-CA"),r=all.find(x=>x.d===k),sj=(r&&r.subj)||{},gs=(r&&r.goals)||S.goals,ok=r&&r.subj&&SUBJS.every(x=>(sj[x]||0)>=(gs[x]||0)*60);
     out.push(`<div class="d"><span>${i===0?"Aujourd'hui":dt.toLocaleDateString("fr-CA",{weekday:"long",day:"numeric"})}</span><span class="dsub">${r&&r.subj?SUBJS.map(x=>`${LBL[x].slice(0,2)}. ${mins(sj[x]||0)}`).join(" · "):r?mins(r.sec)+" min":"—"}</span><b>${r?mins(r.sec):0} min${ok?" ✓":""}</b></div>`)}return out.join("")})()}</div></div>
@@ -1723,6 +1729,16 @@ function renderParent(){
   $("#p-strict").onchange=e=>{S.strict=e.target.checked;save()};
   $("#p-wsave").onclick=()=>{S.week={fr:[],en:parseWeek($("#p-wen").value,true),updated:Date.now()};save();renderParent()};
   $("#p-board").onchange=e=>{S.boardOn=e.target.checked;save()};
+  const zr=()=>$("#p-rday-zone");
+  $("#p-rtime").onclick=()=>{zr().innerHTML=`<span>Remettre à zéro le temps d'étude et la dictée d'aujourd'hui?</span><button class="btn" id="p-ry1" style="background:var(--bad)">Oui</button><button class="btn ghost" id="p-rn1">Annuler</button>`;
+    $("#p-rn1").onclick=renderParent;$("#p-ry1").onclick=()=>{S.day={d:today(),sec:0,subj:{},done:{}};if(S.dict)delete S.dict.today;PEND.splice(0);save();renderBar();renderParent()}};
+  const rd=$("#p-rday");if(rd)rd.onclick=()=>{zr().innerHTML=`<span><b>Tout annuler pour aujourd'hui?</b> Le jeu revient à son état de ce matin.</span><button class="btn" id="p-ry2" style="background:var(--bad)">Oui, tout annuler</button><button class="btn ghost" id="p-rn2">Annuler</button>`;
+    $("#p-rn2").onclick=renderParent;$("#p-ry2").onclick=()=>{const sn=getSnap();if(!sn)return renderParent();
+      const keep={name:S.name,sound:S.sound,music:S.music,voice:S.voice,voiceName:S.voiceName,rate:S.rate,rateV:S.rateV,theme:S.theme,goals:S.goals,boardOn:S.boardOn,strict:S.strict,week:S.week,traceCase:S.traceCase};
+      const gk={on:S.gifts.on,reveal:S.gifts.reveal,list:S.gifts.list};
+      const dk={txt:(S.dict||{}).txt,cur:(S.dict||{}).cur,curSet:(S.dict||{}).curSet};
+      S=Object.assign(fresh(),sn.s,keep);S.gifts=Object.assign({},S.gifts,gk);S.dict=Object.assign({},S.dict||{},dk);
+      PEND.splice(0);G=null;rollDay();save();renderBar();syncTheme();syncVoix();renderParent()}};
   el.querySelectorAll("[data-goal]").forEach(x=>x.onchange=()=>{S.goals[x.dataset.goal]=+x.value;save();renderBar();renderParent()});
   el.querySelectorAll("[data-given]").forEach(b=>b.onclick=()=>{S.gifts.pending.splice(+b.dataset.given,1);S.gifts.given++;save();renderParent()});
   $("#p-gon").onchange=e=>{S.gifts.on=e.target.checked;save()};
@@ -2517,7 +2533,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261031-012535";
+const APP_VER="20261031-014141";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
