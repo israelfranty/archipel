@@ -526,7 +526,7 @@ function bestVoice(){
 const FEM_EN=/samantha|karen|moira|tessa|serena|victoria|allison|ava|susan|zira|jenny|aria|clara|linda|heather|catherine|female|google us english|google uk english female/i,MALE_EN=/daniel|alex|fred|tom|david|mark|guy|ryan|aaron|arthur|oliver|george|\bmale\b/i;
 function bestVoiceEN(){const sc=v=>(/en[-_]CA/i.test(v.lang)?3:/en[-_]US/i.test(v.lang)?2:0)+(FEM_EN.test(v.name)?3:0)-(MALE_EN.test(v.name)?6:0)+(/enhanced|premium|natural|neural/i.test(v.name)?2:0);return VOICES_EN.slice().sort((a,b)=>sc(b)-sc(a))[0]||null}
 let SEQ=0;
-function speakSeq(list,onend){const id=++SEQ;let i=0;const nxt=()=>{if(id!==SEQ){onend&&onend();onend=null;return}if(i>=list.length){onend&&onend();return}const [t,l,r]=list[i++];speak(t,nxt,l,r,id)};nxt()}
+function speakSeq(list,onend){const id=++SEQ;let i=0;const nxt=()=>{if(id!==SEQ){onend&&onend();onend=null;return}if(i>=list.length){onend&&onend();return}const x=list[i++];if(typeof x==="number"){setTimeout(nxt,x);return}const [t,l,r]=x;speak(t,nxt,l,r,id)};nxt()}
 const VLOG=[];const vlog=m=>{VLOG.push(m);if(VLOG.length>6)VLOG.shift();const el=$("#p-vdiag");if(el)el.textContent=VLOG.join(" · ")};
 function speak(text,onend,lang,rate,sid){
   if(sid===undefined)SEQ++;
@@ -1380,7 +1380,7 @@ function bye(){BYE=true;PAUSED=false;G=null;save();if(MUS)MUS.pause();if(TTS)try
   $("#b-reopen").onclick=()=>{BYE=false;renderCarte();go("carte");musicSync()}}
 
 /* ---------- Écrans ---------- */
-function go(id){const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||BYE;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);window.scrollTo(0,0)}
+function go(id){const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||BYE;SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);window.scrollTo(0,0)}
 
 let OB=null,CUR=null;
 const SUBJ={maths:{nom:"L'Île aux Nombres",court:"Maths",sous:"Mathématique : nombres, calculs, fractions, mesures, formes",glyph:"123",c:"--i1",a:"à l'Île aux Nombres"},
@@ -2354,7 +2354,14 @@ function startDictee(){dSync();const list=dPick();
 function alertDict(){const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i7)");G={mode:"dict",subj:"francais"};
   el.innerHTML=`<div class="gamebar"><button class="back" id="d-back">← L'Île aux Mots</button><span class="gtitle">Ma dictée du jour</span></div><div class="card"><p class="prompt">${dWeeks().length?"Tous tes mots sont révisés pour aujourd'hui. Reviens demain!":"Papa ou maman doit d'abord ajouter les listes de mots dans l'espace parent."}</p></div>`;
   $("#d-back").onclick=()=>{G=null;renderCarte();go("carte")};go("jeu")}
+/* Débit de la dictée : plus lent que la voix normale, et le mot encore plus lentement */
+const dRate=()=>Math.min(S.rate||.81,.81)*.88,dRateW=()=>Math.min(S.rate||.81,.81)*.8;
 function dSay(e){return`${e.w}. ${e.p?e.p+" ":""}${e.w}. ${e.c?sayClass(e.c)+".":""}`}
+function dSaySeq(e,intro){const r=dRate(),rw=dRateW(),L=[];
+  if(intro!==false)L.push(["Écoute le mot et écris-le.","fr",r],700);
+  L.push([e.w+".","fr",rw],900);
+  if(e.p)L.push(["Par exemple : "+e.p,"fr",r],900);
+  L.push([e.w+(e.c?", "+sayClass(e.c):"")+".","fr",rw]);return L}
 function dWord(){
   clearTimeout(DC.flash);const it=DC.list[DC.i],e=dInfo(it.w),x=DS().bank[it.w]||{b:0};DC.cur={it,e,phase:it.mode==="new"?"look":"write",tries:0};
   const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i7)");
@@ -2364,14 +2371,14 @@ function dWord(){
   <div class="card pop dcard" style="--c:var(--i7)"><div class="cardtop"><div class="notion">${it.mode==="new"?"Mot nouveau · semaine "+e.wk:it.mode==="retry"?"On réessaie":"Dictée · semaine "+e.wk}</div><span class="cardbtns">${voice?`<button class="listen" id="d-listen">${SPK}Réécouter</button>`:""}</span></div>
   <div id="d-body"></div><div id="fb"></div></div>`;
   $("#d-back").onclick=()=>{clearTimeout(DC.flash);G=null;DC=null;renderCarte();go("carte")};
-  const bl=$("#d-listen");if(bl)bl.onclick=()=>speak(DC.cur.phase==="look"?`${e.w}. ${e.p}`:dSay(e));
+  const bl=$("#d-listen");if(bl)bl.onclick=()=>DC.cur.phase==="look"?speakSeq([[e.w+".","fr",dRateW()],600,...(e.p?[["Par exemple : "+e.p,"fr",dRate()]]:[])]):speakSeq(dSaySeq(e,false));
   go("jeu");
   if(DC.cur.phase==="look")dLook();else if(!voice)dFlash();else dWrite(true);
 }
 function dLook(){const {e}=DC.cur;
   $("#d-body").innerHTML=`<p class="prompt">Regarde bien ce mot. Dis chaque lettre dans ta tête, puis cache-le.</p><div class="dword">${esc(e.w)}</div>${e.c?`<p class="dcls">(${esc(sayClass(e.c))})</p>`:""}${e.p?`<p class="dctx">${esc(e.p)}</p>`:""}<button class="btn" id="d-hide">Je l'ai bien regardé : je le cache</button>`;
   $("#d-hide").onclick=()=>{DC.cur.phase="write";dWrite(false)};$("#d-hide").focus({preventScroll:true});
-  speak(`Mot nouveau : ${e.w}. ${e.p?e.p+" ":""}Regarde bien comment il s'écrit.`)}
+  speakSeq([["Mot nouveau :","fr",dRate()],400,[e.w+".","fr",dRateW()],700,...(e.p?[["Par exemple : "+e.p,"fr",dRate()],700]:[]),["Regarde bien comment il s'écrit.","fr",dRate()]])}
 /* Sans la voix : le mot apparaît 3 secondes, puis disparaît */
 function dFlash(){const {e}=DC.cur;let n=3;
   $("#d-body").innerHTML=`<p class="prompt">Regarde bien ce mot, il va disparaître!</p><div class="dword">${esc(e.w)}</div><p class="dcls" id="d-count">${n}</p>`;
@@ -2385,8 +2392,8 @@ function dWrite(sayIt){const {e}=DC.cur,ctx=e.p?blankIn(e.p,e.w):"";
   $("#d-form").addEventListener("submit",ev=>{ev.preventDefault();if(inp.value.trim())dCheck(inp.value)});
   inp.focus({preventScroll:true});
   if(canSpeak()&&DC.cur.it.mode!=="new"&&!DC.cur.hinted){$("#d-form").insertAdjacentHTML("afterend",`<button class="btn ghost" id="d-hint" type="button">Je n'entends pas le mot</button>`);
-    $("#d-hint").onclick=()=>{DC.cur.hinted=true;DC.cur.it={...DC.cur.it,hint:true};try{TTS.cancel()}catch(x){}dFlash()}}
-  if(sayIt)speak(dSay(e))}
+    $("#d-hint").onclick=()=>{DC.cur.hinted=true;DC.cur.it={...DC.cur.it,hint:true};speak("");dFlash()}}
+  if(sayIt)speakSeq(dSaySeq(e))}
 function dRecord(it,ok){const d=DS(),x=d.bank[it.w]||(d.bank[it.w]={b:0,due:0,wk:dInfo(it.w).wk,miss:0,ok:0,seen:0}),dn=dayNum(),was=x.b;
   x.seen++;x.last=dn;if(ok)x.ok++;else x.miss++;if(it.mode!=="extra")dToday().n++;
   if(it.hint)it={...it,mode:"new"};
@@ -2486,7 +2493,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261031-010424";
+const APP_VER="20261031-010924";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
