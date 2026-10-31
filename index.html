@@ -512,6 +512,8 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .b10col{background:var(--bg);border:2px solid var(--line);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:8px;align-items:center;min-width:0}
 .b10h{text-align:center;line-height:1.2}.b10h b{display:block;font-size:.95rem}.b10h small{color:var(--muted)}
 .b10pile{flex:1;min-height:120px;width:100%;display:flex;flex-wrap:wrap;gap:3px;align-content:flex-end;justify-content:center}
+.b10cols.four{grid-template-columns:repeat(4,minmax(0,1fr))}.b10cols.four .bp{width:34px;height:34px}.b10cols.four .bm{width:38px;height:38px}.bm{width:44px;height:44px}
+@media (max-width:600px){.b10cols.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .b10{display:block}.bp{width:46px;height:46px}.bb{width:8px;height:50px}.bc{width:13px;height:13px}.b10empty{color:var(--muted);font-size:.85rem;align-self:center}
 .b10ctl{display:flex;align-items:center;gap:10px}.b10n{font-family:var(--f-display);font-weight:700;font-size:1.6rem;min-width:1.6em;text-align:center;font-variant-numeric:tabular-nums}
 .stepb{width:48px;height:48px;border-radius:14px;border:3px solid var(--c);background:var(--surface);color:var(--ink);font-size:1.6rem;font-weight:700;line-height:1;touch-action:manipulation}
@@ -2853,7 +2855,7 @@ function djHero(c,x,y,k,D){const h=D.hero,t=D.t*(D.phase==="fail"?0:D.boost?17:1
    ====================================================================== */
 const BCLIENTS=[["🦫","Castor"],["🐢","Tortue"],["🦉","Hibou"],["🦊","Renard"],["🐻","Ourson"],["🐰","Lapine"],["🦝","Raton"],["🐸","Grenouille"]];
 const BBATS=["🏠","🏡","🏰","🗼","⛲","🏪","🏫","⛪","🌉","🎡","🏛️","🛖","🏯","🗽","🎠","🏬"];
-const BTYPES={nombre:{nom:"Construis le nombre",glyph:"347",isl:"port",notion:"Valeur de position"},mur:{nom:"Le mur de briques",glyph:"3×6",isl:"volcan",notion:"Multiplication en rectangle"},melange:{nom:"Commandes mélangées",glyph:"?",isl:"port",notion:"Mélange"}};
+const BTYPES={nombre:{nom:"Construis le nombre",glyph:"3 470",isl:"port",notion:"Valeur de position"},mur:{nom:"Le mur de briques",glyph:"3×6",isl:"volcan",notion:"Multiplication en rectangle"},melange:{nom:"Commandes mélangées",glyph:"?",isl:"port",notion:"Mélange"}};
 const BAT_N=6;
 function BS(){const g=GS();if(!g.bat)g.bat={lvl:{nombre:1,mur:1},village:[],orders:0,best:{}};if(!g.bat.best)g.bat.best={};return g.bat}
 /* Nombres en lettres (jusqu'à 999), orthographe traditionnelle */
@@ -2861,13 +2863,17 @@ const UN=["zéro","un","deux","trois","quatre","cinq","six","sept","huit","neuf"
 function enLettres(n){if(n<20)return UN[n];if(n<100){const d=Math.floor(n/10),u=n%10;
     if(d===7||d===9)return DIZ[d]+(d===7&&u===1?" et ":"-")+UN[10+u];
     if(u===0)return d===8?"quatre-vingts":DIZ[d];return DIZ[d]+(u===1&&d!==8?" et ":"-")+UN[u]}
-  const c=Math.floor(n/100),r=n%100;return(c===1?"cent":UN[c]+" cent"+(r===0?"s":""))+(r?" "+enLettres(r):"")}
+  if(n<1000){const c=Math.floor(n/100),r=n%100;return(c===1?"cent":UN[c]+" cent"+(r===0?"s":""))+(r?" "+enLettres(r):"")}
+  const m=Math.floor(n/1000),r=n%1000;return(m===1?"mille":enLettres(m)+" mille")+(r?" "+enLettres(r):"")}
 function bOrder(type,L){if(type==="melange")type=Math.random()<.5?"nombre":"mur";const [emo,nom]=pick(BCLIENTS);
-  if(type==="nombre"){let n,maxC=9,lettres=false;
-    if(L===1)n=R(11,99);else if(L===2)n=R(101,999);else if(L===3){n=R(120,989);maxC=Math.floor(n/100)-1}else{n=R(101,999);lettres=true}
+  if(type==="nombre"){let n,maxM=9,maxC=19,lettres=false,lack="";
+    if(L===1)n=R(101,999);else if(L===2)n=R(1001,9999);
+    else if(L===3){n=R(1200,9899);if(Math.floor(n/100)%10>=1&&Math.random()<.5){maxC=Math.floor(n/100)%10-1;lack=`${maxC} plaque${maxC>1?"s":""} de 100`}
+      else{maxM=Math.floor(n/1000)-1;lack=`${maxM} gros cube${maxM>1?"s":""} de 1 000`}}
+    else{n=R(1001,9999);lettres=true}
     const lab=lettres?`« ${enLettres(n)} »`:`<b>${nf(n)}</b>`;
-    return{type,emo,nom,n,maxC,lettres,txt:`Je voudrais une tour de ${lab}${maxC<Math.floor(n/100)?`, mais il ne me reste que <b>${maxC} plaque${maxC>1?"s":""} de 100</b>!`:"!"}`,
-      say:`Je voudrais une tour de ${lettres?enLettres(n):n}${maxC<Math.floor(n/100)?`, mais il ne me reste que ${maxC} plaque${maxC>1?"s":""} de cent`:""}.`}}
+    return{type,emo,nom,n,maxM,maxC,lettres,txt:`Je voudrais une tour de ${lab}${lack?`, mais il ne me reste que <b>${lack}</b>!`:"!"}`,
+      say:`Je voudrais une tour de ${lettres?enLettres(n):n}${lack?`, mais il ne me reste que ${lack.replace("1 000","mille").replace("100","cent")}`:""}.`}}
   let r,c;if(L===1){r=R(2,3);c=pick([2,5,10])}else if(L===2){r=R(2,5);c=R(2,5)}else{r=R(2,9);c=R(2,10)}if(Math.random()<.5&&L<4)[r,c]=[c,r];
   if(L>=4){r=R(2,6);c=R(2,9);return{type,emo,nom,r,c,div:true,txt:`J'ai <b>${r*c} briques</b>. Fais un mur de <b>${r} rangées</b> pareilles. Combien de briques dans chaque rangée?`,say:`J'ai ${r*c} briques. Fais un mur de ${r} rangées pareilles. Combien de briques dans chaque rangée?`}}
   return{type,emo,nom,r,c,txt:`Construis-moi un mur de <b>${r} rangée${r>1?"s":""}</b> de <b>${c} briques</b>.`,say:`Construis-moi un mur de ${r} rangées de ${c} briques.`}}
@@ -2887,7 +2893,7 @@ function startBat(type){if(S.gamesOn===false)return renderBiblio();const b=BS();
   BG={type,i:0,ok:0,first:true,tries:0,built:[],ord:null};batNext()}
 function batLevel(o){return BS().lvl[o.type]}
 function batNext(){if(!BG)return;if(BG.i>=BAT_N)return batEnd();const t=BG.type==="melange"?(Math.random()<.5?"nombre":"mur"):BG.type;
-  BG.ord=bOrder(t,BS().lvl[t]);BG.tries=0;BG.st=t==="nombre"?{c:0,d:0,u:0}:{r:1,c:1,ans:""};batRender();if(canSpeak())speak(BG.ord.say.replace(/<[^>]+>/g,""))}
+  BG.ord=bOrder(t,BS().lvl[t]);BG.tries=0;BG.st=t==="nombre"?{m:0,c:0,d:0,u:0}:{r:1,c:1,ans:""};batRender();if(canSpeak())speak(BG.ord.say.replace(/<[^>]+>/g,""))}
 function batRender(){const o=BG.ord,el=$("#ecran-jeu");el.style.setProperty("--c","var(--i2)");
   el.innerHTML=`<div class="gamebar"><button class="back" id="bt-quit">← Quitter</button><span class="gtitle">Les bâtisseurs</span><span class="levelchip">Niveau ${BS().lvl[o.type]}</span></div>
   <div class="dots">${Array.from({length:BAT_N},(_,i)=>`<span class="${i<BG.i?(BG.built[i]?"ok":"ko"):i===BG.i?"now":""}"></span>`).join("")}</div>
@@ -2899,10 +2905,12 @@ function batRender(){const o=BG.ord,el=$("#ecran-jeu");el.style.setProperty("--c
 /* --- Commande 1 : construire le nombre avec plaques, barres et cubes --- */
 const PLAQUE=`<svg class="b10 bp" viewBox="0 0 50 50" aria-hidden="true"><rect x="1" y="1" width="48" height="48" rx="3" fill="#F2B544" stroke="#9C6A12" stroke-width="2"/>${[...Array(9)].map((_,i)=>`<path d="M${5.8+i*4.8} 2v46M2 ${5.8+i*4.8}h46" stroke="#9C6A12" stroke-width=".6" opacity=".55"/>`).join("")}</svg>`;
 const BARRE=`<svg class="b10 bb" viewBox="0 0 8 50" aria-hidden="true"><rect x="1" y="1" width="6" height="48" rx="2" fill="#4FA3E0" stroke="#1F5F8F" stroke-width="1.4"/>${[...Array(9)].map((_,i)=>`<path d="M1 ${5.8+i*4.8}h6" stroke="#1F5F8F" stroke-width=".6"/>`).join("")}</svg>`;
+const MILLE=`<svg class="b10 bm" viewBox="0 0 60 60" aria-hidden="true"><path d="M8 16 22 4h34L42 16z" fill="#B57CF0" stroke="#5B2E8F" stroke-width="1.6"/><path d="M42 16 56 4v38L42 56z" fill="#7C4CC0" stroke="#5B2E8F" stroke-width="1.6"/><rect x="8" y="16" width="34" height="40" fill="#9B5DE5" stroke="#5B2E8F" stroke-width="1.6"/>${[1,2,3].map(i=>`<path d="M${8+i*8.5} 16v40M8 ${16+i*10}h34" stroke="#5B2E8F" stroke-width=".6" opacity=".6"/>`).join("")}</svg>`;
 const CUBE=`<svg class="b10 bc" viewBox="0 0 10 10" aria-hidden="true"><rect x="1" y="1" width="8" height="8" rx="1.5" fill="#E8607A" stroke="#8F2438" stroke-width="1.2"/></svg>`;
-function batNombreUI(){const s=BG.st,o=BG.ord,lim={c:o.maxC,d:19,u:19},lab={c:["Plaques de 100","centaines"],d:["Barres de 10","dizaines"],u:["Petits cubes","unités"]};
-  $("#bt-work").innerHTML=`<div class="b10cols">${["c","d","u"].map(k=>`<div class="b10col"><div class="b10h"><b>${lab[k][0]}</b><small>${lab[k][1]}</small></div>
-    <div class="b10pile b10-${k}">${(k==="c"?PLAQUE:k==="d"?BARRE:CUBE).repeat(s[k])||`<span class="b10empty">vide</span>`}</div>
+function batNombreUI(){const s=BG.st,o=BG.ord,big=o.n>=1000,lim={m:o.maxM,c:o.maxC,d:19,u:19},lab={m:["Cubes de 1 000","milliers"],c:["Plaques de 100","centaines"],d:["Barres de 10","dizaines"],u:["Petits cubes","unités"]};
+  const cols=big?["m","c","d","u"]:["c","d","u"],img={m:MILLE,c:PLAQUE,d:BARRE,u:CUBE};
+  $("#bt-work").innerHTML=`<div class="b10cols${big?" four":""}">${cols.map(k=>`<div class="b10col"><div class="b10h"><b>${lab[k][0]}</b><small>${lab[k][1]}</small></div>
+    <div class="b10pile b10-${k}">${img[k].repeat(s[k])||`<span class="b10empty">vide</span>`}</div>
     <div class="b10ctl"><button class="stepb" data-k="${k}" data-v="-1" ${s[k]<=0?"disabled":""} aria-label="Enlever">−</button><span class="b10n">${s[k]}</span><button class="stepb" data-k="${k}" data-v="1" ${s[k]>=lim[k]?"disabled":""} aria-label="Ajouter">+</button></div></div>`).join("")}</div>
     <button class="btn btgo" id="bt-go">Livrer la tour</button>`;
   $("#bt-work").querySelectorAll(".stepb").forEach(b=>b.onclick=()=>{s[b.dataset.k]+= +b.dataset.v;tone([[b.dataset.v>0?660:440,.05]]);batNombreUI()});
@@ -2922,11 +2930,12 @@ function batMurUI(){const s=BG.st,o=BG.ord;
 
 /* --- Vérification, aide et récompense --- */
 function batCheck(){const o=BG.ord,s=BG.st;let ok,msg,show="";
-  if(o.type==="nombre"){const v=s.c*100+s.d*10+s.u;ok=v===o.n&&s.c<=o.maxC;
-    const parts=`${s.c} centaine${s.c>1?"s":""}, ${s.d} dizaine${s.d>1?"s":""} et ${s.u} unité${s.u>1?"s":""}`;
-    if(ok)msg=`Exactement ${nf(o.n)} : ${parts}!${s.d>=10||s.u>=10?" Bravo pour les échanges : 10 dizaines valent 1 centaine, et 10 unités valent 1 dizaine.":""}`;
+  if(o.type==="nombre"){const v=s.m*1000+s.c*100+s.d*10+s.u;ok=v===o.n&&s.m<=o.maxM&&s.c<=o.maxC;
+    const pl=(n,w)=>`${n} ${w}${n>1?"s":""}`,parts=(o.n>=1000?pl(s.m,"millier")+", ":"")+`${pl(s.c,"centaine")}, ${pl(s.d,"dizaine")} et ${pl(s.u,"unité")}`;
+    if(ok)msg=`Exactement ${nf(o.n)} : ${parts}!${s.c>=10||s.d>=10||s.u>=10?" Bravo pour les échanges : 10 centaines valent 1 millier, 10 dizaines valent 1 centaine, et 10 unités valent 1 dizaine.":""}`;
     else{const diff=o.n-v;msg=`Ta tour vaut ${nf(v)} (${parts}). ${diff>0?`Il manque ${nf(diff)}.`:`C'est ${nf(-diff)} de trop.`}`;
-      if(BG.tries>=1){const c=Math.min(Math.floor(o.n/100),o.maxC),rest=o.n-c*100;show=`${o.lettres?`« ${enLettres(o.n)} », c'est ${nf(o.n)}. `:""}Une façon : ${c} plaque${c>1?"s":""} de 100, ${Math.floor(rest/10)} barres de 10 et ${rest%10} cubes.`}}}
+      if(BG.tries>=1){const m=Math.min(Math.floor(o.n/1000),o.maxM),r1=o.n-m*1000,c=Math.min(Math.floor(r1/100),o.maxC),r2=r1-c*100;
+        show=`${o.lettres?`« ${enLettres(o.n)} », c'est ${nf(o.n)}. `:""}Une façon : ${o.n>=1000?pl(m,"gros cube")+" de 1 000, ":""}${pl(c,"plaque")} de 100, ${pl(Math.floor(r2/10),"barre")} de 10 et ${pl(r2%10,"petit cube")}.`}}}
   else{const tot=o.r*o.c,ans=+s.ans;
     if(o.div){ok=s.r===o.r&&s.c===o.c&&ans===o.c;msg=ok?`${tot} briques en ${o.r} rangées : ${o.c} dans chaque rangée. ${o.r} × ${o.c} = ${tot}!`:
       s.r*s.c!==tot?`Ton mur a ${s.r*s.c} briques, mais il en faut ${tot}.`:s.r!==o.r?`Il faut ${o.r} rangées.`:`Ton mur est bon! Compte les briques d'une rangée pour répondre.`;
@@ -2991,7 +3000,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261031-030440";
+const APP_VER="20261031-030852";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
