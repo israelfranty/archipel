@@ -442,6 +442,29 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 #ecran-parent details summary{cursor:pointer;font-weight:700;color:var(--sea)}
 .btn.wait{opacity:.55;cursor:not-allowed}
 .fbclock{display:flex;flex-direction:column;align-items:center;gap:4px}.fbclock .svgvis.clock{width:min(100%,200px)}
+/* Dictée : mise en page aérée */
+#d-body{display:flex;flex-direction:column;gap:18px;align-items:stretch}
+#d-body .prompt{text-align:center;margin:0}
+#d-body .dcls{align-self:center;background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:4px 16px;font-size:.95rem;font-weight:700;color:var(--muted)}
+#d-body .dctx{background:var(--bg);border-radius:14px;padding:10px 16px;align-self:center;max-width:100%}
+#d-body .dword{padding:6px 0}
+.dform{gap:16px!important}
+.din{min-height:76px;padding:12px 16px!important;transition:box-shadow .15s,border-color .15s}
+.din:focus{outline:none;box-shadow:0 0 0 5px var(--line)}
+.acc{display:grid!important;grid-template-columns:repeat(11,minmax(0,52px));justify-content:center;gap:8px!important;padding:2px 0}
+@media (max-width:620px){.acc{grid-template-columns:repeat(6,minmax(0,52px))}}
+.acck{width:100%;min-width:0!important}
+.dform.done .acc,.dform.done .btn{display:none!important}
+#d-fix .btn{width:100%}
+.acck{min-width:46px!important;height:46px!important;border-radius:12px!important}
+.acck:active{transform:scale(.94);border-color:var(--c)}
+.dform .btn[type=submit]{min-height:54px}
+.dhint{align-self:center;display:inline-flex;align-items:center;gap:8px;background:transparent;border:0;color:var(--muted);font-weight:700;font-size:.95rem;padding:8px 14px;border-radius:999px;text-decoration:underline;text-underline-offset:3px}
+.dhint svg{width:18px;height:18px}
+.dhint:hover{color:var(--ink);background:var(--bg)}
+.dcard{gap:22px!important}
+.dcard .feedback{gap:14px}
+.dcmp{gap:12px!important}.dcmp>div{padding:12px!important;display:flex;flex-direction:column;gap:4px}
 .seg{display:flex;gap:0;border:2px solid var(--line);border-radius:999px;padding:3px;align-self:flex-start;background:var(--surface)}
 .seg button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font-family:"Andika","Atkinson Hyperlegible",sans-serif;font-weight:700;color:var(--muted)}
 .seg button.on{background:var(--i6);color:var(--on-i)}
@@ -2346,7 +2369,7 @@ function dDiff(a,b){a=[...dNorm(a)];b=[...b];const n=a.length,m=b.length,T=Array
   return{you:a.map((c,i)=>ka[i]?esc(c):`<mark class="dx">${esc(c)}</mark>`).join("")||"&nbsp;",good:b.map((c,j)=>kb[j]?esc(c):`<mark class="dg">${esc(c)}</mark>`).join("")}}
 const LNAME={"é":"e accent aigu","è":"e accent grave","ê":"e accent circonflexe","ë":"e tréma","à":"a accent grave","â":"a accent circonflexe","î":"i accent circonflexe","ï":"i tréma","ô":"o accent circonflexe","û":"u accent circonflexe","ù":"u accent grave","ç":"c cédille","'":"apostrophe","-":"trait d'union"};
 const spellOut=w=>[...w].filter(c=>c!==" ").map(c=>LNAME[c]||c).join(", ");
-const DACC=["é","è","ê","à","â","ç","î","ï","ô","û","ë","'","-"];
+const DACC=["é","è","ê","à","â","ç","î","ô","û","'","-"];
 let DC=null;
 function startDictee(){dSync();const list=dPick();
   if(!list.length){alertDict();return}
@@ -2391,7 +2414,7 @@ function dWrite(sayIt){const {e}=DC.cur,ctx=e.p?blankIn(e.p,e.w):"";
   $("#d-body").querySelectorAll(".acck").forEach(b=>b.onpointerdown=ev=>{ev.preventDefault();const s=inp.selectionStart??inp.value.length,en=inp.selectionEnd??s;inp.value=inp.value.slice(0,s)+b.dataset.a+inp.value.slice(en);inp.focus();inp.setSelectionRange(s+1,s+1)});
   $("#d-form").addEventListener("submit",ev=>{ev.preventDefault();if(inp.value.trim())dCheck(inp.value)});
   inp.focus({preventScroll:true});
-  if(canSpeak()&&DC.cur.it.mode!=="new"&&!DC.cur.hinted){$("#d-form").insertAdjacentHTML("afterend",`<button class="btn ghost" id="d-hint" type="button">Je n'entends pas le mot</button>`);
+  if(canSpeak()&&DC.cur.it.mode!=="new"&&!DC.cur.hinted){$("#d-form").insertAdjacentHTML("afterend",`<button class="dhint" id="d-hint" type="button">${SPK}Je n'entends pas le mot</button>`);
     $("#d-hint").onclick=()=>{DC.cur.hinted=true;DC.cur.it={...DC.cur.it,hint:true};speak("");dFlash()}}
   if(sayIt)speakSeq(dSaySeq(e))}
 function dRecord(it,ok){const d=DS(),x=d.bank[it.w]||(d.bank[it.w]={b:0,due:0,wk:dInfo(it.w).wk,miss:0,ok:0,seen:0}),dn=dayNum(),was=x.b;
@@ -2409,6 +2432,8 @@ function dCheck(val){const C=DC.cur,{e}=C,it=C.it,ok=dOk(val,e.w);if(C.phase!=="
   if(firstTime){DC.first[it.w]=ok;dRecord(it,ok);if(ok)DC.ok++}
   DC.res[DC.i]=ok;
   const inp=$("#d-in");inp.readOnly=true;inp.classList.add(ok?"right":"wrong");$("#d-form").querySelectorAll("button").forEach(b=>b.disabled=true);
+  /* On range le clavier d'accents et les boutons déjà utilisés pour garder l'écran clair */
+  $("#d-form").classList.add("done");const hb=$("#d-hint");if(hb)hb.remove();
   tone(ok?[[660,.1],[880,.16]]:[[300,.18]]);
   if(ok){const x=DS().bank[it.w]||{};const next=x.due-dayNum();
     $("#fb").innerHTML=`<div class="feedback good pop"><h3>${pick(["Bravo!","Parfait!","Tu l'as!","Bien écrit!"])}</h3><p>${it.mode==="new"?"Super! Ce mot reviendra demain pour bien rester dans ta mémoire.":it.mode==="retry"?"Cette fois, c'est la bonne!":x.b>=DMAST&&firstTime?"Ce mot est maintenant bien rangé dans ta mémoire!":firstTime&&it.mode==="rev"?`Ce mot reviendra dans ${next} jour${next>1?"s":""}.`:"Bien joué!"}</p><button class="btn" id="b-cont">${DC.i>=DC.list.length-1?"Voir mon résultat":"Mot suivant"}</button></div>`;
@@ -2416,12 +2441,12 @@ function dCheck(val){const C=DC.cur,{e}=C,it=C.it,ok=dOk(val,e.w);if(C.phase!=="
   else{const df=dDiff(val,e.w);
     if(it.mode!=="retry"&&!DC.retried.has(it.w)){DC.retried.add(it.w);DC.list.push({w:it.w,mode:"retry"})}
     $("#fb").innerHTML=`<div class="feedback bad pop"><h3>Presque!</h3><div class="dcmp"><div><small>Tu as écrit</small><span class="dword sm">${df.you}</span></div><div><small>On écrit</small><span class="dword sm">${df.good}</span></div></div>
-    <p>Les lettres en couleur sont celles à corriger. Recopie le mot correctement pour bien le retenir :</p>
+    <p>Les lettres en couleur sont celles à corriger. Recopie le mot correctement pour bien le retenir.</p>
     <form id="d-fix" class="dform" autocomplete="off"><input id="d-fixin" class="din" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" lang="fr" aria-label="Recopie le mot"><div class="acc">${DACC.map(a=>`<button type="button" class="acck" data-a="${a}">${a}</button>`).join("")}</div><button class="btn" type="submit">Vérifier</button></form>
     <p id="d-fixmsg" aria-live="polite"></p>${it.mode!=="retry"?`<p><small>Ce mot reviendra à la fin de la dictée, puis demain.</small></p>`:""}</div>`;
     const fi=$("#d-fixin");fi.focus({preventScroll:true});
     $("#fb").querySelectorAll(".acck").forEach(b=>b.onpointerdown=ev=>{ev.preventDefault();const s=fi.selectionStart??fi.value.length,en=fi.selectionEnd??s;fi.value=fi.value.slice(0,s)+b.dataset.a+fi.value.slice(en);fi.focus();fi.setSelectionRange(s+1,s+1)});
-    $("#d-fix").addEventListener("submit",ev=>{ev.preventDefault();if(dOk(fi.value,e.w)){fi.readOnly=true;fi.classList.add("right");$("#d-fix").querySelectorAll("button").forEach(b=>b.disabled=true);tone([[660,.1],[880,.12]]);
+    $("#d-fix").addEventListener("submit",ev=>{ev.preventDefault();if(dOk(fi.value,e.w)){fi.readOnly=true;fi.classList.add("right");$("#d-fix").querySelectorAll("button").forEach(b=>b.disabled=true);$("#d-fix").classList.add("done");tone([[660,.1],[880,.12]]);
         $("#d-fixmsg").innerHTML="";$("#fb .feedback").insertAdjacentHTML("beforeend",`<button class="btn" id="b-cont">${DC.i>=DC.list.length-1?"Voir mon résultat":"Mot suivant"}</button>`);bindCont()}
       else{$("#d-fixmsg").innerHTML=`<b style="color:var(--bad)">Pas tout à fait. Regarde bien chaque lettre et réessaie.</b>`;fi.select()}});
     speak(`Presque! On écrit ${e.w}. ${spellOut(e.w)}. Recopie le mot.`)}
@@ -2493,7 +2518,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261031-010924";
+const APP_VER="20261031-011714";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
