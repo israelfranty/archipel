@@ -441,6 +441,7 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .dcmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dcmp>div{background:var(--surface);border-radius:12px;padding:8px;text-align:center}.dcmp small{color:var(--muted)}
 #ecran-parent details summary{cursor:pointer;font-weight:700;color:var(--sea)}
 .btn.wait{opacity:.55;cursor:not-allowed}
+.fbclock{display:flex;flex-direction:column;align-items:center;gap:4px}.fbclock .svgvis.clock{width:min(100%,200px)}
 .seg{display:flex;gap:0;border:2px solid var(--line);border-radius:999px;padding:3px;align-self:flex-start;background:var(--surface)}
 .seg button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font-family:"Andika","Atkinson Hyperlegible",sans-serif;font-weight:700;color:var(--muted)}
 .seg button.on{background:var(--i6);color:var(--on-i)}
@@ -576,11 +577,16 @@ for(let i=0;i<d;i++){const a0=(i/d)*2*Math.PI-Math.PI/2,a1=((i+1)/d)*2*Math.PI-M
  if(!gone){const am=(a0+a1)/2;for(const f of[.45,.72])s+=`<circle cx="${c+r*f*Math.cos(am+(f>.5?.12:-.1)*(8/d))}" cy="${c+r*f*Math.sin(am+(f>.5?.12:-.1)*(8/d))}" r="5" fill="var(--m-rouge)"/>`}}
 return s+`</svg>`}
 function groupsHTML(g,n){return`<div class="groups">${Array.from({length:g},()=>`<div class="grp ${n<=3?"small":""}">${"<i></i>".repeat(n)}</div>`).join("")}</div>`}
-function clock(h,m){const ha=((h%12)+m/60)*30,ma=m*6;let s=`<div class="clockwrap"><svg class="svgvis clock" viewBox="0 0 160 160" role="img" aria-label="Une horloge"><circle cx="80" cy="80" r="74" fill="var(--surface)" stroke="var(--ink)" stroke-width="5"/>`;
+/* zone=true : colore l'espace entre l'heure et l'heure suivante (aide après une erreur) */
+function clock(h,m,zone){const ha=((h%12)+m/60)*30,ma=m*6;let s=`<div class="clockwrap"><svg class="svgvis clock" viewBox="0 0 160 160" role="img" aria-label="Une horloge"><circle cx="80" cy="80" r="74" fill="var(--surface)" stroke="var(--ink)" stroke-width="5"/>`;
+if(zone&&m){const a0=(h%12)*30*Math.PI/180,a1=((h%12)+1)*30*Math.PI/180,r=71;s+=`<path d="M80,80 L${80+r*Math.sin(a0)},${80-r*Math.cos(a0)} A${r},${r} 0 0 1 ${80+r*Math.sin(a1)},${80-r*Math.cos(a1)} Z" fill="var(--sun)" opacity=".35"/>`}
 for(let i=0;i<60;i++){const a=i*6*Math.PI/180,r1=i%5?66:62;s+=`<line x1="${80+r1*Math.sin(a)}" y1="${80-r1*Math.cos(a)}" x2="${80+69*Math.sin(a)}" y2="${80-69*Math.cos(a)}" stroke="var(--muted)" stroke-width="${i%5?1:2.5}"/>`}
-for(let i=1;i<=12;i++){const a=i*30*Math.PI/180;s+=`<text x="${80+50*Math.sin(a)}" y="${80-50*Math.cos(a)+5.5}" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="600" font-size="15" fill="var(--ink)">${i}</text>`}
+/* Chiffres dessinés après les aiguilles, avec un contour, pour qu'aucune aiguille ne les cache */
+let nums="";for(let i=1;i<=12;i++){const a=i*30*Math.PI/180;nums+=`<text x="${80+50*Math.sin(a)}" y="${80-50*Math.cos(a)+5.5}" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="600" font-size="15" fill="var(--ink)" stroke="var(--surface)" stroke-width="4" paint-order="stroke" stroke-linejoin="round">${i}</text>`}
 const hand=(ang,len,w,col)=>{const a=ang*Math.PI/180;return`<line x1="${80-8*Math.sin(a)}" y1="${80+8*Math.cos(a)}" x2="${80+len*Math.sin(a)}" y2="${80-len*Math.cos(a)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`};
-return s+hand(ma,60,4,"var(--c)")+hand(ha,34,9,"var(--ink)")+`<circle cx="80" cy="80" r="6" fill="var(--ink)"/></svg><div class="fraclegend"><span><i class="hand-h"></i>petite aiguille : les heures</span><span><i class="hand-m"></i>grande aiguille : les minutes</span></div></div>`}
+/* Petite aiguille plus longue, avec une pointe, pour bien voir vers quel chiffre elle va */
+const tip=(ang,len,w,col)=>{const a=ang*Math.PI/180,px=80+len*Math.sin(a),py=80-len*Math.cos(a),bx=80+(len-11)*Math.sin(a),by=80-(len-11)*Math.cos(a),nx=Math.cos(a)*w,ny=Math.sin(a)*w;return`<path d="M${px},${py} L${bx+nx},${by+ny} L${bx-nx},${by-ny} Z" fill="${col}"/>`};
+return s+hand(ma,62,4,"var(--c)")+nums+hand(ha,33,8,"var(--ink)")+tip(ha,43,7,"var(--ink)")+`<circle cx="80" cy="80" r="6" fill="var(--ink)"/></svg><div class="fraclegend"><span><i class="hand-h"></i>petite aiguille : les heures</span><span><i class="hand-m"></i>grande aiguille : les minutes</span></div></div>`}
 const tfmt=(h,m)=>m===0?`${h} h`:`${h} h ${String(m).padStart(2,"0")}`;
 
 const SHAPES={
@@ -677,7 +683,7 @@ horloge(L){
     const d=[tfmt(nh,m),tfmt(h,(m+30)%60),tfmt(h,(m+15)%60),tfmt(ph,m)];if(m)d.unshift(tfmt(m/5,(h%12)*5));
     const extra=m===30?" (et demie)":m===15?" (et quart)":m===45?` (ou ${nh} h moins quart)`:"";
     const ex=m===0?`Quand la grande aiguille pointe le 12, c'est l'heure juste. La petite aiguille est sur le ${h} : il est ${h} h.`:`La grande aiguille pointe le ${m/5} : on compte de 5 en 5, ça fait ${m} minutes. La petite aiguille est entre le ${h} et le ${nh} : l'heure est encore ${h}. Il est ${tfmt(h,m)}${extra}.`;
-    return{notion:"Lire l'heure",prompt:"Quelle heure est-il?",visual:clock(h,m),kind:"choice",choices:choices(tfmt(h,m),d),answer:tfmt(h,m),explain:ex}}
+    return{notion:"Lire l'heure",prompt:"Quelle heure est-il?",visual:clock(h,m),hm:[h,m],kind:"choice",choices:choices(tfmt(h,m),d),answer:tfmt(h,m),explain:ex}}
   if(type==="unite"){const it=pick([["un crayon","cm"],["une fourmi","mm"],["la cour d'école","m"],["la route entre Montréal et Québec","km"],["l'épaisseur d'une pièce de 1 ¢","mm"],["la hauteur d'une porte","m"],["la largeur d'un cahier","cm"],["une piscine","m"],["un trombone","cm"],["la distance jusqu'à une autre ville","km"]]);
     return{notion:"Choisir une unité",prompt:`Quelle unité convient le mieux pour mesurer <b>${it[0]}</b>?`,kind:"choice",choices:["mm","cm","m","km"],answer:it[1],explain:`Le mm sert aux toutes petites choses, le cm aux objets qu'on tient dans la main, le m aux pièces et aux cours, et le km aux longues distances. Pour ${it[0]}, on choisit le ${it[1]}.`}}
   if(type==="conv"){const t=pick(L===2?["m","cm","dm"]:["m","cm","dm","mcm","cmmm"]);let p,a,e;
@@ -1507,7 +1513,7 @@ function answer(v,btn){
   const REV=ok?[]:lessonsFor(q.isl,q.notion,q);if(!ok)REV.forEach(r=>{if(!(G.review||(G.review=[])).some(x=>revKey(x)===revKey(r)))G.review.push(r)});
   const EN=q.lang==="en",title=timeout?"Temps écoulé!":fast?`<span class="bolt">${BOLT}Éclair!</span>`:ok?pick(EN?["Great job!","Well done!","Awesome!","Yes!"]:["Bravo!","Bonne réponse!","Tu l'as!","Bien joué!"]):(EN?"Almost!":"Presque!");
   const time=BRD?(ok?"Tu as pris le temps de bien écrire. Bravo!":"Recopie la bonne réponse au tableau pour bien la retenir."):timeout?`L'objectif était ${secs(G.target)} s. Tu feras mieux à la prochaine!`:fast?`Réponse en ${secs(ms)} s : plus vite que l'objectif de ${secs(G.target)} s!`:ok?`Réponse en ${secs(ms)} s. Objectif : ${secs(G.target)} s. Essaie d'aller un peu plus vite!`:`Temps : ${secs(ms)} s.`;
-  $("#fb").innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${title}</h3><p class="fbtime">${time}</p>${ok||BRD?"":`<p>La bonne réponse est <b>${q.disp?q.disp[q.answer]:show(q.answer)}</b>.</p>`}${ok&&Math.random()<.6&&!EN?"":`<p>${q.explain}</p>`}${q.rep&&TTS?`<button class="listen rep" id="b-rep">${SPK}Répète après moi : <b lang="en">${esc(q.rep)}</b></button>`:""}${!ok?reviewHTML(REV,"fb-rev"):""}<button class="btn" id="b-cont">${last?"Voir mon résultat":"Question suivante"}</button></div>`;
+  $("#fb").innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${title}</h3><p class="fbtime">${time}</p>${ok||BRD?"":`<p>La bonne réponse est <b>${q.disp?q.disp[q.answer]:show(q.answer)}</b>.</p>`}${ok&&Math.random()<.6&&!EN?"":`<p>${q.explain}</p>`}${!ok&&q.hm&&q.hm[1]?`<div class="fbclock">${clock(q.hm[0],q.hm[1],true).replace(/<div class="fraclegend">.*<\/div><\/div>$/s,"</div>")}<p><small>La petite aiguille est dans la zone jaune, <b>entre le ${q.hm[0]} et le ${q.hm[0]%12+1}</b>. Elle n'a pas encore atteint le ${q.hm[0]%12+1} : l'heure est donc <b>${q.hm[0]} h</b>.</small></p></div>`:""}${q.rep&&TTS?`<button class="listen rep" id="b-rep">${SPK}Répète après moi : <b lang="en">${esc(q.rep)}</b></button>`:""}${!ok?reviewHTML(REV,"fb-rev"):""}<button class="btn" id="b-cont">${last?"Voir mon résultat":"Question suivante"}</button></div>`;
   const c=$("#b-cont");c.onclick=()=>{if(c.disabled)return;G.i++;if(G.i>=G.n)finish();else next()};
   /* Après une erreur, le bouton reste bloqué tant que l'explication n'est pas terminée */
   const LBLC=c.textContent;let unlock=null;
@@ -2459,7 +2465,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261025-171037";
+const APP_VER="20261030-215012";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
