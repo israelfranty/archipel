@@ -1467,7 +1467,7 @@ function renderCarte(){
   let h;
   if(!CUR){
     h=`<div class="hello"><h2>Bonjour, ${esc(S.name)}!</h2><p>Sur quelle île veux-tu aller aujourd'hui?</p>${dDue()?`<p class="dnote">${PENICON}Ta dictée du jour t'attend à L'Île aux Mots : <b>${dDue()} mot${dDue()>1?"s":""}</b> à réviser.</p>`:""}</div>`+searchBox(null)+buddy
-     +`<div class="subjects">${Object.entries(SUBJ).map(([k,s])=>{const st=starsOf(k),max=zones(k).length*3;return`<button class="subject" data-subj="${k}" style="--c:var(${s.c})"><span class="sbadge">${s.glyph}</span><span class="sbody"><span class="nom">${s.nom}</span><span class="sous">${s.sous}</span><span class="smeta">${stars(Math.min(3,Math.floor(st/max*3+0.0001)))}<span class="lvl">${st} étoile${st>1?"s":""} sur ${max}</span></span></span></button>`}).join("")}<button class="subject" id="b-atelier" style="--c:var(--i6)"><span class="sbadge tglyph">${PENICON}<span>a b 3</span></span><span class="sbody"><span class="nom">L'Atelier d'écriture</span><span class="sous">Tracer les chiffres et les lettres dans le bon sens, avec ton stylet ou ton doigt</span></span></button><button class="subject" id="b-biblio" style="--c:var(--i5)"><span class="sbadge emo">🏰</span><span class="sbody"><span class="nom">La Bibliothèque de jeux</span><span class="sous">Des jeux d'aventure pour pratiquer les notions : traverse le Donjon des nombres!</span></span></button></div>`;
+     +`<div class="subjects">${Object.entries(SUBJ).map(([k,s])=>{const st=starsOf(k),max=zones(k).length*3;return`<button class="subject" data-subj="${k}" style="--c:var(${s.c})"><span class="sbadge">${s.glyph}</span><span class="sbody"><span class="nom">${s.nom}</span><span class="sous">${s.sous}</span><span class="smeta">${stars(Math.min(3,Math.floor(st/max*3+0.0001)))}<span class="lvl">${st} étoile${st>1?"s":""} sur ${max}</span></span></span></button>`}).join("")}<button class="subject" id="b-atelier" style="--c:var(--i6)"><span class="sbadge tglyph">${PENICON}<span>a b 3</span></span><span class="sbody"><span class="nom">L'Atelier d'écriture</span><span class="sous">Tracer les chiffres et les lettres dans le bon sens, avec ton stylet ou ton doigt</span></span></button>${S.gamesOn!==false?`<button class="subject" id="b-biblio" style="--c:var(--i5)"><span class="sbadge emo">🏰</span><span class="sbody"><span class="nom">La Bibliothèque de jeux</span><span class="sous">Des jeux d'aventure pour pratiquer les notions : traverse le Donjon des nombres!</span></span></button>`:""}</div>`;
   }else{
     const s=SUBJ[CUR],zs=zones(CUR),st=starsOf(CUR);
     h=`<div class="gamebar"><button class="back" id="b-home">← Les îles</button><span class="gtitle">${s.nom}</span></div><button class="btn notions" id="b-notions">${BOOKICON}Les notions : revoir les règles</button>${searchBox(CUR)}<div class="hello"><p>Choisis une zone à explorer. Tu as gagné ${st} étoile${st>1?"s":""} sur ${zs.length*3} ici.</p></div>`
@@ -1726,6 +1726,7 @@ function renderParent(){
     out.push(`<div class="d"><span>${i===0?"Aujourd'hui":dt.toLocaleDateString("fr-CA",{weekday:"long",day:"numeric"})}</span><span class="dsub">${r&&r.subj?SUBJS.map(x=>`${LBL[x].slice(0,2)}. ${mins(sj[x]||0)}`).join(" · "):r?mins(r.sec)+" min":"—"}</span><b>${r?mins(r.sec):0} min${ok?" ✓":""}</b></div>`)}return out.join("")})()}</div></div>
   <div class="panel"><h3>Vitesse</h3><p>Chaque question affiche une barre de temps. L'objectif est calculé à partir de ses propres réponses : 10 % plus rapide que son temps habituel sur cette notion. Il se resserre donc à mesure qu'elle progresse. Une bonne réponse sous l'objectif donne un « éclair ».</p>
   ${Object.keys(SUBJ).map(sj=>{const r=SPR(sj);return`<p><b>Course Éclair ${SUBJ[sj].court} :</b> record de ${r.best} bonnes réponses en 60 s. ${r.hist.length?`Dernières parties : ${r.hist.slice(-8).map(h=>h.s).join(", ")}.`:"Aucune partie jouée pour l'instant."}</p>`}).join("")}
+  <label class="toggle" for="p-games"><input type="checkbox" id="p-games" ${S.gamesOn!==false?"checked":""}><span><b>La Bibliothèque de jeux</b><br><small>Décoché, la carte « La Bibliothèque de jeux » disparaît de l'accueil et les jeux ne sont plus accessibles. Les pièces, pierres et records sont gardés.</small></span></label>
   <label class="toggle" for="p-board"><input type="checkbox" id="p-board" ${S.boardOn!==false?"checked":""}><span><b>Un défi au tableau dans chaque mission</b><br><small>La dernière question de chaque mission lui demande d'écrire ou de dessiner à la main, puis de vérifier avec la bonne réponse. Si elle n'a pas son tableau (dans la voiture, par exemple), elle peut la passer : une question ordinaire la remplace. La Mission tableau reste toujours disponible.</small></span></label>
   <label class="toggle" for="p-strict"><input type="checkbox" id="p-strict" ${S.strict?"checked":""}><span><b>Compte à rebours strict</b><br><small>Quand le temps est écoulé, la question compte comme une erreur. À activer seulement quand elle réussit bien au mode normal : trop de pression peut la pousser à deviner au lieu de réfléchir.</small></span></label></div>
   <div class="panel"><h3>Voix de lecture</h3><p>La voix lit chaque question, puis l'explication quand elle se trompe. Le chrono démarre seulement quand la lecture est terminée. Elle se désactive avec le bouton « Voix » en haut de l'écran.</p>
@@ -1765,6 +1766,7 @@ function renderParent(){
   $("#p-strict").onchange=e=>{S.strict=e.target.checked;save()};
   $("#p-wsave").onclick=()=>{S.week={fr:[],en:parseWeek($("#p-wen").value,true),updated:Date.now()};save();renderParent()};
   $("#p-board").onchange=e=>{S.boardOn=e.target.checked;save()};
+  $("#p-games").onchange=e=>{S.gamesOn=e.target.checked;save()};
   const zr=()=>$("#p-rday-zone");
   $("#p-rtime").onclick=()=>{zr().innerHTML=`<span>Remettre à zéro le temps d'étude et la dictée d'aujourd'hui?</span><button class="btn" id="p-ry1" style="background:var(--bad)">Oui</button><button class="btn ghost" id="p-rn1">Annuler</button>`;
     $("#p-rn1").onclick=renderParent;$("#p-ry1").onclick=()=>{S.day={d:today(),sec:0,subj:{},done:{}};if(S.dict)delete S.dict.today;PEND.splice(0);save();renderBar();renderParent()}};
@@ -2639,7 +2641,7 @@ const GAMES=[
   {id:"detective",nom:"Détective des mots",sous:"Français",art:"🔎",c:"#5A3A1F"},
   {id:"histoire",nom:"Les aventures de l'histoire",sous:"Français",art:"📖",c:"#4F3A1F"},
   {id:"labo",nom:"Le laboratoire des phrases",sous:"Français",art:"🧪",c:"#3A2F6B"}];
-function renderBiblio(){stopDonjon();G={mode:"biblio",subj:null};const g=GS();
+function renderBiblio(){if(S.gamesOn===false){stopDonjon();G=null;renderCarte();go("carte");return}stopDonjon();G={mode:"biblio",subj:null};const g=GS();
   const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");
   el.innerHTML=`<div class="gamebar"><button class="back" id="bb-home">← Les îles</button><span class="gtitle">La Bibliothèque de jeux</span><span class="levelchip">🪙 ${g.coins}</span></div>
   <div class="hello"><p>Choisis un jeu. Chaque jeu fait pratiquer les notions de l'école en s'amusant!</p></div>
@@ -2664,7 +2666,7 @@ function donjonMenu(){stopDonjon();G={mode:"biblio",subj:"maths"};const g=GS(),h
 let DG=null;
 const DN_ROWS=15,DOORCOL=["#3FA9F5","#F5B83F","#A66BF0"],DLVL_T=[0,7.5,6.5,5.5,4.7,4];
 function stopDonjon(){if(DG){cancelAnimationFrame(DG.raf);DG.stop=true;window.removeEventListener("keydown",DG.key);window.removeEventListener("keyup",DG.keyup);window.removeEventListener("resize",DG.resize)}DG=null}
-function startDonjon(theme){stopDonjon();const g=GS(),st=g.donjon[theme]||(g.donjon[theme]={lvl:1,best:0,gems3:0,played:0});
+function startDonjon(theme){if(S.gamesOn===false)return renderBiblio();stopDonjon();const g=GS(),st=g.donjon[theme]||(g.donjon[theme]={lvl:1,best:0,gems3:0,played:0});
   G={mode:"donjon",subj:"maths",events:[]};
   const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");
   el.innerHTML=`<div class="gamebar"><button class="back" id="dj-quit">← Quitter</button><span class="gtitle">${DTHEMES[theme].nom}</span><span class="levelchip">Étage ${st.lvl}</span></div>
@@ -2844,7 +2846,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261031-024805";
+const APP_VER="20261031-025334";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
