@@ -2290,7 +2290,9 @@ function bindSearch(subj){const inp=$("#q-search"),out=$("#q-res");if(!inp)retur
    (1, 2, 4, 8, 16 puis 35 jours). Raté : il retourne à la boîte 1 et revient dès le lendemain.
    C'est la révision espacée : on se rappelle le mot juste au moment où on allait l'oublier. */
 const LISTE_DEF=/*LISTE*/""/*FIN-LISTE*/;
-const DINT=[0,1,2,4,8,16,35],DN=10,DMAST=5;
+const DINT=[0,1,2,4,8,16,35],DN=10,DMAST=5,DCAP=30;
+const dToday=()=>{const d=DS(),dn=dayNum();if(!d.today||d.today.d!==dn)d.today={d:dn,n:0};return d.today};
+const dRoom=()=>Math.max(0,DCAP-dToday().n);
 const DALT={"clé":["clef"],"boîte":["boite"],"paraître":["paraitre"],"août":["aout"],"fraîche":["fraiche"],"fou":["fol"]};
 const dayNum=()=>Math.floor(Date.parse(today()+"T12:00:00")/864e5);
 function DS(){if(!S.dict||typeof S.dict!=="object")S.dict={};const d=S.dict;if(!d.bank)d.bank={};if(typeof d.txt!=="string")d.txt="";if(!d.cur)d.cur=0;return d}
@@ -2301,7 +2303,8 @@ function parseListes(txt){const W={};let cur=null;
   String(txt||"").split(/\r?\n/).forEach(l=>{l=l.trim();if(!l)return;
     const m=l.match(/^(?:section\s+\d+\s*[—–:-]\s*)?semaine\s+(\d+)\s*[|:—–-]?\s*(.*)$/i);if(m){cur=+m[1];W[cur]={t:m[2].trim(),w:[]};return}
     if(/^section\s+\d+\s*$/i.test(l)||/^liste des mots/i.test(l)||!cur)return;
-    if(/^[-•*]\s*/.test(l)){l.replace(/^[-•*]\s*/,"").split(/\s*→\s*/).forEach(f=>{const v=f.split(/\s*,\s*/);add(v[0],"","",v.slice(1))});return}
+    if(/^[-•*]\s*/.test(l)){const ch=l.replace(/^[-•*]\s*/,"").split(/\s*→\s*/).map(f=>f.split(/\s*,\s*/)),base=ch[0][0];
+      ch.forEach((v,i)=>{const w=v[0];let c="";if(ch.length>1){if(i===0)c="masculin";else{const pl=/(s|x)$/.test(w)&&!/(s|x)$/.test(base),fe=/e(s)?$/.test(w)&&!/e$/.test(base);c=(fe&&pl?"féminin pluriel":pl?"pluriel":"féminin")+" de « "+base+" »"}}add(w,c,"",v.slice(1))});return}
     if(!W[cur].w.length&&!W[cur].t&&!/[;({]/.test(l)){W[cur].t=l;return}
     l.split(";").forEach(it=>{it=it.trim();if(!it)return;const mm=it.match(/^([^({]+?)\s*(?:\(([^)]*)\))?\s*(?:\{([^}]*)\})?\s*$/);if(!mm)return;add(mm[1],(mm[2]||"").trim(),(mm[3]||"").trim())})});
   Object.keys(W).forEach(k=>{if(!W[k].w.length)delete W[k]});return W}
@@ -2318,27 +2321,31 @@ function dSync(){const d=DS(),L=dLists(),cur=dCur();if(!cur)return;const dn=dayN
     d.bank[e.w]=wk<cur?{b:1,due:dn+Math.floor(k++/15),wk,miss:0,ok:0,seen:0}:{b:0,due:dn,wk,miss:0,ok:0,seen:0};DSYNC_ADD=1}));if(DSYNC_ADD){DSYNC_ADD=0;save()}}
 let DSYNC_ADD=0;
 const dInfo=w=>dLists().by[w]||{w,c:"",p:"",wk:0};
-function dDue(){dSync();const d=DS(),dn=dayNum(),cur=dCur();return Object.entries(d.bank).filter(([w,x])=>dLists().by[w]&&((x.b>=1&&x.due<=dn)||(x.b===0&&x.wk<=cur))).length}
+function dDueAll(){dSync();const d=DS(),dn=dayNum(),cur=dCur();return Object.entries(d.bank).filter(([w,x])=>dLists().by[w]&&((x.b>=1&&x.due<=dn)||(x.b===0&&x.wk<=cur))).length}
+const dDue=()=>Math.min(dDueAll(),dRoom());
 const dMastered=()=>Object.entries(DS().bank).filter(([w,x])=>dLists().by[w]&&x.b>=DMAST).length;
 function dPick(){dSync();const d=DS(),dn=dayNum(),cur=dCur(),E=Object.entries(d.bank).filter(([w])=>dLists().by[w]);
   const due=E.filter(([,x])=>x.b>=1&&x.due<=dn).sort((a,b)=>a[1].due-b[1].due||a[1].b-b[1].b).map(([w])=>({w,mode:"rev"}));
   const nw=E.filter(([,x])=>x.b===0&&x.wk<=cur).sort((a,b)=>b[1].wk-a[1].wk).map(([w])=>({w,mode:"new"}));
-  let out=[...due.slice(0,7),...shuffle(nw).slice(0,Math.max(3,DN-Math.min(7,due.length)))];
-  if(out.length<DN)out.push(...due.slice(7,7+DN-out.length));
-  if(out.length<DN){const have=new Set(out.map(x=>x.w));
+  const room=Math.min(DN,dRoom());
+  let out=room?[...due.slice(0,Math.min(7,room)),...shuffle(nw).slice(0,Math.max(Math.min(3,room),room-Math.min(7,due.length)))].slice(0,room):[];
+  if(out.length<room)out.push(...due.slice(7,7+room-out.length));
+  if(!room){const have=new Set(out.map(x=>x.w));
     const ex=E.filter(([w,x])=>!have.has(w)&&x.b>=1).sort((a,b)=>(b[1].miss-a[1].miss)||(a[1].b-b[1].b)||(a[1].due-b[1].due)).slice(0,DN-out.length).map(([w])=>({w,mode:"extra"}));out.push(...ex)}
   return shuffle(out.slice(0,DN))}
 const CLS={"n.":"nom","m.":"masculin","f.":"féminin","pl.":"pluriel","adj.":"adjectif","v.":"verbe","pron.":"pronom","dét.":"déterminant","inv.":"invariable","mot":"mot","ou":"ou"};
 const sayClass=c=>c.split(/\s+/).map(t=>CLS[t]||t).join(" ").replace("verbe","verbe à l'infinitif");
 const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
 function blankIn(p,w){const re=new RegExp("(^|[^\\p{L}'])("+reEsc(w)+")(?![\\p{L}])","iu");return re.test(p)?esc(p).replace(new RegExp("(^|[^\\p{L}'])("+reEsc(esc(w))+")(?![\\p{L}])","iu"),"$1<span class=\"blank\"></span>"):""}
-const dNorm=s=>String(s||"").normalize("NFC").trim().toLowerCase().replace(/[’`ʼ]/g,"'").replace(/\s+/g," ").replace(/\s*-\s*/g,"-");
+const dNorm=s=>String(s||"").normalize("NFC").trim().replace(/[.!?,;:]+$/,"").trim().toLowerCase().replace(/[’`ʼ]/g,"'").replace(/\s+/g," ").replace(/\s*-\s*/g,"-");
 const dOk=(t,w)=>dNorm(t)===dNorm(w)||[...(DALT[w]||[]),...(dInfo(w).a||[])].some(a=>dNorm(t)===dNorm(a));
 /* Alignement lettre à lettre (plus longue sous-suite commune) pour montrer où est l'erreur */
 function dDiff(a,b){a=[...dNorm(a)];b=[...b];const n=a.length,m=b.length,T=Array.from({length:n+1},()=>new Array(m+1).fill(0));
   for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)T[i][j]=a[i]===b[j].toLowerCase()?T[i+1][j+1]+1:Math.max(T[i+1][j],T[i][j+1]);
   const ka=new Array(n).fill(false),kb=new Array(m).fill(false);let i=0,j=0;while(i<n&&j<m){if(a[i]===b[j].toLowerCase()){ka[i]=kb[j]=true;i++;j++}else if(T[i+1][j]>=T[i][j+1])i++;else j++}
   return{you:a.map((c,i)=>ka[i]?esc(c):`<mark class="dx">${esc(c)}</mark>`).join("")||"&nbsp;",good:b.map((c,j)=>kb[j]?esc(c):`<mark class="dg">${esc(c)}</mark>`).join("")}}
+const LNAME={"é":"e accent aigu","è":"e accent grave","ê":"e accent circonflexe","ë":"e tréma","à":"a accent grave","â":"a accent circonflexe","î":"i accent circonflexe","ï":"i tréma","ô":"o accent circonflexe","û":"u accent circonflexe","ù":"u accent grave","ç":"c cédille","'":"apostrophe","-":"trait d'union"};
+const spellOut=w=>[...w].filter(c=>c!==" ").map(c=>LNAME[c]||c).join(", ");
 const DACC=["é","è","ê","à","â","ç","î","ï","ô","û","ë","'","-"];
 let DC=null;
 function startDictee(){dSync();const list=dPick();
@@ -2370,16 +2377,19 @@ function dFlash(){const {e}=DC.cur;let n=3;
   $("#d-body").innerHTML=`<p class="prompt">Regarde bien ce mot, il va disparaître!</p><div class="dword">${esc(e.w)}</div><p class="dcls" id="d-count">${n}</p>`;
   const t=()=>{n--;const c=$("#d-count");if(!c)return;if(n<=0){dWrite(false);return}c.textContent=n;DC.flash=setTimeout(t,1000)};DC.flash=setTimeout(t,1000)}
 function dWrite(sayIt){const {e}=DC.cur,ctx=e.p?blankIn(e.p,e.w):"";
-  $("#d-body").innerHTML=`<p class="prompt">${canSpeak()?"Écoute le mot et écris-le.":"Écris le mot que tu viens de voir."}</p>${ctx?`<p class="dctx">${ctx}</p>`:""}${e.c?`<p class="dcls">(${esc(sayClass(e.c))})</p>`:""}
+  $("#d-body").innerHTML=`<p class="prompt">${canSpeak()&&sayIt?"Écoute le mot et écris-le.":"Écris le mot que tu viens de voir."}</p>${ctx?`<p class="dctx">${ctx}</p>`:""}${e.c?`<p class="dcls">(${esc(sayClass(e.c))})</p>`:""}
   <form id="d-form" class="dform" autocomplete="off"><input id="d-in" class="din" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" lang="fr" aria-label="Écris le mot ici" enterkeyhint="done">
   <div class="acc">${DACC.map(a=>`<button type="button" class="acck" data-a="${a}">${a}</button>`).join("")}</div><button class="btn" type="submit">Valider</button></form>`;
   const inp=$("#d-in");
   $("#d-body").querySelectorAll(".acck").forEach(b=>b.onpointerdown=ev=>{ev.preventDefault();const s=inp.selectionStart??inp.value.length,en=inp.selectionEnd??s;inp.value=inp.value.slice(0,s)+b.dataset.a+inp.value.slice(en);inp.focus();inp.setSelectionRange(s+1,s+1)});
   $("#d-form").addEventListener("submit",ev=>{ev.preventDefault();if(inp.value.trim())dCheck(inp.value)});
   inp.focus({preventScroll:true});
+  if(canSpeak()&&DC.cur.it.mode!=="new"&&!DC.cur.hinted){$("#d-form").insertAdjacentHTML("afterend",`<button class="btn ghost" id="d-hint" type="button">Je n'entends pas le mot</button>`);
+    $("#d-hint").onclick=()=>{DC.cur.hinted=true;DC.cur.it={...DC.cur.it,hint:true};try{TTS.cancel()}catch(x){}dFlash()}}
   if(sayIt)speak(dSay(e))}
 function dRecord(it,ok){const d=DS(),x=d.bank[it.w]||(d.bank[it.w]={b:0,due:0,wk:dInfo(it.w).wk,miss:0,ok:0,seen:0}),dn=dayNum(),was=x.b;
-  x.seen++;x.last=dn;if(ok)x.ok++;else x.miss++;
+  x.seen++;x.last=dn;if(ok)x.ok++;else x.miss++;if(it.mode!=="extra")dToday().n++;
+  if(it.hint)it={...it,mode:"new"};
   if(it.mode==="new"){x.b=1;x.due=dn+1}
   else if(it.mode==="rev"){if(ok){x.b=Math.min(6,x.b+1);x.due=dn+DINT[x.b]}else{x.b=1;x.due=dn+1}}
   else if(!ok){x.b=1;x.due=dn+1}
@@ -2387,7 +2397,7 @@ function dRecord(it,ok){const d=DS(),x=d.bank[it.w]||(d.bank[it.w]={b:0,due:0,wk
   if(ok&&was<DMAST&&x.b>=DMAST){const wk=x.wk,all=dLists().W[wk];if(all&&all.w.every(e=>(d.bank[e.w]||{}).b>=DMAST||dLists().by[e.w]!==e))G.events.push({k:"dictee",wk,box:true});
     const m=dMastered();if(m>0&&m%25===0)G.events.push({k:"dicteeN",n:m,box:true})}
   save()}
-function dCheck(val){const C=DC.cur,{it,e}=C,ok=dOk(val,e.w);if(C.phase!=="write")return;C.phase="done";
+function dCheck(val){const C=DC.cur,{e}=C,it=C.it,ok=dOk(val,e.w);if(C.phase!=="write")return;C.phase="done";
   const firstTime=it.mode!=="retry"&&!(it.w in DC.first);
   if(firstTime){DC.first[it.w]=ok;dRecord(it,ok);if(ok)DC.ok++}
   DC.res[DC.i]=ok;
@@ -2407,7 +2417,7 @@ function dCheck(val){const C=DC.cur,{it,e}=C,ok=dOk(val,e.w);if(C.phase!=="write
     $("#d-fix").addEventListener("submit",ev=>{ev.preventDefault();if(dOk(fi.value,e.w)){fi.readOnly=true;fi.classList.add("right");$("#d-fix").querySelectorAll("button").forEach(b=>b.disabled=true);tone([[660,.1],[880,.12]]);
         $("#d-fixmsg").innerHTML="";$("#fb .feedback").insertAdjacentHTML("beforeend",`<button class="btn" id="b-cont">${DC.i>=DC.list.length-1?"Voir mon résultat":"Mot suivant"}</button>`);bindCont()}
       else{$("#d-fixmsg").innerHTML=`<b style="color:var(--bad)">Pas tout à fait. Regarde bien chaque lettre et réessaie.</b>`;fi.select()}});
-    speak(`Presque! On écrit ${e.w}. ${[...e.w].filter(c=>c!==" ").join(", ")}. Recopie le mot.`)}
+    speak(`Presque! On écrit ${e.w}. ${spellOut(e.w)}. Recopie le mot.`)}
   bindCont();$("#fb").scrollIntoView({behavior:"smooth",block:"nearest"})}
 function bindCont(){const c=$("#b-cont");if(!c)return;c.onclick=()=>{DC.i++;if(DC.i>=DC.list.length)dFinish();else dWord()};c.focus({preventScroll:true})}
 function dFinish(){const words=Object.keys(DC.first),ok=DC.ok,N=words.length,miss=words.filter(w=>!DC.first[w]);const st=ok>=N?3:ok>=N*.8?2:ok>=N*.5?1:0;
@@ -2431,8 +2441,9 @@ function dParentHTML(){const d=DS(),L=dLists(),ws=dWeeks(),cur=dCur();
     return wk>cur?"":`<div class="d"><span><b>Semaine ${wk}</b>${wk===cur?" (en cours)":""}<br><span class="dsub">${esc(L.W[wk].t)}</span></span><span class="meter"><i style="width:${W.length?m/W.length*100:0}%;background:var(--good)"></i></span><span>${m}/${W.length}${seen.length?"":" · à venir"}</span></div>`}).join("");
   const hard=Object.entries(d.bank).filter(([w,x])=>L.by[w]&&x.miss>0).sort((a,b)=>b[1].miss-a[1].miss||a[1].b-b[1].b).slice(0,12);
   return`<h3>Dictée du jour (listes d'orthographe)</h3><p><small>Chaque mot revient après 1, 2, 4, 8, 16 puis 35 jours s'il est réussi; un mot raté revient le lendemain. Un mot est « maîtrisé » après 5 réussites espacées.</small></p>
+  ${Object.values(L.by).filter(e=>e.c||e.p).length<Object.keys(L.by).length*.5?`<p class="help"><b>Attention :</b> cette liste n'a pas les classes de mots ni les petites phrases. À l'oreille, certains mots se confondent (mer / mère, marché / marcher, but…). Collez plutôt le fichier <b>listes-orthographe-3e-annee.txt</b> de votre projet Claude.</p>`:""}
   <label>Semaine en cours à l'école : <select id="p-dcur">${ws.map(w=>`<option value="${w}" ${w===cur?"selected":""}>Semaine ${w}</option>`).join("")}</select></label>${d.curSet?"":`<p><small><b>À confirmer :</b> semaine estimée selon la date. Choisissez la bonne semaine.</small></p>`}
-  <p><small>Aujourd'hui : <b>${dDue()}</b> mot${dDue()>1?"s":""} à réviser · <b>${dMastered()}</b> mots maîtrisés.</small></p>
+  <p><small>Aujourd'hui : <b>${dDue()}</b> mot${dDue()>1?"s":""} à réviser (maximum ${DCAP} par jour; le surplus passe au lendemain${dDueAll()>dDue()?` : ${dDueAll()-dDue()} en attente`:""}) · <b>${dMastered()}</b> mots maîtrisés.</small></p>
   <div class="days">${rows}</div>
   ${hard.length?`<p><small><b>Mots les plus difficiles :</b></small></p><div class="redo">${hard.map(([w,x])=>`<span class="rv" title="${x.miss} erreur(s)">${esc(w)} <small>×${x.miss}</small></span>`).join("")}</div>`:""}
   <details><summary>Modifier les listes de mots</summary>${dListBox(false)}</details>
@@ -2475,7 +2486,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261030-215851";
+const APP_VER="20261031-010424";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
