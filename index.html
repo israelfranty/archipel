@@ -2804,6 +2804,9 @@ function repChecks(txt,it,open){const T=repText(it),t=txt.trim(),o=(open||"").re
   if(it.type==="appr")L.push(["Je juge le texte (histoire, personnage, fin, ce que j'ai appris…)",/(histoire|personnage|fin|début|texte|appris|apprend|drôle|intéressant|information|surprenant|triste|belle|beau)/i.test(t.replace(/^.*?(car|parce qu)/iu,""))]);
   L.push(["Majuscule au début, point à la fin",/^[A-ZÀ-ÖØ-Þ«"]/.test(t)&&/[.!?»"]$/.test(t)]);
   return L}
+/* Lecture du texte, de la question et de l'exemple : moitié de la vitesse générale, une phrase à la fois avec une petite pause */
+const repR=()=>(S.rate||.63)*.5;
+const repRead=t=>String(t).split(/(?<=[.!?:])\s+/).filter(x=>/[\p{L}0-9]/u.test(x)).flatMap((x,i,a)=>i<a.length-1?[[x,"fr",repR()],250]:[[x,"fr",repR()]]);
 let RC=null;
 function startRep(){const r=RS(),pool=REP_ITEMS.filter(it=>repText(it)).slice().sort((a,b)=>(r.n[a.id]||0)-(r.n[b.id]||0)||Math.random()-.5);
   const list=[];for(const it of pool){if(list.length>=3)break;if(!list.some(x=>x.t===it.t))list.push(it)}
@@ -2816,7 +2819,7 @@ function repShell(){const it=RC.list[RC.i],T=repText(it),el=$("#ecran-jeu");el.s
    <div id="r-step"></div><div id="fb"></div></div>`;
   $("#r-back").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}G=null;RC=null;renderCarte();go("carte")};go("jeu")}
 function repItem(){RC.step="type";RC.open="";RC.marq="";RC.proof="";repShell();const it=RC.list[RC.i],T=repText(it);
-  if(canSpeak())speakSeq([[T.titre+".","fr"],300,[T.texte,"fr"],600,["Question : "+it.q,"fr"]]);
+  if(canSpeak())speakSeq([...repRead(T.titre+"."),300,...repRead(T.texte),600,...repRead("Question : "+it.q)]);
   repChoice("Quelle sorte de question est-ce?",Object.entries(REPT).map(([k,v])=>({t:`${v.ic} ${v.l}`,ok:k===it.type,why:k===it.type?`Oui! ${v.l} : ${v.d}`:`Pas tout à fait. C'est « ${REPT[it.type].l} » : ${REPT[it.type].d}`})),()=>{RC.step="start";repShell();repStart()},true)}
 function repStart(){const it=RC.list[RC.i];
   repChoice("Comment commencer ta réponse?",shuffle([...it.ok.map(t=>({t,ok:true,why:"Oui! Ce début reprend les mots de la question."+(it.ok.length>1?" (L'autre début aurait été bon aussi : c'est ton avis qui compte.)":"")})),...it.ko.map(t=>({t,ok:false,why:`Ce début ne reprend pas les mots de la question. Commence plutôt par : « ${it.ok[0]} »`}))]),
@@ -2852,7 +2855,7 @@ function repWrite(){const it=RC.list[RC.i],box=$("#r-step"),pre=RC.open.replace(
      <p class="msg">${all?"Ta réponse a toutes les parties d'une réponse complète!":"Compare avec l'exemple : qu'est-ce qui manque à ta réponse?"} Papa ou maman pourra la lire dans l'espace parent.</p>
      <div class="row-btns"><button class="btn" id="r-go">${RC.i+1<RC.list.length?"Texte suivant":"Terminer"}</button></div>`;
     tone(all?[[523,.12],[659,.12],[784,.2]]:[[523,.15],[659,.2]]);
-    if(canSpeak())speakSeq([[all?"Bravo! Ta réponse est complète.":"Bien travaillé! Compare avec l'exemple.","fr"],500,["Voici un exemple de réponse complète : "+it.m,"fr"]]);
+    if(canSpeak())speakSeq([[all?"Bravo! Ta réponse est complète.":"Bien travaillé! Compare avec l'exemple.","fr"],500,["Voici un exemple de réponse complète :","fr"],300,...repRead(it.m)]);
     $("#r-go").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}RC.i++;if(RC.i<RC.list.length)repItem();else repFinish()}}}
 function repFinish(){const el=$("#ecran-fin"),st=RC.first>=RC.tot?3:RC.first>=RC.tot*.75?2:1;el.style.setProperty("--c","var(--i6)");
   el.innerHTML=`<div class="card result pop" style="--c:var(--i6)"><div class="notion">Je réponds en phrases complètes</div><h2>Bravo${S.name?", "+esc(S.name):""}!</h2><div class="score">${RC.first} / ${RC.tot}</div>${stars(st)}
@@ -3383,7 +3386,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261102-023112";
+const APP_VER="20261102-024504";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
