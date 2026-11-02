@@ -1748,11 +1748,11 @@ function finishSprint(){
 }
 
 /* ---------- Espace parent ---------- */
-const PW_H=407487093,pwH=t=>{let h=5381;for(const c of t)h=((h*33)^c.charCodeAt(0))>>>0;return h};
+const PW_H=0,pwH=t=>{let h=5381;for(const c of t)h=((h*33)^c.charCodeAt(0))>>>0;return h};
 /* Mot de passe parent choisi par le parent : gardé à part (clé distincte), donc ni « Tout effacer », ni l'export, ni l'import n'y touchent */
 const PWK=KEY+"-parent",pwGet=()=>{try{return JSON.parse(localStorage.getItem(PWK))}catch(e){return null}};
 async function pwHash(t,salt){try{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(salt+"|"+t));return"s:"+[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}}catch(e){}return"d:"+pwH(salt+"|"+t)}
-async function pwCheck(t){const p=pwGet();if(!p||!p.h)return pwH(t)===PW_H;return(await pwHash(t,p.s))===p.h}
+async function pwCheck(t){const p=pwGet();if(!p||!p.h)return !!PW_H&&pwH(t)===PW_H;return(await pwHash(t,p.s))===p.h}
 async function pwSet(t){const s=Math.random().toString(36).slice(2,10)+Date.now().toString(36);const v={h:await pwHash(t,s),s,t:Date.now()};localStorage.setItem(PWK,JSON.stringify(v));return JSON.parse(localStorage.getItem(PWK)||"{}").h===v.h}
 let PARENT_OK=false;
 /* ======================================================================
@@ -1770,6 +1770,15 @@ const PTABS=[["suivi","📊","Suivi"],["matiere","📚","Matière scolaire"],["r
 const pcard=(title,desc,body,cls)=>`<section class="pcard${cls?" "+cls:""}"><h3>${title}</h3>${desc?`<p class="pdesc">${desc}</p>`:""}${body}</section>`;
 function renderParent(){
   const el=$("#ecran-parent");
+  if(!PARENT_OK&&!PW_H&&!(pwGet()||{}).h){el.innerHTML=`<div class="gamebar"><button class="back" id="p-retour">← Carte</button><span class="gtitle">Espace parent</span></div><form class="panel pinbox pwform" id="p-new" autocomplete="off"><h2>Créer le mot de passe parent</h2><p><b>À faire par un adulte.</b> Ce mot de passe protège l'espace parent. Il est gardé sur cet appareil seulement et ne peut pas être récupéré : notez-le.</p>
+     <label class="pfield"><span>Mot de passe <small>(au moins 6 caractères)</small></span><input id="p-n1" type="password" maxlength="40" autocapitalize="off" spellcheck="false"></label>
+     <label class="pfield">Une 2e fois<input id="p-n2" type="password" maxlength="40" autocapitalize="off" spellcheck="false"></label>
+     <p id="p-nerr" hidden></p><button class="btn" type="submit">Créer et ouvrir</button></form>`;
+    $("#p-retour").onclick=()=>{renderCarte();go("carte")};
+    $("#p-new").addEventListener("submit",async e=>{e.preventDefault();const a=$("#p-n1").value,b=$("#p-n2").value,er=$("#p-nerr"),bad=t=>{er.textContent=t;er.hidden=false};
+      if(a.length<6)return bad("Le mot de passe doit avoir au moins 6 caractères.");if(a!==b){$("#p-n2").value="";return bad("Les deux mots de passe ne sont pas pareils.")}
+      if(!(await pwSet(a)))return bad("L'enregistrement a échoué sur cet appareil.");PARENT_OK=true;renderParent()});
+    go("parent");$("#p-n1").focus({preventScroll:true});return}
   if(!PARENT_OK){el.innerHTML=`<div class="gamebar"><button class="back" id="p-retour">← Carte</button><span class="gtitle">Espace parent</span></div><form class="panel pinbox" id="p-pin"><h2>Mot de passe parent</h2><p>Entrez le mot de passe pour ouvrir l'espace parent.</p><input id="p-pin-in" type="password" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Mot de passe parent"><p id="p-pin-err" hidden>Ce n'est pas le bon mot de passe. Attention aux majuscules.</p><button class="btn" type="submit">Ouvrir</button></form>`;
     $("#p-retour").onclick=()=>{renderCarte();go("carte")};
     $("#p-pin").addEventListener("submit",async e=>{e.preventDefault();if(await pwCheck($("#p-pin-in").value)){PARENT_OK=true;renderParent()}else{$("#p-pin-err").hidden=false;$("#p-pin-in").value=""}});
@@ -3202,7 +3211,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261102-011153";
+const APP_VER="20261102-011429";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
