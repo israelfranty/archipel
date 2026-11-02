@@ -560,7 +560,8 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .dbpv .plist{margin:0}.utoast{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;background:var(--ink);color:var(--surface);border-radius:16px;padding:10px 12px 10px 16px;display:flex;gap:12px;align-items:center;width:max-content;max-width:calc(100% - 32px);box-shadow:0 6px 24px rgba(0,0,0,.3)}
 .utoast .btn{flex:none}
 .repz{border-color:var(--i6)!important;border-style:solid!important}.repz .badge{background:var(--i6);font-size:1.6rem}
-.rcard{gap:14px}.rdctl{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.rcard{gap:14px}.csub{display:block;font-family:var(--f-body,inherit);font-weight:400;font-size:.85rem;color:var(--muted);margin-top:2px}
+.rdctl{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .rhelp{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}.rhelp p{margin:0;color:var(--ink)}
 .rtxt summary{cursor:pointer;color:var(--muted);padding:4px 0}.rtxt .readtext{margin-top:8px}
 .rq{background:var(--surface);border:2px solid var(--c);border-radius:14px;padding:10px 14px;text-align:left}.rqlab{font-size:.8rem;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.04em}.rq .prompt{margin:4px 0 0}
@@ -1108,7 +1109,7 @@ phrase(L){
   return{notion:"Le sujet de la phrase",prompt:"Quel est le sujet de cette phrase?",say:`Quel est le sujet de cette phrase? ${joinP(toks)}`,visual:phrase(joinP(toks)),kind:"choice",choices:choices(subj,[verb,rest,after]),answer:subj,explain:`Le sujet répond à la question « Qui est-ce qui ${verb}? » : ${subj}. On peut aussi l'encadrer par « C'est … qui » : « C'est ${/^(Nous|Vous|Tu|Elle|Ils)$/.test(subj)?({Nous:"nous",Vous:"vous",Tu:"toi",Elle:"elle",Ils:"eux"})[subj]:(toks[0].t==="d"?subj.charAt(0).toLowerCase()+subj.slice(1):subj)} qui ${verb}… »`}
 },
 lecture(L){
-  if(Math.random()<.22){const [k,q]=pick(QTYPES),R=REPT[k];return{notion:"Reconnaître le type de question",prompt:"Quelle sorte de question est-ce?",say:"Quelle sorte de question est-ce? "+q,visual:`<p class="prompt readq">« ${q} »</p>`,kind:"choice",choices:Object.values(REPT).map(x=>x.l),answer:R.l,explain:`${R.l} : ${R.d}`}}
+  if(Math.random()<.22){const [k,q]=pick(QTYPES),R=REPT[k];return{notion:"Reconnaître le type de question",prompt:"Quelle sorte de question est-ce?",say:"Quelle sorte de question est-ce? "+q,visual:`<p class="prompt readq">« ${q} »</p>`,kind:"choice",choices:Object.values(REPT).map(x=>x.l),answer:R.l,explain:`C'est une question de ${R.l.toLowerCase()} : ${R.d}`}}
   const pool=TEXTES.filter(t=>t.L===L||(L>1&&t.L===L-1&&Math.random()<.3)),T=pick(pool.length?pool:TEXTES),[notion,q,opts,ex]=pick(T.q);
   return{notion,prompt:"Lis le texte, puis réponds à la question.",say:q,visual:`<article class="readtext"><h4>${T.titre}</h4><p>${T.texte}</p></article><p class="prompt readq">${q}</p>`,kind:"choice",choices:shuffle(opts),answer:opts[0],explain:ex}
 }
@@ -2091,20 +2092,20 @@ phrase:[
 ],
 lecture:[
  {t:"Avant de lire",n:["Idée principale","Type de texte"],p:["Lis le titre. De quoi va parler le texte?","Lis la question avant de relire le texte : tu sauras quoi chercher."]},
- {t:"Trouver une information",n:["Repérer une information","Copier sans faute"],p:["La réponse est écrite dans le texte.","Cherche un mot de la question dans le texte : la réponse est souvent juste à côté.","Relis la phrase pour être sûre."]},
+ {t:"Compréhension : trouver une information",n:["Repérer une information","Copier sans faute"],p:["La réponse est écrite dans le texte.","Cherche un mot de la question dans le texte : la réponse est souvent juste à côté.","Relis la phrase pour être sûre."]},
  {t:"Faire une inférence",n:["Faire une inférence"],p:["Parfois, la réponse n'est pas écrite directement.","Il faut faire comme une détective : utiliser les indices du texte et ce que tu sais déjà.","Exemple : ses mains tremblent et son cœur bat fort. Elle est nerveuse!"]},
  {t:"Un mot que je ne connais pas",n:["Comprendre un mot"],p:["Relis la phrase autour du mot.","Cherche des indices : à quoi sert la chose? Que se passe-t-il?","Remplace le mot par un mot que tu connais. Est-ce que la phrase a encore du sens?"]},
  {t:"L'ordre des événements",n:["Ordre des événements"],p:["Les mots d'abord, ensuite, puis, après et à la fin montrent l'ordre.","Raconte l'histoire dans ta tête : qu'est-ce qui arrive en premier? Et après?"],v:()=>seqH(["D'abord","Ensuite","Puis","À la fin"].map(x=>`<div class="chip5">${x}</div>`),"row")},
  {t:"L'idée principale et le type de texte",n:["Idée principale","Type de texte"],p:["L'idée principale, c'est ce dont parle surtout le texte, en une phrase.","Une histoire raconte des événements avec des personnages.","Un texte informatif donne de vrais renseignements, comme sur le castor.","Une recette donne des ingrédients et des étapes à suivre."]},
- {t:"Quatre sortes de questions",n:["Reconnaître le type de question"],p:["Avant de répondre, je me demande : qu'est-ce que la question veut que je fasse?","Trouver une information : la réponse est dans le texte, écrite ou cachée dans des indices.","Donner ma réaction : je dis ce que j'aurais fait ou ressenti, et je fais un lien avec ma vie.","Donner mon appréciation : je dis si j'ai aimé, et je juge le texte.","Faire une hypothèse : je devine ce qu'un personnage pense ou ressent, avec des indices du texte."],
-  v:()=>`<div class="rtab">${Object.values(REPT).map(x=>`<div><b>${x.ic} ${x.l}</b><span>${x.d}</span></div>`).join("")}</div>`,ex:["« Où se passe l'histoire? » : je trouve une information.","« Qu'aurais-tu fait à sa place? » : je donne ma réaction.","« As-tu aimé ce texte? » : je donne mon appréciation.","« Selon toi, comment se sent-elle? » : je fais une hypothèse."]},
+ {t:"Quatre sortes de questions",n:["Reconnaître le type de question"],p:["Avant de répondre, je me demande : qu'est-ce que la question veut que je fasse?","Compréhension : je trouve la réponse dans le texte, écrite ou cachée dans des indices.","Réaction : je dis ce que j'aurais fait ou ressenti, et je fais un lien avec ma vie.","Appréciation : je dis si j'ai aimé, et je juge le texte.","Interprétation : je fais une hypothèse sur ce qu'un personnage pense ou ressent, avec des indices du texte."],
+  v:()=>`<div class="rtab">${Object.values(REPT).map(x=>`<div><b>${x.ic} ${x.l}</b><span>${x.d}</span></div>`).join("")}</div>`,ex:["« Où se passe l'histoire? » : compréhension.","« Qu'aurais-tu fait à sa place? » : réaction.","« As-tu aimé ce texte? » : appréciation.","« Selon toi, comment se sent-elle? » : interprétation."]},
  {t:"Une réponse complète",n:["Réponse complète"],p:["Une réponse complète a trois parties.","Un : je reprends les mots de la question.","Deux : j'explique avec car ou parce que.","Trois : je prouve avec le texte. Je peux écrire : dans le texte, on peut lire que…","À la fin, je vérifie la majuscule et le point."],
   v:()=>seqH(["① Je reprends la question","② car / parce que","③ La preuve du texte"]),ex:["Question : pourquoi Noah met-il sa tuque?","Réponse : Noah met sa tuque parce qu'il fait froid. Dans le texte, on peut lire que la première neige est tombée pendant la nuit."]},
- {t:"Donner ma réaction",n:["Donner ma réaction"],p:["Une question de réaction me demande ce que j'aurais fait, ou ce que je ressens.","Il n'y a pas une seule bonne réponse : c'est mon avis qui compte.","Je reprends les mots de la question, j'explique avec car, puis je fais un lien avec ma vie et avec le texte."],
+ {t:"Les questions de réaction",n:["Réaction"],p:["Une question de réaction me demande ce que j'aurais fait, ou ce que je ressens.","Il n'y a pas une seule bonne réponse : c'est mon avis qui compte.","Je reprends les mots de la question, j'explique avec car, puis je fais un lien avec ma vie et avec le texte."],
   ex:["Qu'aurais-tu fait à la place de Félix?","À la place de Félix, j'aurais aussi invité Ilan, car il était tout seul. Moi non plus, je n'aime pas être seule à la récréation."]},
- {t:"Donner mon appréciation",n:["Donner mon appréciation"],p:["Une question d'appréciation me demande si j'ai aimé le texte, et pourquoi.","Pour juger un texte, je choisis un critère : l'histoire, un personnage, la fin, ou ce que j'ai appris.","Attention : « je n'aime pas les araignées » parle de moi. « La fin arrive trop vite » parle du texte. Dans une appréciation, je parle du texte."],
+ {t:"Les questions d'appréciation",n:["Appréciation"],p:["Une question d'appréciation me demande si j'ai aimé le texte, et pourquoi.","Pour juger un texte, je choisis un critère : l'histoire, un personnage, la fin, ou ce que j'ai appris.","Attention : « je n'aime pas les araignées » parle de moi. « La fin arrive trop vite » parle du texte. Dans une appréciation, je parle du texte."],
   ex:["As-tu aimé la fin de cette histoire?","Oui, j'ai aimé la fin de cette histoire, parce qu'elle finit bien : le public applaudit et Rosalie sourit."]},
- {t:"Faire une hypothèse",n:["Faire une hypothèse"],p:["Une question d'hypothèse commence souvent par : selon toi, d'après toi.","Je devine ce qu'un personnage pense ou ressent, ou ce qui va arriver.","Je commence par : selon moi, ou d'après moi.","Puis je prouve mon idée avec un indice du texte."],
+ {t:"Les questions d'interprétation",n:["Interprétation"],p:["Une question d'interprétation commence souvent par : selon toi, d'après toi.","Je fais une hypothèse : je devine ce qu'un personnage pense ou ressent, ou ce qui va arriver.","Je commence par : selon moi, ou d'après moi.","Puis je prouve mon idée avec un indice du texte."],
   ex:["Selon toi, comment se sent Rosalie derrière le rideau?","Selon moi, Rosalie se sent nerveuse, car ses mains tremblent et son cœur bat très fort."]},
  {t:"Les mots pour bien répondre",n:["Réponse complète"],p:["Pour donner mon avis : selon moi, je pense que, à mon avis.","Pour expliquer : car, parce que.","Pour prouver avec le texte : dans le texte, on peut lire que…","Pour faire une hypothèse : selon moi, d'après moi, peut-être que.","Pour faire un lien : moi aussi, comme moi."]},
 ],
@@ -2735,10 +2736,10 @@ function dFinish(){const words=Object.keys(DC.first),ok=DC.ok,N=words.length,mis
    Contenu original (textes de la Cabane des Histoires).
    ====================================================================== */
 const REPT={
-  comp:{ic:"📖",l:"Trouver une information",d:"La réponse est dans le texte : écrite telle quelle, ou cachée dans des indices."},
-  reac:{ic:"💬",l:"Donner ma réaction",d:"Je dis ce que j'aurais fait ou ressenti, et je fais un lien avec ma vie."},
-  appr:{ic:"⭐",l:"Donner mon appréciation",d:"Je dis si j'ai aimé, et je juge le texte : l'histoire, un personnage, la fin ou ce que j'ai appris."},
-  interp:{ic:"🔍",l:"Faire une hypothèse",d:"Je devine ce qu'un personnage pense ou ressent, ou ce qui va arriver, à l'aide d'indices du texte."}};
+  comp:{ic:"📖",l:"Compréhension",s:"je trouve la réponse dans le texte",d:"Je trouve la réponse dans le texte : écrite telle quelle, ou cachée dans des indices."},
+  reac:{ic:"💬",l:"Réaction",s:"je dis ce que j'aurais fait ou ressenti",d:"Je dis ce que j'aurais fait ou ressenti, et je fais un lien avec ma vie."},
+  appr:{ic:"⭐",l:"Appréciation",s:"je dis si j'ai aimé et je juge le texte",d:"Je dis si j'ai aimé, et je juge le texte : l'histoire, un personnage, la fin ou ce que j'ai appris."},
+  interp:{ic:"🔍",l:"Interprétation",s:"je fais une hypothèse avec des indices",d:"Je fais une hypothèse sur ce qu'un personnage pense ou ressent, ou sur ce qui va arriver, à l'aide d'indices du texte."}};
 /* pr = [preuve qui appuie la réponse, phrase du texte qui n'aide pas, phrase qui n'est PAS dans le texte] */
 const REP_ITEMS=[
  {id:"ami-reac",t:"Le nouvel ami",type:"reac",q:"Qu'aurais-tu fait à la place de Félix? Explique ta réponse.",
@@ -2834,7 +2835,7 @@ function rdPlay(){const rd=RC.rd,id=++SEQ;if(TTS)try{TTS.cancel()}catch(e){}rd.p
     speak(x[0],()=>{if(rd.sid!==id||!rd.playing)return;rd.i++;step()},x[1],x[2],id)};step()}
 function rdPause(){if(!RC||!RC.rd)return;const rd=RC.rd;clearTimeout(rd.t);if(rd.playing){rd.playing=false;rd.sid=0;SEQ++;if(TTS)try{TTS.cancel()}catch(e){}}if(rd.i>0&&typeof rd.list[rd.i]==="number")rd.i++;RC.force=false;rdUI()}
 function repItem(){RC.step="type";RC.open="";RC.marq="";RC.proof="";repShell();const it=RC.list[RC.i],T=repText(it);
-  repChoice("Quelle sorte de question est-ce?",Object.entries(REPT).map(([k,v])=>({t:`${v.ic} ${v.l}`,ok:k===it.type,why:k===it.type?`Oui! ${v.l} : ${v.d}`:`Pas tout à fait. C'est « ${REPT[it.type].l} » : ${REPT[it.type].d}`})),()=>{RC.step="start";repShell();repStart()},true)}
+  repChoice("Quelle sorte de question est-ce?",Object.entries(REPT).map(([k,v])=>({t:`${v.ic} ${v.l}`,sub:v.s,ok:k===it.type,why:k===it.type?`Oui! C'est une question de ${v.l.toLowerCase()} : ${v.d}`:`Pas tout à fait. C'est une question de ${REPT[it.type].l.toLowerCase()} : ${REPT[it.type].d}`})),()=>{RC.step="start";repShell();repStart()},true)}
 function repStart(){const it=RC.list[RC.i];
   repChoice("Comment commencer ta réponse?",shuffle([...it.ok.map(t=>({t,ok:true,why:"Oui! Ce début reprend les mots de la question."+(it.ok.length>1?" (L'autre début aurait été bon aussi : c'est ton avis qui compte.)":"")})),...it.ko.map(t=>({t,ok:false,why:`Ce début ne reprend pas les mots de la question. Commence plutôt par : « ${it.ok[0]} »`}))]),
     v=>{RC.open=v&&v.ok?v.t:it.ok[0];RC.step="marq";repShell();repMarq()})}
@@ -2843,7 +2844,7 @@ function repProof(){const it=RC.list[RC.i];
   repChoice("Quelle phrase du texte prouve le mieux ta réponse?",shuffle(it.pr.map((t,i)=>({t:`« ${t} »`,ok:i===0,why:REP_PR_WHY[i]+(i?` La bonne preuve : « ${it.pr[0]} »`:"")}))),()=>{RC.proof=it.pr[0];RC.step="write";repShell();repWrite()},false,true)}
 /* Choix à une seule bonne réponse (ou plusieurs bonnes). Après une erreur, l'explication doit être entendue avant de continuer. */
 function repChoice(prompt,opts,next,first,showTxt){const box=$("#r-step");
-  box.innerHTML=`<p class="rstep-q">${prompt}</p><div class="choices one rchoices">${opts.map((o,i)=>`<button class="choice long" data-i="${i}">${esc(o.t)}</button>`).join("")}</div>`;
+  box.innerHTML=`<p class="rstep-q">${prompt}</p><div class="choices one rchoices">${opts.map((o,i)=>`<button class="choice long" data-i="${i}"><span>${esc(o.t)}${o.sub?`<small class="csub">${esc(o.sub)}</small>`:""}</span></button>`).join("")}</div>`;
   if(canSpeak()&&!first)speak(prompt);
   box.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{if(RC.rd&&RC.rd.playing)rdPause();const o=opts[+b.dataset.i];box.querySelectorAll(".choice").forEach((x,i)=>{x.disabled=true;if(opts[i].ok&&(o.ok?x===b:true))x.classList.add("right")});if(!o.ok)b.classList.add("wrong");
     RC.tot++;if(o.ok)RC.first++;tone(o.ok?[[660,.1],[880,.15]]:[[300,.2]]);
@@ -3400,7 +3401,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261102-030450";
+const APP_VER="20261102-173551";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
