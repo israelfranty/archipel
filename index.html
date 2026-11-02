@@ -560,7 +560,8 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .dbpv .plist{margin:0}.utoast{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;background:var(--ink);color:var(--surface);border-radius:16px;padding:10px 12px 10px 16px;display:flex;gap:12px;align-items:center;width:max-content;max-width:calc(100% - 32px);box-shadow:0 6px 24px rgba(0,0,0,.3)}
 .utoast .btn{flex:none}
 .repz{border-color:var(--i6)!important;border-style:solid!important}.repz .badge{background:var(--i6);font-size:1.6rem}
-.rcard{gap:14px}.rtxt summary{cursor:pointer;color:var(--muted);padding:4px 0}.rtxt .readtext{margin-top:8px}
+.rcard{gap:14px}.rhelp{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}.rhelp p{margin:0;color:var(--ink)}
+.rtxt summary{cursor:pointer;color:var(--muted);padding:4px 0}.rtxt .readtext{margin-top:8px}
 .rq{background:var(--surface);border:2px solid var(--c);border-radius:14px;padding:10px 14px;text-align:left}.rqlab{font-size:.8rem;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.04em}.rq .prompt{margin:4px 0 0}
 .rsteps{display:flex;gap:8px;justify-content:center}.rsteps span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:var(--line);color:var(--muted)}.rsteps .now{background:var(--c);color:#fff}.rsteps .ok{background:var(--good-bg);color:var(--good)}
 .rstep-q{font-family:var(--f-display);font-weight:600;font-size:1.25rem;margin:0}.rchoices .choice{min-height:56px;text-align:left;justify-items:start;padding:12px 16px}
@@ -650,7 +651,7 @@ let VOICES_EN=[];
 function loadVoices(){try{const all=TTS.getVoices();VOICES=all.filter(v=>/^fr/i.test(v.lang));VOICES_EN=all.filter(v=>/^en/i.test(v.lang))}catch(e){VOICES=[];VOICES_EN=[]}}
 if(TTS){loadVoices();try{TTS.addEventListener("voiceschanged",()=>{loadVoices();fillVoices()})}catch(e){TTS.onvoiceschanged=()=>{loadVoices();fillVoices()}}}
 let FORCEV=false;
-const canSpeak=()=>!!(TTS&&(S.voice||FORCEV||(LES&&LES.force)));
+const canSpeak=()=>!!(TTS&&(S.voice||FORCEV||(LES&&LES.force)||(RC&&RC.force)));
 const SPK=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>`;
 const FEM=/am[ée]lie|sylvie|caroline|chantal|audrey|marie|julie|hortense|denise|c[ée]line|aur[ée]lie|virginie|elsa|ariane|brigitte|[ée]lo[iï]se|vivienne|female|femme/i;
 const MALE=/thomas|nicolas|daniel|jean|paul|henri|claude|antoine|jacques|guillaume|f[ée]lix|mathieu|r[ée]my|\bmale\b|homme/i;
@@ -2804,8 +2805,8 @@ function repChecks(txt,it,open){const T=repText(it),t=txt.trim(),o=(open||"").re
   if(it.type==="appr")L.push(["Je juge le texte (histoire, personnage, fin, ce que j'ai appris…)",/(histoire|personnage|fin|début|texte|appris|apprend|drôle|intéressant|information|surprenant|triste|belle|beau)/i.test(t.replace(/^.*?(car|parce qu)/iu,""))]);
   L.push(["Majuscule au début, point à la fin",/^[A-ZÀ-ÖØ-Þ«"]/.test(t)&&/[.!?»"]$/.test(t)]);
   return L}
-/* Lecture du texte, de la question et de l'exemple : moitié de la vitesse générale, une phrase à la fois avec une petite pause */
-const repR=()=>(S.rate||.63)*.5;
+/* Lecture du texte, de la question et de l'exemple : lente (0,40), une phrase à la fois avec une petite pause */
+const repR=()=>.40;
 const repRead=t=>String(t).split(/(?<=[.!?:])\s+/).filter(x=>/[\p{L}0-9]/u.test(x)).flatMap((x,i,a)=>i<a.length-1?[[x,"fr",repR()],250]:[[x,"fr",repR()]]);
 let RC=null;
 function startRep(){const r=RS(),pool=REP_ITEMS.filter(it=>repText(it)).slice().sort((a,b)=>(r.n[a.id]||0)-(r.n[b.id]||0)||Math.random()-.5);
@@ -2815,11 +2816,12 @@ function repShell(){const it=RC.list[RC.i],T=repText(it),el=$("#ecran-jeu");el.s
   el.innerHTML=`<div class="gamebar"><button class="back" id="r-back">← L'Île aux Mots</button><span class="gtitle">Je réponds en phrases complètes</span><span class="levelchip">${RC.i+1} / ${RC.list.length}</span></div>
   <div class="card pop rcard" style="--c:var(--i6)"><details class="rtxt" ${RC.step==="type"?"open":""}><summary>Le texte : <b>${esc(T.titre)}</b></summary><article class="readtext"><p>${T.texte}</p></article></details>
    <div class="rq"><span class="rqlab">Question</span><p class="prompt readq">${esc(it.q)}</p></div>
+   <div class="rhelp">${RC.step==="type"?`<p>📖 <b>Prends le temps de lire le texte et la question par toi-même.</b> Si tu as besoin d'aide, je peux te les lire.</p>`:""}${TTS?`<button class="listen" id="r-read">${SPK}Je lis pour t'aider</button>`:""}</div>
    <div class="rsteps">${["type","start","marq","proof","write"].map((k,i)=>`<span class="${k===RC.step?"now":["type","start","marq","proof","write"].indexOf(RC.step)>i||RC.step==="done"?"ok":""}">${i+1}</span>`).join("")}</div>
    <div id="r-step"></div><div id="fb"></div></div>`;
-  $("#r-back").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}G=null;RC=null;renderCarte();go("carte")};go("jeu")}
+  $("#r-back").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}G=null;RC=null;renderCarte();go("carte")};
+  const rr=$("#r-read");if(rr)rr.onclick=()=>{RC.force=true;const d=$(".rtxt");if(d)d.open=true;speakSeq([...repRead(T.titre+"."),300,...repRead(T.texte),600,...repRead("Question : "+it.q)],()=>{if(RC)RC.force=false})};go("jeu")}
 function repItem(){RC.step="type";RC.open="";RC.marq="";RC.proof="";repShell();const it=RC.list[RC.i],T=repText(it);
-  if(canSpeak())speakSeq([...repRead(T.titre+"."),300,...repRead(T.texte),600,...repRead("Question : "+it.q)]);
   repChoice("Quelle sorte de question est-ce?",Object.entries(REPT).map(([k,v])=>({t:`${v.ic} ${v.l}`,ok:k===it.type,why:k===it.type?`Oui! ${v.l} : ${v.d}`:`Pas tout à fait. C'est « ${REPT[it.type].l} » : ${REPT[it.type].d}`})),()=>{RC.step="start";repShell();repStart()},true)}
 function repStart(){const it=RC.list[RC.i];
   repChoice("Comment commencer ta réponse?",shuffle([...it.ok.map(t=>({t,ok:true,why:"Oui! Ce début reprend les mots de la question."+(it.ok.length>1?" (L'autre début aurait été bon aussi : c'est ton avis qui compte.)":"")})),...it.ko.map(t=>({t,ok:false,why:`Ce début ne reprend pas les mots de la question. Commence plutôt par : « ${it.ok[0]} »`}))]),
@@ -3386,7 +3388,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261102-024504";
+const APP_VER="20261102-025217";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
