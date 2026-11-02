@@ -604,8 +604,8 @@ const nf=n=>Number(n).toLocaleString("fr-CA");
 const NOMS=["Léa","Noah","Maya","Samuel","Jade","Ilan","Rosalie","Malik","Chloé","Félix"];
 
 /* ---------- Sauvegarde (sur cet appareil seulement) ---------- */
-function fresh(){return{v:1,name:"",sound:true,strict:false,boardOn:true,week:{fr:[],en:[],updated:0},wstats:{},trace:{},goals:{francais:20,maths:15,anglais:10},music:true,goalMin:20,day:null,hist:[],voice:true,voiceName:"",rate:0.81,rateV:2,pin:"",totalOk:0,hard:0,nlast:{},comp:{type:"",name:"",items:[],gold:0},boxes:{n:0,since:0},ms:{first:0,stars3:{},mastered:{}},gifts:{on:true,freq:"parfois",reveal:true,list:["Choisir le dessert du souper","15 minutes de plus avant le dodo","Une sortie au parc avec papa ou maman","Choisir le film de la soirée en famille","Un crayon ou des autocollants spéciaux"],pending:[],given:0},isl:{},notions:{},times:{},rec:{},sprints:{maths:{best:0,hist:[]},francais:{best:0,hist:[]}}}}
-function load(){let r=null;try{r=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!r||r.v!==1)return fresh();if(r.rateV!==2){r.rate=({0.85:.72,0.95:.81,1.05:.95})[r.rate]||.81;r.rateV=2}if(r.sprint&&!r.sprints){r.sprints={maths:r.sprint,francais:{best:0,hist:[]}};delete r.sprint}return Object.assign(fresh(),r)}
+function fresh(){return{v:1,name:"",sound:true,strict:false,boardOn:true,week:{fr:[],en:[],updated:0},wstats:{},trace:{},goals:{francais:20,maths:15,anglais:10},music:true,goalMin:20,day:null,hist:[],voice:true,voiceName:"",rate:0.63,rateV:3,pin:"",totalOk:0,hard:0,nlast:{},comp:{type:"",name:"",items:[],gold:0},boxes:{n:0,since:0},ms:{first:0,stars3:{},mastered:{}},gifts:{on:true,freq:"parfois",reveal:true,list:["Choisir le dessert du souper","15 minutes de plus avant le dodo","Une sortie au parc avec papa ou maman","Choisir le film de la soirée en famille","Un crayon ou des autocollants spéciaux"],pending:[],given:0},isl:{},notions:{},times:{},rec:{},sprints:{maths:{best:0,hist:[]},francais:{best:0,hist:[]}}}}
+function load(){let r=null;try{r=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!r||r.v!==1)return fresh();if(r.rateV!==3){r.rate=.63;r.rateV=3}if(r.sprint&&!r.sprints){r.sprints={maths:r.sprint,francais:{best:0,hist:[]}};delete r.sprint}return Object.assign(fresh(),r)}
 let S=load();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function IS(id){return S.isl[id]||(S.isl[id]={level:1,stars:0,played:0,r:0,t:0})}
@@ -659,7 +659,7 @@ function speak(text,onend,lang,rate,sid){
   try{TTS.cancel();
     const en=lang==="en",u=new SpeechSynthesisUtterance(text),v=en?bestVoiceEN():bestVoice();
     if(v){u.voice=v;u.lang=v.lang}else u.lang=en?"en-CA":"fr-CA";
-    u.rate=rate||(en?Math.min(S.rate||.81,.81):S.rate||0.81);u.pitch=1.05;
+    u.rate=rate||(en?Math.min(S.rate||.63,.81):S.rate||0.63);u.pitch=1.05;
     u.onstart=()=>vlog("parle ("+(v?v.name:u.lang)+")");
     u.onend=fin;u.onerror=e=>{vlog("erreur : "+(e&&e.error||"?"));fin()};
     window.__u=u;duck(true);setTimeout(fin,Math.min(20000,1500+text.length*90));TTS.speak(u);
@@ -1656,10 +1656,10 @@ function answer(v,btn){
   else c.focus({preventScroll:true});
   $("#fb").scrollIntoView({behavior:"smooth",block:"nearest"});
   bindReview($("#fb"),G.subj,true);
-  const br=$("#b-rep");if(br)br.onclick=()=>{const was=S.voice;S.voice=true;speak(q.rep,null,"en",.72);S.voice=was};
+  const br=$("#b-rep");if(br)br.onclick=()=>{const was=S.voice;S.voice=true;speak(q.rep,null,"en",Math.min(.72,S.rate||.63));S.voice=was};
   if(canSpeak()){const ttl=timeout?"Temps écoulé!":fast?"Éclair!":ok?$("#fb h3").textContent:(EN?"Almost!":"Presque!");
     if(BRD)speak(ok?"Bravo! Tu as bien écrit.":"Pas grave! Recopie la bonne réponse au tableau pour bien la retenir. "+revSay(REV),unlock);
-    else if(EN)speakSeq(ok?[[ttl,"en"],[q.rep,"en",.75]]:[["Presque! La bonne réponse est :","fr"],[q.rep||q.answer,"en",.75],[normSay(q.explain),"fr"],[revSay(REV),"fr"]],unlock);
+    else if(EN)speakSeq(ok?[[ttl,"en"],[q.rep,"en",Math.min(.75,S.rate||.63)]]:[["Presque! La bonne réponse est :","fr"],[q.rep||q.answer,"en",Math.min(.75,S.rate||.63)],[normSay(q.explain),"fr"],[revSay(REV),"fr"]],unlock);
     else speak(ok?ttl:`${ttl} La bonne réponse est ${sayAns(q.answer)}. ${normSay(q.explain)} ${revSay(REV)}`,unlock)}
 }
 function finish(){
@@ -1824,7 +1824,7 @@ function renderParent(){
      <label class="toggle" for="p-strict"><input type="checkbox" id="p-strict" ${S.strict?"checked":""}><span><b>Compte à rebours strict</b><br><small>Le temps écoulé compte comme une erreur. Seulement quand elle réussit bien en mode normal.</small></span></label>`)+
    pcard("Niveaux des îles","Le niveau s'ajuste seul. Changez-le ici seulement pour la faire avancer ou reculer volontairement.",`<div class="lvlgrid">${Object.keys(SUBJ).map(sj=>`<div><b class="lvlh">${SUBJ[sj].court}</b>${zones(sj).map(i=>`<label><span>${i.nom}</span><select data-isle="${i.id}" aria-label="Niveau ${i.nom}">${[1,2,3].map(n=>`<option ${n===IS(i.id).level?"selected":""}>${n}</option>`).join("")}</select></label>`).join("")}</div>`).join("")}</div>`)+
    pcard("Bibliothèque de jeux","Les jeux d'aventure (Donjon des nombres, Bâtisseurs…).",`<label class="toggle" for="p-games"><input type="checkbox" id="p-games" ${S.gamesOn!==false?"checked":""}><span><b>Accès à la Bibliothèque de jeux</b><br><small>Décoché, la carte disparaît de l'accueil. Pièces, pierres et records sont gardés.</small></span></label>`)+
-   pcard("Voix de lecture","La voix lit les questions et les explications. Dans la dictée, elle parle toujours.",TTS?`<div class="voicebox"><select id="p-voice" aria-label="Voix de lecture"></select><select id="p-rate" aria-label="Vitesse de la voix">${[[0.72,"Lente"],[0.81,"Normale"],[0.95,"Rapide"]].map(([v,l])=>`<option value="${v}" ${S.rate===v?"selected":""}>${l}</option>`).join("")}</select><button class="btn ghost" id="p-test">Écouter un exemple</button></div><p class="pdesc" id="p-vdiag" aria-live="polite"></p><p class="pdesc">Sur iPad, une voix plus naturelle se télécharge dans Réglages › Accessibilité › Contenu énoncé › Voix › Français (Canada), par exemple Amélie (améliorée).</p>`:`<p>La lecture à voix haute n'est pas disponible dans ce navigateur.</p>`)+
+   pcard("Voix de lecture","La voix lit les questions et les explications. Dans la dictée, elle parle toujours.",TTS?`<div class="voicebox"><select id="p-voice" aria-label="Voix de lecture"></select><select id="p-rate" aria-label="Vitesse de la voix">${[[0.56,"Lente"],[0.63,"Normale"],[0.81,"Rapide"]].map(([v,l])=>`<option value="${v}" ${S.rate===v?"selected":""}>${l}</option>`).join("")}</select><button class="btn ghost" id="p-test">Écouter un exemple</button></div><p class="pdesc" id="p-vdiag" aria-live="polite"></p><p class="pdesc">Sur iPad, une voix plus naturelle se télécharge dans Réglages › Accessibilité › Contenu énoncé › Voix › Français (Canada), par exemple Amélie (améliorée).</p>`:`<p>La lecture à voix haute n'est pas disponible dans ce navigateur.</p>`)+
    pcard("Prénom et compagnon","",`<div class="namerow"><input id="p-nom" maxlength="20" value="${esc(S.name)}" placeholder="Prénom de l'enfant" aria-label="Prénom de l'enfant"><button class="btn ghost" id="p-save">Enregistrer le prénom</button></div>
      <div class="namerow"><input id="p-comp" maxlength="16" value="${esc(S.comp.name)}" placeholder="Nom du compagnon" aria-label="Nom du compagnon"><button class="btn ghost" id="p-comp-save">Renommer le compagnon</button></div>
      ${S.comp.type?`<div class="namerow"><select id="p-ctype" aria-label="Animal du compagnon">${Object.entries(ANIMAUX).map(([k,a])=>`<option value="${k}" ${S.comp.type===k?"selected":""}>${a.nom}</option>`).join("")}</select><button class="btn ghost" id="p-ctype-save">Changer d'animal</button></div>`:""}`)+
@@ -1883,7 +1883,7 @@ function renderParent(){
       const st=Object.values(d.isl||{}).reduce((a,x)=>a+(x.stars||0),0);
       m.innerHTML=`<span>Progression trouvée : <b>${esc(d.name||"sans prénom")}</b>, ${st} étoile${st>1?"s":""}, ${d.totalOk||0} bonnes réponses. Elle <b>remplacera</b> la progression actuelle de cet appareil.</span> <button class="btn" id="p-iyes" style="background:var(--bad)">Oui, importer</button> <button class="btn ghost" id="p-ino">Annuler</button>`;
       $("#p-ino").onclick=renderParent;
-      $("#p-iyes").onclick=()=>{S=Object.assign(fresh(),d,{v:1});if(S.rateV!==2){S.rate=.81;S.rateV=2}PEND.splice(0);rollDay();save();renderBar();syncVoix();renderParent();const n=$("#p-xzone");if(n)n.innerHTML=`<p><b style="color:var(--good)">Progression importée ✓</b></p>`}}};
+      $("#p-iyes").onclick=()=>{S=Object.assign(fresh(),d,{v:1});if(S.rateV!==3){S.rate=.63;S.rateV=3}PEND.splice(0);rollDay();save();renderBar();syncVoix();renderParent();const n=$("#p-xzone");if(n)n.innerHTML=`<p><b style="color:var(--good)">Progression importée ✓</b></p>`}}};
   $("#p-strict").onchange=e=>{S.strict=e.target.checked;save()};
   $("#p-wsave").onclick=()=>{S.week={fr:[],en:parseWeek($("#p-wen").value,true),updated:Date.now()};save();renderParent()};
   $("#p-board").onchange=e=>{S.boardOn=e.target.checked;save()};
@@ -2606,7 +2606,7 @@ function alertDict(){const el=$("#ecran-jeu");el.style.setProperty("--c","var(--
   el.innerHTML=`<div class="gamebar"><button class="back" id="d-back">← L'Île aux Mots</button><span class="gtitle">Ma dictée du jour</span></div><div class="card"><p class="prompt">${dWeeks().length?"Tous tes mots sont révisés pour aujourd'hui. Reviens demain!":"Papa ou maman doit d'abord ajouter les listes de mots dans l'espace parent."}</p></div>`;
   $("#d-back").onclick=()=>{G=null;renderCarte();go("carte")};go("jeu")}
 /* Débit de la dictée : plus lent que la voix normale, et le mot encore plus lentement */
-const dRate=()=>Math.min(S.rate||.81,.81)*.88,dRateW=()=>Math.min(S.rate||.81,.81)*.8;
+const dRate=()=>Math.min(S.rate||.63,.81),dRateW=()=>Math.min(S.rate||.63,.81)*.92;
 function dSay(e){return`${e.w}. ${e.p?e.p+" ":""}${e.w}. ${e.c?sayClass(e.c)+".":""}`}
 function dSaySeq(e,intro){const r=dRate(),rw=dRateW(),L=[];
   if(intro!==false)L.push(["Écoute le mot et écris-le.","fr",r],700);
@@ -3211,7 +3211,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261102-011429";
+const APP_VER="20261102-015338";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
