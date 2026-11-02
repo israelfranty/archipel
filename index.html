@@ -559,6 +559,18 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .wchip.dup{border-style:dashed;color:var(--muted)}.wchip button{border:0;background:none;color:var(--muted);font-size:1.1rem;line-height:1;min-width:28px;min-height:28px;border-radius:50%;cursor:pointer}.wchip button:hover{background:var(--line)}
 .dbpv .plist{margin:0}.utoast{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;background:var(--ink);color:var(--surface);border-radius:16px;padding:10px 12px 10px 16px;display:flex;gap:12px;align-items:center;width:max-content;max-width:calc(100% - 32px);box-shadow:0 6px 24px rgba(0,0,0,.3)}
 .utoast .btn{flex:none}
+.repz{border-color:var(--i6)!important;border-style:solid!important}.repz .badge{background:var(--i6);font-size:1.6rem}
+.rcard{gap:14px}.rtxt summary{cursor:pointer;color:var(--muted);padding:4px 0}.rtxt .readtext{margin-top:8px}
+.rq{background:var(--surface);border:2px solid var(--c);border-radius:14px;padding:10px 14px;text-align:left}.rqlab{font-size:.8rem;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.04em}.rq .prompt{margin:4px 0 0}
+.rsteps{display:flex;gap:8px;justify-content:center}.rsteps span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:var(--line);color:var(--muted)}.rsteps .now{background:var(--c);color:#fff}.rsteps .ok{background:var(--good-bg);color:var(--good)}
+.rstep-q{font-family:var(--f-display);font-weight:600;font-size:1.25rem;margin:0}.rchoices .choice{min-height:56px;text-align:left;justify-items:start;padding:12px 16px}
+.rparts{display:flex;flex-wrap:wrap;gap:8px}.rparts span{background:var(--bg);border:2px dashed var(--line);border-radius:12px;padding:6px 10px;display:flex;flex-direction:column;text-align:left}.rparts small{font-size:.75rem;color:var(--muted);font-weight:700}
+#r-ans{width:100%;border:3px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);padding:12px;font:inherit;font-size:1.2rem;line-height:1.5}#r-ans:focus{border-color:var(--c);outline:none}
+.rcheck{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;text-align:left}.rcheck li{color:var(--muted)}.rcheck li.ok{color:var(--good);font-weight:700}
+.rcomp{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left}.rcomp>div{background:var(--bg);border-radius:12px;padding:10px 12px}.rcomp small{font-weight:700;color:var(--muted)}.rcomp p{margin:4px 0 0;font-size:1.1rem;line-height:1.5}
+@media (max-width:560px){.rcomp{grid-template-columns:1fr}}
+.rtab{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}.rtab>div{background:var(--bg);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;text-align:left;font-size:.95rem}
+.rplog{display:flex;flex-direction:column;gap:8px}.rpl{border:2px solid var(--line);border-radius:12px;padding:8px 12px}.rpl summary{display:flex;justify-content:space-between;gap:8px;cursor:pointer;color:var(--ink)!important;font-weight:400!important}.rpls{font-weight:700;color:var(--muted)}.rpls.ok{color:var(--good)}.rpla{font-size:1.05rem}
 .pwform{display:flex;flex-direction:column;gap:10px;max-width:420px}.pwform input[type=password],.pwform input[type=text]{border:2px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);color:var(--ink);font:inherit;font-weight:400}
 .pfield{display:flex;flex-direction:column;gap:6px;font-weight:700}.pfield select,.lvlgrid select{border:2px solid var(--line);border-radius:10px;padding:8px;background:var(--bg);max-width:100%}
 .plist{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
@@ -936,6 +948,10 @@ function conj(v,t,k){const I=IRR[v];if(t==="p")return I?I.p[k]:v.slice(0,-2)+["e
 const withPro=(pr,form)=>pr==="je"&&/^[aeéèêiouh]/i.test(form)?"j'"+form:pr+" "+form;
 function conjTable(v,t){return[0,1,2,3,4,5].map(k=>withPro(PRO[k][0],conj(v,t,k))).join(", ")}
 
+const QTYPES=[["comp","Où se passe l'histoire?"],["comp","Comment s'appelle le chien de Léo?"],["comp","Que mange le castor?"],["comp","Combien de foulards Rosalie fait-elle apparaître?"],["comp","Pourquoi Noah met-il sa tuque? Explique ta réponse."],["comp","Quel est le métier de la maman de Zoé?"],
+ ["reac","Qu'aurais-tu fait à la place de Jade? Explique ta réponse."],["reac","Aimerais-tu avoir un chat comme Pompon? Explique ta réponse."],["reac","As-tu déjà vécu la même chose qu'Ilan? Raconte."],["reac","Que ferais-tu si tu trouvais un trésor? Explique ta réponse."],["reac","Aurais-tu eu peur, toi, dans cette forêt? Explique ta réponse."],
+ ["appr","As-tu aimé ce texte? Explique ta réponse."],["appr","Quel personnage as-tu préféré? Explique ta réponse."],["appr","As-tu trouvé la fin de l'histoire réussie? Explique ta réponse."],["appr","Conseillerais-tu ce livre à un ami? Explique ta réponse."],["appr","As-tu trouvé ce texte intéressant? Explique ta réponse."],
+ ["interp","Selon toi, comment se sent Rosalie derrière le rideau? Explique ta réponse."],["interp","Selon toi, pourquoi Félix va-t-il voir Ilan? Explique ta réponse."],["interp","D'après toi, que va-t-il arriver après la fin de l'histoire?"],["interp","Selon toi, à quoi pense grand-maman quand elle voit les biscuits? Explique ta réponse."],["interp","D'après toi, pourquoi le lapin se cache-t-il? Explique ta réponse."]];
 const TEXTES=[
  {L:1,titre:"Le chat de Maya",texte:"Maya a un petit chat gris. Il s'appelle Pompon. Chaque matin, Pompon dort sur le lit de Maya. L'après-midi, il joue avec une balle rouge. Le soir, il mange ses croquettes dans la cuisine. Maya aime beaucoup son chat.",q:[
   ["Repérer une information","Comment s'appelle le chat?",["Pompon","Maya","Croquette","Biscuit"],"Le texte dit : « Il s'appelle Pompon. »"],
@@ -1090,6 +1106,7 @@ phrase(L){
   return{notion:"Le sujet de la phrase",prompt:"Quel est le sujet de cette phrase?",say:`Quel est le sujet de cette phrase? ${joinP(toks)}`,visual:phrase(joinP(toks)),kind:"choice",choices:choices(subj,[verb,rest,after]),answer:subj,explain:`Le sujet répond à la question « Qui est-ce qui ${verb}? » : ${subj}. On peut aussi l'encadrer par « C'est … qui » : « C'est ${/^(Nous|Vous|Tu|Elle|Ils)$/.test(subj)?({Nous:"nous",Vous:"vous",Tu:"toi",Elle:"elle",Ils:"eux"})[subj]:(toks[0].t==="d"?subj.charAt(0).toLowerCase()+subj.slice(1):subj)} qui ${verb}… »`}
 },
 lecture(L){
+  if(Math.random()<.22){const [k,q]=pick(QTYPES),R=REPT[k];return{notion:"Reconnaître le type de question",prompt:"Quelle sorte de question est-ce?",say:"Quelle sorte de question est-ce? "+q,visual:`<p class="prompt readq">« ${q} »</p>`,kind:"choice",choices:Object.values(REPT).map(x=>x.l),answer:R.l,explain:`${R.l} : ${R.d}`}}
   const pool=TEXTES.filter(t=>t.L===L||(L>1&&t.L===L-1&&Math.random()<.3)),T=pick(pool.length?pool:TEXTES),[notion,q,opts,ex]=pick(T.q);
   return{notion,prompt:"Lis le texte, puis réponds à la question.",say:q,visual:`<article class="readtext"><h4>${T.titre}</h4><p>${T.texte}</p></article><p class="prompt readq">${q}</p>`,kind:"choice",choices:shuffle(opts),answer:opts[0],explain:ex}
 }
@@ -1538,7 +1555,7 @@ function renderCarte(){
   }else{
     const s=SUBJ[CUR],zs=zones(CUR),st=starsOf(CUR);
     h=`<div class="gamebar"><button class="back" id="b-home">← Les îles</button><span class="gtitle">${s.nom}</span></div><button class="btn notions" id="b-notions">${BOOKICON}Les notions : revoir les règles</button>${searchBox(CUR)}<div class="hello"><p>Choisis une zone à explorer. Tu as gagné ${st} étoile${st>1?"s":""} sur ${zs.length*3} ici.</p></div>`
-     +`<div class="isles">`+(CUR==="francais"?`<button class="isle defi dictz" id="b-dict"><span class="badge">${PENICON}</span><span class="body"><span class="nom">Ma dictée du jour</span><span class="sous">${dWeeks().length?(dDue()?`<b>${dDue()} mot${dDue()>1?"s":""}</b> de tes listes à réviser aujourd'hui. Les mots reviennent juste avant que tu les oublies!`:"Tout est révisé pour aujourd'hui. Tu peux t'entraîner encore!"):"Les mots de tes listes d'orthographe, révisés jour après jour."}</span></span></button>`:"")+zs.map(i=>{const z=IS(i.id);return`<button class="isle${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="badge">${i.glyph}</span><span class="body"><span class="nom">${i.nom}</span><span class="sous">${i.sous}</span><span class="meta">${stars(z.stars)}<span class="lvl">Niveau ${z.level}</span></span></span></button>`}).join("")
+     +`<div class="isles">`+(CUR==="francais"?`<button class="isle defi dictz" id="b-dict"><span class="badge">${PENICON}</span><span class="body"><span class="nom">Ma dictée du jour</span><span class="sous">${dWeeks().length?(dDue()?`<b>${dDue()} mot${dDue()>1?"s":""}</b> de tes listes à réviser aujourd'hui. Les mots reviennent juste avant que tu les oublies!`:"Tout est révisé pour aujourd'hui. Tu peux t'entraîner encore!"):"Les mots de tes listes d'orthographe, révisés jour après jour."}</span></span></button><button class="isle defi repz" id="b-rep"><span class="badge">✍️</span><span class="body"><span class="nom">Je réponds en phrases complètes</span><span class="sous">Lire un court texte, puis écrire une réponse complète : je reprends la question, j'explique avec « car », je prouve avec le texte.</span></span></button>`:"")+zs.map(i=>{const z=IS(i.id);return`<button class="isle${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="badge">${i.glyph}</span><span class="body"><span class="nom">${i.nom}</span><span class="sous">${i.sous}</span><span class="meta">${stars(z.stars)}<span class="lvl">Niveau ${z.level}</span></span></span></button>`}).join("")
      +`<button class="isle defi" data-isle="defi"><span class="badge">?</span><span class="body"><span class="nom">Le Grand Défi</span><span class="sous">${ROUND} questions mélangées de toutes les zones de ${s.nom}</span></span></button>`
      +`<button class="isle defi" data-isle="tableau"><span class="badge chalkb">${CHALKICON}</span><span class="body"><span class="nom">Mission tableau</span><span class="sous">4 défis à écrire ou dessiner à la main, sur ton tableau ou une feuille.</span></span></button>`
      +`<button class="isle defi" data-isle="sprint"><span class="badge">${BOLT}</span><span class="body"><span class="nom">La Course Éclair</span><span class="sous">${CUR==="maths"?"60 secondes pour réussir le plus de calculs possible.":CUR==="francais"?"60 secondes de questions rapides : homophones et conjugaison.":"60 secondes de vocabulaire : images, mots et couleurs."} ${SPR(CUR).best?`Ton record : ${SPR(CUR).best} bonnes réponses.`:"Établis ton premier record!"}</span></span></button></div>`;
@@ -1549,7 +1566,7 @@ function renderCarte(){
   const bnot=$("#b-notions");if(bnot)bnot.onclick=()=>openLessons(CUR,null);
   bindSearch(CUR);
   const bat=$("#b-atelier");if(bat)bat.onclick=renderAtelier;
-  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;
+  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;
   const bbi=$("#b-biblio");if(bbi)bbi.onclick=renderBiblio;
   el.querySelectorAll("[data-subj]").forEach(b=>b.onclick=()=>{CUR=b.dataset.subj;tone([[659,.08],[880,.12]]);renderCarte();window.scrollTo(0,0)});
   el.querySelectorAll("[data-isle]").forEach(b=>b.addEventListener("click",()=>b.dataset.isle==="sprint"?startSprint():start(b.dataset.isle)));
@@ -1804,6 +1821,7 @@ function renderParent(){
    pcard("Temps d'étude — 7 derniers jours","Le temps compte seulement pendant les activités, application ouverte et sans pause. Laisser la tablette ouverte sans jouer ne compte pas.",`<div class="days">${days}</div>`)+
    pcard("Notions à surveiller","Les plus difficiles d'abord. Une notion se lit bien après 5 questions ou plus.",`<div class="nlist">${nl.length?nl.map(n=>`<div class="nrow"><div><b>${n.notion}</b><br><small>${byId(n.isl).nom} · ${n.r}/${n.t} réussies${n.tm}</small></div><div class="meter"><i style="width:${Math.round(n.p*100)}%;background:${col(n.p)}"></i></div><div class="pct">${Math.round(n.p*100)} %</div></div>`).join(""):`<p>Aucune question répondue pour l'instant.</p>`}</div>`)+
    pcard("Progrès par île","Le niveau s'ajuste seul : il monte à 7 bonnes réponses sur 8 et descend à 3 ou moins (à changer au besoin dans Réglages). Le record de temps ne compte que les parties d'au moins 6 sur 8.",`<div class="tablewrap"><table><thead><tr><th>Île</th><th>Niveau</th><th>Questions</th><th>Réussite</th><th>Record</th><th>Étoiles</th></tr></thead><tbody>${rows}</tbody></table></div>`)+
+   pcard("Réponses écrites (lecture)","Les dernières réponses de « Je réponds en phrases complètes ». Le jeu vérifie seulement la forme; c'est vous qui jugez le contenu.",repParentHTML())+
    pcard("Dictée du jour","Un mot revient après 1, 2, 4, 8, 16 puis 35 jours s'il est réussi; un mot raté revient le lendemain. Il est « maîtrisé » après 5 réussites espacées.",dStatsHTML())+
    pcard("Écriture","Caractères tracés sans modèle. « À l'envers » : le jeu a reconnu le caractère retourné (un d au lieu d'un b, par exemple).",Object.keys(S.trace||{}).length?`<div class="items tglyphs">${Object.entries(S.trace).sort((a,b)=>b[1].rev-a[1].rev||a[0].localeCompare(b[0])).map(([c,t])=>`<span class="${t.rev?"warnc":""}">${c} · réussi ${t.ok}${t.rev?` · à l'envers ${t.rev}`:""}</span>`).join("")}</div>`:`<p>Aucun exercice d'écriture pour l'instant.</p>`)+
    pcard("Vitesse et jeux","Records de la Course Éclair et de la Bibliothèque de jeux.",
@@ -2075,7 +2093,18 @@ lecture:[
  {t:"Faire une inférence",n:["Faire une inférence"],p:["Parfois, la réponse n'est pas écrite directement.","Il faut faire comme une détective : utiliser les indices du texte et ce que tu sais déjà.","Exemple : ses mains tremblent et son cœur bat fort. Elle est nerveuse!"]},
  {t:"Un mot que je ne connais pas",n:["Comprendre un mot"],p:["Relis la phrase autour du mot.","Cherche des indices : à quoi sert la chose? Que se passe-t-il?","Remplace le mot par un mot que tu connais. Est-ce que la phrase a encore du sens?"]},
  {t:"L'ordre des événements",n:["Ordre des événements"],p:["Les mots d'abord, ensuite, puis, après et à la fin montrent l'ordre.","Raconte l'histoire dans ta tête : qu'est-ce qui arrive en premier? Et après?"],v:()=>seqH(["D'abord","Ensuite","Puis","À la fin"].map(x=>`<div class="chip5">${x}</div>`),"row")},
- {t:"L'idée principale et le type de texte",n:["Idée principale","Type de texte"],p:["L'idée principale, c'est ce dont parle surtout le texte, en une phrase.","Une histoire raconte des événements avec des personnages.","Un texte informatif donne de vrais renseignements, comme sur le castor.","Une recette donne des ingrédients et des étapes à suivre."]}
+ {t:"L'idée principale et le type de texte",n:["Idée principale","Type de texte"],p:["L'idée principale, c'est ce dont parle surtout le texte, en une phrase.","Une histoire raconte des événements avec des personnages.","Un texte informatif donne de vrais renseignements, comme sur le castor.","Une recette donne des ingrédients et des étapes à suivre."]},
+ {t:"Quatre sortes de questions",n:["Reconnaître le type de question"],p:["Avant de répondre, je me demande : qu'est-ce que la question veut que je fasse?","Trouver une information : la réponse est dans le texte, écrite ou cachée dans des indices.","Donner ma réaction : je dis ce que j'aurais fait ou ressenti, et je fais un lien avec ma vie.","Donner mon appréciation : je dis si j'ai aimé, et je juge le texte.","Faire une hypothèse : je devine ce qu'un personnage pense ou ressent, avec des indices du texte."],
+  v:()=>`<div class="rtab">${Object.values(REPT).map(x=>`<div><b>${x.ic} ${x.l}</b><span>${x.d}</span></div>`).join("")}</div>`,ex:["« Où se passe l'histoire? » : je trouve une information.","« Qu'aurais-tu fait à sa place? » : je donne ma réaction.","« As-tu aimé ce texte? » : je donne mon appréciation.","« Selon toi, comment se sent-elle? » : je fais une hypothèse."]},
+ {t:"Une réponse complète",n:["Réponse complète"],p:["Une réponse complète a trois parties.","Un : je reprends les mots de la question.","Deux : j'explique avec car ou parce que.","Trois : je prouve avec le texte. Je peux écrire : dans le texte, on peut lire que…","À la fin, je vérifie la majuscule et le point."],
+  v:()=>seqH(["① Je reprends la question","② car / parce que","③ La preuve du texte"]),ex:["Question : pourquoi Noah met-il sa tuque?","Réponse : Noah met sa tuque parce qu'il fait froid. Dans le texte, on peut lire que la première neige est tombée pendant la nuit."]},
+ {t:"Donner ma réaction",n:["Donner ma réaction"],p:["Une question de réaction me demande ce que j'aurais fait, ou ce que je ressens.","Il n'y a pas une seule bonne réponse : c'est mon avis qui compte.","Je reprends les mots de la question, j'explique avec car, puis je fais un lien avec ma vie et avec le texte."],
+  ex:["Qu'aurais-tu fait à la place de Félix?","À la place de Félix, j'aurais aussi invité Ilan, car il était tout seul. Moi non plus, je n'aime pas être seule à la récréation."]},
+ {t:"Donner mon appréciation",n:["Donner mon appréciation"],p:["Une question d'appréciation me demande si j'ai aimé le texte, et pourquoi.","Pour juger un texte, je choisis un critère : l'histoire, un personnage, la fin, ou ce que j'ai appris.","Attention : « je n'aime pas les araignées » parle de moi. « La fin arrive trop vite » parle du texte. Dans une appréciation, je parle du texte."],
+  ex:["As-tu aimé la fin de cette histoire?","Oui, j'ai aimé la fin de cette histoire, parce qu'elle finit bien : le public applaudit et Rosalie sourit."]},
+ {t:"Faire une hypothèse",n:["Faire une hypothèse"],p:["Une question d'hypothèse commence souvent par : selon toi, d'après toi.","Je devine ce qu'un personnage pense ou ressent, ou ce qui va arriver.","Je commence par : selon moi, ou d'après moi.","Puis je prouve mon idée avec un indice du texte."],
+  ex:["Selon toi, comment se sent Rosalie derrière le rideau?","Selon moi, Rosalie se sent nerveuse, car ses mains tremblent et son cœur bat très fort."]},
+ {t:"Les mots pour bien répondre",n:["Réponse complète"],p:["Pour donner mon avis : selon moi, je pense que, à mon avis.","Pour expliquer : car, parce que.","Pour prouver avec le texte : dans le texte, on peut lire que…","Pour faire une hypothèse : selon moi, d'après moi, peut-être que.","Pour faire un lien : moi aussi, comme moi."]},
 ],
 /* ===== ANGLAIS ===== */
 en_words:[
@@ -2471,7 +2500,7 @@ const ZKEYS={port:"nombre nombres chiffre chiffres position unites dizaines cent
  orthographe:"orthographe ecrire ecriture mots dictee pluriel feminin masculin al aux eau ou bijou caillou adjectif nom noms garcon fille homme femme",
  homophones:"homophone homophones a et est son sont on ont ou ses ces piege",
  phrase:"phrase phrases ponctuation point virgule majuscule question interrogative exclamative declarative imperative negative ne pas sujet",
- lecture:"lecture lire texte textes comprendre comprehension histoire inference indice mot difficile ordre evenements idee principale",
+ lecture:"lecture lire texte textes comprendre comprehension histoire inference indice mot difficile ordre evenements idee principale reaction appreciation interpretation hypothese reponse complete car parce que preuve",
  en_words:"anglais vocabulaire mots couleurs couleur colors numbers nombres chiffres animaux nourriture vetements",
  en_listen:"anglais ecouter consignes classe position sur sous a cote on under next",
  en_talk:"anglais conversation parler questions reponses bonjour se presenter poli merci",
@@ -2695,6 +2724,147 @@ function dFinish(){const words=Object.keys(DC.first),ok=DC.ok,N=words.length,mis
   speak(`Dictée terminée! ${ok} sur ${N}. ${msg}`);
   if(!S.ms.first){S.ms.first=1;G.events.unshift({k:"first"})}save();
   const evs=G.events.concat(PEND.splice(0));if(evs.length&&S.comp.type)setTimeout(()=>{if(!$("#ecran-fin").hidden&&!BYE)celebrate(evs);else PEND.push(...evs)},1200)}
+
+/* ======================================================================
+   JE RÉPONDS EN PHRASES COMPLÈTES — réponse construite pas à pas
+   1) le type de question  2) le début (reprendre les mots de la question)
+   3) le marqueur (car, parce que)  4) la preuve tirée du texte
+   5) l'écriture de la réponse, avec une liste de vérification, puis un modèle
+   Contenu original (textes de la Cabane des Histoires).
+   ====================================================================== */
+const REPT={
+  comp:{ic:"📖",l:"Trouver une information",d:"La réponse est dans le texte : écrite telle quelle, ou cachée dans des indices."},
+  reac:{ic:"💬",l:"Donner ma réaction",d:"Je dis ce que j'aurais fait ou ressenti, et je fais un lien avec ma vie."},
+  appr:{ic:"⭐",l:"Donner mon appréciation",d:"Je dis si j'ai aimé, et je juge le texte : l'histoire, un personnage, la fin ou ce que j'ai appris."},
+  interp:{ic:"🔍",l:"Faire une hypothèse",d:"Je devine ce qu'un personnage pense ou ressent, ou ce qui va arriver, à l'aide d'indices du texte."}};
+/* pr = [preuve qui appuie la réponse, phrase du texte qui n'aide pas, phrase qui n'est PAS dans le texte] */
+const REP_ITEMS=[
+ {id:"ami-reac",t:"Le nouvel ami",type:"reac",q:"Qu'aurais-tu fait à la place de Félix? Explique ta réponse.",
+  ok:["À la place de Félix, j'aurais…","Moi aussi, à la place de Félix, je…"],ko:["Félix est un garçon.","Oui, c'est vrai."],
+  pr:["À la récréation, il reste seul près de la clôture.","Il s'appelle Ilan.","Félix n'aime pas jouer au ballon."],
+  m:"À la place de Félix, j'aurais aussi invité Ilan à jouer, car il était tout seul près de la clôture. Moi, je n'aime pas être seule à la récréation."},
+ {id:"ami-interp",t:"Le nouvel ami",type:"interp",q:"Selon toi, comment se sent Ilan au début de la journée? Explique ta réponse.",
+  ok:["Selon moi, au début de la journée, Ilan se sent…","D'après moi, Ilan se sent…"],ko:["Ilan a beaucoup d'amis.","Au début, il y a la récréation."],
+  pr:["Il vient d'une autre ville et il ne connaît personne.","Félix s'approche et lui propose de jouer au ballon.","Ilan pleure dans l'autobus."],
+  m:"Selon moi, au début de la journée, Ilan se sent triste et un peu gêné, car il ne connaît personne. Dans le texte, on peut lire qu'il reste seul près de la clôture."},
+ {id:"rosalie-interp",t:"Le spectacle de Rosalie",type:"interp",q:"Selon toi, comment se sent Rosalie derrière le rideau? Explique ta réponse.",
+  ok:["Selon moi, derrière le rideau, Rosalie se sent…","D'après moi, Rosalie se sent…"],ko:["Rosalie fait de la magie.","Le rideau est rouge."],
+  pr:["Derrière le rideau, ses mains tremblent et son cœur bat très fort.","Elle fait apparaître un foulard bleu.","Rosalie a oublié son costume."],
+  m:"Selon moi, derrière le rideau, Rosalie se sent nerveuse, car ses mains tremblent et son cœur bat très fort."},
+ {id:"rosalie-appr",t:"Le spectacle de Rosalie",type:"appr",q:"As-tu aimé la fin de cette histoire? Explique ta réponse.",
+  ok:["Oui, j'ai aimé la fin de cette histoire…","Non, je n'ai pas aimé la fin de cette histoire…"],ko:["Rosalie fait un spectacle.","Le spectacle a lieu le soir."],
+  pr:["Le public applaudit. Rosalie sourit : toutes ces heures de pratique en valaient la peine.","Le grand soir arrive enfin.","Rosalie gagne une médaille d'or."],
+  m:"Oui, j'ai aimé la fin de cette histoire, parce qu'elle finit bien : le public applaudit et Rosalie sourit. Ses heures de pratique ont servi."},
+ {id:"neige-reac",t:"La première neige",type:"reac",q:"Aimerais-tu jouer dehors avec Noah et Léa? Explique ta réponse.",
+  ok:["Oui, j'aimerais jouer dehors avec Noah et Léa…","Non, je n'aimerais pas jouer dehors avec Noah et Léa…"],ko:["Noah a une sœur.","Il neige en hiver."],
+  pr:["Dehors, il fait un gros bonhomme de neige avec sa sœur Léa.","Ce matin, Noah regarde par la fenêtre.","Noah glisse sur une grande côte."],
+  m:"Oui, j'aimerais jouer dehors avec Noah et Léa, car moi aussi j'adore faire des bonshommes de neige. Dans le texte, ils lui donnent une carotte pour le nez."},
+ {id:"neige-comp",t:"La première neige",type:"comp",q:"En quelle saison se passe l'histoire? Explique ta réponse.",
+  ok:["L'histoire se passe en…"],ko:["Noah aime la neige.","Oui, c'est l'hiver."],
+  pr:["La première neige est tombée pendant la nuit.","Ce matin, Noah regarde par la fenêtre.","Les feuilles tombent des arbres."],
+  m:"L'histoire se passe en hiver, car la première neige est tombée pendant la nuit. Noah met aussi sa tuque, ses mitaines et ses bottes."},
+ {id:"pique-interp",t:"Le pique-nique",type:"interp",q:"Selon toi, pourquoi la famille finit-elle son repas en riant? Explique ta réponse.",
+  ok:["Selon moi, la famille finit son repas en riant…","D'après moi, la famille rit…"],ko:["Papa fait des sandwichs.","La famille mange."],
+  pr:["Vite, tout le monde ramasse les affaires et court vers la voiture.","Papa prépare des sandwichs.","Jade tombe dans une flaque de boue."],
+  m:"Selon moi, la famille finit son repas en riant parce que la course sous la pluie était drôle. Dans le texte, tout le monde ramasse les affaires et court vers la voiture."},
+ {id:"pique-reac",t:"Le pique-nique",type:"reac",q:"Qu'aurais-tu fait si la pluie avait commencé pendant ton pique-nique? Explique ta réponse.",
+  ok:["Si la pluie avait commencé pendant mon pique-nique, j'aurais…"],ko:["Il pleut souvent.","Jade a une nappe."],
+  pr:["Vite, tout le monde ramasse les affaires et court vers la voiture.","Jade, elle, transporte la nappe à carreaux.","Ils ouvrent un grand parapluie jaune."],
+  m:"Si la pluie avait commencé pendant mon pique-nique, j'aurais couru vers la voiture comme la famille de Jade, car je n'aime pas être mouillée."},
+ {id:"castor-appr",t:"Le castor",type:"appr",q:"As-tu trouvé ce texte intéressant? Explique ta réponse.",
+  ok:["Oui, j'ai trouvé ce texte intéressant…","Non, je n'ai pas trouvé ce texte intéressant…"],ko:["Le castor vit au Canada.","C'est un texte."],
+  pr:["Il a de grandes dents orange qui ne cessent jamais de pousser.","Le castor est un animal qui vit au Canada.","Le castor mange des poissons."],
+  m:"Oui, j'ai trouvé ce texte intéressant, parce que j'ai appris des choses surprenantes. Par exemple, les dents du castor ne cessent jamais de pousser."},
+ {id:"castor-comp",t:"Le castor",type:"comp",q:"Pourquoi le castor ronge-t-il des arbres? Explique ta réponse.",
+  ok:["Le castor ronge des arbres…"],ko:["Le castor aime l'eau.","Oui, il ronge."],
+  pr:["Il a de grandes dents orange qui ne cessent jamais de pousser. Pour les user, il ronge des arbres.","Sa queue plate lui sert de gouvernail.","Le castor ronge des arbres pour faire du feu."],
+  m:"Le castor ronge des arbres pour user ses dents, car elles ne cessent jamais de pousser."},
+ {id:"sucres-reac",t:"Le temps des sucres",type:"reac",q:"Aimerais-tu aller à la cabane à sucre? Explique ta réponse.",
+  ok:["Oui, j'aimerais aller à la cabane à sucre…","Non, je n'aimerais pas aller à la cabane à sucre…"],ko:["Le sirop est sucré.","Au printemps, il fait chaud."],
+  pr:["Ensuite, on fait bouillir la sève pendant de longues heures. L'eau s'évapore et il reste le sirop.","Au printemps, quand les nuits sont froides et les journées plus chaudes, la sève monte dans les érables.","On mange de la tire sur la neige."],
+  m:"Oui, j'aimerais aller à la cabane à sucre, car j'aime le sirop d'érable. Je voudrais voir comment on fait bouillir la sève jusqu'à ce qu'il reste le sirop."},
+ {id:"chat-interp",t:"Le chat de Maya",type:"interp",q:"Selon toi, est-ce que Pompon est un chat heureux? Explique ta réponse.",
+  ok:["Selon moi, Pompon est un chat heureux…","Selon moi, Pompon n'est pas un chat heureux…"],ko:["Pompon est gris.","Oui."],
+  pr:["Maya aime beaucoup son chat.","Il s'appelle Pompon.","Pompon a peur des chiens."],
+  m:"Selon moi, Pompon est un chat heureux, car il dort sur le lit de Maya, il joue et il mange bien. Dans le texte, on peut lire que Maya aime beaucoup son chat."}
+];
+const REP_PR_WHY=["Oui! Cette phrase est dans le texte et elle appuie ta réponse.","Cette phrase est bien dans le texte, mais elle n'aide pas à répondre à la question.","Attention : cette phrase n'est pas dans le texte! Une preuve doit toujours venir du texte."];
+const REP_MARQ=[["car",1,"Oui! « Car » sert à expliquer pourquoi."],["parce que",1,"Oui! « Parce que » sert à expliquer pourquoi."],["mais",0,"« Mais » montre une opposition. Pour expliquer, on utilise « car » ou « parce que »."],["ensuite",0,"« Ensuite » montre l'ordre des événements. Pour expliquer, on utilise « car » ou « parce que »."]];
+const RS=()=>{if(!S.rep||typeof S.rep!=="object")S.rep={};const r=S.rep;if(!r.n)r.n={};if(!Array.isArray(r.log))r.log=[];return r};
+const repText=it=>TEXTES.find(t=>t.titre===it.t);
+const REP_STOP=new Set("dans avec pour quand elle elles sont cette texte explique ta réponse selon toi quoi comment pourquoi est-ce aussi très tout tous mais leur leurs pendant".split(" "));
+const repWords=s=>dNorm(s).replace(/[^\p{L}' -]/gu," ").split(/[\s'-]+/).filter(w=>w.length>=4&&!REP_STOP.has(w));
+const repOver=(a,b)=>{const B=new Set(repWords(b));return[...new Set(repWords(a))].filter(w=>B.has(w)||[...B].some(x=>x.length>5&&w.length>5&&x.slice(0,5)===w.slice(0,5))).length};
+function repChecks(txt,it,open){const T=repText(it),t=txt.trim(),o=(open||"").replace(/…$/,"").trim(),L=[];
+  L.push(["Je reprends les mots de la question",repOver(t,it.q)>=2||(o&&dNorm(t).startsWith(dNorm(o).slice(0,14)))]);
+  L.push(["J'explique avec « car » ou « parce que »",/(^|[^\p{L}])(car|parce qu|puisque)/iu.test(t)]);
+  const qw=new Set(repWords(it.q+" "+o)),body=repWords(t).filter(w=>!qw.has(w)).join(" ");
+  L.push(["Je m'appuie sur le texte",repOver(body,it.pr[0])>=2||repOver(body,T?T.texte:"")>=3]);
+  if(it.type==="reac")L.push(["Je fais un lien avec moi",/(^|[^\p{L}])(moi|j'aime|j'adore|je n'aime|j'aurais|je ferais|mon|ma|mes|nous|chez nous)(?![\p{L}])/iu.test(t.replace(/^.*?(car|parce qu)/iu,""))||/(moi aussi|comme moi)/i.test(t)]);
+  if(it.type==="appr")L.push(["Je juge le texte (histoire, personnage, fin, ce que j'ai appris…)",/(histoire|personnage|fin|début|texte|appris|apprend|drôle|intéressant|information|surprenant|triste|belle|beau)/i.test(t.replace(/^.*?(car|parce qu)/iu,""))]);
+  L.push(["Majuscule au début, point à la fin",/^[A-ZÀ-ÖØ-Þ«"]/.test(t)&&/[.!?»"]$/.test(t)]);
+  return L}
+let RC=null;
+function startRep(){const r=RS(),pool=REP_ITEMS.filter(it=>repText(it)).slice().sort((a,b)=>(r.n[a.id]||0)-(r.n[b.id]||0)||Math.random()-.5);
+  const list=[];for(const it of pool){if(list.length>=3)break;if(!list.some(x=>x.t===it.t))list.push(it)}
+  FORCEV=false;G={mode:"rep",subj:"francais",events:[]};RC={list:shuffle(list),i:0,first:0,tot:0,written:0};repItem()}
+function repShell(){const it=RC.list[RC.i],T=repText(it),el=$("#ecran-jeu");el.style.setProperty("--c","var(--i6)");
+  el.innerHTML=`<div class="gamebar"><button class="back" id="r-back">← L'Île aux Mots</button><span class="gtitle">Je réponds en phrases complètes</span><span class="levelchip">${RC.i+1} / ${RC.list.length}</span></div>
+  <div class="card pop rcard" style="--c:var(--i6)"><details class="rtxt" ${RC.step==="type"?"open":""}><summary>Le texte : <b>${esc(T.titre)}</b></summary><article class="readtext"><p>${T.texte}</p></article></details>
+   <div class="rq"><span class="rqlab">Question</span><p class="prompt readq">${esc(it.q)}</p></div>
+   <div class="rsteps">${["type","start","marq","proof","write"].map((k,i)=>`<span class="${k===RC.step?"now":["type","start","marq","proof","write"].indexOf(RC.step)>i||RC.step==="done"?"ok":""}">${i+1}</span>`).join("")}</div>
+   <div id="r-step"></div><div id="fb"></div></div>`;
+  $("#r-back").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}G=null;RC=null;renderCarte();go("carte")};go("jeu")}
+function repItem(){RC.step="type";RC.open="";RC.marq="";RC.proof="";repShell();const it=RC.list[RC.i],T=repText(it);
+  if(canSpeak())speakSeq([[T.titre+".","fr"],300,[T.texte,"fr"],600,["Question : "+it.q,"fr"]]);
+  repChoice("Quelle sorte de question est-ce?",Object.entries(REPT).map(([k,v])=>({t:`${v.ic} ${v.l}`,ok:k===it.type,why:k===it.type?`Oui! ${v.l} : ${v.d}`:`Pas tout à fait. C'est « ${REPT[it.type].l} » : ${REPT[it.type].d}`})),()=>{RC.step="start";repShell();repStart()},true)}
+function repStart(){const it=RC.list[RC.i];
+  repChoice("Comment commencer ta réponse?",shuffle([...it.ok.map(t=>({t,ok:true,why:"Oui! Ce début reprend les mots de la question."+(it.ok.length>1?" (L'autre début aurait été bon aussi : c'est ton avis qui compte.)":"")})),...it.ko.map(t=>({t,ok:false,why:`Ce début ne reprend pas les mots de la question. Commence plutôt par : « ${it.ok[0]} »`}))]),
+    v=>{RC.open=v&&v.ok?v.t:it.ok[0];RC.step="marq";repShell();repMarq()})}
+function repMarq(){repChoice("Pour expliquer ta réponse, quel mot vas-tu utiliser?",shuffle(REP_MARQ.map(([t,ok,why])=>({t,ok:!!ok,why}))),v=>{RC.marq=v&&v.ok?v.t:"car";RC.step="proof";repShell();repProof()})}
+function repProof(){const it=RC.list[RC.i];
+  repChoice("Quelle phrase du texte prouve le mieux ta réponse?",shuffle(it.pr.map((t,i)=>({t:`« ${t} »`,ok:i===0,why:REP_PR_WHY[i]+(i?` La bonne preuve : « ${it.pr[0]} »`:"")}))),()=>{RC.proof=it.pr[0];RC.step="write";repShell();repWrite()},false,true)}
+/* Choix à une seule bonne réponse (ou plusieurs bonnes). Après une erreur, l'explication doit être entendue avant de continuer. */
+function repChoice(prompt,opts,next,first,showTxt){const box=$("#r-step");
+  box.innerHTML=`<p class="rstep-q">${prompt}</p><div class="choices one rchoices">${opts.map((o,i)=>`<button class="choice long" data-i="${i}">${esc(o.t)}</button>`).join("")}</div>`;
+  if(canSpeak()&&!first)speak(prompt);
+  box.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{const o=opts[+b.dataset.i];box.querySelectorAll(".choice").forEach((x,i)=>{x.disabled=true;if(opts[i].ok&&(o.ok?x===b:true))x.classList.add("right")});if(!o.ok)b.classList.add("wrong");
+    RC.tot++;if(o.ok)RC.first++;tone(o.ok?[[660,.1],[880,.15]]:[[300,.2]]);
+    const fb=$("#fb");fb.innerHTML=`<div class="feedback ${o.ok?"good":"bad"} pop"><h3>${o.ok?"Bravo!":"Presque!"}</h3><p>${esc(o.why)}</p><button class="btn" id="r-next">Continuer</button></div>`;
+    const nb=$("#r-next");nb.onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}next(o)};
+    if(!o.ok){nb.disabled=true;const un=()=>{if($("#r-next")===nb)nb.disabled=false};if(canSpeak())speakSeq([["Presque!","fr"],[o.why,"fr"]],un);else setTimeout(un,Math.min(12000,Math.max(4000,o.why.length*60)))}
+    else if(canSpeak())speak("Bravo! "+o.why);
+    fb.scrollIntoView({behavior:"smooth",block:"nearest"})})}
+function repWrite(){const it=RC.list[RC.i],box=$("#r-step"),pre=RC.open.replace(/…$/,"");
+  box.innerHTML=`<p class="rstep-q">À toi! Écris ta réponse complète.</p>
+   <div class="rparts"><span><small>Début</small>${esc(RC.open)}</span><span><small>Pour expliquer</small>${esc(RC.marq)}</span><span><small>Preuve du texte</small>« ${esc(RC.proof)} »</span></div>
+   <textarea id="r-ans" rows="4" lang="fr" spellcheck="false" autocapitalize="sentences">${esc(pre)}</textarea>
+   <ul class="rcheck" id="r-chk" aria-live="polite"></ul>
+   <div class="row-btns"><button class="btn" id="r-done" disabled>J'ai fini</button></div>`;
+  if(canSpeak())speak("À toi! Écris ta réponse complète. Commence par le début choisi, explique avec "+RC.marq+", puis utilise la preuve du texte.");
+  const ta=$("#r-ans"),dn=$("#r-done"),draw=()=>{const C=repChecks(ta.value,it,RC.open);$("#r-chk").innerHTML=C.map(([l,ok])=>`<li class="${ok?"ok":""}">${ok?"✓":"○"} ${l}</li>`).join("");dn.disabled=ta.value.trim().length<pre.length+12};
+  ta.oninput=draw;draw();ta.focus({preventScroll:true});ta.setSelectionRange(ta.value.length,ta.value.length);
+  dn.onclick=()=>{const C=repChecks(ta.value,it,RC.open),n=C.filter(c=>c[1]).length;RC.written++;
+    const r=RS();r.n[it.id]=(r.n[it.id]||0)+1;r.log.unshift({d:today(),id:it.id,a:ta.value.trim().slice(0,600),ck:C.map(c=>c[1]?1:0),cl:C.map(c=>c[0])});r.log.length=Math.min(r.log.length,40);save();
+    RC.step="done";repShell();const all=n===C.length;
+    $("#r-step").innerHTML=`<div class="rcomp"><div><small>Ta réponse</small><p>${esc(ta.value.trim())}</p></div><div><small>Un exemple de réponse complète</small><p>${esc(it.m)}</p></div></div>
+     <ul class="rcheck">${C.map(([l,ok])=>`<li class="${ok?"ok":""}">${ok?"✓":"○"} ${l}</li>`).join("")}</ul>
+     <p class="msg">${all?"Ta réponse a toutes les parties d'une réponse complète!":"Compare avec l'exemple : qu'est-ce qui manque à ta réponse?"} Papa ou maman pourra la lire dans l'espace parent.</p>
+     <div class="row-btns"><button class="btn" id="r-go">${RC.i+1<RC.list.length?"Texte suivant":"Terminer"}</button></div>`;
+    tone(all?[[523,.12],[659,.12],[784,.2]]:[[523,.15],[659,.2]]);
+    if(canSpeak())speakSeq([[all?"Bravo! Ta réponse est complète.":"Bien travaillé! Compare avec l'exemple.","fr"],500,["Voici un exemple de réponse complète : "+it.m,"fr"]]);
+    $("#r-go").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}RC.i++;if(RC.i<RC.list.length)repItem();else repFinish()}}}
+function repFinish(){const el=$("#ecran-fin"),st=RC.first>=RC.tot?3:RC.first>=RC.tot*.75?2:1;el.style.setProperty("--c","var(--i6)");
+  el.innerHTML=`<div class="card result pop" style="--c:var(--i6)"><div class="notion">Je réponds en phrases complètes</div><h2>Bravo${S.name?", "+esc(S.name):""}!</h2><div class="score">${RC.first} / ${RC.tot}</div>${stars(st)}
+   <p class="msg">Tu as écrit <b>${RC.written} réponse${RC.written>1?"s":""}</b>. Rappelle-toi : je reprends la question, j'explique avec « car », et je prouve avec le texte.</p>
+   <div class="row-btns"><button class="btn" id="r-again">Encore</button><button class="btn ghost" id="r-map">Retour à l'île</button></div></div>`;
+  $("#r-again").onclick=startRep;$("#r-map").onclick=()=>{G=null;RC=null;renderCarte();go("carte")};go("fin");
+  speak(`Bravo! Tu as écrit ${RC.written} réponses.`);if(!S.ms.first){S.ms.first=1}save()}
+/* Espace parent (onglet Suivi) : les réponses écrites */
+function repParentHTML(){const L=RS().log.slice(0,8);if(!L.length)return`<p>Aucune réponse écrite pour l'instant. L'activité « Je réponds en phrases complètes » est sur l'île du français.</p>`;
+  return`<div class="rplog">${L.map(x=>{const it=REP_ITEMS.find(i=>i.id===x.id)||{q:"",m:"",t:""},ok=x.ck.filter(Boolean).length;
+    return`<details class="rpl"><summary><span><b>${esc(it.t)}</b> · ${new Date(x.d+"T12:00").toLocaleDateString("fr-CA",{day:"numeric",month:"short"})}<br><span class="dsub">${esc(it.q)}</span></span><span class="rpls ${ok===x.ck.length?"ok":""}">${ok}/${x.ck.length}</span></summary>
+     <p class="rpla">« ${esc(x.a)} »</p><ul class="rcheck">${x.cl.map((l,i)=>`<li class="${x.ck[i]?"ok":""}">${x.ck[i]?"✓":"○"} ${l}</li>`).join("")}</ul><p class="pdesc"><b>Exemple :</b> ${esc(it.m)}</p></details>`}).join("")}</div>`}
 
 /* Espace parent : suivi de la dictée (onglet Suivi) et banque de listes (onglet Matière scolaire) */
 function dStatsHTML(){const d=DS(),L=dSorted(),cur=dCurList(),dn=dayNum();
@@ -3213,7 +3383,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261102-020513";
+const APP_VER="20261102-023112";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
