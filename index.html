@@ -543,6 +543,22 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .pcard h3{margin:0;font-family:var(--f-display);font-size:1.2rem}.pcard .pdesc{margin:0;color:var(--muted);font-size:.92rem}
 .pcard textarea{width:100%;min-height:110px;border:2px solid var(--line);border-radius:12px;background:var(--bg);padding:10px;font:inherit;color:var(--ink)}
 .pcard>.btn{align-self:flex-start}.pcard.danger{border-color:var(--bad)}.pcard.danger h3{color:var(--bad)}
+.dllist{display:flex;flex-direction:column;gap:10px}.dlpast summary{cursor:pointer;font-weight:700;padding:6px 0}.dlpast .dllist{margin-top:8px}
+.dlrow{border:2px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+.dlrow.cur{border-color:var(--i7);box-shadow:0 0 0 2px color-mix(in srgb,var(--i7) 25%,transparent)}.dlrow.past{opacity:.85}
+.dlrow.flash{animation:dlflash 1.2s ease}@keyframes dlflash{0%{background:color-mix(in srgb,var(--i7) 30%,var(--bg))}100%{background:var(--bg)}}
+.dlhead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline}.dlhead small{color:var(--muted)}
+.dlbadge{display:inline-block;font-size:.75rem;font-weight:700;border-radius:999px;padding:1px 8px;background:var(--line);vertical-align:middle}.dlrow.cur .dlbadge{background:var(--i7);color:#fff}
+.dlwords{color:var(--muted);font-size:.9rem;line-height:1.4}.dlwords b{color:var(--ink)}
+.dlacts,.dlshift{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.dlacts .btn,.dlshift .btn{padding:6px 12px;font-size:.9rem;min-height:40px}.dlacts .btn:disabled{opacity:.35}
+.dlacts .dldel{border-color:var(--bad);color:var(--bad);margin-left:auto}.dlshift[hidden]{display:none}.dlcas{display:flex;gap:6px;align-items:center;font-size:.9rem}
+.ovl-in.form{max-width:560px;text-align:left;align-items:stretch}.ovl-in.form .ovl-title{text-align:center;font-size:1.5rem}
+.ovl-in.form input[type=number],.ovl-in.form input[type=date],.ovl-in.form input[type=text],.ovl-in.form textarea{border:2px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);color:var(--ink);font:inherit;font-weight:400;width:100%}
+.ovl-in.form textarea{min-height:120px}.dlform{display:grid;grid-template-columns:1fr 1.4fr;gap:12px}.dlbtns{justify-content:flex-end}.ovl-in.form .pdesc{margin:0}
+.wchips{display:flex;flex-wrap:wrap;gap:6px}.wchips:empty{display:none}.wchip{background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:2px 4px 2px 12px;display:inline-flex;align-items:center;gap:4px}
+.wchip.dup{border-style:dashed;color:var(--muted)}.wchip button{border:0;background:none;color:var(--muted);font-size:1.1rem;line-height:1;min-width:28px;min-height:28px;border-radius:50%;cursor:pointer}.wchip button:hover{background:var(--line)}
+.dbpv .plist{margin:0}.utoast{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;background:var(--ink);color:var(--surface);border-radius:16px;padding:10px 12px 10px 16px;display:flex;gap:12px;align-items:center;width:max-content;max-width:calc(100% - 32px);box-shadow:0 6px 24px rgba(0,0,0,.3)}
+.utoast .btn{flex:none}
 .pfield{display:flex;flex-direction:column;gap:6px;font-weight:700}.pfield select,.lvlgrid select{border:2px solid var(--line);border-radius:10px;padding:8px;background:var(--bg);max-width:100%}
 .plist{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
 .lvlgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.lvlgrid>div{display:flex;flex-direction:column;gap:6px}.lvlh{font-family:var(--f-display)}
@@ -596,7 +612,7 @@ function IS(id){return S.isl[id]||(S.isl[id]={level:1,stars:0,played:0,r:0,t:0})
 /* Version affichée dans l'espace parent (ex. 20261025-165714 → 25 octobre 2026, 16 h 57) */
 function verTxt(v){const m=String(v).match(/^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})/);if(!m)return esc(v);return new Date(+m[1],+m[2]-1,+m[3]).toLocaleDateString("fr-CA",{day:"numeric",month:"long",year:"numeric"})+`, ${+m[4]} h ${m[5]}`}
 /* ---------- Export / import de la progression ---------- */
-function exportCode(){const o=Object.assign({},S);if(S.dict&&!S.dict.txt&&LISTE_DEF)o.dict=Object.assign({},S.dict,{txt:LISTE_DEF});const j=JSON.stringify(o);return "ARCHIPEL1:"+btoa(unescape(encodeURIComponent(j)))}
+function exportCode(){DLs();const o=Object.assign({},S);const j=JSON.stringify(o);return "ARCHIPEL1:"+btoa(unescape(encodeURIComponent(j)))}
 function importCode(t){try{t=String(t||"").replace(/\s+/g,"");if(!t.startsWith("ARCHIPEL1:"))return null;const d=JSON.parse(decodeURIComponent(escape(atob(t.slice(10)))));return d&&d.v===1&&typeof d.isl==="object"?d:null}catch(e){return null}}
 
 /* ---------- Son ---------- */
@@ -1292,7 +1308,7 @@ anglais(L,zone){
 const boardFor=(subj,L,zone)=>{const q=BOARD[subj](L,zone);q.kind="board";q.choices=[];return q};
 /* ---------- Mots de la semaine (listes de l'école, entrées par le parent) ---------- */
 /* Français : les mots de la semaine viennent maintenant de la liste de la dictée (semaine en cours choisie par le parent) */
-const weekFR=()=>{try{const W=dLists().W[dCur()];return W?W.w.map(e=>e.w):[]}catch(e){return[]}};
+const weekFR=()=>{try{const c=dCurList();return c?c.w.map(e=>e.w):[]}catch(e){return[]}};
 const weekEN=()=>((S.week&&S.week.en)||[]).filter(x=>x&&x.w);
 const weekList=subj=>subj==="francais"?weekFR():subj==="anglais"?weekEN():[];
 function variants(w,rules){const out=new Set();for(const [re,rep] of rules){if(re.test(w)){const v=w.replace(re,rep);if(v&&v!==w)out.add(v)}}return[...out]}
@@ -1767,7 +1783,7 @@ function renderParent(){
    <div class="pdalerts">${dWeeks().length?`<button class="pda" data-go="suivi">📝 <b>${dDue()}</b> mot${dDue()>1?"s":""} de dictée à réviser aujourd'hui</button>`:`<button class="pda warn" data-go="matiere">📝 Ajouter les listes de dictée</button>`}
    ${S.gifts.pending.length?`<button class="pda gift" data-go="recompenses">🎁 <b>${S.gifts.pending.length}</b> cadeau${S.gifts.pending.length>1?"x":""} à remettre</button>`:""}
    ${weak?`<button class="pda warn" data-go="suivi">⚠️ À surveiller : <b>${esc(weak.notion)}</b> (${Math.round(weak.p*100)} %)</button>`:""}
-   ${dWeeks().length&&!DS().curSet?`<button class="pda warn" data-go="matiere">📅 Confirmer la semaine de dictée</button>`:""}</div></section>`;
+   ${dNeedList()?`<button class="pda warn" data-go="matiere">📅 Ajouter la liste de mots de cette semaine</button>`:""}</div></section>`;
   /* --- onglet Suivi --- */
   const tSuivi=
    pcard("Temps d'étude — 7 derniers jours","Le temps compte seulement pendant les activités, application ouverte et sans pause. Laisser la tablette ouverte sans jouer ne compte pas.",`<div class="days">${days}</div>`)+
@@ -1814,7 +1830,8 @@ function renderParent(){
      `<div class="confirm" id="p-rday-zone"><button class="btn ghost" id="p-rtime">Remettre à zéro le temps d'aujourd'hui</button>${getSnap()?`<button class="btn ghost" id="p-rday" style="border-color:var(--bad);color:var(--bad)">Annuler tout ce qui s'est passé aujourd'hui</button>`:""}</div>
      <p class="pdesc">« Temps » : remet à 0 les minutes et la dictée du jour; les progrès sont gardés. ${getSnap()?"« Tout annuler » : remet le jeu comme il était ce matin (temps, réponses, niveaux, étoiles, dictée, cadeaux d'aujourd'hui); vos réglages sont gardés.":"« Tout annuler » sera disponible à partir de demain."}</p>`)+
    pcard("Zone de danger","Ces actions sont irréversibles. Chacune demande une confirmation.",
-     `<div class="confirm" id="p-dreset-zone"><button class="btn ghost" id="p-dreset">Recommencer les révisions de dictée</button></div>
+     `${DLs().length?`<div class="confirm" id="p-dlall-zone"><button class="btn ghost" id="p-dlall">Supprimer toutes les listes de dictée</button></div>`:""}
+     <div class="confirm" id="p-dreset-zone"><button class="btn ghost" id="p-dreset">Recommencer les révisions de dictée</button></div>
      <div class="confirm" id="p-reset-zone"><button class="btn ghost" id="p-reset">Effacer les progrès seulement</button><button class="btn ghost" id="p-wipe" style="border-color:var(--bad);color:var(--bad)">Tout effacer et recommencer</button></div>
      <p class="pdesc">« Effacer les progrès » garde le prénom, le compagnon et les cadeaux à remettre. « Tout effacer » remet le jeu à neuf. Le mot de passe parent ne change pas (pour le changer, demandez-le à Claude).</p>`,"danger");
   const T={suivi:tSuivi,matiere:tMatiere,reglages:tReglages,recompenses:tRecomp,donnees:tDonnees};
@@ -1856,7 +1873,7 @@ function renderParent(){
     $("#p-rn2").onclick=renderParent;$("#p-ry2").onclick=()=>{const sn=getSnap();if(!sn)return renderParent();
       const keep={name:S.name,sound:S.sound,music:S.music,voice:S.voice,voiceName:S.voiceName,rate:S.rate,rateV:S.rateV,theme:S.theme,goals:S.goals,boardOn:S.boardOn,strict:S.strict,week:S.week,traceCase:S.traceCase};
       const gk={on:S.gifts.on,reveal:S.gifts.reveal,list:S.gifts.list};
-      const dk={txt:(S.dict||{}).txt,cur:(S.dict||{}).cur,curSet:(S.dict||{}).curSet};
+      const dk={lists:DLs()};
       S=Object.assign(fresh(),sn.s,keep);S.gifts=Object.assign({},S.gifts,gk);S.dict=Object.assign({},S.dict||{},dk);
       PEND.splice(0);G=null;rollDay();save();renderBar();syncTheme();syncVoix();renderParent()}};
   el.querySelectorAll("[data-goal]").forEach(x=>x.onchange=()=>{S.goals[x.dataset.goal]=+x.value;save();renderBar();renderParent()});
@@ -2477,31 +2494,65 @@ const DDEF={"1gprhdx":"une recherche pour découvrir la vérité, comme le fait 
 function dEnrich(e){if(!e.d&&DDEF[dHash(e.w)])e.d=DDEF[dHash(e.w)];const en=DENR[dHash(e.w)];if(!en)return;
   if(!e.c||/^(masculin|féminin|pluriel)/.test(e.c))e.c=en[0];
   if(!e.p)e.p=en[1].replace("@@",e.w.charAt(0).toUpperCase()+e.w.slice(1)).replace("__",e.w)}
-let DLC={txt:null,W:{},by:{}};
-function dLists(){const t=DS().txt||LISTE_DEF;if(DLC.txt!==t){const W=parseListes(t),by={};Object.values(W).forEach(x=>x.w.forEach(dEnrich));Object.keys(W).map(Number).sort((a,b)=>a-b).forEach(k=>W[k].w.forEach(e=>{if(!by[e.w])by[e.w]=e}));DLC={txt:t,W,by}}return DLC}
-const dWeeks=()=>Object.keys(dLists().W).map(Number).sort((a,b)=>a-b);
-/* Semaine scolaire estimée (rentrée vers le 31 août); le parent la confirme dans son espace */
-function dGuessWeek(){const ws=dWeeks();if(!ws.length)return 0;const y=new Date().getMonth()>=7?new Date().getFullYear():new Date().getFullYear()-1;
-  const n=Math.floor((Date.now()-new Date(y,7,31).getTime())/(7*864e5))+1;return Math.min(ws[ws.length-1],Math.max(ws[0],n))}
-function dCur(){const d=DS();if(!d.cur||!dLists().W[d.cur]){const g=dGuessWeek();if(g&&!d.cur)d.cur=g;else if(g&&!dLists().W[d.cur])d.cur=dWeeks().filter(w=>w<=d.cur).pop()||g}return d.cur}
-/* Ajoute à la banque les mots des semaines déjà passées (à réviser, étalés ~15 par jour) et ceux de la semaine en cours (nouveaux) */
-function dSync(){const d=DS(),L=dLists(),cur=dCur();if(!cur)return;const dn=dayNum();let k=0;
-  dWeeks().filter(w=>w<=cur).sort((a,b)=>b-a).forEach(wk=>L.W[wk].w.forEach(e=>{if(d.bank[e.w]||L.by[e.w]!==e)return;
-    d.bank[e.w]=wk<cur?{b:1,due:dn+Math.floor(k++/15),wk,miss:0,ok:0,seen:0}:{b:0,due:dn,wk,miss:0,ok:0,seen:0};DSYNC_ADD=1}));if(DSYNC_ADD){DSYNC_ADD=0;save()}}
-let DSYNC_ADD=0;
-const dInfo=w=>dLists().by[w]||{w,c:"",p:"",wk:0};
-function dDueAll(){dSync();const d=DS(),dn=dayNum(),cur=dCur();return Object.entries(d.bank).filter(([w,x])=>dLists().by[w]&&((x.b>=1&&x.due<=dn)||(x.b===0&&x.wk<=cur))).length}
+/* ---------- Banque de listes de dictée ----------
+   Chaque liste = un numéro de semaine + une date de début + des mots (texte libre).
+   Le jeu sait seul quelle liste est « en cours » (la dernière commencée) : plus de changement manuel le lundi. */
+const dnToDate=dn=>new Date(dn*864e5+12*3600e3);
+const dnMonday=dn=>{const dow=(dn+4)%7;return dn-((dow+6)%7)};
+const dnFmt=(dn,o)=>dnToDate(dn).toLocaleDateString("fr-CA",o||{weekday:"short",day:"numeric",month:"short"});
+const dnToInput=dn=>dnToDate(dn).toISOString().slice(0,10);
+const dnFromInput=v=>{const t=Date.parse(v+"T12:00:00");return isNaN(t)?null:Math.floor(t/864e5)};
+/* Texte libre → mots : séparés par retour de ligne, virgule, point-virgule ou flèche (sans couper « (classe) » ni « {phrase} ») */
+function splitWords(txt){const out=[];let cur="",dep=0;
+  const push=()=>{let t=cur.trim().replace(/^[-•*]\s*/,"").replace(/\.\s*$/,"").trim();cur="";if(!t||!/\p{L}/u.test(t))return;if(/^(semaine|section)\s+\d+/i.test(t)||/^liste des mots/i.test(t))return;out.push(t)};
+  for(const ch of String(txt||"")){if(ch==="("||ch==="{")dep++;if(ch===")"||ch==="}")dep=Math.max(0,dep-1);if(dep===0&&/[\n;,→]/.test(ch)){push();continue}cur+=ch}push();return out}
+function parseEntry(tok){const m=tok.match(/^([^({]+?)\s*(?:\(([^)]*)\))?\s*(?:\{([^}]*)\})?\s*$/);if(!m)return null;
+  const v=m[1].split(/\s*\/\s*/).map(x=>x.replace(/[’ʼ]/g,"'").replace(/\s+/g," ").trim()).filter(Boolean);return v.length?{w:v[0],c:(m[2]||"").trim(),p:(m[3]||"").trim(),a:v.slice(1),raw:tok}:null}
+function listEntries(txt){const seen=new Set(),out=[];for(const t of splitWords(txt)){const e=parseEntry(t);if(!e)continue;const k=e.w.toLowerCase();if(seen.has(k))continue;
+  const prev=out[out.length-1];if(prev&&(DALT[prev.w]||[]).includes(e.w)){prev.a.push(e.w);continue}seen.add(k);out.push(e)}return out}
+const entryTxt=e=>e.w+((e.a||[]).length?" / "+e.a.join(" / "):"")+(e.c?` (${e.c})`:"")+(e.p?` {${e.p}}`:"");
+const newLid=()=>"L"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function sortLists(){DS().lists.sort((a,b)=>a.start-b.start||a.n-b.n)}
+/* Migration : les anciennes « semaines » deviennent des listes datées (semaine en cours = ce lundi), sans perdre la progression */
+function DLs(){const d=DS();if(!Array.isArray(d.lists)){d.lists=[];const t=d.txt||LISTE_DEF;if(t){const W=parseListes(t),ws=Object.keys(W).map(Number).sort((a,b)=>a-b);
+    if(ws.length){let cur=d.cur&&W[d.cur]?d.cur:0;if(!cur){const y=new Date().getMonth()>=7?new Date().getFullYear():new Date().getFullYear()-1;cur=Math.min(ws[ws.length-1],Math.max(ws[0],Math.floor((Date.now()-new Date(y,7,31).getTime())/(7*864e5))+1))}
+      const mon=dnMonday(dayNum());ws.forEach(n=>d.lists.push({id:newLid()+n,n,start:mon+(n-cur)*7,title:W[n].t||"",txt:W[n].w.map(entryTxt).join("\n")}))}}
+    sortLists();save()}return d.lists}
+let DLC={k:null,L:[],by:{}};
+function dLists(){const ls=DLs(),k=JSON.stringify(ls);if(DLC.k!==k){const by={};
+    const L=ls.map(l=>({...l,w:listEntries(l.txt).map(e=>{e.n=l.n;e.lid=l.id;e.start=l.start;dEnrich(e);return e})}));
+    L.slice().sort((a,b)=>a.start-b.start||a.n-b.n).forEach(l=>l.w.forEach(e=>{if(!by[e.w])by[e.w]=e}));DLC={k,L,by}}return DLC}
+const dSorted=()=>dLists().L.slice().sort((a,b)=>a.start-b.start||a.n-b.n);
+const dCurList=()=>{const dn=dayNum();return dSorted().filter(l=>l.start<=dn).pop()||null};
+const dWeeks=()=>dLists().L.map(l=>l.n);
+const dCur=()=>{const c=dCurList();return c?c.n:0};
+const dActive=e=>!!e&&e.start<=dayNum();
+/* Ajoute à la banque les mots des listes commencées : la liste en cours = mots nouveaux; les plus anciennes = à réviser (~15 par jour) */
+function dSync(){const d=DS(),L=dLists(),cur=dCurList();if(!cur)return;const dn=dayNum();let k=0,add=0;
+  dSorted().filter(l=>l.start<=dn).reverse().forEach(l=>l.w.forEach(e=>{if(d.bank[e.w]||L.by[e.w]!==e)return;
+    d.bank[e.w]=l.id!==cur.id?{b:1,due:dn+Math.floor(k++/15),miss:0,ok:0,seen:0}:{b:0,due:dn,miss:0,ok:0,seen:0};add=1}));if(add)save()}
+const dInfo=w=>dLists().by[w]||{w,c:"",p:"",n:0,start:0};
+function dDueAll(){dSync();const d=DS(),dn=dayNum(),by=dLists().by;return Object.entries(d.bank).filter(([w,x])=>dActive(by[w])&&((x.b>=1&&x.due<=dn)||x.b===0)).length}
 const dDue=()=>Math.min(dDueAll(),dRoom());
-const dMastered=()=>Object.entries(DS().bank).filter(([w,x])=>dLists().by[w]&&x.b>=DMAST).length;
-function dPick(){dSync();const d=DS(),dn=dayNum(),cur=dCur(),E=Object.entries(d.bank).filter(([w])=>dLists().by[w]);
+const dMastered=()=>{const by=dLists().by;return Object.entries(DS().bank).filter(([w,x])=>dActive(by[w])&&x.b>=DMAST).length};
+function dPick(){dSync();const d=DS(),dn=dayNum(),by=dLists().by,E=Object.entries(d.bank).filter(([w])=>dActive(by[w]));
   const due=E.filter(([,x])=>x.b>=1&&x.due<=dn).sort((a,b)=>a[1].due-b[1].due||a[1].b-b[1].b).map(([w])=>({w,mode:"rev"}));
-  const nw=E.filter(([,x])=>x.b===0&&x.wk<=cur).sort((a,b)=>b[1].wk-a[1].wk).map(([w])=>({w,mode:"new"}));
+  const nw=E.filter(([,x])=>x.b===0).sort((a,b)=>by[b[0]].start-by[a[0]].start).map(([w])=>({w,mode:"new"}));
   const room=Math.min(DN,dRoom());
   let out=room?[...due.slice(0,Math.min(7,room)),...shuffle(nw).slice(0,Math.max(Math.min(3,room),room-Math.min(7,due.length)))].slice(0,room):[];
   if(out.length<room)out.push(...due.slice(7,7+room-out.length));
   if(!room){const have=new Set(out.map(x=>x.w));
     const ex=E.filter(([w,x])=>!have.has(w)&&x.b>=1).sort((a,b)=>(b[1].miss-a[1].miss)||(a[1].b-b[1].b)||(a[1].due-b[1].due)).slice(0,DN-out.length).map(([w])=>({w,mode:"extra"}));out.push(...ex)}
   return shuffle(out.slice(0,DN))}
+/* Le parent n'a pas encore ajouté la liste de cette semaine (de septembre à juin seulement) */
+const dNeedList=()=>{const L=DLs();if(!L.length)return false;const m=new Date().getMonth();if(m===6||m===7)return false;return !L.some(l=>l.start>=dnMonday(dayNum()))};
+/* Plusieurs semaines collées d'un coup : chaque bloc commence par « Semaine N » */
+function parseBulk(txt){const out=[];let cur=null;
+  String(txt||"").split(/\r?\n/).forEach(l=>{const t=l.trim();if(!t)return;
+    const m=t.match(/^(?:section\s+\d+\s*[—–:-]\s*)?semaine\s+(\d+)\s*[|:—–.-]?\s*(.*)$/i);
+    if(m){const rest=m[2].trim(),isW=/[,;({]/.test(rest);cur={n:+m[1],title:isW?"":rest,lines:isW&&rest?[rest]:[]};out.push(cur);return}
+    if(cur)cur.lines.push(t)});
+  return out.map(b=>{const E=listEntries(b.lines.join("\n"));return{n:b.n,title:b.title,txt:E.map(entryTxt).join("\n"),count:E.length}}).filter(b=>b.count)}
 const CLS={"n.":"nom","m.":"masculin","f.":"féminin","pl.":"pluriel","adj.":"adjectif","v.":"verbe","pron.":"pronom","dét.":"déterminant","inv.":"invariable","mot":"mot","ou":"ou"};
 const sayClass=c=>c.split(/\s+/).map(t=>CLS[t]||t).join(" ").replace("verbe","verbe à l'infinitif");
 const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
@@ -2537,7 +2588,7 @@ function dWord(){
   const voice=canSpeak();
   el.innerHTML=`<div class="gamebar"><button class="back" id="d-back">← L'Île aux Mots</button><span class="gtitle">Ma dictée du jour</span><span class="levelchip">${Math.min(DC.i+1,DC.list.length)} / ${DC.list.length}</span></div>
   <div class="dots">${DC.list.map((_,i)=>`<span class="${i<DC.i?(DC.res[i]?"ok":"ko"):i===DC.i?"now":""}"></span>`).join("")}</div>
-  <div class="card pop dcard" style="--c:var(--i7)"><div class="cardtop"><div class="notion">${it.mode==="new"?"Mot nouveau · semaine "+e.wk:it.mode==="retry"?"On réessaie":"Dictée · semaine "+e.wk}</div><span class="cardbtns">${voice?`<button class="listen" id="d-listen">${SPK}Réécouter</button>`:""}</span></div>
+  <div class="card pop dcard" style="--c:var(--i7)"><div class="cardtop"><div class="notion">${it.mode==="new"?"Mot nouveau · semaine "+e.n:it.mode==="retry"?"On réessaie":"Dictée · semaine "+e.n}</div><span class="cardbtns">${voice?`<button class="listen" id="d-listen">${SPK}Réécouter</button>`:""}</span></div>
   <div id="d-body"></div><div id="fb"></div></div>`;
   $("#d-back").onclick=()=>{clearTimeout(DC.flash);G=null;DC=null;renderCarte();go("carte")};
   const bl=$("#d-listen");if(bl)bl.onclick=()=>DC.cur.phase==="look"?speakSeq([[e.w+".","fr",dRateW()],600,...(e.p?[["Par exemple : "+e.p,"fr",dRate()]]:[])]):speakSeq(dSaySeq(e,false));
@@ -2561,14 +2612,14 @@ function dWrite(sayIt){const {e}=DC.cur,ctx=e.p?blankIn(e.p,e.w):"";
   $("#d-form").addEventListener("submit",ev=>{ev.preventDefault();if(inp.value.trim())dCheck(inp.value)});
   inp.focus({preventScroll:true});
   if(sayIt)speakSeq(dSaySeq(e))}
-function dRecord(it,ok){const d=DS(),x=d.bank[it.w]||(d.bank[it.w]={b:0,due:0,wk:dInfo(it.w).wk,miss:0,ok:0,seen:0}),dn=dayNum(),was=x.b;
+function dRecord(it,ok){const d=DS(),x=d.bank[it.w]||(d.bank[it.w]={b:0,due:0,miss:0,ok:0,seen:0}),dn=dayNum(),was=x.b;
   x.seen++;x.last=dn;if(ok)x.ok++;else x.miss++;if(it.mode!=="extra")dToday().n++;
   if(it.hint)it={...it,mode:"new"};
   if(it.mode==="new"){x.b=1;x.due=dn+1}
   else if(it.mode==="rev"){if(ok){x.b=Math.min(6,x.b+1);x.due=dn+DINT[x.b]}else{x.b=1;x.due=dn+1}}
   else if(!ok){x.b=1;x.due=dn+1}
   const w=(S.wstats[it.w]||(S.wstats[it.w]={r:0,t:0}));w.t++;if(ok)w.r++;
-  if(ok&&was<DMAST&&x.b>=DMAST){const wk=x.wk,all=dLists().W[wk];if(all&&all.w.every(e=>(d.bank[e.w]||{}).b>=DMAST||dLists().by[e.w]!==e))G.events.push({k:"dictee",wk,box:true});
+  if(ok&&was<DMAST&&x.b>=DMAST){const all=dLists().L.find(l=>l.id===dInfo(it.w).lid),wk=all&&all.n;if(all&&all.w.every(e=>(d.bank[e.w]||{}).b>=DMAST||dLists().by[e.w]!==e))G.events.push({k:"dictee",wk,box:true});
     const m=dMastered();if(m>0&&m%25===0)G.events.push({k:"dicteeN",n:m,box:true})}
   save()}
 function dCheck(val){const C=DC.cur,{e}=C,it=C.it,ok=dOk(val,e.w);if(C.phase!=="write")return;C.phase="done";
@@ -2612,30 +2663,101 @@ function dFinish(){const words=Object.keys(DC.first),ok=DC.ok,N=words.length,mis
   if(!S.ms.first){S.ms.first=1;G.events.unshift({k:"first"})}save();
   const evs=G.events.concat(PEND.splice(0));if(evs.length&&S.comp.type)setTimeout(()=>{if(!$("#ecran-fin").hidden&&!BYE)celebrate(evs);else PEND.push(...evs)},1200)}
 
-/* Espace parent : listes, semaine en cours, mots difficiles */
-function dStatsHTML(){const d=DS(),L=dLists(),ws=dWeeks(),cur=dCur();
-  if(!ws.length)return`<p>Aucune liste de dictée pour l'instant : ajoutez-les dans l'onglet <b>Matière scolaire</b>.</p>`;
-  const rows=ws.map(wk=>{const W=L.W[wk].w.filter(e=>L.by[e.w]===e),seen=W.filter(e=>d.bank[e.w]),m=W.filter(e=>(d.bank[e.w]||{}).b>=DMAST).length;
-    return wk>cur?"":`<div class="d"><span><b>Semaine ${wk}</b>${wk===cur?" (en cours)":""}<br><span class="dsub">${esc(L.W[wk].t)}</span></span><span class="meter"><i style="width:${W.length?m/W.length*100:0}%;background:var(--good)"></i></span><span>${m}/${W.length}${seen.length?"":" · à venir"}</span></div>`}).join("");
-  const hard=Object.entries(d.bank).filter(([w,x])=>L.by[w]&&x.miss>0).sort((a,b)=>b[1].miss-a[1].miss||a[1].b-b[1].b).slice(0,12);
+/* Espace parent : suivi de la dictée (onglet Suivi) et banque de listes (onglet Matière scolaire) */
+function dStatsHTML(){const d=DS(),L=dSorted(),cur=dCurList(),dn=dayNum();
+  if(!L.length)return`<p>Aucune liste de dictée pour l'instant : ajoutez-les dans l'onglet <b>Matière scolaire</b>.</p>`;
+  const by=dLists().by;
+  const rows=L.filter(l=>l.start<=dn).map(l=>{const W=l.w.filter(e=>by[e.w]===e),seen=W.filter(e=>d.bank[e.w]&&d.bank[e.w].seen),m=W.filter(e=>(d.bank[e.w]||{}).b>=DMAST).length;
+    return`<div class="d"><span><b>Semaine ${l.n}</b>${cur&&l.id===cur.id?" (en cours)":""}${l.title?`<br><span class="dsub">${esc(l.title)}</span>`:""}</span><span class="meter"><i style="width:${W.length?m/W.length*100:0}%;background:var(--good)"></i></span><span>${m}/${W.length}${seen.length?"":" · nouveaux"}</span></div>`}).join("");
+  const hard=Object.entries(d.bank).filter(([w,x])=>dActive(by[w])&&x.miss>0).sort((a,b)=>b[1].miss-a[1].miss||a[1].b-b[1].b).slice(0,12);
   return`<p>Aujourd'hui : <b>${dDue()}</b> mot${dDue()>1?"s":""} à réviser (maximum ${DCAP} par jour${dDueAll()>dDue()?`; ${dDueAll()-dDue()} en attente pour les jours suivants`:""}) · <b>${dMastered()}</b> mots maîtrisés.</p>
   ${hard.length?`<p class="pdesc"><b>Mots les plus difficiles :</b></p><div class="redo">${hard.map(([w,x])=>`<span class="rv" title="${x.miss} erreur(s)">${esc(w)} <small>×${x.miss}</small></span>`).join("")}</div>`:""}
-  <div class="days">${rows}</div>`}
-function dContentHTML(){const d=DS(),L=dLists(),ws=dWeeks(),cur=dCur();
-  if(!ws.length)return pcard("Listes d'orthographe (dictée)","Collez les listes de l'école : une ligne « Semaine N | titre », puis les mots.",dListBox(true));
-  return pcard("Semaine de dictée","Choisissez la semaine en cours à l'école (à changer chaque lundi). Les mots des semaines passées reviennent en révision.",
-    `<label class="pfield">Semaine en cours : <select id="p-dcur">${ws.map(w=>`<option value="${w}" ${w===cur?"selected":""}>Semaine ${w} — ${esc(L.W[w].t.slice(0,48))}${L.W[w].t.length>48?"…":""}</option>`).join("")}</select></label>${d.curSet?"":`<p class="help"><b>À confirmer :</b> semaine estimée selon la date.</p>`}`)+
-   pcard("Listes d'orthographe",`${ws.length} semaines, ${Object.keys(L.by).length} mots. Les phrases d'exemple et les définitions s'ajoutent automatiquement.`,
-    `${Object.values(L.by).filter(e=>e.c||e.p).length<Object.keys(L.by).length*.5?`<p class="help"><b>Attention :</b> cette liste n'a pas les classes de mots ni les phrases. Collez plutôt le fichier <b>listes-orthographe-3e-annee.txt</b> de votre projet Claude.</p>`:""}
-    <details><summary>Remplacer ou modifier les listes</summary>${dListBox(false)}</details>`)}
-function dListBox(open){return`${open?`<button class="btn" id="p-dpaste">Coller les listes</button><p><small>Copiez d'abord le fichier de listes (dans votre projet Claude), puis appuyez ici.</small></p>`:`<button class="btn ghost" id="p-dpaste">Coller les listes</button>`}<textarea id="p-dtxt" rows="${open?8:10}" placeholder="Semaine 2 | Mots avec un accent&#10;âge (n. m.); année (n. f.); bâton (n. m.)">${esc(DS().txt||LISTE_DEF)}</textarea><button class="btn ghost" id="p-dsave">Enregistrer les listes</button><span id="p-dmsg"></span>`}
+  <div class="days">${rows||`<p class="pdesc">La première liste commence le ${dnFmt(L[0].start,{weekday:"long",day:"numeric",month:"long"})}.</p>`}</div>`}
+const dRevised=l=>{const b=DS().bank;return l.w.filter(e=>b[e.w]&&b[e.w].seen).length};
+function dRowHTML(l,i,n,cur,dn){const st=l.start>dn?"avenir":cur&&l.id===cur.id?"cur":"past",rv=dRevised(l);
+  const pv=l.w.slice(0,10).map(e=>esc(e.w)).join(", ")+(l.w.length>10?"…":"");
+  return`<div class="dlrow ${st}" data-lid="${l.id}"><div class="dlhead"><span><b>Semaine ${l.n}</b> <span class="dlbadge">${st==="cur"?"en cours":st==="avenir"?"à venir":"passée"}</span>${l.title?`<br><span class="dsub">${esc(l.title)}</span>`:""}</span><small>${st==="avenir"?"commence le":"depuis le"} ${dnFmt(l.start)}</small></div>
+   <div class="dlwords"><b>${l.w.length} mot${l.w.length>1?"s":""}</b>${rv?` · ${rv} déjà révisé${rv>1?"s":""}`:""} — ${pv}</div>
+   <div class="dlacts"><button class="btn ghost" data-dl="ed">Modifier</button><button class="btn ghost" data-dl="sh" aria-expanded="false">Décaler</button><button class="btn ghost" data-dl="up" aria-label="Monter (échanger avec la semaine précédente)" ${i===0?"disabled":""}>▲</button><button class="btn ghost" data-dl="dn" aria-label="Descendre (échanger avec la semaine suivante)" ${i===n-1?"disabled":""}>▼</button><button class="btn ghost dldel" data-dl="del">Supprimer</button></div>
+   <div class="dlshift" hidden><span>Déplacer la date :</span><button class="btn ghost" data-sh="-1">− 1 semaine</button><button class="btn ghost" data-sh="1">+ 1 semaine</button><label class="dlcas"><input type="checkbox" checked> Décaler aussi les semaines suivantes</label></div></div>`}
+function dContentHTML(){const L=dSorted(),cur=dCurList(),dn=dayNum();
+  const acts=`<div class="confirm"><button class="btn" id="p-dladd">＋ Ajouter une liste de mots</button><button class="btn ghost" id="p-dlbulk">Coller plusieurs semaines d'un coup</button></div>`;
+  if(!L.length)return pcard("Listes de dictée","Ajoutez la liste de mots que l'école donne chaque semaine. À la date choisie, le jeu passe tout seul à la nouvelle liste; les mots des listes précédentes reviennent en révision. Les phrases d'exemple et les définitions s'ajoutent automatiquement pour les mots connus.",acts);
+  const rows=L.map((l,i)=>dRowHTML(l,i,L.length,cur,dn)),past=L.filter(l=>l.start<=dn&&!(cur&&l.id===cur.id)).length;
+  const words=Object.keys(dLists().by).length;
+  return pcard("Listes de dictée",`${L.length} liste${L.length>1?"s":""}, ${words} mots. Le jeu passe tout seul à la liste suivante à sa date de début. ▲ ▼ échangent deux listes (les numéros et les dates restent en place).`,
+    acts+(past?`<details class="dlpast"><summary>Semaines passées (${past})</summary><div class="dllist">${rows.slice(0,past).join("")}</div></details>`:"")+`<div class="dllist">${rows.slice(past).join("")}</div>`)}
+function undoToast(msg,undo){const old=$(".utoast");if(old)old.remove();
+  const t=document.createElement("div");t.className="utoast";t.setAttribute("role","status");t.innerHTML=`<span>${msg}</span><button class="btn">Annuler</button>`;document.body.appendChild(t);
+  const tm=setTimeout(()=>t.remove(),15000);t.querySelector("button").onclick=()=>{clearTimeout(tm);t.remove();undo()}}
+function dAfter(){DLC.k=null;sortLists();save();dSync();renderParent()}
+/* Fenêtre « Ajouter / modifier une liste » */
+function dListDialog(id){const ls=DLs(),ed=id?ls.find(l=>l.id===id):null;
+  const n0=ed?ed.n:(ls.length?Math.max(...ls.map(l=>l.n))+1:2),s0=ed?ed.start:(ls.length?dnMonday(Math.max(...ls.map(l=>l.start)))+7:dnMonday(dayNum()));
+  const o=ovl(`<h2 class="ovl-title">${ed?`Modifier la semaine ${ed.n}`:"Nouvelle liste de mots"}</h2>
+   <div class="dlform"><label class="pfield">Semaine n°<input type="number" id="dl-n" min="1" max="60" inputmode="numeric" value="${n0}"></label><label class="pfield">Commence le<input type="date" id="dl-d" value="${dnToInput(s0)}"></label></div>
+   <label class="pfield"><span>Titre <small>(facultatif)</small></span><input type="text" id="dl-t" maxlength="80" value="${esc(ed?ed.title:"")}" placeholder="Ex. : les mots avec « ou »"></label>
+   <label class="pfield"><span>Les mots <small>(un par ligne, ou séparés par des virgules)</small></span><textarea id="dl-w" rows="6" placeholder="maison&#10;bateau&#10;chapeau">${esc(ed?ed.txt:"")}</textarea></label>
+   <div class="wchips" id="dl-chips"></div><p class="pdesc" id="dl-msg" aria-live="polite"></p>
+   <div class="confirm dlbtns"><button class="btn" id="dl-ok">Enregistrer</button>${ed?"":`<button class="btn ghost" id="dl-next">Enregistrer et ajouter la semaine suivante</button>`}<button class="btn ghost" id="dl-x">Annuler</button></div>`);
+  o.firstElementChild.classList.add("form");
+  const ta=o.querySelector("#dl-w"),chips=o.querySelector("#dl-chips"),msg=o.querySelector("#dl-msg"),old=ed?new Set(listEntries(ed.txt).map(e=>e.w)):null;
+  const draw=()=>{const E=listEntries(ta.value),by=dLists().by;
+    chips.innerHTML=E.map((e,i)=>{const o2=by[e.w],dup=o2&&(!ed||o2.lid!==ed.id);return`<span class="wchip${dup?" dup":""}"${dup?` title="Déjà dans la semaine ${o2.n}"`:""}>${esc(e.w)}${e.a.length?` <small>/ ${esc(e.a.join(" / "))}</small>`:""}${dup?` <small>(sem. ${o2.n})</small>`:""}<button type="button" data-i="${i}" aria-label="Retirer ${esc(e.w)}">×</button></span>`}).join("");
+    let m=E.length?`<b>${E.length} mot${E.length>1?"s":""}</b>`:"";
+    if(old&&E.length){const nw=E.filter(e=>!old.has(e.w)).length,gone=[...old].filter(w=>!E.some(e=>e.w===w)).length;if(nw||gone)m+=` · ${nw?`${nw} ajouté${nw>1?"s":""}`:""}${nw&&gone?", ":""}${gone?`${gone} retiré${gone>1?"s":""}`:""}. Les autres mots gardent leur progression.`}
+    if(E.some(e=>{const o2=by[e.w];return o2&&(!ed||o2.lid!==ed.id)}))m+=` · Les mots en pointillé sont déjà dans une autre liste : ils seront révisés une seule fois.`;
+    msg.innerHTML=m};
+  chips.onclick=ev=>{const b=ev.target.closest("button[data-i]");if(!b)return;const E=listEntries(ta.value),gone=E[+b.dataset.i];if(!gone)return;
+    const kill=new Set([gone.w,...gone.a].map(w=>w.toLowerCase()));ta.value=splitWords(ta.value).filter(t=>{const e=parseEntry(t);return!(e&&kill.has(e.w.toLowerCase()))}).join("\n");draw()};
+  ta.oninput=draw;draw();
+  const close=()=>o.remove();o.querySelector("#dl-x").onclick=close;
+  const doSave=next=>{const n=Math.round(+o.querySelector("#dl-n").value),start=dnFromInput(o.querySelector("#dl-d").value),E=listEntries(ta.value);
+    if(!(n>=1&&n<=60)){msg.innerHTML="<b>Écrivez un numéro de semaine entre 1 et 60.</b>";return}
+    if(start==null){msg.innerHTML="<b>Choisissez la date de début.</b>";return}
+    if(!E.length){msg.innerHTML="<b>Écrivez au moins un mot.</b>";ta.focus();return}
+    if(DLs().some(l=>l.n===n&&l!==ed)){msg.innerHTML=`<b>La semaine ${n} existe déjà.</b> Choisissez un autre numéro, ou fermez et appuyez sur « Modifier » sur cette liste.`;return}
+    const v={n,start,title:o.querySelector("#dl-t").value.trim(),txt:E.map(entryTxt).join("\n")};
+    if(ed)Object.assign(ed,v);else DLs().push({id:newLid(),...v});
+    close();dAfter();if(next)dListDialog()};
+  o.querySelector("#dl-ok").onclick=()=>doSave(false);const nx=o.querySelector("#dl-next");if(nx)nx.onclick=()=>doSave(true);
+  (ed?ta:o.querySelector("#dl-w")).focus({preventScroll:true})}
+/* Fenêtre « Plusieurs semaines d'un coup » */
+function dBulkDialog(){const ls=DLs(),s0=ls.length?dnMonday(Math.max(...ls.map(l=>l.start)))+7:dnMonday(dayNum());
+  const o=ovl(`<h2 class="ovl-title">Plusieurs semaines d'un coup</h2>
+   <p class="pdesc">Chaque semaine commence par une ligne « Semaine 5 », suivie de ses mots. Les semaines se suivent de lundi en lundi à partir de la date choisie.</p>
+   <label class="pfield">La première semaine commence le<input type="date" id="db-d" value="${dnToInput(s0)}"></label>
+   <div class="confirm"><button class="btn ghost" id="db-paste">Coller</button><small>ou appuyez longuement dans la zone et choisissez « Coller ».</small></div>
+   <textarea id="db-t" rows="8" placeholder="Semaine 5&#10;maison, bateau, chapeau&#10;&#10;Semaine 6&#10;soleil&#10;oreille"></textarea>
+   <div id="db-pv" class="dbpv" aria-live="polite"></div>
+   <div class="confirm dlbtns"><button class="btn" id="db-ok" disabled>Enregistrer</button><button class="btn ghost" id="db-x">Annuler</button></div>`);
+  o.firstElementChild.classList.add("form");
+  const ta=o.querySelector("#db-t"),pv=o.querySelector("#db-pv"),ok=o.querySelector("#db-ok"),di=o.querySelector("#db-d");
+  const plan=()=>{const B=parseBulk(ta.value),base=dnFromInput(di.value);if(!B.length||base==null)return[];const nw=B.filter(b=>!DLs().some(l=>l.n===b.n)),n0=nw.length?Math.min(...nw.map(b=>b.n)):0;
+    return B.sort((a,b)=>a.n-b.n).map(b=>{const ex=DLs().find(l=>l.n===b.n);return{...b,ex,start:ex?ex.start:base+(b.n-n0)*7}})};
+  const draw=()=>{const P=plan();ok.disabled=!P.length;ok.textContent=P.length?`Enregistrer ${P.length} semaine${P.length>1?"s":""}`:"Enregistrer";
+    pv.innerHTML=P.length?`<ul class="plist">${P.map(p=>`<li><b>Semaine ${p.n}</b>${p.title?` — ${esc(p.title)}`:""} · ${dnFmt(p.start)} · ${p.count} mot${p.count>1?"s":""}${p.ex?" <small>(remplace la liste existante)</small>":""}</li>`).join("")}</ul>`:ta.value.trim()?`<p class="help">Aucune semaine trouvée. Commencez chaque semaine par une ligne « Semaine 5 ».</p>`:""};
+  ta.oninput=draw;di.onchange=draw;
+  o.querySelector("#db-paste").onclick=async()=>{let t="";try{t=await navigator.clipboard.readText()}catch(e){}if(t){ta.value=t;draw()}else{ta.focus();pv.innerHTML=`<p class="help">Appuyez longuement dans la zone ci-dessus et choisissez « Coller ».</p>`}};
+  o.querySelector("#db-x").onclick=()=>o.remove();
+  ok.onclick=()=>{const P=plan();if(!P.length)return;P.forEach(p=>{if(p.ex)Object.assign(p.ex,{title:p.title||p.ex.title,txt:p.txt});else DLs().push({id:newLid(),n:p.n,start:p.start,title:p.title,txt:p.txt})});o.remove();dAfter()};
+  ta.focus({preventScroll:true})}
 function dParentBind(){const d=DS();
-  const sel=$("#p-dcur");if(sel)sel.onchange=()=>{d.cur=+sel.value;d.curSet=1;dSync();renderParent()};
-  const pb=$("#p-dpaste");if(pb)pb.onclick=async()=>{let t="";try{t=await navigator.clipboard.readText()}catch(e){}
-    if(t&&Object.keys(parseListes(t)).length){$("#p-dtxt").value=t;$("#p-dsave").click()}
-    else{const ta=$("#p-dtxt");const det=ta.closest("details");if(det)det.open=true;ta.value="";ta.focus();$("#p-dmsg").textContent=t?" Ce texte ne ressemble pas à une liste de mots.":" Appuyez longuement dans la zone ci-dessus, choisissez « Coller », puis « Enregistrer les listes »."}};
-  const sv=$("#p-dsave");if(sv)sv.onclick=()=>{const t=$("#p-dtxt").value,W=parseListes(t),n=Object.values(W).reduce((a,x)=>a+x.w.length,0);
-    if(!n){$("#p-dmsg").textContent=" Aucun mot trouvé : vérifiez le format.";return}d.txt=t.trim()===LISTE_DEF.trim()?"":t;dLists();dSync();$("#p-dmsg").textContent=` ${Object.keys(W).length} semaines, ${n} mots enregistrés ✓`;setTimeout(renderParent,1200)};
+  const ad=$("#p-dladd");if(ad)ad.onclick=()=>dListDialog();
+  const bk=$("#p-dlbulk");if(bk)bk.onclick=dBulkDialog;
+  document.querySelectorAll(".dlrow").forEach(r=>{const id=r.dataset.lid;
+    r.querySelectorAll("[data-dl]").forEach(b=>b.onclick=()=>{const a=b.dataset.dl,S2=dSorted(),i=S2.findIndex(l=>l.id===id),raw=DLs();
+      if(a==="ed")return dListDialog(id);
+      if(a==="sh"){const p=r.querySelector(".dlshift");p.hidden=!p.hidden;b.setAttribute("aria-expanded",!p.hidden);return}
+      if(a==="up"||a==="dn"){const j=i+(a==="up"?-1:1);if(j<0||j>=S2.length)return;const A=raw.find(l=>l.id===S2[i].id),B=raw.find(l=>l.id===S2[j].id);
+        for(const k of["id","title","txt"])[A[k],B[k]]=[B[k],A[k]];dAfter();
+        const row=document.querySelector(`.dlrow[data-lid="${id}"]`);if(row){const dt=row.closest("details");if(dt)dt.open=true;row.classList.add("flash");row.scrollIntoView({block:"center",behavior:"smooth"})}return}
+      if(a==="del"){const k=raw.findIndex(l=>l.id===id),l=S2[i],rv=dRevised(l),gone=raw.splice(k,1)[0];dAfter();
+        undoToast(`Semaine ${gone.n} supprimée.${rv?` ${rv} de ses mots avaient déjà été révisés : leur progression revient si vous annulez.`:""}`,()=>{DLs().push(gone);dAfter()})}});
+    r.querySelectorAll("[data-sh]").forEach(b=>b.onclick=()=>{const dlt=+b.dataset.sh*7,cas=r.querySelector(".dlcas input").checked,S2=dSorted(),i=S2.findIndex(l=>l.id===id),ids=new Set((cas?S2.slice(i):[S2[i]]).map(l=>l.id));
+      DLs().forEach(l=>{if(ids.has(l.id))l.start+=dlt});dAfter();const row=document.querySelector(`.dlrow[data-lid="${id}"]`);if(row){const dt=row.closest("details");if(dt)dt.open=true;const p=row.querySelector(".dlshift");p.hidden=false;row.querySelector(".dlcas input").checked=cas;row.classList.add("flash")}})});
+  const da=$("#p-dlall");if(da)da.onclick=()=>{$("#p-dlall-zone").innerHTML=`<span>Supprimer les ${DLs().length} listes de dictée? La progression des mots est gardée si vous les ajoutez de nouveau.</span><button class="btn" id="p-dlyes" style="background:var(--bad)">Oui, tout supprimer</button><button class="btn ghost" id="p-dlno">Annuler</button>`;
+    $("#p-dlyes").onclick=()=>{d.lists=[];dAfter()};$("#p-dlno").onclick=renderParent};
   const rs=$("#p-dreset");if(rs)rs.onclick=()=>{$("#p-dreset-zone").innerHTML=`<span>Effacer l'historique de la dictée? Les listes sont conservées.</span><button class="btn" id="p-dyes" style="background:var(--bad)">Oui, recommencer</button><button class="btn ghost" id="p-dno">Annuler</button>`;
     $("#p-dyes").onclick=()=>{d.bank={};dSync();renderParent()};$("#p-dno").onclick=renderParent}}
 
@@ -3058,7 +3180,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261031-095805";
+const APP_VER="20261102-010424";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
