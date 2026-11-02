@@ -2814,9 +2814,8 @@ function startRep(){const r=RS(),pool=REP_ITEMS.filter(it=>repText(it)).slice().
   FORCEV=false;G={mode:"rep",subj:"francais",events:[]};RC={list:shuffle(list),i:0,first:0,tot:0,written:0};repItem()}
 function repShell(){const it=RC.list[RC.i],T=repText(it),el=$("#ecran-jeu");el.style.setProperty("--c","var(--i6)");
   el.innerHTML=`<div class="gamebar"><button class="back" id="r-back">← L'Île aux Mots</button><span class="gtitle">Je réponds en phrases complètes</span><span class="levelchip">${RC.i+1} / ${RC.list.length}</span></div>
-  <div class="card pop rcard" style="--c:var(--i6)"><details class="rtxt" ${RC.step==="type"?"open":""}><summary>Le texte : <b>${esc(T.titre)}</b></summary><article class="readtext"><p>${T.texte}</p></article></details>
+  <div class="card pop rcard" style="--c:var(--i6)"><div class="rhelp">${RC.step==="type"?`<p>📖 <b>Prends le temps de lire le texte et la question par toi-même.</b> Si tu as besoin d'aide, je peux te les lire.</p>`:""}${TTS?`<button class="listen" id="r-read">${SPK}Je lis pour t'aider</button>`:""}</div><details class="rtxt" ${RC.step==="type"?"open":""}><summary>Le texte : <b>${esc(T.titre)}</b></summary><article class="readtext"><p>${T.texte}</p></article></details>
    <div class="rq"><span class="rqlab">Question</span><p class="prompt readq">${esc(it.q)}</p></div>
-   <div class="rhelp">${RC.step==="type"?`<p>📖 <b>Prends le temps de lire le texte et la question par toi-même.</b> Si tu as besoin d'aide, je peux te les lire.</p>`:""}${TTS?`<button class="listen" id="r-read">${SPK}Je lis pour t'aider</button>`:""}</div>
    <div class="rsteps">${["type","start","marq","proof","write"].map((k,i)=>`<span class="${k===RC.step?"now":["type","start","marq","proof","write"].indexOf(RC.step)>i||RC.step==="done"?"ok":""}">${i+1}</span>`).join("")}</div>
    <div id="r-step"></div><div id="fb"></div></div>`;
   $("#r-back").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}G=null;RC=null;renderCarte();go("carte")};
@@ -3388,7 +3387,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261102-025217";
+const APP_VER="20261102-025837";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
