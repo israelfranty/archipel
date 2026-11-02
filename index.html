@@ -2127,8 +2127,10 @@ const lesHTML=x=>lesFill(x).replace(/\[\[(.+?)\]\]/g,'<b class="en" lang="en">$1
 function lesSpeech(c){const lines=[c.t,...(c.s||c.p),...(c.ex&&c.ex.length?["Exemple.",...c.ex]:[])],out=[];
   lines.forEach(line=>{lesFill(line).split(/\[\[(.+?)\]\]/).forEach((part,i)=>{
     if(i%2){const t=part.replace(/<[^>]+>/g,"").trim();if(t)out.push([t,"en"])}
-    else{let t=part.replace(/<[^>]+>/g,"").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").replace(/→/g,", ").replace(/[✓✗↺]/g,"");t=normSay(t);t.split(/(?<=[.!?])\s+/).forEach(x=>{if(/[A-Za-zÀ-ÿ0-9]/.test(x))out.push([x.trim(),"fr"])})}})});
-  return out}
+    else{let t=part.replace(/<[^>]+>/g,"").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").replace(/→/g,", ").replace(/[✓✗↺]/g,"");t=normSay(t);t.split(/(?<=[.!?])\s+/).forEach(x=>{if(/[A-Za-zÀ-ÿ0-9]/.test(x))out.push([x.trim(),"fr"])})}});
+    if(out.length&&typeof out[out.length-1]!=="number")out.push(LES_PAUSE)});
+  if(typeof out[out.length-1]==="number")out.pop();return out}
+const LES_PAUSE=250; /* pause (ms) après chaque ligne d'une notion */
 const zoneLessons=z=>lessonsData()[z]||[];
 function openLessons(subj,zone,notion,fromGame){
   LES={subj,zone:zone||null,i:0,fromGame:!!fromGame,force:false};
@@ -3211,7 +3213,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261102-015338";
+const APP_VER="20261102-020043";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
