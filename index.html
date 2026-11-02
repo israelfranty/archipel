@@ -559,6 +559,7 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .wchip.dup{border-style:dashed;color:var(--muted)}.wchip button{border:0;background:none;color:var(--muted);font-size:1.1rem;line-height:1;min-width:28px;min-height:28px;border-radius:50%;cursor:pointer}.wchip button:hover{background:var(--line)}
 .dbpv .plist{margin:0}.utoast{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;background:var(--ink);color:var(--surface);border-radius:16px;padding:10px 12px 10px 16px;display:flex;gap:12px;align-items:center;width:max-content;max-width:calc(100% - 32px);box-shadow:0 6px 24px rgba(0,0,0,.3)}
 .utoast .btn{flex:none}
+.pwform{display:flex;flex-direction:column;gap:10px;max-width:420px}.pwform input[type=password],.pwform input[type=text]{border:2px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);color:var(--ink);font:inherit;font-weight:400}
 .pfield{display:flex;flex-direction:column;gap:6px;font-weight:700}.pfield select,.lvlgrid select{border:2px solid var(--line);border-radius:10px;padding:8px;background:var(--bg);max-width:100%}
 .plist{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
 .lvlgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.lvlgrid>div{display:flex;flex-direction:column;gap:6px}.lvlh{font-family:var(--f-display)}
@@ -1748,6 +1749,11 @@ function finishSprint(){
 
 /* ---------- Espace parent ---------- */
 const PW_H=407487093,pwH=t=>{let h=5381;for(const c of t)h=((h*33)^c.charCodeAt(0))>>>0;return h};
+/* Mot de passe parent choisi par le parent : gardé à part (clé distincte), donc ni « Tout effacer », ni l'export, ni l'import n'y touchent */
+const PWK=KEY+"-parent",pwGet=()=>{try{return JSON.parse(localStorage.getItem(PWK))}catch(e){return null}};
+async function pwHash(t,salt){try{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(salt+"|"+t));return"s:"+[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}}catch(e){}return"d:"+pwH(salt+"|"+t)}
+async function pwCheck(t){const p=pwGet();if(!p||!p.h)return pwH(t)===PW_H;return(await pwHash(t,p.s))===p.h}
+async function pwSet(t){const s=Math.random().toString(36).slice(2,10)+Date.now().toString(36);const v={h:await pwHash(t,s),s,t:Date.now()};localStorage.setItem(PWK,JSON.stringify(v));return JSON.parse(localStorage.getItem(PWK)||"{}").h===v.h}
 let PARENT_OK=false;
 /* ======================================================================
    ESPACE PARENT
@@ -1766,7 +1772,7 @@ function renderParent(){
   const el=$("#ecran-parent");
   if(!PARENT_OK){el.innerHTML=`<div class="gamebar"><button class="back" id="p-retour">← Carte</button><span class="gtitle">Espace parent</span></div><form class="panel pinbox" id="p-pin"><h2>Mot de passe parent</h2><p>Entrez le mot de passe pour ouvrir l'espace parent.</p><input id="p-pin-in" type="password" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Mot de passe parent"><p id="p-pin-err" hidden>Ce n'est pas le bon mot de passe. Attention aux majuscules.</p><button class="btn" type="submit">Ouvrir</button></form>`;
     $("#p-retour").onclick=()=>{renderCarte();go("carte")};
-    $("#p-pin").addEventListener("submit",e=>{e.preventDefault();if(pwH($("#p-pin-in").value)===PW_H){PARENT_OK=true;renderParent()}else{$("#p-pin-err").hidden=false;$("#p-pin-in").value=""}});
+    $("#p-pin").addEventListener("submit",async e=>{e.preventDefault();if(await pwCheck($("#p-pin-in").value)){PARENT_OK=true;renderParent()}else{$("#p-pin-err").hidden=false;$("#p-pin-in").value=""}});
     go("parent");$("#p-pin-in").focus({preventScroll:true});return}
   const tab=PTABS.some(t=>t[0]===S.ptab)?S.ptab:"suivi";
   /* --- données calculées --- */
@@ -1812,7 +1818,14 @@ function renderParent(){
    pcard("Voix de lecture","La voix lit les questions et les explications. Dans la dictée, elle parle toujours.",TTS?`<div class="voicebox"><select id="p-voice" aria-label="Voix de lecture"></select><select id="p-rate" aria-label="Vitesse de la voix">${[[0.72,"Lente"],[0.81,"Normale"],[0.95,"Rapide"]].map(([v,l])=>`<option value="${v}" ${S.rate===v?"selected":""}>${l}</option>`).join("")}</select><button class="btn ghost" id="p-test">Écouter un exemple</button></div><p class="pdesc" id="p-vdiag" aria-live="polite"></p><p class="pdesc">Sur iPad, une voix plus naturelle se télécharge dans Réglages › Accessibilité › Contenu énoncé › Voix › Français (Canada), par exemple Amélie (améliorée).</p>`:`<p>La lecture à voix haute n'est pas disponible dans ce navigateur.</p>`)+
    pcard("Prénom et compagnon","",`<div class="namerow"><input id="p-nom" maxlength="20" value="${esc(S.name)}" placeholder="Prénom de l'enfant" aria-label="Prénom de l'enfant"><button class="btn ghost" id="p-save">Enregistrer le prénom</button></div>
      <div class="namerow"><input id="p-comp" maxlength="16" value="${esc(S.comp.name)}" placeholder="Nom du compagnon" aria-label="Nom du compagnon"><button class="btn ghost" id="p-comp-save">Renommer le compagnon</button></div>
-     ${S.comp.type?`<div class="namerow"><select id="p-ctype" aria-label="Animal du compagnon">${Object.entries(ANIMAUX).map(([k,a])=>`<option value="${k}" ${S.comp.type===k?"selected":""}>${a.nom}</option>`).join("")}</select><button class="btn ghost" id="p-ctype-save">Changer d'animal</button></div>`:""}`);
+     ${S.comp.type?`<div class="namerow"><select id="p-ctype" aria-label="Animal du compagnon">${Object.entries(ANIMAUX).map(([k,a])=>`<option value="${k}" ${S.comp.type===k?"selected":""}>${a.nom}</option>`).join("")}</select><button class="btn ghost" id="p-ctype-save">Changer d'animal</button></div>`:""}`)+
+   pcard("Mot de passe parent",`Il protège cet espace. Il est enregistré sur cet appareil seulement : changez-le sur chaque appareil. ${pwGet()?`Changé le ${new Date(pwGet().t).toLocaleDateString("fr-CA",{day:"numeric",month:"long",year:"numeric"})}.`:""}`,
+     `<form id="p-pwf" class="pwform" autocomplete="off"><label class="pfield">Mot de passe actuel<input type="password" id="p-pw0" maxlength="40" autocapitalize="off" spellcheck="false"></label>
+     <label class="pfield"><span>Nouveau mot de passe <small>(au moins 6 caractères)</small></span><input type="password" id="p-pw1" maxlength="40" autocapitalize="off" spellcheck="false"></label>
+     <label class="pfield">Nouveau mot de passe, une 2e fois<input type="password" id="p-pw2" maxlength="40" autocapitalize="off" spellcheck="false"></label>
+     <label class="toggle" for="p-pwshow"><input type="checkbox" id="p-pwshow"><span>Afficher les mots de passe</span></label>
+     <div class="confirm"><button class="btn ghost" type="submit">Changer le mot de passe</button><span id="p-pwmsg" aria-live="polite"></span></div></form>
+     <p class="pdesc">Notez-le dans un endroit sûr : il n'y a pas de moyen de le récupérer s'il est oublié.</p>`);
   /* --- onglet Récompenses --- */
   const tRecomp=
    pcard("À remettre","Les cadeaux en vrai qu'elle a débloqués.",S.gifts.pending.length?`<div class="gifts-list">${S.gifts.pending.map((x,i)=>`<div class="g"><span><b>${esc(x.txt)}</b><br><small>Débloqué le ${new Date(x.t).toLocaleDateString("fr-CA",{day:"numeric",month:"long"})}</small></span><button class="btn ghost" data-given="${i}">Remis</button></div>`).join("")}</div>`:`<p><b>Aucun cadeau à remettre pour l'instant.</b>${S.gifts.given?` Déjà remis : ${S.gifts.given}.`:""}</p>`)+
@@ -1833,7 +1846,7 @@ function renderParent(){
      `${DLs().length?`<div class="confirm" id="p-dlall-zone"><button class="btn ghost" id="p-dlall">Supprimer toutes les listes de dictée</button></div>`:""}
      <div class="confirm" id="p-dreset-zone"><button class="btn ghost" id="p-dreset">Recommencer les révisions de dictée</button></div>
      <div class="confirm" id="p-reset-zone"><button class="btn ghost" id="p-reset">Effacer les progrès seulement</button><button class="btn ghost" id="p-wipe" style="border-color:var(--bad);color:var(--bad)">Tout effacer et recommencer</button></div>
-     <p class="pdesc">« Effacer les progrès » garde le prénom, le compagnon et les cadeaux à remettre. « Tout effacer » remet le jeu à neuf. Le mot de passe parent ne change pas (pour le changer, demandez-le à Claude).</p>`,"danger");
+     <p class="pdesc">« Effacer les progrès » garde le prénom, le compagnon et les cadeaux à remettre. « Tout effacer » remet le jeu à neuf. Le mot de passe parent ne change pas (pour le changer : onglet Réglages).</p>`,"danger");
   const T={suivi:tSuivi,matiere:tMatiere,reglages:tReglages,recompenses:tRecomp,donnees:tDonnees};
   el.innerHTML=`<div class="gamebar"><button class="back" id="p-retour">← Carte</button><span class="gtitle">Espace parent</span></div>${dash}
   <nav class="ptabs" role="tablist" aria-label="Sections de l'espace parent">${PTABS.map(([k,ic,l])=>`<button role="tab" class="ptab-b${k===tab?" on":""}" data-tab="${k}" aria-selected="${k===tab}"><span class="emo">${ic}</span><span>${l}</span></button>`).join("")}</nav>
@@ -1879,6 +1892,15 @@ function renderParent(){
   el.querySelectorAll("[data-goal]").forEach(x=>x.onchange=()=>{S.goals[x.dataset.goal]=+x.value;save();renderBar();renderParent()});
   el.querySelectorAll("[data-given]").forEach(b=>b.onclick=()=>{S.gifts.pending.splice(+b.dataset.given,1);S.gifts.given++;save();renderParent()});
   $("#p-gon").onchange=e=>{S.gifts.on=e.target.checked;save()};
+  const pwf=$("#p-pwf");if(pwf){const ins=["#p-pw0","#p-pw1","#p-pw2"].map(q=>$(q)),msg=$("#p-pwmsg"),bad=t=>{msg.innerHTML=` <b style="color:var(--bad)">${t}</b>`};
+    $("#p-pwshow").onchange=e=>ins.forEach(i=>i.type=e.target.checked?"text":"password");
+    pwf.onsubmit=async e=>{e.preventDefault();const[a,b,c]=ins.map(i=>i.value);
+      if(!(await pwCheck(a))){bad("Le mot de passe actuel n'est pas le bon.");ins[0].value="";ins[0].focus();return}
+      if(b.length<6){bad("Le nouveau mot de passe doit avoir au moins 6 caractères.");ins[1].focus();return}
+      if(b!==c){bad("Les deux nouveaux mots de passe ne sont pas pareils.");ins[2].value="";ins[2].focus();return}
+      if(b===a){bad("Le nouveau mot de passe est le même que l'ancien.");return}
+      if(!(await pwSet(b))){bad("L'enregistrement a échoué sur cet appareil.");return}
+      ins.forEach(i=>i.value="");msg.innerHTML=` <b style="color:var(--good)">Mot de passe changé ✓</b>`}}
 
   $("#p-greveal").onchange=e=>{S.gifts.reveal=e.target.checked;save()};
   $("#p-gsave").onclick=()=>{S.gifts.list=$("#p-glist").value.split("\n").map(x=>x.trim()).filter(Boolean);save();$("#p-gsave").textContent="Liste enregistrée"};
@@ -3180,7 +3202,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261102-010424";
+const APP_VER="20261102-011153";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
