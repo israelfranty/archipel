@@ -2960,7 +2960,7 @@ function tbIntro(){const t=TBS(),T=TB_TABLES[t.cur],E=TB_ET[t.et],el=$("#ecran-j
   $("#tb-go").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}TB.started=true;tbQ()}}
 function tbQ(){const q=TB.list[TB.i],el=$("#ecran-jeu");TB.q=q;TB.val="";TB.t0=0;TB.locked=false;
   el.innerHTML=tbBar()+`<div class="dots">${TB.list.map((_,i)=>`<span class="${i<TB.i?(TB.res[i]?"ok":"ko"):i===TB.i?"now":""}"></span>`).join("")}</div>
-   <div class="card pop tbcard" style="--c:var(--i5)"><div class="notion">${q.drill?`On répète · ${q.drill} de 3`:q.rev?"Révision":TB_TABLES[TBS().cur].nom+" · "+TB_ET[q.et].nom}</div>
+   <div class="card pop tbcard" style="--c:var(--i5)"><div class="notion">${q.drill?"On répète":q.rev?"Révision":TB_TABLES[TBS().cur].nom+" · "+TB_ET[q.et].nom}</div>
    <div class="tbexpr">${nf(q.x)} ${q.op} ${nf(q.y)} = <span class="tbans" id="tb-nd">?</span></div>
    <div class="tbtime"><span id="tb-bar"></span></div>
    <div class="numpad">${keysHTML()}</div><div id="fb"></div></div>`;
@@ -2976,20 +2976,20 @@ function tbCheck(){const q=TB.q,ms=performance.now()-TB.t0,ok=+TB.val===q.ans,li
   const nd=$("#tb-nd");nd.classList.add(ok?"right":"wrong");const bar=$("#tb-bar");if(bar){bar.style.transition="none";bar.style.width=getComputedStyle(bar).width}
   TB.res[TB.i]=ok;if(!q.rev&&!q.drill){TB.cur++;if(ok)TB.ok++;if(fast)TB.fast++}
   if(!q.drill){const t=TBS(),fk=q.a+"+"+q.b,f=t.facts[fk]||(t.facts[fk]={ok:0,miss:0,slow:0});if(fast)f.ok++;else if(ok)f.slow++;else f.miss++;save();
-    /* trop lent ou faux : le même calcul revient 3 fois de suite, puis on le regarde bien pour le retenir */
-    if(!fast)TB.list.splice(TB.i+1,0,...[1,2,3].map(k=>({...q,drill:k,rev:false})))}
+    /* trop lent ou faux : le même calcul revient une fois, puis on le regarde bien pour le retenir */
+    if(!fast)TB.list.splice(TB.i+1,0,{...q,drill:1,rev:false})}
   $(".numpad").hidden=true;
   const fb=$("#fb");
   fb.innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${fast?pick(["Bravo!","Rapide!","Parfait!","Super!"]):ok?"Juste!":"Presque!"}</h3>
    ${ok?"":`<p>La réponse est <b>${nf(q.ans)}</b>.</p>`}${ok&&!fast?`<p>C'est juste, mais tu as pris ${(ms/1000).toFixed(1)} s. Essaie de te souvenir de la réponse sans compter : l'astuce peut t'aider.</p>`:""}
    ${ok&&fast?"":q.drill&&ok?"":`<p>${esc(q.why)}</p><p class="tbfam"><small>La famille :</small> ${esc(q.fam)}</p>`}
-   ${!fast&&!q.drill?`<p class="tbrep">🔁 Ce calcul va revenir <b>3 fois de suite</b> pour que ta mémoire le garde.</p>`:""}
+   ${!fast&&!q.drill?`<p class="tbrep">🔁 Ce calcul va revenir <b>tout de suite</b> pour que ta mémoire le garde.</p>`:""}
    <button class="btn" id="tb-next">${TB.i+1<TB.list.length?"Question suivante":"Terminer"}</button></div>`;
   tone(ok?[[660,.1],[880,.15]]:[[300,.2]]);
-  const nb=$("#tb-next"),cont=()=>{TB.i++;if(TB.i<TB.list.length)tbQ();else tbFinish()},next=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}if(q.drill===3)tbMemo(q,cont);else cont()};nb.onclick=next;
+  const nb=$("#tb-next"),cont=()=>{TB.i++;if(TB.i<TB.list.length)tbQ();else tbFinish()},next=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}if(q.drill)tbMemo(q,cont);else cont()};nb.onclick=next;
   if(!ok){nb.disabled=true;const un=()=>{if($("#tb-next")===nb)nb.disabled=false};if(canSpeak())speakSeq([["Presque! La réponse est "+q.ans+".","fr"],[q.why.replace(/−/g," moins ").replace(/\+/g," plus "),"fr"]],un);else setTimeout(un,Math.min(10000,Math.max(3500,q.why.length*55)))}
   else if(fast){const go2=()=>setTimeout(()=>{if(TB&&TB.q===q&&$("#tb-next")===nb)next()},500);if(canSpeak())speak(pick(["Bravo!","Super!","Oui!"]),go2);else setTimeout(go2,400)}
-  else if(canSpeak())speak(q.drill?"Juste!":"Juste! Essaie d'aller plus vite. Ce calcul va revenir 3 fois.");
+  else if(canSpeak())speak(q.drill?"Juste!":"Juste! Essaie d'aller plus vite. Ce calcul va revenir.");
   fb.scrollIntoView({behavior:"smooth",block:"nearest"})}
 function tbMemo(q,cont){const el=$("#ecran-jeu"),eq=`${nf(q.x)} ${q.op} ${nf(q.y)} = ${nf(q.ans)}`;
   el.innerHTML=tbBar()+`<div class="card pop tbcard" style="--c:var(--i5)"><div class="notion">À retenir</div>
@@ -3547,7 +3547,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261102-212710";
+const APP_VER="20261102-213231";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
