@@ -572,6 +572,7 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .tbfam{color:var(--muted)}.tbrep{font-weight:600}
 .tbmemo{font-family:var(--f-display);font-weight:700;font-size:clamp(2.4rem,10vw,4.2rem);text-align:center;color:var(--c);background:var(--bg);border:4px solid var(--c);border-radius:20px;padding:18px 10px;font-variant-numeric:tabular-nums}.numpad[hidden]{display:none}
 .tbprog{display:flex;gap:6px;flex-wrap:wrap}.tbprog span{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--bg);border:2px solid var(--line);opacity:.5}.tbprog .ok{opacity:1;border-color:var(--good)}.tbprog .now{opacity:1;border-color:var(--i5);box-shadow:0 0 0 2px var(--i5)}
+.tbdots{display:inline-flex;gap:5px;vertical-align:middle}.tbdots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--i5);display:block}.tbdots i.on{background:var(--i5)}.tbfini{opacity:.85}
 .tbsel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .csub{display:block;font-family:var(--f-body,inherit);font-weight:400;font-size:.85rem;color:var(--muted);margin-top:2px}
 .rdctl{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
@@ -1884,7 +1885,7 @@ function renderParent(){
      `<div class="confirm"><button class="btn ghost" id="p-exp">Exporter la progression</button><button class="btn ghost" id="p-imp">Importer une progression</button></div><div id="p-xzone" class="xzone"></div>`)+
    pcard("Remettre la journée à zéro","Après vos tests, pour qu'ils ne comptent pas dans sa journée.",
      `<div class="confirm" id="p-rday-zone"><button class="btn ghost" id="p-rtime">Remettre à zéro le temps d'aujourd'hui</button>${getSnap()?`<button class="btn ghost" id="p-rday" style="border-color:var(--bad);color:var(--bad)">Annuler tout ce qui s'est passé aujourd'hui</button>`:""}</div>
-     <p class="pdesc">« Temps » : remet à 0 les minutes et la dictée du jour; les progrès sont gardés. ${getSnap()?"« Tout annuler » : remet le jeu comme il était ce matin (temps, réponses, niveaux, étoiles, dictée, cadeaux d'aujourd'hui); vos réglages sont gardés.":"« Tout annuler » sera disponible à partir de demain."}</p>`)+
+     <p class="pdesc">« Temps » : remet à 0 les minutes, la dictée et les tables du jour; les progrès sont gardés. ${getSnap()?"« Tout annuler » : remet le jeu comme il était ce matin (temps, réponses, niveaux, étoiles, dictée, cadeaux d'aujourd'hui); vos réglages sont gardés.":"« Tout annuler » sera disponible à partir de demain."}</p>`)+
    pcard("Zone de danger","Ces actions sont irréversibles. Chacune demande une confirmation.",
      `${DLs().length?`<div class="confirm" id="p-dlall-zone"><button class="btn ghost" id="p-dlall">Supprimer toutes les listes de dictée</button></div>`:""}
      <div class="confirm" id="p-dreset-zone"><button class="btn ghost" id="p-dreset">Recommencer les révisions de dictée</button></div>
@@ -1924,7 +1925,7 @@ function renderParent(){
   $("#p-games").onchange=e=>{S.gamesOn=e.target.checked;save()};
   const zr=()=>$("#p-rday-zone");
   $("#p-rtime").onclick=()=>{zr().innerHTML=`<span>Remettre à zéro le temps d'étude et la dictée d'aujourd'hui?</span><button class="btn" id="p-ry1" style="background:var(--bad)">Oui</button><button class="btn ghost" id="p-rn1">Annuler</button>`;
-    $("#p-rn1").onclick=renderParent;$("#p-ry1").onclick=()=>{S.day={d:today(),sec:0,subj:{},done:{}};if(S.dict)delete S.dict.today;PEND.splice(0);save();renderBar();renderParent()}};
+    $("#p-rn1").onclick=renderParent;$("#p-ry1").onclick=()=>{S.day={d:today(),sec:0,subj:{},done:{}};if(S.dict)delete S.dict.today;if(S.tables)delete S.tables.day;PEND.splice(0);save();renderBar();renderParent()}};
   const rd=$("#p-rday");if(rd)rd.onclick=()=>{zr().innerHTML=`<span><b>Tout annuler pour aujourd'hui?</b> Le jeu revient à son état de ce matin.</span><button class="btn" id="p-ry2" style="background:var(--bad)">Oui, tout annuler</button><button class="btn ghost" id="p-rn2">Annuler</button>`;
     $("#p-rn2").onclick=renderParent;$("#p-ry2").onclick=()=>{const sn=getSnap();if(!sn)return renderParent();
       const keep={name:S.name,sound:S.sound,music:S.music,voice:S.voice,voiceName:S.voiceName,rate:S.rate,rateV:S.rateV,theme:S.theme,goals:S.goals,boardOn:S.boardOn,strict:S.strict,week:S.week,traceCase:S.traceCase};
@@ -2914,7 +2915,10 @@ const TB_TABLES=[
 const TB_ALL=(()=>{const s=new Map();TB_TABLES.forEach(t=>(t.f||[]).forEach(([a,b])=>s.set(Math.min(a,b)+"+"+Math.max(a,b),[a,b])));return[...s.values()]})();
 TB_TABLES[8].f=TB_ALL;
 const TB_ET=[{nom:"unités",lim:7000},{nom:"dizaines",lim:9000},{nom:"centaines",lim:10000}];
-const TB_N=10,TB_REV=3,TB_PASS=9,TB_DAYS=2,TB_WEEKS=2;
+const TB_N=10,TB_REV=3,TB_PASS=9,TB_DAYS=2,TB_WEEKS=2,TB_STREAK=4;
+/* La journée : 10/10 (justes et rapides) 4 fois d'affilée; ensuite, pause jusqu'à demain */
+const tbDay=()=>{const t=TBS(),dn=dayNum();if(!t.day||t.day.d!==dn)t.day={d:dn,streak:0,done:false};return t.day};
+const tbDots=n=>`<span class="tbdots" aria-label="${n} sur ${TB_STREAK}">${Array.from({length:TB_STREAK},(_,i)=>`<i class="${i<n?"on":""}"></i>`).join("")}</span>`;
 const TBS=()=>{if(!S.tables||typeof S.tables!=="object")S.tables={};const t=S.tables;if(!(t.cur>=0))t.cur=0;if(!(t.et>=0))t.et=0;if(!t.pass)t.pass={};if(!Array.isArray(t.hist))t.hist=[];if(!t.start)t.start={};if(!t.facts)t.facts={};if(t.start[t.cur]==null)t.start[t.cur]=dayNum();return t};
 const tbPK=()=>{const t=TBS();return t.cur+"-"+t.et};
 const tbDays=()=>(TBS().pass[tbPK()]||[]).length;
@@ -2948,7 +2952,7 @@ function tbSession(){const t=TBS(),T=TB_TABLES[t.cur],F=T.f,L=[];
   if(done.length)for(let i=0;i<TB_REV;i++){const [a,b]=pick(done);L.push(tbQuestion(a,b,0,Math.random()<.5,true))}
   return shuffle(L)}
 let TB=null;
-function startTables(){TBS();FORCEV=false;G={mode:"tables",subj:"maths",events:[]};TB={list:tbSession(),i:0,ok:0,fast:0,cur:0,res:[]};tbIntro()}
+function startTables(){TBS();if(tbDay().done){tbDone();return}FORCEV=false;G={mode:"tables",subj:"maths",events:[]};TB={list:tbSession(),i:0,ok:0,fast:0,cur:0,res:[]};tbIntro()}
 function tbBar(){return`<div class="gamebar"><button class="back" id="tb-back">← L'Île des Nombres</button><span class="gtitle">Mes tables du jour</span>${TB&&TB.i<TB.list.length&&TB.started?`<span class="levelchip">${TB.i+1} / ${TB.list.length}</span>`:""}</div>`}
 function tbBack(){const b=$("#tb-back");if(b)b.onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}tbKeys(false);G=null;TB=null;renderCarte();go("carte")}}
 function tbIntro(){const t=TBS(),T=TB_TABLES[t.cur],E=TB_ET[t.et],el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");
@@ -2956,7 +2960,7 @@ function tbIntro(){const t=TBS(),T=TB_TABLES[t.cur],E=TB_ET[t.et],el=$("#ecran-j
    <h2 class="tbh">${T.ic} ${T.nom}</h2>
    <div class="tbast"><b>L'astuce</b>${T.ast.map(x=>`<p>${esc(x)}</p>`).join("")}<p class="tbex">Exemple : ${esc(T.ex)}</p></div>
    ${t.et?`<p class="msg">Maintenant avec des <b>${E.nom}</b> : c'est la même table, avec des nombres plus grands. ${t.et===1?"30 + 50, c'est comme 3 + 5!":"300 + 500, c'est comme 3 + 5!"}</p>`:""}
-   <p class="msg">Réponds juste <b>et vite</b> : la réponse doit venir sans compter sur tes doigts. ${tbDays()?`Tu as déjà réussi <b>${tbDays()} jour sur ${TB_DAYS}</b> pour cette étape.`:`Réussis ${TB_PASS} sur ${TB_N} deux jours différents pour passer à la suite.`}</p>
+   <p class="msg">Réponds juste <b>et vite</b> : la réponse doit venir sans compter sur tes doigts. Pour réussir ta journée : <b>10 sur 10, ${TB_STREAK} fois de suite</b>.</p><p class="msg">Série d'aujourd'hui : ${tbDots(tbDay().streak)} ${tbDay().streak} sur ${TB_STREAK}</p>
    <div class="row-btns">${TTS?`<button class="listen" id="tb-say">${SPK}Écouter l'astuce</button>`:""}<button class="btn" id="tb-go">Commencer</button></div></div>`;
   tbBack();go("jeu");
   const sy=$("#tb-say");if(sy)sy.onclick=()=>{TB.force=true;speakSeq([[T.nom+".","fr"],300,...T.ast.flatMap(x=>[[x,"fr"],250]),["Exemple : "+T.ex,"fr"]],()=>{if(TB)TB.force=false})};
@@ -3003,29 +3007,35 @@ function tbMemo(q,cont){const el=$("#ecran-jeu"),eq=`${nf(q.x)} ${q.op} ${nf(q.y
   tbBack();go("jeu");const b=$("#tb-memo");b.onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}cont()};
   const un=()=>setTimeout(()=>{if($("#tb-memo")===b)b.disabled=false},1500);
   if(canSpeak())speakSeq([["Regarde bien ce calcul pour t'en souvenir la prochaine fois.","fr"],400,[`${q.x} ${q.op==="+"?"plus":"moins"} ${q.y}, égale ${q.ans}.`,"fr"],600,["Ferme les yeux et répète-le dans ta tête.","fr"]],un);else setTimeout(un,2500)}
-function tbFinish(){tbKeys(false);const t=TBS(),dn=dayNum(),key=tbPK(),passed=TB.fast>=TB_PASS,T=TB_TABLES[t.cur],E=TB_ET[t.et];let msg,up="";
+function tbDone(){const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");G={mode:"tables",subj:"maths"};
+  el.innerHTML=tbBar()+`<div class="card pop tbcard" style="--c:var(--i5)"><h2 class="tbh">🌟 C'est fini pour aujourd'hui!</h2><p class="msg">Tu as réussi tes tables <b>${TB_STREAK} fois de suite sans faute</b>. Ton cerveau a bien travaillé : prends une pause et reviens demain!</p><div class="row-btns"><button class="btn" id="tb-home">Retour à l'île</button></div></div>`;
+  tbBack();$("#tb-home").onclick=()=>{G=null;TB=null;renderCarte();go("carte")};go("jeu")}
+function tbFinish(){tbKeys(false);const t=TBS(),dn=dayNum(),key=tbPK(),T=TB_TABLES[t.cur],E=TB_ET[t.et],day=tbDay(),perfect=TB.cur>0&&TB.fast===TB.cur;day.streak=perfect?day.streak+1:0;const passed=day.streak>=TB_STREAK;if(passed)day.done=true;let msg,up="";
   t.hist.unshift({d:dn,t:t.cur,e:t.et,ok:TB.ok,fast:TB.fast,n:TB.cur});t.hist.length=Math.min(t.hist.length,60);
   if(passed){const P=t.pass[key]||(t.pass[key]=[]);if(!P.includes(dn))P.push(dn)}
   const days=(t.pass[key]||[]).length;
   if(passed&&days>=TB_DAYS){if(t.et<2){t.et++;up=`Étape réussie! Prochaine étape : <b>${T.nom}</b> avec des <b>${TB_ET[t.et].nom}</b>.`}
     else if(t.cur<TB_TABLES.length-1){t.cur++;t.et=0;t.start[t.cur]=dn;up=`Table maîtrisée! 🎉 Prochaine table : <b>${TB_TABLES[t.cur].ic} ${TB_TABLES[t.cur].nom}</b>.`}
     else up="Tu as maîtrisé toutes les tables! 🏆"}
-  msg=passed?(up||`Journée réussie! Réussis encore <b>${TB_DAYS-days} autre jour</b>, et tu passes à l'étape suivante.`):TB.ok>=TB_PASS?`Tout est presque juste, mais pas encore assez rapide (${TB.fast} rapides sur ${TB.cur}). Utilise l'astuce : la réponse doit venir toute seule.`:`${TB.ok} justes sur ${TB.cur}. On continue cette étape : c'est en répétant que la mémoire retient.`;
-  save();const el=$("#ecran-fin"),st=TB.fast>=TB_PASS?3:TB.ok>=TB_PASS?2:TB.ok>=6?1:0;el.style.setProperty("--c","var(--i5)");
-  el.innerHTML=`<div class="card result pop" style="--c:var(--i5)"><div class="notion">Mes tables du jour · ${T.nom} · ${E.nom}</div><h2>${passed?"Bravo":"Bien travaillé"}${S.name?", "+esc(S.name):""}!</h2>
-   <div class="score">${TB.fast} / ${TB.cur}</div><p class="msg"><small>justes et rapides</small></p>${stars(st)}<p class="msg">${msg}</p>
-   <div class="row-btns"><button class="btn" id="tb-again">Encore</button><button class="btn ghost" id="tb-map">Retour à l'île</button></div></div>`;
-  $("#tb-again").onclick=startTables;$("#tb-map").onclick=()=>{G=null;TB=null;renderCarte();go("carte")};
+  msg=passed?`Bravo pour ta belle progression! Tu as réussi ${TB_STREAK} fois de suite sans faute. ${up||(days<TB_DAYS?`Encore <b>${TB_DAYS-days} autre jour</b> comme celui-ci, et tu passes à l'étape suivante.`:"")} Prends une pause : tes tables t'attendent demain!`
+   :perfect?`Sans faute! ${TB_STREAK-day.streak===1?"Encore <b>une fois</b>":`Encore <b>${TB_STREAK-day.streak} fois de suite</b>`} et ta journée est réussie.`
+   :TB.ok===TB.cur?`Tout est juste, mais pas assez rapide (${TB.fast} rapides sur ${TB.cur}). Ta série recommence : il faut ${TB_STREAK} fois 10 sur 10 d'affilée.`
+   :`${TB.ok} justes sur ${TB.cur}. Ta série recommence : il faut ${TB_STREAK} fois 10 sur 10 d'affilée. Tu vas y arriver!`;
+  save();const el=$("#ecran-fin"),st=perfect?3:TB.ok>=TB_PASS?2:TB.ok>=6?1:0;el.style.setProperty("--c","var(--i5)");
+  el.innerHTML=`<div class="card result pop" style="--c:var(--i5)"><div class="notion">Mes tables du jour · ${T.nom} · ${E.nom}</div><h2>${passed?"🌟 Bravo":perfect?"Sans faute":"Bien travaillé"}${S.name?", "+esc(S.name):""}!</h2>
+   <div class="score">${TB.fast} / ${TB.cur}</div><p class="msg"><small>justes et rapides</small></p>${stars(st)}<p class="msg">Série : ${tbDots(day.streak)} ${Math.min(day.streak,TB_STREAK)} sur ${TB_STREAK}</p><p class="msg">${msg}</p>
+   <div class="row-btns">${passed?"":`<button class="btn" id="tb-again">Encore</button>`}<button class="btn${passed?"":" ghost"}" id="tb-map">Retour à l'île</button></div></div>`;
+  const ag=$("#tb-again");if(ag)ag.onclick=startTables;$("#tb-map").onclick=()=>{G=null;TB=null;renderCarte();go("carte")};
   tone(passed?[[523,.12],[659,.12],[784,.12],[1047,.25]]:[[523,.15],[659,.2]]);go("fin");
   speak(`${TB.fast} sur ${TB.cur}, justes et rapides. `+msg.replace(/<[^>]+>/g,"").replace(/[🎉🏆]/gu,""))}
-function tbCardHTML(){const t=TBS(),T=TB_TABLES[t.cur];return`<button class="isle defi tabz" id="b-tab"><span class="badge">${T.ic}</span><span class="body"><span class="nom">Mes tables du jour</span><span class="sous">Table ${t.cur+1} : <b>${T.nom}</b> · ${TB_ET[t.et].nom} · ${tbDays()} jour${tbDays()>1?"s":""} réussi${tbDays()>1?"s":""} sur ${TB_DAYS}. Additions et soustractions, avec une astuce pour retenir.</span></span></button>`}
+function tbCardHTML(){const t=TBS(),T=TB_TABLES[t.cur],d=tbDay();if(d.done)return`<button class="isle defi tabz tbfini" id="b-tab"><span class="badge">🌟</span><span class="body"><span class="nom">Mes tables du jour : fini!</span><span class="sous">${TB_STREAK} fois 10 sur 10 aujourd'hui. Bravo! Prends une pause, tes tables reviennent demain.</span></span></button>`;return`<button class="isle defi tabz" id="b-tab"><span class="badge">${T.ic}</span><span class="body"><span class="nom">Mes tables du jour</span><span class="sous">Table ${t.cur+1} : <b>${T.nom}</b> · ${TB_ET[t.et].nom} · série du jour : ${d.streak} sur ${TB_STREAK}. Additions et soustractions, avec une astuce pour retenir.</span></span></button>`}
 /* Espace parent */
 function tbParentHTML(){const t=TBS(),T=TB_TABLES[t.cur],wk=Math.floor((dayNum()-t.start[t.cur])/7),H=t.hist.slice(0,6);
   const hard=Object.entries(t.facts).filter(([,f])=>f.miss+f.slow>0).sort((a,b)=>(b[1].miss*2+b[1].slow)-(a[1].miss*2+a[1].slow)).slice(0,10);
   return`<div class="tbprog">${TB_TABLES.map((x,i)=>`<span class="${i<t.cur?"ok":i===t.cur?"now":""}" title="${esc(x.nom)}">${x.ic}</span>`).join("")}</div>
   <p>Table ${t.cur+1} sur ${TB_TABLES.length} : <b>${T.nom}</b>, étape <b>${TB_ET[t.et].nom}</b> (${t.et+1} sur 3) · ${tbDays()} jour réussi sur ${TB_DAYS}.</p>
-  <p class="pdesc">${wk?`Commencée il y a ${wk} semaine${wk>1?"s":""}`:"Commencée cette semaine"} (rythme visé : une table aux ${TB_WEEKS} semaines; elle n'avance que lorsqu'elle maîtrise). Réussir un jour : ${TB_PASS} sur ${TB_N} justes, en moins de ${TB_ET[t.et].lim/1000} s chacune.</p>
-  ${H.length?`<div class="days">${H.map(h=>`<div class="d"><span>${dnFmt(h.d)}<br><span class="dsub">${TB_TABLES[h.t].nom} · ${TB_ET[h.e].nom}</span></span><span class="meter"><i style="width:${h.n?h.fast/h.n*100:0}%;background:var(--good)"></i></span><span>${h.fast}/${h.n}${h.fast>=TB_PASS?" ✓":""}</span></div>`).join("")}</div>`:`<p class="pdesc">Pas encore de séance.</p>`}
+  <p class="pdesc">${wk?`Commencée il y a ${wk} semaine${wk>1?"s":""}`:"Commencée cette semaine"} (rythme visé : une table aux ${TB_WEEKS} semaines; elle n'avance que lorsqu'elle maîtrise). Réussir un jour : 10 sur 10 justes en moins de ${TB_ET[t.et].lim/1000} s chacune, ${TB_STREAK} séances d'affilée; ensuite, l'activité se ferme jusqu'au lendemain. Aujourd'hui : ${tbDay().done?"<b>réussi ✓</b>":`série de ${tbDay().streak} sur ${TB_STREAK}`}.</p>
+  ${H.length?`<div class="days">${H.map(h=>`<div class="d"><span>${dnFmt(h.d)}<br><span class="dsub">${TB_TABLES[h.t].nom} · ${TB_ET[h.e].nom}</span></span><span class="meter"><i style="width:${h.n?h.fast/h.n*100:0}%;background:var(--good)"></i></span><span>${h.fast}/${h.n}${h.n&&h.fast===h.n?" ✓":""}</span></div>`).join("")}</div>`:`<p class="pdesc">Pas encore de séance.</p>`}
   ${hard.length?`<p class="pdesc"><b>Calculs à revoir</b> (erreurs ou trop lents) :</p><div class="redo">${hard.map(([k,f])=>`<span class="rv">${k.replace("+"," + ")}${f.miss?` <small>×${f.miss}</small>`:""}</span>`).join("")}</div>`:""}`}
 function tbSettingsHTML(){const t=TBS();return pcard("Tables d'addition et de soustraction","Une table à la fois, dans l'ordre des astuces. Si elle connaît déjà certaines tables, vous pouvez la placer plus loin.",
   `<div class="tbsel"><label class="pfield">Table en cours<select id="p-tbt">${TB_TABLES.map((x,i)=>`<option value="${i}" ${i===t.cur?"selected":""}>${i+1}. ${esc(x.nom)}</option>`).join("")}</select></label>
@@ -3550,7 +3560,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261103-071645";
+const APP_VER="20261103-185418";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
