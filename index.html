@@ -272,6 +272,9 @@ td select{border:2px solid var(--line);border-radius:8px;padding:2px 6px;backgro
 .subject:hover{transform:translateY(-3px);border-color:var(--c)}
 .subject .sbadge{background:var(--c);color:var(--on-i);height:120px;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:3.4rem;position:relative}
 .subject .sbadge::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:14px;background:radial-gradient(circle at 12px -5px,transparent 14px,var(--surface) 15px) 0 0/24px 14px repeat-x}
+/* Safari (iPad) : les blocs d'un <button> en flex ne s'étirent pas tout seuls */
+.subject>.sbadge,.subject>.sbody,.isle:not(.defi)>.badge,.isle>.body{width:100%;box-sizing:border-box;align-self:stretch}
+.subject{width:100%}.isle{width:100%}
 .subject .sbody{padding:12px 18px 18px;display:flex;flex-direction:column;gap:6px}
 .subject .nom{font-family:var(--f-display);font-weight:700;font-size:1.45rem;line-height:1.15}
 .subject .sous{color:var(--muted);font-size:.95rem}
@@ -3547,7 +3550,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261103-070547";
+const APP_VER="20261103-071645";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
