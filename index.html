@@ -2910,7 +2910,7 @@ const TB_TABLES=[
  {nom:"Grande révision",ic:"🏆",f:null,ast:["Toutes les tables ensemble!","Pour chaque calcul, choisis l'astuce la plus rapide : ami de 10, double, presque-double, +10, +9…","Et pour une soustraction, pense à l'addition de la même famille."],ex:"13 − 5 : 5 + 8 = 13, donc 13 − 5 = 8."}];
 const TB_ALL=(()=>{const s=new Map();TB_TABLES.forEach(t=>(t.f||[]).forEach(([a,b])=>s.set(Math.min(a,b)+"+"+Math.max(a,b),[a,b])));return[...s.values()]})();
 TB_TABLES[8].f=TB_ALL;
-const TB_ET=[{nom:"unités",lim:5000},{nom:"dizaines",lim:7000},{nom:"centaines",lim:8000}];
+const TB_ET=[{nom:"unités",lim:7000},{nom:"dizaines",lim:9000},{nom:"centaines",lim:10000}];
 const TB_N=10,TB_REV=3,TB_PASS=9,TB_DAYS=2,TB_WEEKS=2;
 const TBS=()=>{if(!S.tables||typeof S.tables!=="object")S.tables={};const t=S.tables;if(!(t.cur>=0))t.cur=0;if(!(t.et>=0))t.et=0;if(!t.pass)t.pass={};if(!Array.isArray(t.hist))t.hist=[];if(!t.start)t.start={};if(!t.facts)t.facts={};if(t.start[t.cur]==null)t.start[t.cur]=dayNum();return t};
 const tbPK=()=>{const t=TBS();return t.cur+"-"+t.et};
@@ -3547,7 +3547,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261102-214203";
+const APP_VER="20261103-070547";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
