@@ -2976,8 +2976,8 @@ function tbCheck(){const q=TB.q,ms=performance.now()-TB.t0,ok=+TB.val===q.ans,li
   const nd=$("#tb-nd");nd.classList.add(ok?"right":"wrong");const bar=$("#tb-bar");if(bar){bar.style.transition="none";bar.style.width=getComputedStyle(bar).width}
   TB.res[TB.i]=ok;if(!q.rev&&!q.drill){TB.cur++;if(ok)TB.ok++;if(fast)TB.fast++}
   if(!q.drill){const t=TBS(),fk=q.a+"+"+q.b,f=t.facts[fk]||(t.facts[fk]={ok:0,miss:0,slow:0});if(fast)f.ok++;else if(ok)f.slow++;else f.miss++;save();
-    /* trop lent ou faux : le même calcul revient 3 fois, espacé de 1, 2 puis 1 autre calcul; après la 3e fois, on le regarde bien pour le retenir */
-    if(!fast){let pos=TB.i+1;[1,2,3].forEach((k,j)=>{pos=Math.min(TB.list.length,pos+[1,2,1][j]);TB.list.splice(pos,0,{...q,drill:k,rev:false});pos++})}}
+    /* trop lent ou faux : le même calcul revient 3 fois, espacé de 1, 2 puis 1 autre calcul; après la 3e fois, si le calcul avait été raté, on le regarde bien pour le retenir */
+    if(!fast){let pos=TB.i+1;[1,2,3].forEach((k,j)=>{pos=Math.min(TB.list.length,pos+[1,2,1][j]);TB.list.splice(pos,0,{...q,drill:k,rev:false,miss:!ok});pos++})}}
   $(".numpad").hidden=true;
   const fb=$("#fb");
   fb.innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${fast?pick(["Bravo!","Rapide!","Parfait!","Super!"]):ok?"Juste!":"Presque!"}</h3>
@@ -2986,7 +2986,7 @@ function tbCheck(){const q=TB.q,ms=performance.now()-TB.t0,ok=+TB.val===q.ans,li
    ${!fast&&!q.drill?`<p class="tbrep">🔁 Ce calcul va revenir <b>3 fois</b> pendant la séance pour que ta mémoire le garde.</p>`:""}
    <button class="btn" id="tb-next">${TB.i+1<TB.list.length?"Question suivante":"Terminer"}</button></div>`;
   tone(ok?[[660,.1],[880,.15]]:[[300,.2]]);
-  const nb=$("#tb-next"),cont=()=>{TB.i++;if(TB.i<TB.list.length)tbQ();else tbFinish()},next=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}if(q.drill===3)tbMemo(q,cont);else cont()};nb.onclick=next;
+  const nb=$("#tb-next"),cont=()=>{TB.i++;if(TB.i<TB.list.length)tbQ();else tbFinish()},next=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}if(q.drill===3&&q.miss)tbMemo(q,cont);else cont()};nb.onclick=next;
   if(!ok){nb.disabled=true;const un=()=>{if($("#tb-next")===nb)nb.disabled=false};if(canSpeak())speakSeq([["Presque! La réponse est "+q.ans+".","fr"],[q.why.replace(/−/g," moins ").replace(/\+/g," plus "),"fr"]],un);else setTimeout(un,Math.min(10000,Math.max(3500,q.why.length*55)))}
   else if(fast){const go2=()=>setTimeout(()=>{if(TB&&TB.q===q&&$("#tb-next")===nb)next()},500);if(canSpeak())speak(pick(["Bravo!","Super!","Oui!"]),go2);else setTimeout(go2,400)}
   else if(canSpeak())speak(q.drill?"Juste!":"Juste! Essaie d'aller plus vite. Ce calcul va revenir 3 fois.");
@@ -3547,7 +3547,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261102-213650";
+const APP_VER="20261102-214203";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
