@@ -563,7 +563,19 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .dbpv .plist{margin:0}.utoast{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;background:var(--ink);color:var(--surface);border-radius:16px;padding:10px 12px 10px 16px;display:flex;gap:12px;align-items:center;width:max-content;max-width:calc(100% - 32px);box-shadow:0 6px 24px rgba(0,0,0,.3)}
 .utoast .btn{flex:none}
 .repz{border-color:var(--i6)!important;border-style:solid!important}.repz .badge{background:var(--i6);font-size:1.6rem}
-.rcard{gap:14px}.tabz{border-color:var(--i5)!important;border-style:solid!important}.tabz .badge{background:var(--i5);font-size:1.6rem}
+.rcard{gap:14px}.plancard{background:var(--surface);border:3px solid var(--sun);border-radius:20px;padding:14px 16px;margin:0 0 16px;display:flex;flex-direction:column;gap:10px}
+.planh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}.planh h3{margin:0;font-family:var(--f-display);font-size:1.25rem}.planh small{color:var(--muted)}
+.planlist{display:flex;flex-direction:column;gap:8px}.plann,.planex{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--bg);border-radius:12px;padding:8px 10px;text-align:left}
+.planex{border:2px solid var(--i7);width:100%;font:inherit;color:inherit;cursor:pointer}.planex small{color:var(--muted)}
+.planbtn{flex:none;border:2px solid var(--c,var(--sea));background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font-weight:700;font-size:.9rem;cursor:pointer;min-height:40px}
+.exz{border-color:var(--i7)!important;border-style:solid!important}.exz .badge{background:var(--i7);font-size:1.6rem}.cjz{border-color:var(--i3)!important;border-style:solid!important}.cjz .badge{background:var(--i3);font-size:1.6rem}
+.cjbig{display:inline-block;margin-top:8px;font-family:var(--f-display);font-weight:700;font-size:clamp(1.4rem,5vw,2rem)}
+.cjtab{border-collapse:collapse;margin:6px auto;font-size:1.1rem}.cjtab td{padding:3px 12px;border-bottom:1px solid var(--line)}.cjtab td:first-child{text-align:right;color:var(--muted)}.cjtab tr.hi td{background:var(--good-bg)}.cjtab tr.hi td:first-child{color:var(--ink)}
+.cjpath{display:flex;flex-direction:column;gap:8px}.cjstep{display:flex;gap:12px;align-items:center;text-align:left;border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--bg);font:inherit;color:inherit;cursor:pointer}
+.cjstep:disabled{opacity:.5;cursor:default}.cjstep.now{border-color:var(--i3);box-shadow:0 0 0 2px var(--i3)}.cjstep.ok{border-color:var(--good)}.cjic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--surface);font-size:1.3rem;flex:none}.cjstep small{color:var(--muted)}
+.gnex{display:flex;flex-direction:column;gap:6px;text-align:left}.gnex span{background:var(--bg);border-radius:10px;padding:6px 10px}.gnex b{color:var(--c);margin-right:6px}
+.ptasks{display:flex;flex-direction:column;gap:6px}
+.tabz{border-color:var(--i5)!important;border-style:solid!important}.tabz .badge{background:var(--i5);font-size:1.6rem}
 .tbcard{gap:14px}.tbh{margin:0;font-family:var(--f-display);font-size:1.8rem;text-align:center}
 .tbast{background:var(--bg);border-radius:14px;padding:12px 16px;text-align:left;display:flex;flex-direction:column;gap:6px}.tbast p{margin:0;font-size:1.1rem}.tbast .tbex{color:var(--c);font-weight:700}
 .tbexpr{font-family:var(--f-display);font-weight:700;font-size:clamp(2.2rem,9vw,3.6rem);text-align:center;font-variant-numeric:tabular-nums}
@@ -667,7 +679,7 @@ let VOICES_EN=[];
 function loadVoices(){try{const all=TTS.getVoices();VOICES=all.filter(v=>/^fr/i.test(v.lang));VOICES_EN=all.filter(v=>/^en/i.test(v.lang))}catch(e){VOICES=[];VOICES_EN=[]}}
 if(TTS){loadVoices();try{TTS.addEventListener("voiceschanged",()=>{loadVoices();fillVoices()})}catch(e){TTS.onvoiceschanged=()=>{loadVoices();fillVoices()}}}
 let FORCEV=false;
-const canSpeak=()=>!!(TTS&&(S.voice||FORCEV||(LES&&LES.force)||(RC&&RC.force)||(TB&&TB.force)));
+const canSpeak=()=>!!(TTS&&(S.voice||FORCEV||(LES&&LES.force)||(RC&&RC.force)||(TB&&TB.force)||(DR&&DR.force)));
 const SPK=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>`;
 const FEM=/am[ée]lie|sylvie|caroline|chantal|audrey|marie|julie|hortense|denise|c[ée]line|aur[ée]lie|virginie|elsa|ariane|brigitte|[ée]lo[iï]se|vivienne|female|femme/i;
 const MALE=/thomas|nicolas|daniel|jean|paul|henri|claude|antoine|jacques|guillaume|f[ée]lix|mathieu|r[ée]my|\bmale\b|homme/i;
@@ -1567,11 +1579,11 @@ function renderCarte(){
   let h;
   if(!CUR){
     h=`<div class="hello"><h2>Bonjour, ${esc(S.name)}!</h2><p>Sur quelle île veux-tu aller aujourd'hui?</p>${dDue()?`<p class="dnote">${PENICON}Ta dictée du jour t'attend à L'Île aux Mots : <b>${dDue()} mot${dDue()>1?"s":""}</b> à réviser.</p>`:""}</div>`+searchBox(null)+buddy
-     +`<div class="subjects">${Object.entries(SUBJ).map(([k,s])=>{const st=starsOf(k),max=zones(k).length*3;return`<button class="subject" data-subj="${k}" style="--c:var(${s.c})"><span class="sbadge">${s.glyph}</span><span class="sbody"><span class="nom">${s.nom}</span><span class="sous">${s.sous}</span><span class="smeta">${stars(Math.min(3,Math.floor(st/max*3+0.0001)))}<span class="lvl">${st} étoile${st>1?"s":""} sur ${max}</span></span></span></button>`}).join("")}<button class="subject" id="b-atelier" style="--c:var(--i6)"><span class="sbadge tglyph">${PENICON}<span>a b 3</span></span><span class="sbody"><span class="nom">L'Atelier d'écriture</span><span class="sous">Tracer les chiffres et les lettres dans le bon sens, avec ton stylet ou ton doigt</span></span></button>${S.gamesOn!==false?`<button class="subject" id="b-biblio" style="--c:var(--i5)"><span class="sbadge emo">🏰</span><span class="sbody"><span class="nom">La Bibliothèque de jeux</span><span class="sous">Des jeux d'aventure pour pratiquer les notions : traverse le Donjon des nombres!</span></span></button>`:""}</div>`;
+     +planCardHTML()+`<div class="subjects">${Object.entries(SUBJ).map(([k,s])=>{const st=starsOf(k),max=zones(k).length*3;return`<button class="subject" data-subj="${k}" style="--c:var(${s.c})"><span class="sbadge">${s.glyph}</span><span class="sbody"><span class="nom">${s.nom}</span><span class="sous">${s.sous}</span><span class="smeta">${stars(Math.min(3,Math.floor(st/max*3+0.0001)))}<span class="lvl">${st} étoile${st>1?"s":""} sur ${max}</span></span></span></button>`}).join("")}<button class="subject" id="b-atelier" style="--c:var(--i6)"><span class="sbadge tglyph">${PENICON}<span>a b 3</span></span><span class="sbody"><span class="nom">L'Atelier d'écriture</span><span class="sous">Tracer les chiffres et les lettres dans le bon sens, avec ton stylet ou ton doigt</span></span></button>${S.gamesOn!==false?`<button class="subject" id="b-biblio" style="--c:var(--i5)"><span class="sbadge emo">🏰</span><span class="sbody"><span class="nom">La Bibliothèque de jeux</span><span class="sous">Des jeux d'aventure pour pratiquer les notions : traverse le Donjon des nombres!</span></span></button>`:""}</div>`;
   }else{
     const s=SUBJ[CUR],zs=zones(CUR),st=starsOf(CUR);
     h=`<div class="gamebar"><button class="back" id="b-home">← Les îles</button><span class="gtitle">${s.nom}</span></div><button class="btn notions" id="b-notions">${BOOKICON}Les notions : revoir les règles</button>${searchBox(CUR)}<div class="hello"><p>Choisis une zone à explorer. Tu as gagné ${st} étoile${st>1?"s":""} sur ${zs.length*3} ici.</p></div>`
-     +`<div class="isles">`+(CUR==="francais"?`<button class="isle defi dictz" id="b-dict"><span class="badge">${PENICON}</span><span class="body"><span class="nom">Ma dictée du jour</span><span class="sous">${dWeeks().length?(dDue()?`<b>${dDue()} mot${dDue()>1?"s":""}</b> de tes listes à réviser aujourd'hui. Les mots reviennent juste avant que tu les oublies!`:"Tout est révisé pour aujourd'hui. Tu peux t'entraîner encore!"):"Les mots de tes listes d'orthographe, révisés jour après jour."}</span></span></button><button class="isle defi repz" id="b-rep"><span class="badge">✍️</span><span class="body"><span class="nom">Je réponds en phrases complètes</span><span class="sous">Lire un court texte, puis écrire une réponse complète : je reprends la question, j'explique avec « car », je justifie avec le texte.</span></span></button>`:"")+(CUR==="maths"?tbCardHTML():"")+zs.map(i=>{const z=IS(i.id);return`<button class="isle${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="badge">${i.glyph}</span><span class="body"><span class="nom">${i.nom}</span><span class="sous">${i.sous}</span><span class="meta">${stars(z.stars)}<span class="lvl">Niveau ${z.level}</span></span></span></button>`}).join("")
+     +`<div class="isles">`+(CUR==="francais"?`<button class="isle defi dictz" id="b-dict"><span class="badge">${PENICON}</span><span class="body"><span class="nom">Ma dictée du jour</span><span class="sous">${dWeeks().length?(dDue()?`<b>${dDue()} mot${dDue()>1?"s":""}</b> de tes listes à réviser aujourd'hui. Les mots reviennent juste avant que tu les oublies!`:"Tout est révisé pour aujourd'hui. Tu peux t'entraîner encore!"):"Les mots de tes listes d'orthographe, révisés jour après jour."}</span></span></button><button class="isle defi repz" id="b-rep"><span class="badge">✍️</span><span class="body"><span class="nom">Je réponds en phrases complètes</span><span class="sous">Lire un court texte, puis écrire une réponse complète : je reprends la question, j'explique avec « car », je justifie avec le texte.</span></span></button>`+examCardHTML()+cjCardHTML()+``:"")+(CUR==="maths"?tbCardHTML():"")+zs.map(i=>{const z=IS(i.id);return`<button class="isle${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="badge">${i.glyph}</span><span class="body"><span class="nom">${i.nom}</span><span class="sous">${i.sous}</span><span class="meta">${stars(z.stars)}<span class="lvl">Niveau ${z.level}</span></span></span></button>`}).join("")
      +`<button class="isle defi" data-isle="defi"><span class="badge">?</span><span class="body"><span class="nom">Le Grand Défi</span><span class="sous">${ROUND} questions mélangées de toutes les zones de ${s.nom}</span></span></button>`
      +`<button class="isle defi" data-isle="tableau"><span class="badge chalkb">${CHALKICON}</span><span class="body"><span class="nom">Mission tableau</span><span class="sous">4 défis à écrire ou dessiner à la main, sur ton tableau ou une feuille.</span></span></button>`
      +`<button class="isle defi" data-isle="sprint"><span class="badge">${BOLT}</span><span class="body"><span class="nom">La Course Éclair</span><span class="sous">${CUR==="maths"?"60 secondes pour réussir le plus de calculs possible.":CUR==="francais"?"60 secondes de questions rapides : homophones et conjugaison.":"60 secondes de vocabulaire : images, mots et couleurs."} ${SPR(CUR).best?`Ton record : ${SPR(CUR).best} bonnes réponses.`:"Établis ton premier record!"}</span></span></button></div>`;
@@ -1582,7 +1594,7 @@ function renderCarte(){
   const bnot=$("#b-notions");if(bnot)bnot.onclick=()=>openLessons(CUR,null);
   bindSearch(CUR);
   const bat=$("#b-atelier");if(bat)bat.onclick=renderAtelier;
-  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;const btb=$("#b-tab");if(btb)btb.onclick=startTables;
+  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;const btb=$("#b-tab");if(btb)btb.onclick=startTables;const bex=$("#b-exam");if(bex)bex.onclick=startExam;const bcj=$("#b-conj");if(bcj)bcj.onclick=renderConj;planBind(el);
   const bbi=$("#b-biblio");if(bbi)bbi.onclick=renderBiblio;
   el.querySelectorAll("[data-subj]").forEach(b=>b.onclick=()=>{CUR=b.dataset.subj;tone([[659,.08],[880,.12]]);renderCarte();window.scrollTo(0,0)});
   el.querySelectorAll("[data-isle]").forEach(b=>b.addEventListener("click",()=>b.dataset.isle==="sprint"?startSprint():start(b.dataset.isle)));
@@ -1662,7 +1674,7 @@ function answer(v,btn){
   const q=G.q,BRD=q.kind==="board",ms=G.t0?performance.now()-G.t0:0,timeout=v===null,ok=!timeout&&String(v)===q.answer,fast=ok&&!BRD&&ms<=G.target;
   G.res.push(ok);if(ok)G.score++;if(fast)G.eclairs++;if(!BRD)G.totalMs+=ms;
   const s=IS(q.isl);s.t++;if(ok)s.r++;
-  const nk=nkey(q),n=S.notions[nk]||(S.notions[nk]={r:0,t:0});n.t++;if(ok)n.r++;
+  const nk=nkey(q),n=S.notions[nk]||(S.notions[nk]={r:0,t:0});n.t++;if(ok)n.r++;logAct(nk,ok);
   (q.words||(q.word?[q.word]:[])).forEach(w=>{const x=S.wstats[w]||(S.wstats[w]={r:0,t:0});x.t++;if(ok)x.r++});
   if(ok&&!BRD){const a=S.times[nk]||(S.times[nk]=[]);a.push(Math.round(ms));if(a.length>12)a.shift()}
   const nl=S.nlast[nk]||(S.nlast[nk]=[]);nl.push(ok?1:0);if(nl.length>10)nl.shift();
@@ -1837,6 +1849,8 @@ function renderParent(){
    pcard("Temps d'étude — 7 derniers jours","Le temps compte seulement pendant les activités, application ouverte et sans pause. Laisser la tablette ouverte sans jouer ne compte pas.",`<div class="days">${days}</div>`)+
    pcard("Notions à surveiller","Les plus difficiles d'abord. Une notion se lit bien après 5 questions ou plus.",`<div class="nlist">${nl.length?nl.map(n=>`<div class="nrow"><div><b>${n.notion}</b><br><small>${byId(n.isl).nom} · ${n.r}/${n.t} réussies${n.tm}</small></div><div class="meter"><i style="width:${Math.round(n.p*100)}%;background:${col(n.p)}"></i></div><div class="pct">${Math.round(n.p*100)} %</div></div>`).join(""):`<p>Aucune question répondue pour l'instant.</p>`}</div>`)+
    pcard("Progrès par île","Le niveau s'ajuste seul : il monte à 7 bonnes réponses sur 8 et descend à 3 ou moins (à changer au besoin dans Réglages). Le record de temps ne compte que les parties d'au moins 6 sur 8.",`<div class="tablewrap"><table><thead><tr><th>Île</th><th>Niveau</th><th>Questions</th><th>Réussite</th><th>Record</th><th>Étoiles</th></tr></thead><tbody>${rows}</tbody></table></div>`)+
+   pcard("Rapport de la semaine d'école","Ce qu'elle a fait dans le jeu pour les notions et l'évaluation du plan de la semaine.",weekReportHTML())+
+   pcard("Rapport général","Les 7 derniers jours, toutes matières.",generalReportHTML())+
    pcard("Tables d'addition et de soustraction","Une table aux 2 semaines environ, dans l'ordre des astuces : unités, puis dizaines, puis centaines.",tbParentHTML())+
    pcard("Réponses écrites (lecture)","Les dernières réponses de « Je réponds en phrases complètes ». Le jeu vérifie seulement la forme; c'est vous qui jugez le contenu.",repParentHTML())+
    pcard("Dictée du jour","Un mot revient après 1, 2, 4, 8, 16 puis 35 jours s'il est réussi; un mot raté revient le lendemain. Il est « maîtrisé » après 5 réussites espacées.",dStatsHTML())+
@@ -1846,7 +1860,7 @@ function renderParent(){
      <li><b>Donjon des nombres :</b> ${Object.keys(g.donjon||{}).length?Object.entries(g.donjon).map(([k,v])=>`${(DTHEMES[k]||{nom:k}).nom} : étage ${v.lvl}, record ${v.best||0}/15`).join(" · "):"pas encore joué"}. 🪙 ${g.coins||0} · 💎 ${g.gems||0}</li>
      <li><b>Les bâtisseurs :</b> ${b?`${b.village.length} bâtiment${b.village.length>1?"s":""} · construire le nombre niveau ${b.lvl.nombre} · mur niveau ${b.lvl.mur}`:"pas encore joué"}.</li></ul>`);
   /* --- onglet Matière scolaire --- */
-  const tMatiere=tbSettingsHTML()+dContentHTML()+
+  const tMatiere=planEditHTML()+tbSettingsHTML()+dContentHTML()+
    pcard("Mots d'anglais de la semaine","La liste d'anglais de l'école : exercices dans « My Words of the Week », dictées au tableau et « Write the word ». Un mot par ligne; la traduction après « = » est facultative.",
      `<textarea id="p-wen" placeholder="apple = pomme&#10;house = maison&#10;friend = ami">${esc(weekEN().map(x=>x.fr?`${x.w} = ${x.fr}`:x.w).join("\n"))}</textarea>
      ${weekEN().length?`<div class="items">${weekEN().map(e=>{const x=S.wstats[e.w];return`<span>${esc(e.w)}${x?` · ${x.r}/${x.t}`:""}</span>`}).join("")}</div>`:""}
@@ -1899,7 +1913,7 @@ function renderParent(){
   el.querySelectorAll(".ptab-b").forEach(x=>x.onclick=()=>showTab(x.dataset.tab));
   el.querySelectorAll("[data-go]").forEach(x=>x.onclick=()=>{showTab(x.dataset.go);$(".ptabs").scrollIntoView({behavior:"smooth",block:"start"})});
   $("#p-retour").onclick=()=>{PARENT_OK=false;renderCarte();go("carte")};G=null;
-  dParentBind();tbParentBind();
+  dParentBind();tbParentBind();planParentBind();
   const pu=$("#p-upd");if(pu)pu.onclick=async()=>{const m=$("#p-updmsg");m.textContent=" Vérification…";
     try{const v=(await (await fetch("version.txt?t="+Date.now(),{cache:"no-store"})).text()).trim();
       if(!v)throw 0;if(v===APP_VER){m.innerHTML=" <b style=\"color:var(--good)\">Le jeu est à jour ✓</b>"}
@@ -2062,7 +2076,8 @@ grammaire:[
  {t:"L'adjectif",n:["Les classes de mots"],p:["L'adjectif décrit le nom : sa couleur, sa taille, comment il est.","Truc : on peut souvent ajouter « très » devant : très petit, très belle.","Exemples : petit, grand, rouge, joyeux."],v:()=>phrase(mark("Le petit chat mange une souris grise.",["petit","grise"]))},
  {t:"Le verbe",n:["Les classes de mots","Écrire une phrase"],p:["Le verbe dit ce que fait le sujet, ou comment il est.","Truc 1 : on peut l'encadrer par « ne … pas » : il ne mange pas.","Truc 2 : on peut changer son temps : aujourd'hui il mange, demain il mangera."],v:()=>seqH([phrase(mark("Le chat mange une souris.",["mange"])),phrase("Le chat <b>ne</b> mange <b>pas</b> de souris.")])},
  {t:"Le pronom",n:["Les pronoms","Les classes de mots"],p:["Le pronom remplace un nom, pour ne pas le répéter.","Léa devient elle. Le chien devient il. Maya et Jade deviennent elles.","S'il y a au moins un garçon dans le groupe, on dit ils.","Quand je fais partie du groupe : nous. Quand tu en fais partie, sans moi : vous."],v:()=>seqH([cmpRow("Léa → <b>elle</b>"),cmpRow("le chien → <b>il</b>"),cmpRow("Maya et Jade → <b>elles</b>"),cmpRow("Léa et Noah → <b>ils</b>"),cmpRow("ma mère et moi → <b>nous</b>")])},
- {t:"Genre et nombre",n:["Genre et nombre"],p:["Le genre : masculin ou féminin. Truc : on dit un chat (masculin), une maison (féminin).","Le nombre : singulier (un seul) ou pluriel (plusieurs).","Au pluriel, le nom prend souvent un s : des chats."],v:()=>`<div class="g22 anim">${[["un chat","masculin singulier"],["des chats","masculin pluriel"],["une maison","féminin singulier"],["des maisons","féminin pluriel"]].map(([a,b],i)=>`<div class="st" style="--d:${i*.5}"><b>${a}</b><small>${b}</small></div>`).join("")}</div>`}
+ {t:"Genre et nombre",n:["Genre et nombre"],p:["Le genre : masculin ou féminin. Truc : on dit un chat (masculin), une maison (féminin).","Le nombre : singulier (un seul) ou pluriel (plusieurs).","Au pluriel, le nom prend souvent un s : des chats."],v:()=>`<div class="g22 anim">${[["un chat","masculin singulier"],["des chats","masculin pluriel"],["une maison","féminin singulier"],["des maisons","féminin pluriel"]].map(([a,b],i)=>`<div class="st" style="--d:${i*.5}"><b>${a}</b><small>${b}</small></div>`).join("")}</div>`},
+ {t:"Les constructions du groupe du nom",n:["Les constructions du groupe du nom"],p:["Le groupe du nom commence par un déterminant, puis le nom.","On peut ajouter un adjectif avant le nom, après le nom, ou les deux.","Pour trouver la construction, cherche d'abord le nom, puis regarde ce qui est avant et après lui."],ex:["une souris : dét. + nom","une petite souris : dét. + adj. + nom","une souris grise : dét. + nom + adj.","une petite souris grise : dét. + adj. + nom + adj."]}
 ],
 accords:[
  {t:"Le groupe du nom",n:["Accord dans le groupe du nom","Le déterminant","Écrire au pluriel"],p:["Le groupe du nom, c'est le nom avec ses amis : le déterminant et l'adjectif.","Le nom est le chef. Le déterminant et l'adjectif prennent son genre et son nombre."],v:()=>seqH([tbox("déterminant","des"),tbox("nom (le chef)","fleurs"),tbox("adjectif","rouges")],"row"),ex:["des fleurs rouges : féminin pluriel, donc tout le monde prend un s."]},
@@ -2076,6 +2091,7 @@ conjugaison:[
  {t:"Les personnes",n:[],p:["Il y a six personnes de conjugaison.","Je parle de moi. Tu, c'est la personne à qui je parle. Il ou elle, c'est quelqu'un d'autre.","Nous, c'est moi avec d'autres. Vous, c'est toi avec d'autres. Ils ou elles, ce sont plusieurs autres personnes."],v:()=>seqH(["je","tu","il / elle","nous","vous","ils / elles"].map(x=>`<div class="chip5">${x}</div>`),"row")},
  {t:"Le présent des verbes en -er",n:["Conjuguer au présent","Écrire une conjugaison"],p:["On garde le début du verbe, et on ajoute les terminaisons.","Les terminaisons sont : e, es, e, ons, ez, ent.","Attention : le -ent de ils jouent ne se prononce pas!"],v:()=>conjTab("jouer","p")},
  {t:"Avoir, être, aller",n:["Conjuguer au présent"],p:["Ces trois verbes sont spéciaux. Il faut les apprendre par cœur.","On les utilise tout le temps!"],v:()=>`<div class="row3">${conjTab("avoir","p",1)}${conjTab("être","p",1)}${conjTab("aller","p",1)}</div>`},
+ {t:"Le présent des verbes en -ir (finir)",n:["Conjuguer au présent"],p:["Les verbes comme finir, choisir, grandir et réussir se conjuguent de la même façon.","Je finis, tu finis, il finit.","Avec nous, vous et ils, on ajoute -iss- : nous finissons, vous finissez, ils finissent."],ex:["Nous choisissons un livre. Ils réussissent la dictée."]},
  {t:"Le futur simple",n:["Conjuguer au futur simple","Reconnaître le temps"],p:["Le futur dit ce qui va arriver plus tard : demain, l'été prochain.","Pour les verbes en -er, on garde tout l'infinitif et on ajoute : ai, as, a, ons, ez, ont.","Verbes spéciaux : j'aurai, je serai, j'irai, je ferai."],v:()=>conjTab("jouer","f")},
  {t:"L'imparfait",n:["Conjuguer à l'imparfait","Reconnaître le temps"],p:["L'imparfait parle du passé, de ce qui durait ou se répétait : quand j'étais petite…","Les terminaisons sont toujours les mêmes : ais, ais, ait, ions, iez, aient."],v:()=>conjTab("jouer","i")},
  {t:"Reconnaître le temps",n:["Reconnaître le temps"],p:["Demande-toi : quand est-ce que ça se passe?","Avant, dans le passé : imparfait. Je chantais. On voit -ais, -ait, -aient.","Maintenant : présent. Je chante.","Plus tard : futur. Je chanterai. On entend souvent un r avant la fin."],v:()=>seqH([tbox("hier : imparfait","je chantais"),tbox("aujourd'hui : présent","je chante"),tbox("demain : futur","je chanterai")],"row")}
@@ -2669,7 +2685,7 @@ function dWord(){
   clearTimeout(DC.flash);const it=DC.list[DC.i],e=dInfo(it.w),x=DS().bank[it.w]||{b:0};DC.cur={it,e,phase:it.mode==="new"?"look":"write",tries:0};
   const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i7)");
   const voice=canSpeak();
-  el.innerHTML=`<div class="gamebar"><button class="back" id="d-back">← L'Île aux Mots</button><span class="gtitle">Ma dictée du jour</span><span class="levelchip">${Math.min(DC.i+1,DC.list.length)} / ${DC.list.length}</span></div>
+  el.innerHTML=`<div class="gamebar"><button class="back" id="d-back">← L'Île aux Mots</button><span class="gtitle">${DC.exam?"Révision : grande dictée":"Ma dictée du jour"}</span><span class="levelchip">${Math.min(DC.i+1,DC.list.length)} / ${DC.list.length}</span></div>
   <div class="dots">${DC.list.map((_,i)=>`<span class="${i<DC.i?(DC.res[i]?"ok":"ko"):i===DC.i?"now":""}"></span>`).join("")}</div>
   <div class="card pop dcard" style="--c:var(--i7)"><div class="cardtop"><div class="notion">${it.mode==="new"?"Mot nouveau · semaine "+e.n:it.mode==="retry"?"On réessaie":"Dictée · semaine "+e.n}</div><span class="cardbtns">${voice?`<button class="listen" id="d-listen">${SPK}Réécouter</button>`:""}</span></div>
   <div id="d-body"></div><div id="fb"></div></div>`;
@@ -2695,7 +2711,7 @@ function dWrite(sayIt){const {e}=DC.cur,ctx=e.p?blankIn(e.p,e.w):"";
   $("#d-form").addEventListener("submit",ev=>{ev.preventDefault();if(inp.value.trim())dCheck(inp.value)});
   inp.focus({preventScroll:true});
   if(sayIt)speakSeq(dSaySeq(e))}
-function dRecord(it,ok){const d=DS(),x=d.bank[it.w]||(d.bank[it.w]={b:0,due:0,miss:0,ok:0,seen:0}),dn=dayNum(),was=x.b;
+function dRecord(it,ok){logAct("dictee|"+(dInfo(it.w).n||0),ok);if(DC&&DC.exam)exRecord(it.w,ok);const d=DS(),x=d.bank[it.w]||(d.bank[it.w]={b:0,due:0,miss:0,ok:0,seen:0}),dn=dayNum(),was=x.b;
   x.seen++;x.last=dn;if(ok)x.ok++;else x.miss++;if(it.mode!=="extra")dToday().n++;
   if(it.hint)it={...it,mode:"new"};
   if(it.mode==="new"){x.b=1;x.due=dn+1}
@@ -2735,6 +2751,11 @@ function bindCont(){bindDef(DC.cur.e);const c=$("#b-cont");if(!c)return;c.onclic
 function dFinish(){const words=Object.keys(DC.first),ok=DC.ok,N=words.length,miss=words.filter(w=>!DC.first[w]);const st=ok>=N?3:ok>=N*.8?2:ok>=N*.5?1:0;
   const tom=Object.entries(DS().bank).filter(([w,x])=>dLists().by[w]&&x.b>=1&&x.due===dayNum()+1).length,left=dDue(),mast=dMastered(),tot=Object.keys(dLists().by).filter(w=>DS().bank[w]).length;
   const el=$("#ecran-fin");el.style.setProperty("--c","var(--i7)");
+  if(DC.exam){const r=examReady(),n=examWords().length,e=DS().exam;save();el.innerHTML=`<div class="card result pop" style="--c:var(--i7)"><div class="notion">Révision · ${esc(e.label)}</div><h2>Bien révisé${S.name?", "+esc(S.name):""}!</h2><div class="score">${ok} / ${N}</div>${stars(st)}
+     <p class="msg">Mots prêts pour la grande dictée : <b>${r} sur ${n}</b>.<br><small>Un mot est prêt quand tu le réussis deux jours différents.</small></p>${miss.length?`<p class="msg"><b>Mots à revoir :</b></p><div class="redo">${miss.map(w=>`<span class="rv">${esc(w)}</span>`).join("")}</div>`:""}
+     <p class="msg">${examLeft()===0?"C'est aujourd'hui : bonne chance!":`Encore ${examLeft()} jour${examLeft()>1?"s":""} avant la grande dictée. Un peu chaque jour, c'est le secret!`}</p>
+     <div class="row-btns"><button class="btn" id="d-again">Encore 10 mots</button><button class="btn ghost" id="d-map">Retour à l'île</button></div></div>`;
+    $("#d-again").onclick=startExam;$("#d-map").onclick=()=>{G=null;DC=null;renderCarte();go("carte")};tone([[523,.12],[659,.12],[784,.2]]);go("fin");speak(`${ok} sur ${N}. ${r} mots prêts sur ${n} pour la grande dictée.`);return}
   const msg=ok===N?"Tous les mots sont bien écrits du premier coup!":ok>=N*.8?"Très bonne dictée! Les mots ratés reviendront demain.":"Les mots difficiles vont revenir souvent jusqu'à ce que ta mémoire les garde. C'est normal!";
   el.innerHTML=`<div class="card result pop" style="--c:var(--i7)"><div class="notion">Ma dictée du jour</div><h2>Dictée terminée${S.name?", "+esc(S.name):""}!</h2><div class="score">${ok} / ${N}</div>${stars(st)}<p class="msg">${msg}</p>
   ${miss.length?`<p class="msg"><b>Mots à revoir demain :</b></p><div class="redo">${miss.map(w=>`<span class="rv">${esc(w)}</span>`).join("")}</div>`:""}
@@ -2856,7 +2877,7 @@ function repChoice(prompt,opts,next,first,showTxt){const box=$("#r-step");
   box.innerHTML=`<p class="rstep-q">${prompt}</p><div class="choices one rchoices">${opts.map((o,i)=>`<button class="choice long" data-i="${i}"><span>${esc(o.t)}${o.sub?`<small class="csub">${esc(o.sub)}</small>`:""}</span></button>`).join("")}</div>`;
   if(canSpeak()&&!first)speak(prompt.replace(/<[^>]+>/g," "));
   box.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{if(RC.rd&&RC.rd.playing)rdPause();const o=opts[+b.dataset.i];box.querySelectorAll(".choice").forEach((x,i)=>{x.disabled=true;if(opts[i].ok&&(o.ok?x===b:true))x.classList.add("right")});if(!o.ok)b.classList.add("wrong");
-    RC.tot++;if(o.ok)RC.first++;tone(o.ok?[[660,.1],[880,.15]]:[[300,.2]]);
+    RC.tot++;if(o.ok)RC.first++;logAct("rep|"+RC.list[RC.i].type,o.ok);tone(o.ok?[[660,.1],[880,.15]]:[[300,.2]]);
     const fb=$("#fb");fb.innerHTML=`<div class="feedback ${o.ok?"good":"bad"} pop"><h3>${o.ok?"Bravo!":"Presque!"}</h3><p>${esc(o.why)}</p><button class="btn" id="r-next">Continuer</button></div>`;
     const nb=$("#r-next");nb.onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}next(o)};
     if(!o.ok){nb.disabled=true;const un=()=>{if($("#r-next")===nb)nb.disabled=false};if(canSpeak())speakSeq([["Presque!","fr"],[o.why,"fr"]],un);else setTimeout(un,Math.min(12000,Math.max(4000,o.why.length*60)))}
@@ -2992,7 +3013,7 @@ function tbKey(k){if(!TB||TB.locked)return;if(!TB.t0){TB.t0=performance.now();if
 function tbCheck(){const q=TB.q,ms=performance.now()-TB.t0,ok=+TB.val===q.ans,lim=TB_ET[q.rev?0:q.et].lim,fast=ok&&ms<=lim;TB.locked=true;
   const nd=$("#tb-nd");nd.classList.add(ok?"right":"wrong");
   TB.res[TB.i]=ok;if(!q.rev&&!q.drill){TB.cur++;if(ok)TB.ok++;if(fast)TB.fast++}
-  if(!q.drill){const t=TBS(),fk=q.a+"+"+q.b,f=t.facts[fk]||(t.facts[fk]={ok:0,miss:0,slow:0});if(fast)f.ok++;else if(ok)f.slow++;else f.miss++;save();
+  if(!q.drill){logAct("tables|"+TBS().cur,fast);const t=TBS(),fk=q.a+"+"+q.b,f=t.facts[fk]||(t.facts[fk]={ok:0,miss:0,slow:0});if(fast)f.ok++;else if(ok)f.slow++;else f.miss++;save();
     /* trop lent ou faux : le même calcul revient 3 fois, espacé de 1, 2 puis 1 autre calcul; après la 3e fois, si le calcul avait été raté, on le regarde bien pour le retenir */
     if(!fast){let pos=TB.i+1;[1,2,3].forEach((k,j)=>{pos=Math.min(TB.list.length,pos+[1,2,1][j]);TB.list.splice(pos,0,{...q,drill:k,rev:false,miss:!ok});pos++})}}
   $(".numpad").hidden=true;
@@ -3052,6 +3073,214 @@ function tbSettingsHTML(){const t=TBS();return pcard("Tables d'addition et de so
    <label class="pfield">Étape<select id="p-tbe">${TB_ET.map((x,i)=>`<option value="${i}" ${i===t.et?"selected":""}>${i+1}. ${x.nom}</option>`).join("")}</select></label></div>
    <div class="confirm"><button class="btn ghost" id="p-tbsave">Placer à cette table</button><span id="p-tbmsg" aria-live="polite"></span></div>`)}
 function tbParentBind(){const b=$("#p-tbsave");if(!b)return;b.onclick=()=>{const t=TBS(),c=+$("#p-tbt").value,e=+$("#p-tbe").value;if(c!==t.cur)t.start[c]=dayNum();t.cur=c;t.et=e;save();$("#p-tbmsg").innerHTML=` <b style="color:var(--good)">C'est fait ✓</b>`}}
+
+/* ======================================================================
+   JOURNAL D'ACTIVITÉ (par jour) — sert aux rapports du parent
+   ====================================================================== */
+function logAct(key,ok){try{const dn=dayNum(),D=S.dlog||(S.dlog={}),d=D[dn]||(D[dn]={}),x=d[key]||(d[key]={r:0,t:0});x.t++;if(ok)x.r++;
+  for(const k of Object.keys(D))if(+k<dn-70)delete D[k]}catch(e){}}
+const logSum=(from,to,match)=>{const D=S.dlog||{};let r=0,t=0,days=new Set();for(const [dn,o] of Object.entries(D)){if(+dn<from||+dn>to)continue;for(const [k,x] of Object.entries(o))if(match(k)){r+=x.r;t+=x.t;days.add(+dn)}}return{r,t,days:days.size}};
+
+/* ======================================================================
+   EXERCICES À CHOIX — moteur commun (conjugaison, groupe du nom)
+   ====================================================================== */
+let DR=null;
+function runDrill(cfg){FORCEV=false;G={mode:"drill",subj:"francais",events:[]};DR={cfg,list:[],i:0,ok:0,cur:0,res:[],requeued:new Set()};
+  for(let i=0;i<cfg.n;i++)DR.list.push(cfg.gen(i));(cfg.extra||[]).forEach(q=>DR.list.splice(Math.floor(Math.random()*(DR.list.length+1)),0,q));drIntro()}
+function drBar(){const c=DR.cfg;return`<div class="gamebar"><button class="back" id="dr-back">${c.back||"← L'Île aux Mots"}</button><span class="gtitle">${esc(c.title)}</span>${DR.started&&DR.i<DR.list.length?`<span class="levelchip">${DR.i+1} / ${DR.list.length}</span>`:""}</div>`}
+function drBack(){const b=$("#dr-back");if(b)b.onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}G=null;DR=null;if(DR_BACK)DR_BACK();else{renderCarte();go("carte")}}}
+let DR_BACK=null;
+function drIntro(){const c=DR.cfg,el=$("#ecran-jeu");el.style.setProperty("--c",c.color||"var(--i3)");
+  el.innerHTML=drBar()+`<div class="card pop tbcard" style="--c:${c.color||"var(--i3)"}">${c.intro}<div class="row-btns">${TTS&&c.introSay?`<button class="listen" id="dr-say">${SPK}Écouter</button>`:""}<button class="btn" id="dr-go">Commencer</button></div></div>`;
+  drBack();go("jeu");const sy=$("#dr-say");if(sy)sy.onclick=()=>{DR.force=true;speakSeq(c.introSay.flatMap(x=>[[x,"fr"],250]),()=>{if(DR)DR.force=false})};
+  $("#dr-go").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}DR.started=true;drQ()}}
+function drQ(){const q=DR.list[DR.i],c=DR.cfg,el=$("#ecran-jeu");
+  el.innerHTML=drBar()+`<div class="dots">${DR.list.map((_,i)=>`<span class="${i<DR.i?(DR.res[i]?"ok":"ko"):i===DR.i?"now":""}"></span>`).join("")}</div>
+   <div class="card pop" style="--c:${c.color||"var(--i3)"}"><div class="cardtop"><div class="notion">${q.again?"On réessaie":q.rev?"Révision":esc(q.notion)}</div>${TTS?`<span class="cardbtns"><button class="listen" id="dr-l">${SPK}Réécouter</button></span>`:""}</div>
+   <p class="prompt">${q.prompt}</p>${q.visual||""}<div class="choices${q.choices.some(x=>x.length>14)?" one":""}">${q.choices.map((x,i)=>`<button class="choice${x.length>12?" long":""}" data-i="${i}">${esc(x)}</button>`).join("")}</div><div id="fb"></div></div>`;
+  drBack();go("jeu");const l=$("#dr-l");if(l)l.onclick=()=>speak(q.say);if(canSpeak())speak(q.say);
+  el.querySelectorAll(".choice").forEach(b=>b.onclick=()=>drAns(q,b))}
+function drAns(q,b){const ok=q.choices[+b.dataset.i]===q.answer,box=$("#ecran-jeu");box.querySelectorAll(".choice").forEach(x=>{x.disabled=true;if(q.choices[+x.dataset.i]===q.answer)x.classList.add("right")});if(!ok)b.classList.add("wrong");
+  DR.res[DR.i]=ok;if(!q.again&&!q.rev){DR.cur++;if(ok)DR.ok++}if(!q.again)logAct(q.key,ok);if(DR.cfg.onAns)DR.cfg.onAns(q,ok);
+  if(!ok&&!q.again&&!DR.requeued.has(DR.i)){DR.requeued.add(DR.i);DR.list.push({...q,again:true})}
+  tone(ok?[[660,.1],[880,.15]]:[[300,.2]]);
+  const fb=$("#fb");fb.innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${ok?pick(["Bravo!","Parfait!","Super!"]):"Presque!"}</h3>${ok?"":`<p>La bonne réponse : <b>${esc(q.answer)}</b>.</p>`}<p>${q.explain}</p>${!ok&&q.table?q.table:""}<button class="btn" id="dr-next">${DR.i+1<DR.list.length?"Question suivante":"Terminer"}</button></div>`;
+  const nb=$("#dr-next"),next=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}DR.i++;if(DR.i<DR.list.length)drQ();else drFinish()};nb.onclick=next;
+  if(!ok){nb.disabled=true;const un=()=>{if($("#dr-next")===nb)nb.disabled=false};const t=q.explain.replace(/<[^>]+>/g,"");if(canSpeak())speakSeq([["Presque! La bonne réponse est "+q.answer+".","fr"],[t,"fr"]],un);else setTimeout(un,Math.min(9000,Math.max(3000,t.length*50)))}
+  else if(canSpeak())speak(pick(["Bravo!","Super!","Oui!"]));
+  fb.scrollIntoView({behavior:"smooth",block:"nearest"})}
+function drFinish(){const c=DR.cfg,r=c.onEnd?c.onEnd(DR):{msg:"",up:""},el=$("#ecran-fin"),st=DR.ok>=DR.cur?3:DR.ok>=DR.cur*.8?2:DR.ok>=DR.cur*.5?1:0;el.style.setProperty("--c",c.color||"var(--i3)");save();
+  el.innerHTML=`<div class="card result pop" style="--c:${c.color||"var(--i3)"}"><div class="notion">${esc(c.title)}</div><h2>${st>=2?"Bravo":"Bien travaillé"}${S.name?", "+esc(S.name):""}!</h2><div class="score">${DR.ok} / ${DR.cur}</div>${stars(st)}<p class="msg">${r.msg||""}</p>
+   <div class="row-btns"><button class="btn" id="dr-again">Encore</button><button class="btn ghost" id="dr-map">Retour</button></div></div>`;
+  $("#dr-again").onclick=()=>c.again();$("#dr-map").onclick=()=>{G=null;DR=null;if(DR_BACK)DR_BACK();else{renderCarte();go("carte")}};
+  tone(st>=2?[[523,.12],[659,.12],[784,.2]]:[[523,.15],[659,.2]]);go("fin");speak(`${DR.ok} sur ${DR.cur}. `+(r.msg||"").replace(/<[^>]+>/g,""))}
+
+/* ======================================================================
+   MA CONJUGAISON — parcours : avoir, être, -er, aller, -ir (finir), faire
+   Une étape est maîtrisée après 9 sur 10, deux jours différents.
+   ====================================================================== */
+const CJ_PR=["je","tu","il","nous","vous","ils"],CJ_PRN=["je","tu","il / elle / on","nous","vous","ils / elles"];
+const cjReg=(inf,end,c)=>{const st=inf.slice(0,-2);return{inf,f:end.map(e=>st+e),c}};
+const CJ_ER=["e","es","e","ons","ez","ent"],CJ_IR=["is","is","it","issons","issez","issent"];
+const CJ_UNITS=[
+ {id:"avoir",nom:"Le verbe avoir",ic:"🎒",verbs:[{inf:"avoir",f:["ai","as","a","avons","avez","ont"],c:["un chat","faim","un vélo rouge","une bonne idée","un nouveau livre"]}],err:v=>["avont"],
+  ast:["Avoir, c'est posséder quelque chose : j'ai un chat.","J'ai, tu as, il a, nous avons, vous avez, ils ont.","Truc : « ils ont » finit comme « ils sont » et « ils font »."]},
+ {id:"etre",nom:"Le verbe être",ic:"🙂",verbs:[{inf:"être",f:["suis","es","est","sommes","êtes","sont"],c:["à l'école","dans le parc","en avance","au gymnase","chez grand-maman"]}],err:v=>["et"],
+  ast:["Je suis, tu es, il est, nous sommes, vous êtes, ils sont.","Attention : « il est » s'écrit e-s-t. « Et » sans s, c'est pour ajouter quelque chose.","Vous êtes prend un accent circonflexe sur le ê."]},
+ {id:"er",nom:"Les verbes en -er",ic:"🎵",verbs:[cjReg("aimer",CJ_ER,["les fraises","la neige","les histoires"]),cjReg("jouer",CJ_ER,["au ballon","aux cartes","dehors"]),cjReg("chanter",CJ_ER,["une chanson","très fort"]),cjReg("regarder",CJ_ER,["un film","les étoiles"]),cjReg("danser",CJ_ER,["dans le salon","avec joie"]),cjReg("dessiner",CJ_ER,["un dragon","une maison"]),cjReg("écouter",CJ_ER,["la musique","l'histoire"])],err:v=>[],
+  ast:["Les verbes en -er, comme aimer, jouer, chanter : ce sont les plus nombreux!","J'enlève -er et j'ajoute : je -e, tu -es, il -e, nous -ons, vous -ez, ils -ent.","Attention : le -ent de « ils chantent » ne s'entend pas, mais il s'écrit!"]},
+ {id:"aller",nom:"Le verbe aller",ic:"🚲",verbs:[{inf:"aller",f:["vais","vas","va","allons","allez","vont"],c:["à l'école","au parc","à la piscine","chez Léa"]}],err:v=>["allent","alons"],
+  ast:["Aller est un verbe spécial : il ne suit pas la règle des verbes en -er.","Je vais, tu vas, il va, nous allons, vous allez, ils vont.","Truc : « ils vont » rime avec « ils ont », « ils sont » et « ils font »."]},
+ {id:"ir",nom:"Les verbes en -ir (comme finir)",ic:"🏁",verbs:[cjReg("finir",CJ_IR,["le casse-tête","le dessert"]),cjReg("choisir",CJ_IR,["un livre","la couleur bleue"]),cjReg("réussir",CJ_IR,["la dictée","le saut"]),cjReg("remplir",CJ_IR,["le verre d'eau","la boîte"]),cjReg("grandir",CJ_IR,["très vite","chaque année"]),cjReg("applaudir",CJ_IR,["les musiciens","très fort"])],err:v=>[v.inf.slice(0,-2)+"isons",v.inf.slice(0,-2)+"issez"].filter(x=>!v.f.includes(x)),
+  ast:["Les verbes comme finir, choisir, grandir, réussir.","Je finis, tu finis, il finit : -is, -is, -it.","Avec nous, vous, ils, on ajoute -iss- : nous finissons, vous finissez, ils finissent."]},
+ {id:"faire",nom:"Le verbe faire",ic:"🧁",verbs:[{inf:"faire",f:["fais","fais","fait","faisons","faites","font"],c:["un gâteau","du vélo","un dessin","de la natation"]}],err:v=>["faisez"],
+  ast:["Je fais, tu fais, il fait, nous faisons, vous faites, ils font.","Attention : on dit « vous faites », jamais « vous faisez ».","Et « ils font », comme « ils ont » et « ils sont »."]}];
+const cjU=id=>CJ_UNITS.find(u=>u.id===id);
+const CJS=()=>{if(!S.conj||typeof S.conj!=="object")S.conj={};const c=S.conj;if(!c.pass)c.pass={};return c};
+const cjMastered=id=>((CJS().pass[id])||[]).length>=2;
+const cjCur=()=>{const u=CJ_UNITS.find(u=>!cjMastered(u.id));return u||CJ_UNITS[CJ_UNITS.length-1]};
+const cjVowel=s=>/^[aeéèêiouyh]/i.test(s);
+function cjTable(v,hi){return`<table class="cjtab">${v.f.map((f,i)=>{const p=i===0&&cjVowel(f)?"j'":CJ_PRN[i]+" ";return`<tr class="${i===hi?"hi":""}"><td>${p}</td><td><b>${f}</b></td></tr>`}).join("")}</table>`}
+function cjQ(u,rev){const v=pick(u.verbs),kind=Math.random()<.3?"pron":"form";
+  if(kind==="pron"){const uniq=v.f.map((f,i)=>i).filter(i=>v.f.filter(x=>x===v.f[i]).length===1&&i!==0);const p=pick(uniq),form=v.f[p];
+    const ch=shuffle([CJ_PR[p],...shuffle(CJ_PR.filter((x,i)=>i!==p&&v.f[i]!==form)).slice(0,3)]);
+    return{notion:u.nom,key:"conj|"+u.id,rev,prompt:`Quel pronom va avec le verbe ?<br><span class="cjbig">___ ${form}</span>`,say:`Quel pronom va avec ${form} ?`,choices:ch,answer:CJ_PR[p],
+      explain:`On écrit « ${CJ_PR[p]} ${form} ». Verbe ${v.inf} : ${v.f.map((f,i)=>(i===0&&cjVowel(f)?"j'":CJ_PR[i]+" ")+f).join(", ")}.`,table:cjTable(v,p)}}
+  const p=Math.floor(Math.random()*6),form=v.f[p],c=pick(v.c);
+  const subj=p===0?(cjVowel(form)?"J'":"Je"):p===1?"Tu":p===2?pick(["Il","Elle","On","Léa","Mon chien"]):p===3?pick(["Nous","Nous"]):p===4?"Vous":pick(["Ils","Elles","Les enfants","Mes amis"]);
+  const others=shuffle([...new Set(v.f.filter(f=>f!==form))]),errs=(u.err?u.err(v):[]).filter(f=>f!==form&&!v.f.includes(f));
+  const pool=(errs.length&&Math.random()<.5?[pick(errs),...others]:others).slice(0,3);
+  const ch=shuffle([form,...pool]);
+  const blank=p===0&&cjVowel(form)?"J'___":subj+" ___";
+  return{notion:u.nom,key:"conj|"+u.id,rev,prompt:`Complète avec le verbe <b>${v.inf}</b> :<br><span class="cjbig">${blank} ${esc(c)}.</span>`,say:`Complète avec le verbe ${v.inf}. ${subj==="J'"?"Je":subj}, blanc, ${c}.`,choices:ch,answer:form,
+    explain:`${p===2&&!/^(Il|Elle|On)$/.test(subj)?`« ${subj} », c'est comme « il » ou « elle ». `:p===5&&!/^(Ils|Elles)$/.test(subj)?`« ${subj} », c'est comme « ils ». `:""}Avec ${CJ_PR[p]}, le verbe ${v.inf} s'écrit « ${form} » : ${p===0&&cjVowel(form)?"j'":CJ_PR[p]+" "}${form}.`,table:cjTable(v,p)}}
+function renderConj(){const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i3)");G={mode:"conjmenu",subj:"francais"};const cur=cjCur();
+  el.innerHTML=`<div class="gamebar"><button class="back" id="cj-back">← L'Île aux Mots</button><span class="gtitle">Ma conjugaison</span></div>
+   <div class="card pop tbcard" style="--c:var(--i3)"><p class="msg">Le présent, un verbe à la fois. Une étape est réussie avec <b>9 sur 10, deux jours différents</b>.</p>
+   <div class="cjpath">${CJ_UNITS.map((u,i)=>{const m=cjMastered(u.id),isCur=u===cur,days=(CJS().pass[u.id]||[]).length,open=m||isCur||planConj().has(u.id);return`<button class="cjstep${m?" ok":isCur?" now":""}" data-u="${u.id}" ${open?"":"disabled"}><span class="cjic">${m?"✓":u.ic}</span><span><b>${i+1}. ${u.nom}</b><br><small>${m?"Maîtrisé":isCur?`En cours · ${days} jour${days>1?"s":""} réussi${days>1?"s":""} sur 2`:open?"Demandé par l'école cette semaine":"À venir"}</small></span></button>`}).join("")}</div></div>`;
+  $("#cj-back").onclick=()=>{G=null;renderCarte();go("carte")};el.querySelectorAll(".cjstep").forEach(b=>b.onclick=()=>startConj(b.dataset.u));go("jeu")}
+function startConj(id){const u=cjU(id)||cjCur(),done=CJ_UNITS.filter(x=>x!==u&&cjMastered(x.id));DR_BACK=renderConj;
+  const v0=u.verbs[0];
+  runDrill({title:"Ma conjugaison · "+u.nom,color:"var(--i3)",back:"← Ma conjugaison",n:10,gen:()=>cjQ(u),extra:done.length?[0,1].map(()=>cjQ(pick(done),true)):[],
+    intro:`<div class="notion">${cjMastered(u.id)?"Révision":"Étape "+(CJ_UNITS.indexOf(u)+1)+" sur "+CJ_UNITS.length}</div><h2 class="tbh">${u.ic} ${u.nom}</h2><div class="tbast"><b>À retenir</b>${u.ast.map(x=>`<p>${esc(x)}</p>`).join("")}</div>${cjTable(v0,-1)}`,
+    introSay:[u.nom+".",...u.ast],again:()=>startConj(u.id),
+    onEnd:R=>{const c=CJS(),dn=dayNum();let msg;if(R.cur&&R.ok>=9){const P=c.pass[u.id]||(c.pass[u.id]=[]);if(!P.includes(dn))P.push(dn);
+        msg=cjMastered(u.id)?(CJ_UNITS.indexOf(u)<CJ_UNITS.length-1&&cjCur()!==u?`Étape réussie! 🎉 Prochaine étape : <b>${cjCur().nom}</b>.`:"Étape réussie! 🎉"):"Journée réussie! Réussis encore un autre jour pour maîtriser cette étape."}
+      else msg=`${R.ok} sur ${R.cur}. Il faut 9 sur 10 pour réussir la journée. Relis le tableau du verbe et réessaie!`;return{msg}}})}
+function cjCardHTML(){const u=cjCur(),m=CJ_UNITS.filter(x=>cjMastered(x.id)).length;return`<button class="isle defi cjz" id="b-conj"><span class="badge">${u.ic}</span><span class="body"><span class="nom">Ma conjugaison</span><span class="sous">Étape ${CJ_UNITS.indexOf(u)+1} : <b>${u.nom}</b> · ${m} étape${m>1?"s":""} maîtrisée${m>1?"s":""} sur ${CJ_UNITS.length}. Avoir, être, -er, aller, -ir, faire.</span></span></button>`}
+
+/* ======================================================================
+   LES CONSTRUCTIONS DU GROUPE DU NOM
+   ====================================================================== */
+const GN_N=[["chat","m","s"],["ballon","m","s"],["livre","m","s"],["camion","m","s"],["souris","f","s"],["fleur","f","s"],["maison","f","s"],["robe","f","s"],["chiens","m","p"],["crayons","m","p"],["pommes","f","p"],["tuques","f","p"]];
+const GN_D={ms:["le","un","mon","ce"],fs:["la","une","ma","cette"],mp:["les","des","mes","ces"],fp:["les","des","mes","ces"]};
+const GN_AV=[["petit","petite","petits","petites"],["grand","grande","grands","grandes"],["joli","jolie","jolis","jolies"],["gros","grosse","gros","grosses"]];
+const GN_AP=[["rouge","rouge","rouges","rouges"],["noir","noire","noirs","noires"],["gris","grise","gris","grises"],["rapide","rapide","rapides","rapides"],["vert","verte","verts","vertes"]];
+const GN_C=["dét. + nom","dét. + adj. + nom","dét. + nom + adj.","dét. + adj. + nom + adj."];
+function gnMake(k){const [n,g,nb]=pick(GN_N),gi=(g==="f"?1:0)+(nb==="p"?2:0),d=pick(GN_D[g+nb]),a1=pick(GN_AV)[gi],a2=pick(GN_AP)[gi];
+  const w=k===0?[d,n]:k===1?[d,a1,n]:k===2?[d,n,a2]:[d,a1,n,a2];return{txt:w.join(" "),k,n,d,a1,a2}}
+function gnQ(){if(Math.random()<.6){const k=Math.floor(Math.random()*4),g=gnMake(k);
+    return{notion:"Les constructions du groupe du nom",key:"gn|Constructions du GN",prompt:`Quelle est la construction de ce groupe du nom?<br><span class="cjbig">${g.txt}</span>`,say:`Quelle est la construction de ce groupe du nom? ${g.txt}.`,choices:GN_C.slice(),answer:GN_C[k],
+      explain:`Le nom est « ${g.n} ». ${k===0?`Il a seulement son déterminant « ${g.d} ».`:k===1?`L'adjectif « ${g.a1} » est placé avant le nom.`:k===2?`L'adjectif « ${g.a2} » est placé après le nom.`:`Il y a un adjectif avant (« ${g.a1} ») et un adjectif après (« ${g.a2} »).`} Construction : ${GN_C[k]}.`}}
+  const k=Math.floor(Math.random()*4),gs=[0,1,2,3].map(i=>gnMake(i));
+  return{notion:"Les constructions du groupe du nom",key:"gn|Constructions du GN",prompt:`Quel groupe du nom a la construction<br><b>${GN_C[k]}</b> ?`,say:`Quel groupe du nom a la construction ${GN_C[k].replace(/dét\./g,"déterminant").replace(/adj\./g,"adjectif").replace(/\+/g,"plus")} ?`,choices:shuffle(gs.map(g=>g.txt)),answer:gs[k].txt,
+    explain:`« ${gs[k].txt} » : ${GN_C[k]}. Trouve d'abord le nom, puis regarde ce qui est avant et après lui.`}}
+const GN_AST=["Le groupe du nom, c'est un nom avec ses amis.","Il commence toujours par un déterminant : le, la, un, une, mon, ces…","Il peut avoir un adjectif avant le nom : un petit chat.","Ou un adjectif après le nom : un chat noir.","Ou les deux : un petit chat noir."];
+function startGN(){DR_BACK=null;runDrill({title:"Le groupe du nom",color:"var(--i1)",n:10,gen:gnQ,
+  intro:`<h2 class="tbh">🧩 Les constructions du groupe du nom</h2><div class="tbast"><b>À retenir</b>${GN_AST.map(x=>`<p>${esc(x)}</p>`).join("")}</div><div class="gnex"><span><b>dét. + nom</b> une souris</span><span><b>dét. + adj. + nom</b> une petite souris</span><span><b>dét. + nom + adj.</b> une souris grise</span><span><b>dét. + adj. + nom + adj.</b> une petite souris grise</span></div>`,
+  introSay:GN_AST,again:startGN,onEnd:R=>({msg:R.ok>=9?"Tu reconnais très bien les constructions du groupe du nom!":"Pour trouver la construction, cherche d'abord le nom, puis regarde ce qui est avant et après lui."})})}
+
+/* ======================================================================
+   PLAN DE TRAVAIL DE LA SEMAINE (école) — collé par le parent chaque lundi
+   Format (une ligne par élément) :
+     Semaine: 2026-11-02 au 2026-11-06
+     Notion: Le présent des verbes en -ir -> conj:ir
+     Examen: 2026-11-13 | La grande dictée -> dictee:2-9
+     Tâche: jeudi | Faire signer la dictée de la semaine 9
+     Lien: Alloprof – vocabulaire | https://…
+   Cibles (->) : tables, gn, rep, dictee, dictee:2-9, conj:avoir|etre|er|aller|ir|faire, ou une zone (foret, grammaire…)
+   ====================================================================== */
+const isoDn=v=>{const t=Date.parse(String(v).trim()+"T12:00:00");return isNaN(t)?null:Math.floor(t/864e5)};
+function parsePlan(txt){const P={from:null,to:null,notions:[],exam:null,tasks:[],links:[]};let k=0;
+  String(txt||"").split(/\r?\n/).forEach(l=>{l=l.trim();if(!l)return;const m=l.match(/^([^:]+?)\s*:\s*(.*)$/);if(!m)return;const key=m[1].toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""),val=m[2].trim();
+    const go=s=>{const i=s.lastIndexOf("->");return i<0?[s.trim(),""]:[s.slice(0,i).trim(),s.slice(i+2).trim()]};
+    if(key==="semaine"){const d=val.match(/(\d{4}-\d{2}-\d{2}).*?(\d{4}-\d{2}-\d{2})/);if(d){P.from=isoDn(d[1]);P.to=isoDn(d[2])}}
+    else if(key==="notion"){const [label,g]=go(val);if(label)P.notions.push({label,go:g})}
+    else if(key==="examen"){const [a,g]=go(val),[d,label]=a.split("|").map(x=>x.trim());if(isoDn(d)!=null)P.exam={d:isoDn(d),label:label||"Évaluation",go:g}}
+    else if(key==="tache"){const parts=val.split("|");const due=parts.length>1?parts[0].trim():"",label=(parts.length>1?parts.slice(1).join("|"):val).trim();if(label)P.tasks.push({id:"t"+(k++),label,due,done:0})}
+    else if(key==="lien"){const [label,url]=val.split("|").map(x=>x.trim());if(/^https:\/\//.test(url||""))P.links.push({label:label||url,url})}});
+  return P.from!=null&&P.to!=null?P:null}
+const planActive=()=>{const p=S.plan;return!!(p&&p.from!=null&&dayNum()>=p.from&&dayNum()<=p.to+2)};
+const planConj=()=>new Set((planActive()?S.plan.notions:[]).map(n=>n.go).filter(g=>/^conj:/.test(g)).map(g=>g.slice(5)));
+const planRange=p=>`du ${dnFmt(p.from,{day:"numeric",month:"long"})} au ${dnFmt(p.to,{day:"numeric",month:"long"})}`;
+function savePlan(P,txt){const old=S.plan;if(old&&old.from===P.from)P.tasks.forEach(t=>{const o=(old.tasks||[]).find(x=>x.label===t.label);if(o)t.done=o.done});
+  P.txt=txt;S.plan=P;(S.planHist||(S.planHist=[])).unshift({from:P.from,to:P.to,notions:P.notions.map(n=>n.label)});S.planHist=S.planHist.filter((h,i,a)=>a.findIndex(x=>x.from===h.from)===i).slice(0,20);
+  if(P.exam&&/^dictee:\d+-\d+$/.test(P.exam.go)){const [a,b]=P.exam.go.slice(7).split("-").map(Number);DS().exam={d:P.exam.d,from:a,to:b,label:P.exam.label}}save()}
+/* Ouvre la bonne pratique pour une notion du plan */
+function planGo(g){const [k,arg]=g.split(":");
+  if(k==="tables")return startTables();if(k==="gn")return startGN();if(k==="rep")return startRep();
+  if(k==="conj")return startConj(arg);if(k==="dictee")return arg?startExam():startDictee();
+  const z=byId(k);if(z){CUR=z.subj;return start(k)}}
+const planIc=g=>/^conj/.test(g)?"🔤":g==="gn"?"🧩":g==="tables"?"🔢":/^dictee/.test(g)?"✏️":g==="rep"?"✍️":(byId((g||"").split(":")[0])||{}).subj==="maths"?"➕":"📘";
+function planCardHTML(){if(!planActive())return"";const p=S.plan,ex=examActive()?DS().exam:null;
+  return`<section class="plancard" aria-label="Ma semaine à l'école"><div class="planh"><h3>🏫 Ma semaine à l'école</h3><small>${planRange(p)}</small></div>
+   ${ex?`<button class="planex" data-plan="dictee:x"><span>✏️ <b>${esc(ex.label)}</b><br><small>${examLeft()===0?"C'est aujourd'hui! Bonne chance!":`dans ${examLeft()} jour${examLeft()>1?"s":""}`} · ${examReady()} mots prêts sur ${examWords().length}</small></span><span class="planbtn">Je révise</span></button>`:""}
+   <div class="planlist">${p.notions.map(n=>`<div class="plann"><span>${planIc(n.go)} ${esc(n.label)}</span>${n.go?`<button class="planbtn" data-plan="${esc(n.go)}">Je m'entraîne</button>`:""}</div>`).join("")}</div></section>`}
+function planBind(el){el.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>{const g=b.dataset.plan;if(g==="dictee:x")startExam();else planGo(g)})}
+
+/* ======================================================================
+   RÉVISION D'UNE GRANDE DICTÉE (examen) : mots des semaines X à Y
+   Un mot est « prêt » quand il est réussi deux jours différents (dernier essai réussi).
+   ====================================================================== */
+const examActive=()=>{const e=DS().exam;return!!(e&&dayNum()<=e.d)};
+const examLeft=()=>Math.max(0,DS().exam.d-dayNum());
+function examWords(){const e=DS().exam;if(!e)return[];const L=dLists(),dn=dayNum();return L.L.filter(l=>l.n>=e.from&&l.n<=e.to&&l.start<=dn).flatMap(l=>l.w.filter(x=>L.by[x.w]===x).map(x=>x.w))}
+const exS=w=>{const d=DS();if(!d.ex)d.ex={};return d.ex[w]||(d.ex[w]={ok:0,miss:0,days:[],last:null})};
+const exReadyW=w=>{const x=(DS().ex||{})[w];return!!(x&&x.days.length>=2&&x.last===1)};
+const examReady=()=>examWords().filter(exReadyW).length;
+function startExam(){dSync();const W=examWords();if(!W.length){alertDict();return}
+  const ex=DS().ex||{},score=w=>{const x=ex[w];if(!x)return 50;return(exReadyW(w)?-100:0)+x.miss*20-x.days.length*10+(x.last===0?30:0)};
+  let pool=W.filter(w=>!exReadyW(w));if(pool.length<DN)pool=pool.concat(shuffle(W.filter(exReadyW)).slice(0,DN-pool.length));
+  const list=shuffle(pool.sort((a,b)=>score(b)-score(a)+(Math.random()-.5)*15).slice(0,DN)).map(w=>({w,mode:"extra"}));
+  FORCEV=true;G={mode:"dict",subj:"francais",events:[]};DC={list,i:0,res:{},first:{},retried:new Set(),ok:0,n:list.length,flash:0,exam:true};dWord()}
+function exRecord(w,ok){const x=exS(w),dn=dayNum();if(ok){x.ok++;if(!x.days.includes(dn))x.days.push(dn);x.last=1}else{x.miss++;x.last=0}}
+function examCardHTML(){if(!examActive())return"";const e=DS().exam,n=examWords().length,r=examReady();
+  return`<button class="isle defi exz" id="b-exam"><span class="badge">🎯</span><span class="body"><span class="nom">Révision : ${esc(e.label)}</span><span class="sous">${examLeft()===0?"C'est aujourd'hui!":`Dans <b>${examLeft()} jour${examLeft()>1?"s":""}</b>`} (${dnFmt(e.d,{weekday:"long",day:"numeric",month:"long"})}). Mots prêts : <b>${r} sur ${n}</b>. Les mots des semaines ${e.from} à ${e.to}.</span></span></button>`}
+
+/* ======================================================================
+   ESPACE PARENT : plan de la semaine (onglet Matière scolaire) et rapports (onglet Suivi)
+   ====================================================================== */
+function planEditHTML(){const p=S.plan;return pcard("Plan de travail de la semaine",`Collez le plan de la semaine (le texte préparé par Claude à partir de la photo du plan). Il s'affiche sur la carte des îles avec des boutons « Je m'entraîne ».`,
+  `${p?`<p>Plan enregistré : <b>${planRange(p)}</b>${planActive()?"":" (terminé)"} · ${p.notions.length} notion${p.notions.length>1?"s":""}, ${p.tasks.length} tâche${p.tasks.length>1?"s":""}${p.exam?`, évaluation le ${dnFmt(p.exam.d,{day:"numeric",month:"long"})}`:""}.</p>`:""}
+   <details ${p?"":"open"}><summary>${p?"Remplacer le plan":"Ajouter le plan de la semaine"}</summary><textarea id="p-plantxt" rows="9" placeholder="Semaine: 2026-11-02 au 2026-11-06&#10;Notion: Le présent des verbes en -ir -> conj:ir&#10;Tâche: jeudi | Faire signer la dictée">${esc(p&&p.txt||"")}</textarea>
+   <div class="confirm"><button class="btn" id="p-plansave">Enregistrer le plan</button><span id="p-planmsg" aria-live="polite"></span></div></details>`)+
+  (p&&(p.tasks.length||p.links.length)?pcard("Travaux de la semaine","Cochez ce qui est fait. Le rapport de la semaine en tient compte.",
+   `${p.tasks.length?`<div class="ptasks">${p.tasks.map(t=>`<label class="toggle"><input type="checkbox" data-task="${t.id}" ${t.done?"checked":""}><span>${t.due?`<b>${esc(t.due)}</b> · `:""}${esc(t.label)}</span></label>`).join("")}</div>`:""}
+    ${p.links.length?`<p class="pdesc">Liens : ${p.links.map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join(" · ")}</p>`:""}`):"")}
+function planParentBind(){const b=$("#p-plansave");if(b)b.onclick=()=>{const t=$("#p-plantxt").value,P=parsePlan(t);if(!P){$("#p-planmsg").innerHTML=` <b style="color:var(--bad)">Il manque la ligne « Semaine: AAAA-MM-JJ au AAAA-MM-JJ ».</b>`;return}savePlan(P,t);renderParent()};
+  document.querySelectorAll("[data-task]").forEach(c=>c.onchange=()=>{const t=(S.plan.tasks||[]).find(x=>x.id===c.dataset.task);if(t){t.done=c.checked?Date.now():0;save()}})}
+const pct=(r,t)=>t?Math.round(r/t*100)+" %":"—";
+const NOTION_MATCH=g=>{const [k,a]=(g||"").split(":");if(k==="conj")return key=>key==="conj|"+a;if(k==="gn")return key=>key.startsWith("gn|")||key==="grammaire|Accord dans le groupe du nom";if(k==="tables")return key=>key.startsWith("tables|");if(k==="rep")return key=>key.startsWith("rep|");if(k==="dictee")return key=>key.startsWith("dictee|");return key=>key.startsWith(k+"|")};
+function weekMin(from,to){let s=0;const add=(d,sec)=>{const dn=isoDn(d);if(dn!=null&&dn>=from&&dn<=to)s+=sec};(S.hist||[]).forEach(h=>add(h.d,h.sec));if(S.day)add(S.day.d,S.day.sec);return Math.round(s/60)}
+function weekReportHTML(){const p=S.plan;if(!p)return`<p>Aucun plan de la semaine pour l'instant. Ajoutez-le dans l'onglet <b>Matière scolaire</b>.</p>`;
+  const from=p.from,to=Math.max(p.to+2,Math.min(dayNum(),p.to+2)),rows=p.notions.map(n=>{const s=logSum(from,to,NOTION_MATCH(n.go));return`<div class="d"><span><b>${esc(n.label)}</b><br><span class="dsub">${s.t?`${s.t} question${s.t>1?"s":""} · ${s.days} jour${s.days>1?"s":""}`:"pas encore pratiqué"}</span></span><span class="meter"><i style="width:${s.t?s.r/s.t*100:0}%;background:${s.t&&s.r/s.t<.7?"var(--sun)":"var(--good)"}"></i></span><span>${pct(s.r,s.t)}</span></div>`}).join("");
+  const ex=p.exam&&DS().exam&&DS().exam.d===p.exam.d?DS().exam:null,done=p.tasks.filter(t=>t.done).length;
+  return`<p>Semaine ${planRange(p)} · <b>${weekMin(from,to)} min</b> dans le jeu.</p>
+   ${ex?`<p>🎯 <b>${esc(ex.label)}</b> (${dnFmt(ex.d,{weekday:"long",day:"numeric",month:"long"})}) : <b>${examReady()} mots prêts sur ${examWords().length}</b>${(()=>{const hard=examWords().filter(w=>((DS().ex||{})[w]||{}).miss>0).sort((a,b)=>DS().ex[b].miss-DS().ex[a].miss).slice(0,10);return hard.length?`<br><span class="dsub">Mots difficiles : ${hard.map(esc).join(", ")}</span>`:""})()}</p>`:""}
+   ${rows?`<p class="pdesc"><b>Notions de la semaine</b> (réussite dans le jeu) :</p><div class="days">${rows}</div>`:""}
+   ${p.tasks.length?`<p class="pdesc"><b>Travaux cochés :</b> ${done} sur ${p.tasks.length}${done<p.tasks.length?` · reste : ${p.tasks.filter(t=>!t.done).map(t=>esc(t.label.length>60?t.label.slice(0,58)+"…":t.label)).join(" · ")}`:" ✓"}</p>`:""}`}
+function generalReportHTML(){const dn=dayNum(),from=dn-6,SUB={maths:"Maths",francais:"Français",anglais:"Anglais"},mins={};
+  [...(S.hist||[]),...(S.day?[S.day]:[])].forEach(h=>{const d=isoDn(h.d);if(d==null||d<from)return;Object.entries(h.subj||{}).forEach(([k,v])=>mins[k]=(mins[k]||0)+v)});
+  const all=logSum(from,dn,()=>true),N=Object.entries(S.notions||{}).filter(([,x])=>x.t>=6).map(([k,x])=>({k:k.split("|")[1]||k,p:x.r/x.t,t:x.t}));
+  const best=N.slice().sort((a,b)=>b.p-a.p).slice(0,3),weak=N.slice().sort((a,b)=>a.p-b.p).filter(x=>x.p<.8).slice(0,3);
+  const T=S.tables?TB_TABLES[TBS().cur].nom+" ("+TB_ET[TBS().et].nom+")":"pas commencé",cj=CJ_UNITS.filter(u=>cjMastered(u.id)).length,days=new Set(Object.keys(S.dlog||{}).map(Number).filter(d=>d>=from)).size;
+  return`<p>7 derniers jours : <b>${days} jour${days>1?"s":""} d'activité</b> · ${all.t} réponses, ${pct(all.r,all.t)} de réussite.</p>
+   <p class="pdesc">Temps : ${Object.keys(SUB).map(k=>`${SUB[k]} ${Math.round((mins[k]||0)/60)} min`).join(" · ")}.</p>
+   <ul class="plist"><li><b>Dictée :</b> ${dMastered()} mots maîtrisés${examActive()?` · grande dictée : ${examReady()}/${examWords().length} prêts`:""}.</li>
+   <li><b>Tables :</b> ${T}.</li><li><b>Conjugaison :</b> ${cj} étape${cj>1?"s":""} maîtrisée${cj>1?"s":""} sur ${CJ_UNITS.length} (en cours : ${cjCur().nom}).</li>
+   <li><b>Réponses écrites (lecture) :</b> ${(S.rep&&S.rep.log||[]).filter(x=>isoDn(x.d)>=from).length} cette semaine.</li></ul>
+   ${best.length?`<p class="pdesc"><b>Points forts :</b> ${best.map(x=>`${esc(x.k)} (${Math.round(x.p*100)} %)`).join(" · ")}</p>`:""}
+   ${weak.length?`<p class="pdesc"><b>À travailler :</b> ${weak.map(x=>`${esc(x.k)} (${Math.round(x.p*100)} %)`).join(" · ")}</p>`:""}`}
 
 /* Espace parent : suivi de la dictée (onglet Suivi) et banque de listes (onglet Matière scolaire) */
 function dStatsHTML(){const d=DS(),L=dSorted(),cur=dCurList(),dn=dayNum();
@@ -3570,7 +3799,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261103-193701";
+const APP_VER="20261104-130136";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
