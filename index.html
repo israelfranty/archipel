@@ -678,6 +678,7 @@ body.homew main.wrap,body.homew .top .wrap{max-width:1120px}
 .pgo.main{background:var(--teal-d);border-color:var(--teal-d);color:#FFFFFF}
 .pgo.main svg{color:#FFFFFF}
 .pmeta{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;font-size:.95rem;color:var(--muted)}
+.ptag{display:inline-block;vertical-align:middle;margin-left:8px;background:#FFE7A3;color:#6B4A00;border-radius:999px;padding:1px 9px;font-family:var(--f-body);font-size:.72rem;font-weight:700;letter-spacing:.02em}
 .plink{background:transparent;border:0;padding:6px 0;color:var(--sea);font-weight:700;text-decoration:underline;text-underline-offset:3px;text-align:left}
 .ringw{display:flex;align-items:center;gap:14px}
 .ring{width:118px;height:118px;flex:none;position:relative}
@@ -3098,7 +3099,7 @@ function tbSession(){const t=TBS(),T=TB_TABLES[t.cur],F=T.f,L=[];
   if(done.length)for(let i=0;i<TB_REV;i++){const [a,b]=pick(done);L.push(tbQuestion(a,b,0,Math.random()<.5,true))}
   return shuffle(L)}
 let TB=null;
-function startTables(){TBS();if(tbDay().done){tbDone();return}FORCEV=false;G={mode:"tables",subj:"maths",events:[]};TB={list:tbSession(),i:0,ok:0,fast:0,cur:0,res:[]};tbIntro()}
+function startTables(){tbAlign();if(tbDay().done){tbDone();return}FORCEV=false;G={mode:"tables",subj:"maths",events:[]};TB={list:tbSession(),i:0,ok:0,fast:0,cur:0,res:[]};tbIntro()}
 function tbBar(){return`<div class="gamebar"><button class="back" id="tb-back">← L'Île des Nombres</button><span class="gtitle">Mes tables du jour</span>${TB&&TB.i<TB.list.length&&TB.started?`<span class="levelchip">${TB.i+1} / ${TB.list.length}</span>`:""}</div>`}
 function tbBack(){const b=$("#tb-back");if(b)b.onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}tbKeys(false);G=null;TB=null;renderCarte();go("carte")}}
 function tbIntro(){const t=TBS(),T=TB_TABLES[t.cur],E=TB_ET[t.et],el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");
@@ -3905,14 +3906,34 @@ const CHECKI=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 const STARI=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${STAR}" fill="#F2B21B" stroke="#C98A00" stroke-width="1"/></svg>`;
 const totStars=()=>SUBJS.reduce((a,k)=>a+starsOf(k),0);
 const notionKey=g=>/^conj:/.test(g)?"conj|"+g.slice(5):g==="gn"?"gn|":g==="rep"?"rep|":g==="tables"?"tables|":g+"|";
-function progItems(){const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsWith(p)),it=[];
-  if(dWeeks().length){const due=dDue(),t=L("dictee|").t;if(due||t)it.push({id:"dict",nom:"Ma dictée du jour",sous:due?`<b>${due}</b> mot${due>1?"s":""} de tes listes à réviser`:"tous tes mots du jour sont révisés!",done:!due,ic:PENICON,c:"--i7",go:startDictee,started:t>0})}
-  {const t=TBS(),T=TB_TABLES[t.cur],d=tbDay();it.push({id:"tab",nom:"Mes tables du jour",sous:d.done?`${TB_STREAK} fois 10 sur 10!`:`Table ${t.cur+1} : ${T.nom} · série ${d.streak} sur ${TB_STREAK}`,done:!!d.done,ic:T.ic,c:"--i5",go:startTables,started:d.streak>0||L("tables|").t>0})}
+/* Table nommée dans le plan de la semaine (cible tables:N, sinon devinée d'après le libellé) */
+function planTb(){if(!planActive())return null;const n=S.plan.notions.find(n=>/^tables/.test(n.go||""));if(!n)return null;
+  const m=n.go.match(/^tables:(\d+)/);if(m)return Math.max(0,Math.min(TB_TABLES.length-1,+m[1]-1));
+  const l=n.label.toLowerCase(),R=[[/amis de 10/,1],[/presque/,3],[/double/,2],[/faire 10/,7],[/\b10\b/,4],[/\b9\b/,5],[/\b8\b/,6],[/\b1\b.*\b2\b|\b2\b.*\b1\b/,0]];
+  for(const [r,i] of R)if(r.test(l))return i;return null}
+/* Aligne les tables du jour sur le plan pendant la semaine, puis revient à la progression d'Olivia */
+function tbAlign(){const t=TBS(),pt=planTb();t.etBy=t.etBy||{};
+  if(pt!=null){if(t.planFrom!==S.plan.from){if(t.cur!==pt){t.etBy[t.cur]=t.et;if(t.back==null)t.back=t.cur;t.cur=pt;t.et=t.etBy[pt]||0;if(t.start[pt]==null)t.start[pt]=dayNum()}t.planFrom=S.plan.from;save()}}
+  else if(t.back!=null){t.etBy[t.cur]=t.et;const b=t.back;t.back=null;t.planFrom=null;t.cur=b;t.et=t.etBy[b]||0;save()}}
+let PWEEK=null;
+function progItems(){tbAlign();const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsWith(p)).t,it=[],P=planActive()?S.plan:null;
+  const wk=p=>logSum(Math.max(P.from,dn-6),dn,k=>k.startsWith(p)).t;
+  const q10=(t)=>t>=10?"bravo, c'est fait pour aujourd'hui!":t?`${t} sur 10 questions`:"10 questions pour pratiquer";
+  const tabItem=plan=>{const t=TBS(),T=TB_TABLES[t.cur],d=tbDay();return{id:"tab",nom:"Mes tables du jour",sous:d.done?`${T.nom} : ${TB_STREAK} fois 10 sur 10!`:`Table ${t.cur+1} : ${T.nom} · série ${d.streak} sur ${TB_STREAK}`,done:!!d.done,ic:T.ic,c:"--i5",go:startTables,started:d.streak>0||L("tables|")>0,plan}};
+  PWEEK=null;
+  /* 1. Le plan de la semaine d'abord : la grande dictée, puis chaque notion, dans l'ordre de l'école */
   if(examActive()){const e=DS().exam,W=examWords(),x=DS().exDay,n=x&&x.d===dn?x.w.length:0,need=Math.min(DN,W.length);
-    if(W.length)it.push({id:"exam",nom:`Révision : ${esc(e.label)}`,sous:`${examLeft()===0?"C'est aujourd'hui!":`Dans ${examLeft()} jour${examLeft()>1?"s":""}`} · ${examReady()} mots prêts sur ${W.length}`,done:n>=need,ic:"🎯",c:"--i3",go:startExam,started:n>0})}
-  const ns=planActive()?S.plan.notions.filter(n=>n.go&&!/^dictee/.test(n.go)&&n.go!=="tables"):[];
-  if(ns.length){const n=ns[dn%ns.length],t=L(notionKey(n.go)).t;it.push({id:"notion",nom:"Notion de la semaine",sous:esc(n.label)+(t&&t<10?` · ${t} sur 10 questions`:t>=10?" · bravo!":""),done:t>=10,ic:planIc(n.go),c:"--i2",go:()=>planGo(n.go),started:t>0})}
-  else{const u=cjCur(),t=L("conj|"+u.id).t;it.push({id:"conj",nom:"Ma conjugaison",sous:esc(u.nom)+(t&&t<10?` · ${t} sur 10 questions`:t>=10?" · bravo!":""),done:t>=10,ic:u.ic,c:"--i2",go:()=>startConj(u.id),started:t>0})}
+    if(W.length)it.push({id:"exam",nom:`Révision : ${esc(e.label)}`,sous:`${examLeft()===0?"C'est aujourd'hui!":`Dans ${examLeft()} jour${examLeft()>1?"s":""}`} · ${examReady()} mots prêts sur ${W.length}`,done:n>=need,ic:"🎯",c:"--i3",go:startExam,started:n>0,plan:!!P})}
+  let hasTab=false;
+  if(P){const ns=P.notions.filter(n=>n.go&&!/^dictee/.test(n.go));
+    ns.forEach(n=>{if(/^tables/.test(n.go)){hasTab=true;it.push(tabItem(true));return}
+      const t=L(notionKey(n.go));it.push({id:"n:"+n.go,nom:esc(n.label),sous:q10(t),done:t>=10,ic:planIc(n.go),c:/^conj|^gn|^rep/.test(n.go)||(byId(n.go.split(":")[0])||{}).subj==="francais"?"--i2":"--i1",go:()=>planGo(n.go),started:t>0,plan:true})});
+    PWEEK={ok:ns.filter(n=>wk(notionKey(n.go))>=20).length,n:ns.length}}
+  /* 2. La dictée du jour (mots des listes de l'école, en répétition espacée) */
+  if(dWeeks().length){const due=dDue(),t=L("dictee|");if(due||t)it.push({id:"dict",nom:"Ma dictée du jour",sous:due?`<b>${due}</b> mot${due>1?"s":""} de tes listes à réviser`:"tous tes mots du jour sont révisés!",done:!due,ic:PENICON,c:"--i7",go:startDictee,started:t>0})}
+  /* 3. Sans plan : les tables et la conjugaison suivent la progression d'Olivia */
+  if(!hasTab)it.push(tabItem(false));
+  if(!P){const u=cjCur(),t=L("conj|"+u.id);it.push({id:"conj",nom:"Ma conjugaison",sous:esc(u.nom)+" · "+q10(t),done:t>=10,ic:u.ic,c:"--i2",go:()=>startConj(u.id),started:t>0})}
   const dd=it.filter(x=>x.done).length;S.prog=S.prog||{};const o=S.prog[dn];if(!o||o.d!==dd||o.t!==it.length){S.prog[dn]={d:dd,t:it.length};for(const k of Object.keys(S.prog))if(+k<dn-40)delete S.prog[k];save()}
   return it}
 let PROG=[];
@@ -3938,8 +3959,8 @@ function homeHTML(){PROG=progItems();const n=PROG.length,dn=PROG.filter(x=>x.don
     <div class="hgreet"><button class="hbuddy" id="b-buddy" aria-label="Parler à ${esc(BN())}">${buddySVG(S.comp.type,S.comp.items,"idle")}</button><div class="hbub"><b>Bonjour ${nm}! 👋</b><span>${msg}</span></div></div></div></div>`;
   const prog=`<section class="hcard progc" aria-label="Mon programme d'aujourd'hui"><div class="ph"><h2>${CALI}Mon programme d'aujourd'hui</h2><span>${dn} sur ${n}</span></div>
     <div class="pbar"><i style="width:${n?Math.round(dn/n*100):0}%"></i></div>
-    <div class="hplist">${PROG.map((x,i)=>`<div class="pitem${x.done?" done":""}" style="--c:var(${x.c})"><span class="pic">${x.done?CHECKI:x.ic}</span><div class="ptx"><p class="pn">${x.nom}</p><p class="ps">${x.done?`<b class="ok">Terminé</b> · `:""}${x.sous}</p></div>${x.done?"":`<button class="pgo${i===first?" main":""}" data-prog="${i}">${x.started?"Continuer":"Commencer"}${PLAYI}</button>`}</div>`).join("")}</div>
-    ${g||planActive()?`<div class="pmeta">${g?`<span>⏱ ${mins(S.day.sec)} min d'étude aujourd'hui · objectif ${g/60} min</span>`:"<span></span>"}${planActive()?`<button class="plink" id="b-semaine">🏫 Ma semaine à l'école</button>`:""}</div>`:""}</section>`;
+    <div class="hplist">${PROG.map((x,i)=>`<div class="pitem${x.done?" done":""}" style="--c:var(${x.c})"><span class="pic">${x.done?CHECKI:x.ic}</span><div class="ptx"><p class="pn">${x.nom}${x.plan?`<span class="ptag">École</span>`:""}</p><p class="ps">${x.done?`<b class="ok">Terminé</b> · `:""}${x.sous}</p></div>${x.done?"":`<button class="pgo${i===first?" main":""}" data-prog="${i}">${x.started?"Continuer":"Commencer"}${PLAYI}</button>`}</div>`).join("")}</div>
+    ${g||planActive()?`<div class="pmeta"><span>${PWEEK?`🏫 Cette semaine : <b>${PWEEK.ok} notion${PWEEK.ok>1?"s":""} de l'école sur ${PWEEK.n}</b> bien pratiquée${PWEEK.ok>1?"s":""}`:""}${PWEEK&&g?"<br>":""}${g?`⏱ ${mins(S.day.sec)} min d'étude aujourd'hui · objectif ${g/60} min`:""}</span>${planActive()?`<button class="plink" id="b-semaine">🏫 Ma semaine à l'école</button>`:""}</div>`:""}</section>`;
   const w=weekInfo(),pc=w.t?Math.round(w.d/w.t*100):0,C=2*Math.PI*42;
   const ring=`<section class="hcard" aria-label="Ma progression"><h2>${BARI}Ma progression</h2><div class="ringw"><div class="ring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="#F1E6CF" stroke-width="12"/><circle cx="50" cy="50" r="42" fill="none" stroke="#16878F" stroke-width="12" stroke-linecap="round"${pc?"":` opacity="0"`} stroke-dasharray="${(C*pc/100).toFixed(1)} ${C.toFixed(1)}"/></svg><b>${pc}%</b></div>
     <p class="rtxt"><strong>${w.d} activité${w.d>1?"s":""}</strong>sur ${w.t} cette semaine</p>${CHEST}</div></section>`;
@@ -3994,7 +4015,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-153130";
+const APP_VER="20261104-154045";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
