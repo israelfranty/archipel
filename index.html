@@ -762,6 +762,8 @@ const pick=a=>a[Math.floor(Math.random()*a.length)];
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const nf=n=>Number(n).toLocaleString("fr-CA");
 const NOMS=["Léa","Noah","Maya","Samuel","Jade","Ilan","Rosalie","Malik","Chloé","Félix"];
+/* Prénoms avec leur genre, pour accorder le pronom dans les problèmes écrits */
+const NOMG=[["Léa","f"],["Noah","m"],["Maya","f"],["Samuel","m"],["Jade","f"],["Ilan","m"],["Rosalie","f"],["Malik","m"],["Chloé","f"],["Félix","m"]];
 
 /* ---------- Sauvegarde (sur cet appareil seulement) ---------- */
 function fresh(){return{v:1,name:"",sound:true,strict:false,boardOn:true,week:{fr:[],en:[],updated:0},wstats:{},trace:{},goals:{francais:20,maths:15,anglais:10},music:true,goalMin:20,day:null,hist:[],voice:true,voiceName:"",rate:0.63,rateV:3,pin:"",totalOk:0,hard:0,nlast:{},comp:{type:"",name:"",items:[],gold:0},boxes:{n:0,since:0},ms:{first:0,stars3:{},mastered:{}},gifts:{on:true,freq:"parfois",reveal:true,list:["Choisir le dessert du souper","15 minutes de plus avant le dodo","Une sortie au parc avec papa ou maman","Choisir le film de la soirée en famille","Un crayon ou des autocollants spéciaux"],pending:[],given:0},isl:{},notions:{},times:{},rec:{},sprints:{maths:{best:0,hist:[]},francais:{best:0,hist:[]}}}}
@@ -923,7 +925,7 @@ port(L){
   return{notion:"Compter les dizaines",prompt:`Combien de <b>${unit}</b> y a-t-il en tout dans <b>${nf(n)}</b>?`,kind:"num",answer:String(ans),explain:`${nf(n)} = ${nf(ans)} ${unit} et ${n%div} ${unit==="dizaines"?"unités":"unités de plus"}. On cache les ${div===10?"unités":"dizaines et les unités"} et on lit ce qui reste : ${nf(ans)}.`}
 },
 foret(L){
-  const nom=pick(NOMS),obj=pick(["billes","autocollants","cartes","pommes","crayons"]);
+  const [nom,ng]=pick(NOMG),il=ng==="f"?"elle":"il",Il=ng==="f"?"Elle":"Il",ami=ng==="f"?"son amie":"son ami",obj=pick(["billes","autocollants","cartes","pommes","crayons"]),deObj=(/^[aeiouéh]/.test(obj)?"d'":"de ")+obj;
   const addEx=(a,b)=>{const t=b-b%10,u=b%10;return u&&t?`${nf(a)} + ${nf(t)} = ${nf(a+t)}, puis ${nf(a+t)} + ${u} = ${nf(a+b)}.`:`${nf(a)} + ${nf(b)} = ${nf(a+b)}.`};
   const subEx=(a,b)=>{const t=b-b%10,u=b%10;return u&&t?`${nf(a)} − ${nf(t)} = ${nf(a-t)}, puis ${nf(a-t)} − ${u} = ${nf(a-b)}.`:`${nf(a)} − ${nf(b)} = ${nf(a-b)}.`};
   let a,b;const op=pick(L===3?["add","sub","manq","manq"]:L===2?["add","sub","add","sub","manq"]:["add","sub"]);
@@ -934,9 +936,9 @@ foret(L){
   if(op==="manq"){const c=a+b,missFirst=Math.random()<.5;
     return{notion:"Nombre manquant",prompt:"Trouve le nombre manquant.",say:missFirst?`Trouve le nombre manquant. Quel nombre, plus ${nf(b)}, donne ${nf(c)}?`:`Trouve le nombre manquant. ${nf(a)} plus quel nombre donne ${nf(c)}?`,visual:`<div class="bigexpr">${missFirst?'<span class="box"></span>':nf(a)} + ${missFirst?nf(b):'<span class="box"></span>'} = ${nf(c)}</div>`,kind:"num",answer:String(missFirst?a:b),explain:`Pour trouver le nombre caché, on fait une soustraction : ${nf(c)} − ${nf(missFirst?b:a)} = ${nf(missFirst?a:b)}.`}}
   const word=L>1&&Math.random()<.35;
-  if(op==="add"){if(word)return{notion:"Problème écrit",prompt:`${nom} a <b>${a}</b> ${obj}. On lui en donne <b>${b}</b> de plus. Combien de ${obj} a-t-il ou a-t-elle maintenant?`,kind:"num",answer:String(a+b),explain:`On ajoute, car le nombre augmente. ${addEx(a,b)}`};
+  if(op==="add"){if(word)return{notion:"Problème écrit",prompt:`${nom} a <b>${a}</b> ${obj}. On lui en donne <b>${b}</b> de plus. Combien ${deObj} a-t-${il} maintenant?`,kind:"num",answer:String(a+b),explain:`On ajoute, car le nombre augmente. ${addEx(a,b)}`};
     return{notion:"Addition",prompt:"Calcule.",say:`Calcule ${nf(a)} plus ${nf(b)}.`,visual:`<div class="bigexpr">${nf(a)} + ${nf(b)} = <span class="box"></span></div>`,kind:"num",answer:String(a+b),explain:`Astuce : on ajoute d'abord les dizaines, puis les unités. ${addEx(a,b)}`}}
-  if(word)return{notion:"Problème écrit",prompt:`${nom} avait <b>${a}</b> ${obj}. Il ou elle en donne <b>${b}</b>. Combien lui en reste-t-il?`,kind:"num",answer:String(a-b),explain:`On soustrait, car le nombre diminue. ${subEx(a,b)}`};
+  if(word)return{notion:"Problème écrit",prompt:`${nom} avait <b>${a}</b> ${obj}. ${Il} en donne <b>${b}</b> à ${ami}. Combien ${deObj} reste-t-il à ${nom} maintenant?`,kind:"num",answer:String(a-b),explain:`On soustrait, car le nombre diminue. ${subEx(a,b)}`};
   return{notion:"Soustraction",prompt:"Calcule.",say:`Calcule ${nf(a)} moins ${nf(b)}.`,visual:`<div class="bigexpr">${nf(a)} − ${nf(b)} = <span class="box"></span></div>`,kind:"num",answer:String(a-b),explain:`Astuce : on enlève d'abord les dizaines, puis les unités. ${subEx(a,b)}`}
 },
 volcan(L){
@@ -956,8 +958,8 @@ baie(L){
   if(type==="cmp"){const [d1,d2]=shuffle([2,3,4,5,6,8,10]).slice(0,2),big=d1<d2?d1:d2;
     return{notion:"Comparer des fractions",prompt:"Quelle fraction est la plus grande?",visual:`${bar(d1,1,"Une part sur "+d1)}${bar(d2,1,"Une part sur "+d2)}`,kind:"choice",choices:shuffle([`1/${d1}`,`1/${d2}`]),answer:`1/${big}`,explain:`Plus on coupe le tout en parts, plus chaque part est petite. Une part sur ${big} est plus grande qu'une part sur ${big===d1?d2:d1}.`}}
   const d=pick(L===1?[2,3,4]:L===2?[2,3,4,5,6,8]:[3,4,5,6,8,10]),k=L===1&&Math.random()<.6?1:R(1,d-1);
-  if(type==="prob"){const nom=pick(NOMS),rest=d-k;
-    return{notion:"Problème de fractions",prompt:`Une pizza est coupée en <b>${d} pointes égales</b>. ${nom} en mange <b>${k}</b>. Quelle fraction de la pizza reste-t-il?`,visual:`${pie(d,k)}<div class="fraclegend"><span><i style="background:var(--sun)"></i>il reste</span><span><i style="background:var(--surface);border-style:dashed"></i>mangé</span></div>`,kind:"choice",choices:choices(`${rest}/${d}`,dist(rest,d).concat([`${k}/${d}`])),answer:`${rest}/${d}`,explain:`Il reste ${d} − ${k} = ${rest} pointes sur ${d}. C'est ${rest}/${d} (${words(rest,d)}).`}}
+  if(type==="prob"){const nom=pick(NOMG)[0],rest=d-k;
+    return{notion:"Problème de fractions",prompt:`Une pizza est coupée en <b>${d} pointes égales</b>. ${nom} en mange <b>${k}</b>. Quelle fraction de la pizza n'a pas été mangée?`,visual:`${pie(d,k)}<div class="fraclegend"><span><i style="background:var(--sun)"></i>il reste</span><span><i style="background:var(--surface);border-style:dashed"></i>mangé</span></div>`,kind:"choice",choices:choices(`${rest}/${d}`,dist(rest,d).concat([`${k}/${d}`])),answer:`${rest}/${d}`,explain:`Il reste ${d} − ${k} = ${rest} pointes sur ${d}. C'est ${rest}/${d} (${words(rest,d)}).`}}
   if(type==="non"){const rest=d-k;
     return{notion:"Partie non coloriée",prompt:"Quelle fraction de la bande <b>n'est pas</b> coloriée?",visual:bar(d,k)+`<div class="fraclegend">La bande est partagée en ${d} parts égales.</div>`,kind:"choice",choices:choices(`${rest}/${d}`,[`${k}/${d}`].concat(dist(rest,d))),answer:`${rest}/${d}`,explain:`La bande a ${d} parts égales. ${k} sont coloriées, donc ${rest} ne le sont pas : ${rest}/${d} (${words(rest,d)}).`}}
   return{notion:"Nommer une fraction",prompt:"Quelle fraction de la bande est coloriée?",visual:bar(d,k)+`<div class="fraclegend">La bande est partagée en ${d} parts égales.</div>`,kind:"choice",choices:choices(`${k}/${d}`,dist(k,d)),answer:`${k}/${d}`,explain:`On compte les parts égales : il y en a ${d} (le nombre du bas). ${k} sont coloriées (le nombre du haut). C'est ${k}/${d}, on lit « ${words(k,d)} ».`}
@@ -1012,7 +1014,7 @@ phare(L){
   const cats=["Pommes","Bananes","Raisins","Fraises"],vals=shuffle([1,2,3,4,5,6]).slice(0,4).map(v=>v*2),vis=chartSVG(cats,vals),title="Le fruit préféré des élèves de la classe.";
   if(type==="lire"){const i=R(0,3);return{notion:"Lire un diagramme",prompt:`${title} Combien d'élèves préfèrent les <b>${cats[i].toLowerCase()}</b>?`,visual:vis,kind:"num",answer:String(vals[i]),explain:`On suit le haut de la bande « ${cats[i]} » jusqu'à l'échelle à gauche : elle arrive à ${vals[i]}.`}}
   if(type==="diff"){let i,j;do{[i,j]=shuffle([0,1,2,3]).slice(0,2)}while(vals[i]===vals[j]);if(vals[i]<vals[j])[i,j]=[j,i];
-    return{notion:"Lire un diagramme",prompt:`${title} Combien d'élèves <b>de plus</b> préfèrent les ${cats[i].toLowerCase()} que les ${cats[j].toLowerCase()}?`,visual:vis,kind:"num",answer:String(vals[i]-vals[j]),explain:`${cats[i]} : ${vals[i]}. ${cats[j]} : ${vals[j]}. On soustrait : ${vals[i]} − ${vals[j]} = ${vals[i]-vals[j]}.`}}
+    return{notion:"Lire un diagramme",prompt:`${title} Combien y a-t-il d'élèves <b>de plus</b> pour les ${cats[i].toLowerCase()} que pour les ${cats[j].toLowerCase()}?`,visual:vis,kind:"num",answer:String(vals[i]-vals[j]),explain:`${cats[i]} : ${vals[i]}. ${cats[j]} : ${vals[j]}. On soustrait : ${vals[i]} − ${vals[j]} = ${vals[i]-vals[j]}.`}}
   const tot=vals.reduce((x,y)=>x+y,0);
   return{notion:"Lire un diagramme",prompt:`${title} Combien d'élèves ont répondu <b>en tout</b>?`,visual:vis,kind:"num",answer:String(tot),explain:`On additionne toutes les bandes : ${vals.join(" + ")} = ${tot}.`}
 }
@@ -4029,7 +4031,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-160251";
+const APP_VER="20261104-162752";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
