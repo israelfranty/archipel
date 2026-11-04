@@ -3293,12 +3293,26 @@ function cjCardHTML(){const u=cjCur(),m=CJ_UNITS.filter(x=>cjMastered(x.id)).len
 /* ======================================================================
    LES CONSTRUCTIONS DU GROUPE DU NOM
    ====================================================================== */
-const GN_N=[["chat","m","s"],["ballon","m","s"],["livre","m","s"],["camion","m","s"],["souris","f","s"],["fleur","f","s"],["maison","f","s"],["robe","f","s"],["chiens","m","p"],["crayons","m","p"],["pommes","f","p"],["tuques","f","p"]];
+/* Chaque nom a ses propres adjectifs, choisis pour que le groupe du nom ait du sens */
+const GN_A={petit:["petit","petite","petits","petites"],grand:["grand","grande","grands","grandes"],joli:["joli","jolie","jolis","jolies"],gros:["gros","grosse","gros","grosses"],beau:["beau","belle","beaux","belles"],long:["long","longue","longs","longues"],
+ rouge:["rouge","rouge","rouges","rouges"],noir:["noir","noire","noirs","noires"],gris:["gris","grise","gris","grises"],blanc:["blanc","blanche","blancs","blanches"],vert:["vert","verte","verts","vertes"],jaune:["jaune","jaune","jaunes","jaunes"],bleu:["bleu","bleue","bleus","bleues"],
+ rapide:["rapide","rapide","rapides","rapides"],rond:["rond","ronde","ronds","rondes"],neuf:["neuf","neuve","neufs","neuves"],amusant:["amusant","amusante","amusants","amusantes"],chaud:["chaud","chaude","chauds","chaudes"],juteux:["juteux","juteuse","juteux","juteuses"],coquin:["coquin","coquine","coquins","coquines"],fleuri:["fleuri","fleurie","fleuris","fleuries"],parfumé:["parfumé","parfumée","parfumés","parfumées"]};
+const GN_N=[
+ ["chat","m","s",["petit","gros","joli","beau"],["noir","gris","blanc","coquin"]],
+ ["ballon","m","s",["petit","gros","beau"],["rouge","bleu","rond"]],
+ ["livre","m","s",["petit","gros","beau"],["amusant","neuf","bleu"]],
+ ["camion","m","s",["petit","gros","grand"],["rouge","vert","rapide"]],
+ ["souris","f","s",["petit","joli"],["gris","blanc","rapide","coquin"]],
+ ["fleur","f","s",["petit","joli","beau"],["rouge","jaune","blanc","parfumé"]],
+ ["maison","f","s",["petit","grand","joli","beau"],["blanc","rouge","bleu"]],
+ ["robe","f","s",["petit","joli","long","beau"],["rouge","vert","fleuri"]],
+ ["chiens","m","p",["petit","gros","grand","beau"],["noir","blanc","rapide","coquin"]],
+ ["crayons","m","p",["petit","long","beau"],["rouge","vert","neuf"]],
+ ["pommes","f","p",["petit","gros","beau"],["rouge","vert","jaune","juteux"]],
+ ["tuques","f","p",["petit","joli","beau"],["rouge","noir","chaud","neuf"]]];
 const GN_D={ms:["le","un","mon","ce"],fs:["la","une","ma","cette"],mp:["les","des","mes","ces"],fp:["les","des","mes","ces"]};
-const GN_AV=[["petit","petite","petits","petites"],["grand","grande","grands","grandes"],["joli","jolie","jolis","jolies"],["gros","grosse","gros","grosses"]];
-const GN_AP=[["rouge","rouge","rouges","rouges"],["noir","noire","noirs","noires"],["gris","grise","gris","grises"],["rapide","rapide","rapides","rapides"],["vert","verte","verts","vertes"]];
 const GN_C=["dét. + nom","dét. + adj. + nom","dét. + nom + adj.","dét. + adj. + nom + adj."];
-function gnMake(k){const [n,g,nb]=pick(GN_N),gi=(g==="f"?1:0)+(nb==="p"?2:0),d=pick(GN_D[g+nb]),a1=pick(GN_AV)[gi],a2=pick(GN_AP)[gi];
+function gnMake(k){const [n,g,nb,AV,AP]=pick(GN_N),gi=(g==="f"?1:0)+(nb==="p"?2:0),d=pick(GN_D[g+nb].filter(x=>!((k===1||k===3)&&x==="des"))),a1=GN_A[pick(AV)][gi],a2=GN_A[pick(AP)][gi];
   const w=k===0?[d,n]:k===1?[d,a1,n]:k===2?[d,n,a2]:[d,a1,n,a2];return{txt:w.join(" "),k,n,d,a1,a2}}
 function gnQ(){if(Math.random()<.6){const k=Math.floor(Math.random()*4),g=gnMake(k);
     return{notion:"Les constructions du groupe du nom",key:"gn|Constructions du GN",prompt:`Quelle est la construction de ce groupe du nom?<br><span class="cjbig">${g.txt}</span>`,say:`Quelle est la construction de ce groupe du nom? ${g.txt}.`,choices:GN_C.slice(),answer:GN_C[k],
@@ -4015,7 +4029,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-154045";
+const APP_VER="20261104-160251";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
