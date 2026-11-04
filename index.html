@@ -2432,23 +2432,27 @@ function tcDraw(){if(!TR||!TR.ctx)return;const c=TR.ctx,cv=TR.cv,C=TR.col,sc=TR.
   TR.ink.forEach(p=>polyline(c,p,3.4,C.ink));
   if(TR.cur)polyline(c,TR.cur,3.4,C.ink);
   if(TR.bad)polyline(c,TR.bad,3.4,C.bad)}
+/* Atelier : la voix finit toujours sa phrase. Une étape suivante attend que la phrase en cours soit terminée. */
+let TR_TALK=0,TR_WAIT=null;
+function trSay(t){const id=++TR_TALK;speak(t,()=>{if(id!==TR_TALK)return;TR_TALK=0;const f=TR_WAIT;TR_WAIT=null;if(f)f()})}
+function trLater(ms,fn){setTimeout(()=>{if(TR_TALK)TR_WAIT=fn;else fn()},ms)}
 function startDemo(){if(!TR)return;if(TR.anim)cancelAnimationFrame(TR.anim);TR.phase="demo";TR.done=[];TR.ink=[];TR.cur=null;TR.bad=null;TR.demo=[];TR.demoDot=null;
   phaseLabel("Regarde bien");msg("");const ck=$("#t-check");if(ck)ck.hidden=true;
-  speak(tipOf(TR.ch));
+  trSay(tipOf(TR.ch));
   const seqs=GLY[TR.ch].map(s=>s.dot?[s.dot]:s);let si=0,pi=0,wait=0;
   const step=()=>{if(!TR||TR.phase!=="demo")return;
     if(wait>0){wait--;TR.anim=requestAnimationFrame(step);return}
-    if(si>=seqs.length){TR.demoDot=null;tcDraw();TR.anim=0;setTimeout(()=>{if(TR&&TR.phase==="demo")toGuided()},800);return}
+    if(si>=seqs.length){TR.demoDot=null;tcDraw();TR.anim=0;trLater(800,()=>{if(TR&&TR.phase==="demo")toGuided()});return}
     const s=seqs[si];pi=Math.min(s.length,pi+(s.length<3?1:2.2));TR.demo[si]=s.slice(0,Math.max(1,Math.ceil(pi)));TR.demoDot=s[Math.max(0,Math.ceil(pi)-1)];tcDraw();
     if(pi>=s.length){si++;pi=0;wait=20}
     TR.anim=requestAnimationFrame(step)};
   TR.anim=requestAnimationFrame(step)}
 function toGuided(){if(!TR)return;if(TR.anim){cancelAnimationFrame(TR.anim);TR.anim=0}TR.phase="guided";TR.done=[];TR.ink=[];TR.demo=[];TR.demoDot=null;TR.bad=null;
   phaseLabel("À toi! Trace par-dessus");const n=GLY[TR.ch].length;msg(n>1?`Commence au point vert numéro 1. Il y a ${n} traits.`:"Commence au point vert et suis la flèche.");
-  const ck=$("#t-check");if(ck)ck.hidden=true;tcDraw();speak("À toi! Commence au point vert.")}
+  const ck=$("#t-check");if(ck)ck.hidden=true;tcDraw();if(!TR_TALK)trSay("À toi! Commence au point vert.")}
 function toFree(){if(!TR)return;TR.phase="free";TR.ink=[];TR.done=[];TR.bad=null;
   phaseLabel("Sans modèle, maintenant!");msg(`Écris le « ${TR.ch} » entre les lignes. Touche « J'ai fini » quand c'est terminé.`);
-  const ck=$("#t-check");if(ck)ck.hidden=false;tcDraw();speak(`Bravo! Maintenant, écris le ${TR.ch} sans modèle.`)}
+  const ck=$("#t-check");if(ck)ck.hidden=false;tcDraw();trSay(`Bravo! Maintenant, écris le ${TR.ch} sans modèle.`)}
 function tPoint(e){const r=TR.cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width*100,(e.clientY-r.top)/r.height*150+5]}
 function tDown(e){if(!TR)return;
   if(e.pointerType==="pen"&&!PEN){PEN=true;const n=$("#t-pen");if(n)n.hidden=false}
@@ -2464,21 +2468,21 @@ function tUp(e){if(!TR||e.pointerId!==TR.active)return;TR.active=null;const st=T
   if(TR.phase!=="guided")return;
   const T=GLY[TR.ch][TR.done.length],res=evalStroke(st,T);
   if(res==="ok"){TR.done.push(st);tone([[660,.07]]);
-    if(TR.done.length>=GLY[TR.ch].length){TR.phase="wait";msg("Super! Tu as bien suivi le chemin.","good");tcDraw();tone([[660,.08],[880,.12]]);setTimeout(()=>{if(TR&&TR.phase==="wait")toFree()},1100)}
+    if(TR.done.length>=GLY[TR.ch].length){TR.phase="wait";msg("Super! Tu as bien suivi le chemin.","good");tcDraw();tone([[660,.08],[880,.12]]);trLater(1100,()=>{if(TR&&TR.phase==="wait")toFree()})}
     else{msg(`Bien! Maintenant le trait numéro ${TR.done.length+1}, au point vert.`,"good");tcDraw()}
     return}
   TR.bad=st;tcDraw();tone([[300,.12]]);
   const M={reverse:"Oups, ce trait va dans le mauvais sens! Commence au point vert et suis la flèche.",start:`Commence au point vert numéro ${TR.done.length+1}.`,off:"Reste bien sur le chemin gris.",short:"Continue jusqu'au bout du chemin.",dot:"Fais juste un petit point, sur le rond vert."};
-  msg(M[res]||M.off,"bad");if(res==="reverse")speak("Attention, mauvais sens! Commence au point vert.");
+  msg(M[res]||M.off,"bad");if(res==="reverse")trSay("Attention, mauvais sens! Commence au point vert.");
   setTimeout(()=>{if(TR&&TR.bad===st){TR.bad=null;tcDraw()}},900)}
 function checkFree(){if(!TR||TR.phase!=="free")return;const ch=TR.ch,res=evalFree(ch,TR.ink),s=tStat(ch);
   if(res==="empty"){msg(`Écris le « ${ch} » dans le cadre, puis touche « J'ai fini ».`);return}
-  if(res==="ok"){s.ok++;save();TR.ok.add(ch);TR.phase="wait";msg(`Bravo! Ton « ${ch} » est bien tourné.`,"good");tone([[523,.1],[659,.1],[784,.18]]);speak(`Bravo! Ton ${ch} est bien tourné.`);
-    const ck=$("#t-check");if(ck)ck.hidden=true;setTimeout(()=>{if(TR&&TR.ch===ch){TR.i++;TR.i>=TR.list.length?finishTrace():traceChar()}},1500);return}
-  if(res==="reverse"||res==="sens"){s.rev++;save();TR.revs.add(ch);const t=res==="sens"?`Attention! Ton « ${ch} » tourne dans le mauvais sens. Regarde bien par où il commence.`:`Oups! Ton « ${ch} » est à l'envers. Regarde encore le modèle.`;msg(t,"bad");tone([[300,.15]]);speak(t.replace(/[«»]/g,""));
-    const ck=$("#t-check");if(ck)ck.hidden=true;TR.phase="wait";setTimeout(()=>{if(TR&&TR.ch===ch)startDemo()},2200);return}
+  if(res==="ok"){s.ok++;save();TR.ok.add(ch);TR.phase="wait";msg(`Bravo! Ton « ${ch} » est bien tourné.`,"good");tone([[523,.1],[659,.1],[784,.18]]);trSay(`Bravo! Ton ${ch} est bien tourné.`);
+    const ck=$("#t-check");if(ck)ck.hidden=true;trLater(1500,()=>{if(TR&&TR.ch===ch){TR.i++;TR.i>=TR.list.length?finishTrace():traceChar()}});return}
+  if(res==="reverse"||res==="sens"){s.rev++;save();TR.revs.add(ch);const t=res==="sens"?`Attention! Ton « ${ch} » tourne dans le mauvais sens. Regarde bien par où il commence.`:`Oups! Ton « ${ch} » est à l'envers. Regarde encore le modèle.`;msg(t,"bad");tone([[300,.15]]);trSay(t.replace(/[«»]/g,""));
+    const ck=$("#t-check");if(ck)ck.hidden=true;TR.phase="wait";trLater(2200,()=>{if(TR&&TR.ch===ch)startDemo()});return}
   TR.fails++;tone([[300,.12]]);
-  if(TR.fails>=2){s.fail++;save();msg("On le retrace ensemble avec le modèle.","bad");speak("On le retrace ensemble avec le modèle.");TR.phase="wait";setTimeout(()=>{if(TR&&TR.ch===ch){TR.fails=0;toGuided()}},1500)}
+  if(TR.fails>=2){s.fail++;save();msg("On le retrace ensemble avec le modèle.","bad");trSay("On le retrace ensemble avec le modèle.");TR.phase="wait";trLater(1500,()=>{if(TR&&TR.ch===ch){TR.fails=0;toGuided()}})}
   else{msg("Presque! Regarde bien les lignes et essaie encore.","bad");TR.ink=[];setTimeout(tcDraw,600)}}
 function finishTrace(){const list=TR.list,revs=TR.revs,set=TR.set;const el=$("#ecran-fin");el.style.setProperty("--c","var(--i6)");
   el.innerHTML=`<div class="card result pop" style="--c:var(--i6)">${buddyOr("happy")}<div class="notion">L'Atelier d'écriture</div><h2>Bien tracé${S.name?", "+esc(S.name):""}!</h2>
@@ -3560,7 +3564,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261103-185418";
+const APP_VER="20261103-190758";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
