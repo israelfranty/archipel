@@ -3109,7 +3109,7 @@ function tbIntro(){const t=TBS(),T=TB_TABLES[t.cur],E=TB_ET[t.et],el=$("#ecran-j
    <h2 class="tbh">${T.ic} ${T.nom}</h2>
    <div class="tbast"><b>L'astuce</b>${T.ast.map(x=>`<p>${esc(x)}</p>`).join("")}<p class="tbex">Exemple : ${esc(T.ex)}</p></div>
    ${t.et?`<p class="msg">Maintenant avec des <b>${E.nom}</b> : c'est la même table, avec des nombres plus grands. ${t.et===1?"30 + 50, c'est comme 3 + 5!":"300 + 500, c'est comme 3 + 5!"}</p>`:""}
-   <p class="msg">Réponds juste <b>et vite</b> : la réponse doit venir sans compter sur tes doigts. Pour réussir ta journée : <b>10 sur 10, ${TB_STREAK} fois de suite</b>.</p><p class="msg">Série d'aujourd'hui : ${tbDots(tbDay().streak)} ${tbDay().streak} sur ${TB_STREAK}</p>
+   <p class="msg">Réponds juste <b>et vite</b> : la réponse doit venir sans compter sur tes doigts. Pour réussir ta journée : <b>10 sur 10, ${TB_STREAK} fois</b>. Un 9 sur 10 garde ta série; en dessous, elle recommence.</p><p class="msg">Série d'aujourd'hui : ${tbDots(tbDay().streak)} ${tbDay().streak} sur ${TB_STREAK}</p>
    <div class="row-btns">${TTS?`<button class="listen" id="tb-say">${SPK}Écouter l'astuce</button>`:""}<button class="btn" id="tb-go">Commencer</button></div></div>`;
   tbBack();go("jeu");
   const sy=$("#tb-say");if(sy)sy.onclick=()=>{TB.force=true;speakSeq([[T.nom+".","fr"],300,...T.ast.flatMap(x=>[[x,"fr"],250]),["Exemple : "+T.ex,"fr"]],()=>{if(TB)TB.force=false})};
@@ -3164,7 +3164,7 @@ function tbMemo(q,cont){const el=$("#ecran-jeu"),eq=`${nf(q.x)} ${q.op} ${nf(q.y
 function tbDone(){const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");G={mode:"tables",subj:"maths"};
   el.innerHTML=tbBar()+`<div class="card pop tbcard" style="--c:var(--i5)"><h2 class="tbh">🌟 C'est fini pour aujourd'hui!</h2><p class="msg">Tu as réussi tes tables <b>${TB_STREAK} fois de suite sans faute</b>. Ton cerveau a bien travaillé : prends une pause et reviens demain!</p><div class="row-btns"><button class="btn" id="tb-home">Retour à l'île</button></div></div>`;
   tbBack();$("#tb-home").onclick=()=>{G=null;TB=null;renderCarte();go("carte")};go("jeu")}
-function tbFinish(){tbKeys(false);const t=TBS(),dn=dayNum(),key=tbPK(),T=TB_TABLES[t.cur],E=TB_ET[t.et],day=tbDay(),perfect=TB.cur>0&&TB.fast===TB.cur;day.streak=perfect?day.streak+1:0;const passed=day.streak>=TB_STREAK;if(passed)day.done=true;let msg,up="";
+function tbFinish(){tbKeys(false);const t=TBS(),dn=dayNum(),key=tbPK(),T=TB_TABLES[t.cur],E=TB_ET[t.et],day=tbDay(),perfect=TB.cur>0&&TB.fast===TB.cur,near=!perfect&&TB.cur>=10&&TB.fast>=TB.cur-1;day.streak=perfect?day.streak+1:near?day.streak:0;const passed=day.streak>=TB_STREAK;if(passed)day.done=true;let msg,up="";
   t.hist.unshift({d:dn,t:t.cur,e:t.et,ok:TB.ok,fast:TB.fast,n:TB.cur});t.hist.length=Math.min(t.hist.length,60);
   if(passed){const P=t.pass[key]||(t.pass[key]=[]);if(!P.includes(dn))P.push(dn)}
   const days=(t.pass[key]||[]).length;
@@ -3173,10 +3173,11 @@ function tbFinish(){tbKeys(false);const t=TBS(),dn=dayNum(),key=tbPK(),T=TB_TABL
     else up="Tu as maîtrisé toutes les tables! 🏆"}
   msg=passed?`Bravo pour ta belle progression! Tu as réussi ${TB_STREAK} fois de suite sans faute. ${up||(days<TB_DAYS?`Encore <b>${TB_DAYS-days} autre jour</b> comme celui-ci, et tu passes à l'étape suivante.`:"")} Prends une pause : tes tables t'attendent demain!`
    :perfect?`Sans faute! ${TB_STREAK-day.streak===1?"Encore <b>une fois</b>":`Encore <b>${TB_STREAK-day.streak} fois de suite</b>`} et ta journée est réussie.`
+   :near?`Presque parfait : ${TB.fast} sur ${TB.cur}! Ta série est gardée (${day.streak} sur ${TB_STREAK}). ${TB_STREAK-day.streak===1?"Encore <b>une fois</b> 10 sur 10":`Encore <b>${TB_STREAK-day.streak} fois</b> 10 sur 10`} et ta journée est réussie.`
    :TB.ok===TB.cur?`Tout est juste, mais pas assez rapide (${TB.fast} rapides sur ${TB.cur}). Ta série recommence : il faut ${TB_STREAK} fois 10 sur 10 d'affilée.`
    :`${TB.ok} justes sur ${TB.cur}. Ta série recommence : il faut ${TB_STREAK} fois 10 sur 10 d'affilée. Tu vas y arriver!`;
-  save();const el=$("#ecran-fin"),st=perfect?3:TB.ok>=TB_PASS?2:TB.ok>=6?1:0;el.style.setProperty("--c","var(--i5)");
-  el.innerHTML=`<div class="card result pop" style="--c:var(--i5)"><div class="notion">Mes tables du jour · ${T.nom} · ${E.nom}</div><h2>${passed?"🌟 Bravo":perfect?"Sans faute":"Bien travaillé"}${S.name?", "+esc(S.name):""}!</h2>
+  save();const el=$("#ecran-fin"),st=perfect||near?3:TB.ok>=TB_PASS?2:TB.ok>=6?1:0;el.style.setProperty("--c","var(--i5)");
+  el.innerHTML=`<div class="card result pop" style="--c:var(--i5)"><div class="notion">Mes tables du jour · ${T.nom} · ${E.nom}</div><h2>${passed?"🌟 Bravo":perfect?"Sans faute":near?"Presque parfait":"Bien travaillé"}${S.name?", "+esc(S.name):""}!</h2>
    <div class="score">${TB.fast} / ${TB.cur}</div><p class="msg"><small>justes et rapides</small></p>${stars(st)}<p class="msg">Série : ${tbDots(day.streak)} ${Math.min(day.streak,TB_STREAK)} sur ${TB_STREAK}</p><p class="msg">${msg}</p>
    <div class="row-btns">${passed?"":`<button class="btn" id="tb-again">Encore</button>`}<button class="btn${passed?"":" ghost"}" id="tb-map">Retour à l'île</button></div></div>`;
   const ag=$("#tb-again");if(ag)ag.onclick=startTables;$("#tb-map").onclick=()=>{G=null;TB=null;renderCarte();go("carte")};
@@ -4031,7 +4032,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-162752";
+const APP_VER="20261104-165331";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
