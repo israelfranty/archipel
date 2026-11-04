@@ -2314,7 +2314,8 @@ const TIPS={
  "9":"Le 9 : un ballon qui tourne vers la gauche, puis un bâton à droite qui descend.",
  "4":"Le 4 : on descend en diagonale, on fait le trait couché, puis le bâton à droite."
 };
-const tipOf=c=>TIPS[c]||`Commence au point vert et suis la flèche.`;
+/* Chaque tracé commence par le nom du caractère, même sans astuce particulière */
+const tipOf=c=>TIPS[c]||`${/[A-Z]/.test(c)?`Le ${c} majuscule`:`Le ${c}`} : commence au point vert et suis la flèche.`;
 const TSETS={chiffres:"0123456789".split(""),lettres:"abcdefghijklmnopqrstuvwxyz".split(""),maj:"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")};
 const PAIRS_MAJ=[["N","Z"],["S","Z"],["J","L"],["E","F"],["B","D"],["P","R"],["C","G"],["N","S"],["K","R"],["D","P"]];
 const tCase=()=>S.traceCase==="maj"?"maj":"min";
@@ -3564,7 +3565,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261103-190758";
+const APP_VER="20261103-191453";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
