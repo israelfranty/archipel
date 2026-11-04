@@ -654,7 +654,8 @@ body.homew main.wrap,body.homew .top .wrap{max-width:1120px}
 .hgrid{display:grid;gap:18px;grid-template-columns:minmax(0,1fr);margin-top:-56px;position:relative;z-index:2}
 .hcol{display:grid;gap:18px;align-content:start}
 @media (min-width:700px){.hcol{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (min-width:1000px){.hgrid{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);align-items:start}.hcol{grid-template-columns:minmax(0,1fr)}}
+@media (min-width:1000px){.hgrid{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);align-items:stretch}.hcol{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}.hcol .rewc{justify-content:space-between}.progc .pmeta{margin-top:auto}}
+@media (min-width:700px){.hcol>.hcard{height:100%}}
 .hcard{background:var(--cream);border:1px solid var(--cream-line);border-radius:28px;padding:20px 22px;display:flex;flex-direction:column;gap:14px;min-width:0;box-shadow:0 10px 24px rgba(10,60,80,.12)}
 .hcard h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:1.5rem;line-height:1.2;display:flex;align-items:center;gap:10px;color:var(--ink)}
 .hcard h2 svg{width:34px;height:34px;flex:none}
@@ -3993,7 +3994,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-151936";
+const APP_VER="20261104-153130";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
