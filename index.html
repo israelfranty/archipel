@@ -30,7 +30,7 @@
   color-scheme:dark}
 
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;margin:0}
 button,select,input{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:3px solid var(--sun);outline-offset:3px}
@@ -610,77 +610,88 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .seg button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font-family:"Andika","Atkinson Hyperlegible",sans-serif;font-weight:700;color:var(--muted)}
 .seg button.on{background:var(--i6);color:var(--on-i)}
 
-/* ---------- Accueil (refonte) ---------- */
-.top .wrap{padding-block:10px 26px}
+/* ---------- Accueil (refonte, selon la maquette) ---------- */
+:root{--cream:#FFF9EE;--cream-line:#F1E6CF;--teal-d:#14596A;--hb:#D6EFF3}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--cream:var(--surface);--cream-line:var(--line);--teal-d:#0F3D49;--hb:var(--bg)}}
+:root[data-theme="dark"]{--cream:var(--surface);--cream-line:var(--line);--teal-d:#0F3D49;--hb:var(--bg)}
 .brand{display:flex;align-items:center;gap:12px}
-.brand .logo{width:46px;height:46px;flex:none}
+.brand .logo{width:46px;height:46px;flex:none;border-radius:12px}
 .brand .btxt{min-width:0}
-@media (max-width:600px){.brand p{display:none}.brand .logo{width:38px;height:38px}}
 .top-btns{align-items:center}
 .ibtn{width:48px;height:48px;border-radius:50%;border:2px solid currentColor;background:transparent;color:var(--sea-ink);display:grid;place-items:center;padding:0;position:relative;flex:none}
 .ibtn svg{width:24px;height:24px}
-.ibtn.tog[aria-pressed="false"]{opacity:.6}
+.ibtn.tog[aria-pressed="false"] svg{opacity:.55}
 .ibtn.tog[aria-pressed="false"]::after{content:"";position:absolute;width:30px;height:3px;background:currentColor;transform:rotate(-45deg);border-radius:2px}
 .tmenu{position:relative}
 .tmenu-pop{position:absolute;right:0;top:58px;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:18px;padding:10px;display:flex;flex-direction:column;gap:8px;z-index:60;min-width:230px;box-shadow:0 10px 28px rgba(0,0,0,.2)}
 .tmenu-pop .chip-btn{color:var(--ink);border-color:var(--line);text-align:left;width:100%;min-height:46px;border-radius:14px}
-body.homew main.wrap,body.homew .top .wrap{max-width:1080px}
-.herow{position:relative;margin-bottom:18px}
-.hero{position:relative;border-radius:26px;overflow:hidden;background:#7CC8E8;aspect-ratio:16/10;max-height:min(540px,56vh);width:100%;box-shadow:0 4px 0 var(--line)}
-.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 100%;display:block}
-.hgreet{position:absolute;left:14px;top:14px;display:flex;align-items:flex-end;gap:6px;max-width:min(62%,430px)}
-.hbuddy{background:transparent;border:0;padding:0;width:100px;flex:none}
-.hbuddy svg{width:100px;height:auto;display:block;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
-.hbub{background:#FFFFFF;color:#15303D;border-radius:20px 20px 20px 6px;padding:10px 16px;box-shadow:0 4px 12px rgba(0,0,0,.18);margin-bottom:24px}
-.hbub b{display:block;font-family:var(--f-display);font-size:1.35rem;line-height:1.15}
-.hbub span{display:block;font-size:.98rem;line-height:1.35;color:#3C5A60}
-.hstars{position:absolute;right:14px;top:14px;background:#FFFFFF;color:#15303D;border-radius:999px;padding:6px 14px 6px 8px;font-family:var(--f-display);font-weight:700;font-size:1.15rem;display:flex;align-items:center;gap:6px;box-shadow:0 3px 10px rgba(0,0,0,.18)}
-.hstars svg{width:26px;height:26px}
-.hisle{position:absolute;bottom:5%;left:var(--x);transform:translateX(-50%);background:var(--c);color:#FFFFFF;border:3px solid #FFFFFF;border-radius:999px;min-height:52px;padding:0 22px;font-family:var(--f-display);font-weight:700;font-size:1.2rem;box-shadow:0 4px 0 rgba(0,0,0,.22);white-space:nowrap}
-.hisle:active{transform:translateX(-50%) translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.22)}
-@media (max-width:600px){.hero{aspect-ratio:3/2;max-height:none}.hgreet{position:static;max-width:none;margin-top:10px;align-items:center}.hbuddy,.hbuddy svg{width:76px}.hbub{margin-bottom:0}.hisle{font-size:.95rem;min-height:44px;padding:0 12px;border-width:2px}.hstars{font-size:1rem}}
-.hgrid{display:grid;gap:18px;grid-template-columns:minmax(0,1fr)}
-.hgrid2{display:grid;gap:18px;grid-template-columns:minmax(0,1fr)}
-@media (min-width:700px){.hgrid2{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (min-width:1000px){.hgrid{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:start}.hgrid2{grid-template-columns:minmax(0,1fr)}}
-.hcard{background:var(--surface);border:2px solid var(--line);border-radius:24px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
-.hcard h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:1.45rem;line-height:1.2}
-.hcard.progc{border:3px solid var(--sun)}
-.ph{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.ph span{font-weight:700;color:var(--muted);white-space:nowrap}
-.pbar{height:12px;background:var(--line);border-radius:6px;overflow:hidden}
-.pbar i{display:block;height:100%;background:var(--good);border-radius:6px;transition:width .4s}
+/* en-tête posé sur le ciel, seulement à l'accueil */
+body.homew{background:linear-gradient(180deg,var(--hb) 0,var(--bg) 900px);overflow-x:clip}
+body.homew .top{position:absolute;top:0;left:0;right:0;z-index:6;background:transparent;color:#12465A}
+body.homew .top .wave{display:none}
+body.homew .top .wrap{padding-block:14px 8px;flex-wrap:nowrap}
+body.homew .brand h1{color:#12465A;text-shadow:0 1px 0 rgba(255,255,255,.7),0 0 18px rgba(255,255,255,.65)}
+body.homew .brand .logo{width:58px;height:58px;border-radius:16px;box-shadow:0 4px 12px rgba(10,60,80,.25)}
+body.homew .ibtn{border:0;border-radius:16px;background:#FFFFFF;color:#12465A;box-shadow:0 4px 12px rgba(10,60,80,.22);width:54px;height:54px}
+body.homew main.wrap{padding-top:0}
+body.homew main.wrap,body.homew .top .wrap{max-width:1120px}
+/* image des îles, pleine largeur, fondue dans le fond */
+.herow{position:relative;margin-inline:calc(50% - 50vw);height:min(66vw,600px)}
+.hero{position:absolute;inset:0;overflow:hidden}
+.hero-img{width:100%;height:100%;object-fit:cover;object-position:50% 78%;display:block;-webkit-mask-image:linear-gradient(180deg,#000 72%,transparent 100%);mask-image:linear-gradient(180deg,#000 72%,transparent 100%)}
+.hin{position:relative;max-width:1120px;height:100%;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left,0px))}
+.hgreet{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:96px;display:flex;align-items:center;max-width:min(66%,560px);z-index:2}
+.hbuddy{width:124px;height:124px;flex:none;border-radius:50%;background:radial-gradient(circle at 50% 40%,#FFFFFF,#FFF3C9);border:5px solid #F6C945;box-shadow:0 6px 16px rgba(10,60,80,.25);display:grid;place-items:center;padding:0;position:relative;z-index:2;overflow:hidden}
+.hbuddy svg{width:112px;height:auto;display:block;margin-top:10px}
+.hbub{background:rgba(255,250,240,.95);color:#12465A;border-radius:26px;padding:16px 24px 16px 40px;margin-left:-28px;box-shadow:0 6px 18px rgba(10,60,80,.18)}
+.hbub b{display:block;font-family:var(--f-display);font-weight:700;font-size:1.75rem;line-height:1.1}
+.hbub span{display:block;font-size:1.05rem;line-height:1.35;color:#2F5763;margin-top:4px}
+.hstars{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:92px;background:rgba(255,250,240,.96);color:#12465A;border-radius:999px;padding:8px 18px 8px 10px;font-family:var(--f-display);font-weight:700;font-size:1.2rem;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(10,60,80,.2);z-index:2}
+.hstars svg{width:32px;height:32px}
+.hisle{position:absolute;top:var(--y,74%);left:var(--x);transform:translate(-50%,-50%);background:#FFF6DF;color:#12465A;border:0;border-radius:999px;min-height:56px;min-width:150px;padding:0 26px;font-family:var(--f-display);font-weight:700;font-size:1.45rem;box-shadow:0 5px 0 #E2CFA2,0 8px 16px rgba(10,60,80,.25);white-space:nowrap;z-index:1}
+.hisle:active{transform:translate(-50%,calc(-50% + 3px));box-shadow:0 2px 0 #E2CFA2}
+/* cartes crème */
+.hgrid{display:grid;gap:18px;grid-template-columns:minmax(0,1fr);margin-top:-56px;position:relative;z-index:2}
+.hcol{display:grid;gap:18px;align-content:start}
+@media (min-width:700px){.hcol{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1000px){.hgrid{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);align-items:start}.hcol{grid-template-columns:minmax(0,1fr)}}
+.hcard{background:var(--cream);border:1px solid var(--cream-line);border-radius:28px;padding:20px 22px;display:flex;flex-direction:column;gap:14px;min-width:0;box-shadow:0 10px 24px rgba(10,60,80,.12)}
+.hcard h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:1.5rem;line-height:1.2;display:flex;align-items:center;gap:10px;color:var(--ink)}
+.hcard h2 svg{width:34px;height:34px;flex:none}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ph>span{font-family:var(--f-display);font-weight:600;font-size:1.1rem;color:var(--ink);white-space:nowrap}
+.pbar{height:14px;background:#E6EEEC;border-radius:7px;overflow:hidden}
+.pbar i{display:block;height:100%;background:linear-gradient(90deg,#2E9E4F,#43B45F);border-radius:7px;transition:width .4s}
 .hplist{display:flex;flex-direction:column;gap:10px;margin:0;padding:0}
-.pitem{display:flex;align-items:center;gap:12px;background:var(--surface);background:color-mix(in srgb,var(--c) 11%,var(--surface));border-radius:18px;padding:10px 12px}
-.pic{width:52px;height:52px;border-radius:50%;background:var(--c);color:var(--on-i);display:grid;place-items:center;flex:none;font-family:var(--f-display);font-weight:700;font-size:1.3rem}
-.pic svg{width:26px;height:26px}
-.pitem.done .pic{background:var(--good)}
+.pitem{display:flex;align-items:center;gap:14px;background:var(--surface);background:color-mix(in srgb,var(--c) 10%,var(--cream));border-radius:20px;padding:12px 14px}
+.pic{width:56px;height:56px;border-radius:50%;background:var(--c);color:#FFFFFF;display:grid;place-items:center;flex:none;font-family:var(--f-display);font-weight:700;font-size:1.35rem;box-shadow:inset 0 -3px 0 rgba(0,0,0,.15)}
+.pic svg{width:28px;height:28px}
+.pitem.done{background:color-mix(in srgb,#2E9E4F 12%,var(--cream))}
+.pitem.done .pic{background:#2E9E4F}
 .ptx{flex:1;min-width:0}
-.ptx .pn{margin:0;font-family:var(--f-display);font-weight:600;font-size:1.15rem;line-height:1.2}
-.ptx .ps{margin:2px 0 0;font-size:.92rem;color:var(--muted);line-height:1.3}
-.pitem.done .pn{color:var(--muted);text-decoration:line-through}
-.pitem.done .ps{color:var(--good);font-weight:700}
-.pgo{min-height:48px;padding:0 20px;border-radius:999px;border:2px solid var(--sea);background:var(--surface);color:var(--sea);font-family:var(--f-display);font-weight:600;font-size:1.05rem;flex:none}
-.pgo.main{background:var(--sea);color:var(--sea-ink)}
+.ptx .pn{margin:0;font-family:var(--f-display);font-weight:600;font-size:1.2rem;line-height:1.2;color:var(--ink)}
+.ptx .ps{margin:3px 0 0;font-size:.95rem;color:var(--muted);line-height:1.3}
+.pitem.done .ps b.ok{color:#23854D}
+.pgo{min-height:50px;padding:0 20px;border-radius:999px;border:2px solid var(--teal-d);background:transparent;color:var(--ink);font-family:var(--f-display);font-weight:600;font-size:1.08rem;flex:none;display:inline-flex;align-items:center;gap:8px}
+.pgo svg{width:18px;height:18px;color:#2E9E4F}
+.pgo.main{background:var(--teal-d);border-color:var(--teal-d);color:#FFFFFF}
+.pgo.main svg{color:#FFFFFF}
 .pmeta{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;font-size:.95rem;color:var(--muted)}
 .plink{background:transparent;border:0;padding:6px 0;color:var(--sea);font-weight:700;text-decoration:underline;text-underline-offset:3px;text-align:left}
-.pempty{margin:0;color:var(--muted)}
-.ringw{display:flex;align-items:center;gap:16px}
-.ring{width:110px;height:110px;flex:none;position:relative}
+.ringw{display:flex;align-items:center;gap:14px}
+.ring{width:118px;height:118px;flex:none;position:relative}
 .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-size:1.5rem}
-.rtxt{margin:0;color:var(--muted);font-size:.98rem}
-.rtxt strong{color:var(--ink)}
-.wdays{display:flex;gap:6px;margin-top:8px}
-.wdays span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;font-weight:700;border:2px solid var(--line);color:var(--muted)}
-.wdays .part{border-color:var(--sun);color:var(--ink)}
-.wdays .full{background:var(--good);border-color:var(--good);color:var(--on-i)}
-.wdays .today{outline:2px solid var(--sea);outline-offset:2px}
-.rewc .rw{display:flex;align-items:center;gap:12px}
-.rewc .rw .buddy,.rewc .rw svg.buddy{width:96px;height:auto;flex:none}
-.slots{display:flex;flex-wrap:wrap;gap:6px}
-.slots span{border-radius:999px;padding:3px 10px;font-size:.82rem;font-weight:700;background:var(--good-bg);color:var(--good)}
-.slots span.no{background:transparent;border:2px dashed var(--line);color:var(--muted)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-size:1.6rem;color:var(--ink)}
+.rtxt{margin:0;color:var(--muted);font-size:1rem;line-height:1.35}
+.rtxt strong{display:block;color:var(--ink);font-family:var(--f-display);font-size:1.15rem}
+.chest{width:110px;height:auto;flex:none;margin-left:auto}
+.hexes{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.hex{width:82px;height:90px;display:grid;place-items:center;position:relative;font-size:2.1rem;filter:drop-shadow(0 4px 4px rgba(10,60,80,.2))}
+.hex svg{position:absolute;inset:0;width:100%;height:100%}
+.hex span{position:relative}
+.hex.no span{font-family:var(--f-display);font-weight:700;font-size:1.6rem;color:#9AA9AD}
+.rewc .pgo{align-self:center;padding:0 34px}
+.giftnote{margin:0}
 .collg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;text-align:left;width:100%}
 .collg div{border:2px solid var(--line);border-radius:14px;padding:8px 10px;font-size:.92rem}
 .collg div.no{border-style:dashed;color:var(--muted)}
@@ -691,18 +702,29 @@ body.homew main.wrap,body.homew .top .wrap{max-width:1080px}
 .drow{display:flex;flex-wrap:wrap;gap:8px}
 .drow button{min-height:48px;border-radius:14px;border:2px solid var(--line);background:var(--bg);padding:6px 14px;font-weight:700;display:flex;align-items:center;gap:8px}
 .drow button svg{width:22px;height:22px}
-.bnav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--surface);border-top:2px solid var(--line);display:none;justify-content:center;gap:4px;padding:6px max(8px,env(safe-area-inset-left,0px)) calc(6px + env(safe-area-inset-bottom,0px))}
+/* barre du bas : sarcelle foncé, onglet actif jaune */
+.bnav{position:fixed;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:40;background:var(--teal-d);border-radius:28px;display:none;justify-content:space-around;gap:4px;padding:8px;box-shadow:0 10px 26px rgba(10,50,60,.35);max-width:1096px;margin:0 auto}
 body.has-nav .bnav{display:flex}
-body.has-nav main.wrap{padding-bottom:100px}
-.bnav button{flex:1 1 0;max-width:150px;min-height:58px;border:0;background:transparent;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:.8rem;font-weight:700;color:var(--muted);padding:4px 2px}
-.bnav button svg{width:26px;height:26px}
-.bnav button.on{color:var(--sea);background:color-mix(in srgb,var(--sea) 12%,transparent)}
-@media (max-width:600px){.pitem{flex-wrap:wrap}.ptx{flex:1 1 150px}.pgo{flex:1 1 100%;min-height:46px}.brand{flex-basis:200px}}
+body.has-nav main.wrap{padding-bottom:120px}
+.bnav button{flex:1 1 0;max-width:190px;min-height:64px;border:0;background:transparent;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:var(--f-display);font-size:.95rem;font-weight:600;color:#FFFFFF;padding:4px 2px}
+.bnav button svg{width:28px;height:28px}
+.bnav button.on{background:#F6C945;color:#12343B;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12)}
+@media (max-width:600px){
+ .herow{height:auto}.hero{position:relative;inset:auto;height:max(62vw,250px)}
+ body.homew .top .wrap{gap:8px}body.homew .brand h1{font-size:1.2rem}body.homew .brand .logo{width:44px;height:44px}body.homew .ibtn{width:40px;height:40px;border-radius:12px}body.homew .ibtn svg{width:20px;height:20px}.top-btns{gap:6px}
+ .hin{position:static}body.homew .top-btns{flex-wrap:nowrap}
+ .hgreet{position:relative;left:auto;top:auto;max-width:none;margin:-14px 0 0}.hbuddy{width:92px;height:92px;border-width:4px}.hbuddy svg{width:84px}.hbub{padding:12px 16px 12px 34px}.hbub b{font-size:1.35rem}.hbub span{font-size:.95rem}
+ .hstars{top:64px;right:12px;font-size:.95rem;padding:4px 12px 4px 8px}.hstars svg{width:24px;height:24px}
+ .hisle{font-size:1rem;min-width:0;min-height:42px;padding:0 14px}
+ .hgrid{margin-top:16px}
+ .pitem{flex-wrap:wrap}.ptx{flex:1 1 150px}.pgo{flex:1 1 100%;justify-content:center;min-height:48px}.chest{width:80px}
+ .bnav{left:8px;right:8px;padding:6px;border-radius:22px}.bnav button{font-size:.72rem;min-height:56px;border-radius:16px}.bnav button svg{width:24px;height:24px}
+}
 </style>
 
 <header class="top">
   <div class="wrap">
-    <div class="brand"><svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="110" fill="#FFF8E7"/><circle cx="404" cy="110" r="46" fill="#F2B21B"/><path d="M256 70 L380 330 L318 330 L294 276 L218 276 L194 330 L132 330 Z" fill="#17707F"/><path d="M232 234 L280 234 L256 180 Z" fill="#FFF8E7"/><path d="M104 346 L408 346 L372 398 L140 398 Z" fill="#D2502F"/><path d="M0 420 Q64 396 128 420 T256 420 T384 420 T512 420 L512 512 L0 512 Z" fill="#17707F"/></svg><div class="btxt"><h1>L'Archipel des Savoirs</h1><p>Maths, français et anglais · 3e année du primaire</p></div></div>
+    <div class="brand"><svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="110" fill="#FFF8E7"/><circle cx="404" cy="110" r="46" fill="#F2B21B"/><path d="M256 70 L380 330 L318 330 L294 276 L218 276 L194 330 L132 330 Z" fill="#17707F"/><path d="M232 234 L280 234 L256 180 Z" fill="#FFF8E7"/><path d="M104 346 L408 346 L372 398 L140 398 Z" fill="#D2502F"/><path d="M0 420 Q64 396 128 420 T256 420 T384 420 T512 420 L512 512 L0 512 Z" fill="#17707F"/></svg><div class="btxt"><h1>L'Archipel des Savoirs</h1></div></div>
     <div class="top-btns">
       <button class="ibtn tog" id="i-voix" aria-label="Voix" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
       <button class="ibtn tog" id="i-mus" aria-label="Musique" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></button>
@@ -726,7 +748,7 @@ body.has-nav main.wrap{padding-bottom:100px}
   <section class="screen" id="ecran-fin" hidden></section>
   <section class="screen" id="ecran-parent" hidden></section>
 </main>
-<nav class="bnav" id="bnav" aria-label="Navigation principale"><button data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg><span>Accueil</span></button><button data-nav="explore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explorer</span></button><button data-nav="defis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg><span>Défis</span></button><button data-nav="biblio" id="nav-biblio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V9l3-2v3l3-2v3l3-2v3l3-2v3l4-2v12z"/><path d="M10 21v-4h4v4"/></svg><span>Jeux</span></button><button data-nav="parent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Parent</span></button></nav>
+<nav class="bnav" id="bnav" aria-label="Navigation principale"><button data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg><span>Accueil</span></button><button data-nav="explore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explorer</span></button><button data-nav="defis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg><span>Défis</span></button><button data-nav="biblio" id="nav-biblio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V9l3-2v3l3-2v3l3-2v3l3-2v3l4-2v12z"/><path d="M10 21v-4h4v4"/></svg><span>Bibliothèque</span></button><button data-nav="parent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.8"/><path d="M15.5 14.2A5 5 0 0 1 21.5 19"/></svg><span>Espace parent</span></button></nav>
 
 <script>
 (function(){
@@ -3883,7 +3905,7 @@ const STARI=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${STAR}" fill=
 const totStars=()=>SUBJS.reduce((a,k)=>a+starsOf(k),0);
 const notionKey=g=>/^conj:/.test(g)?"conj|"+g.slice(5):g==="gn"?"gn|":g==="rep"?"rep|":g==="tables"?"tables|":g+"|";
 function progItems(){const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsWith(p)),it=[];
-  if(dWeeks().length){const due=dDue(),t=L("dictee|").t;if(due||t)it.push({id:"dict",nom:"Ma dictée du jour",sous:due?`<b>${due}</b> mot${due>1?"s":""} de tes listes à réviser`:"Terminé · tous tes mots du jour sont révisés!",done:!due,ic:PENICON,c:"--i7",go:startDictee,started:t>0})}
+  if(dWeeks().length){const due=dDue(),t=L("dictee|").t;if(due||t)it.push({id:"dict",nom:"Ma dictée du jour",sous:due?`<b>${due}</b> mot${due>1?"s":""} de tes listes à réviser`:"tous tes mots du jour sont révisés!",done:!due,ic:PENICON,c:"--i7",go:startDictee,started:t>0})}
   {const t=TBS(),T=TB_TABLES[t.cur],d=tbDay();it.push({id:"tab",nom:"Mes tables du jour",sous:d.done?`${TB_STREAK} fois 10 sur 10!`:`Table ${t.cur+1} : ${T.nom} · série ${d.streak} sur ${TB_STREAK}`,done:!!d.done,ic:T.ic,c:"--i5",go:startTables,started:d.streak>0||L("tables|").t>0})}
   if(examActive()){const e=DS().exam,W=examWords(),x=DS().exDay,n=x&&x.d===dn?x.w.length:0,need=Math.min(DN,W.length);
     if(W.length)it.push({id:"exam",nom:`Révision : ${esc(e.label)}`,sous:`${examLeft()===0?"C'est aujourd'hui!":`Dans ${examLeft()} jour${examLeft()>1?"s":""}`} · ${examReady()} mots prêts sur ${W.length}`,done:n>=need,ic:"🎯",c:"--i3",go:startExam,started:n>0})}
@@ -3896,31 +3918,41 @@ let PROG=[];
 function weekInfo(){const dn=dayNum(),wd=(new Date().getDay()+6)%7,mon=dn-wd;let d=0,t=0;const days=[];
   for(let i=0;i<5;i++){const x=(S.prog||{})[mon+i];if(x&&mon+i<=dn){d+=x.d;t+=x.t}days.push({l:"LMMJV"[i],x,today:mon+i===dn})}
   return{d,t,days,wd}}
+const OBJIC={"foulard":"🧣","longue-vue":"🔭","chapeau":"🎩","médaille":"🏅","lunettes":"🕶️","boussole":"🧭","cape":"🦸","étoile":"⭐"};
+const HEXC=["#E8613C","#2F6FD0","#D2502F","#7B52B8","#2E9E4F","#E9A800","#C2427D","#16878F"];
+const hexSVG=(c,on)=>`<svg viewBox="0 0 82 90" aria-hidden="true"><path d="M41 3 78 24v42L41 87 4 66V24z" fill="${on?c:"#E9EEEE"}" stroke="${on?"#F6C945":"#CAD5D6"}" stroke-width="5" stroke-linejoin="round"/><path d="M41 14 68 29v32L41 76 14 61V29z" fill="${on?"#FFFFFF":"#F6F8F8"}" opacity="${on?.92:1}"/></svg>`;
+const PLAYI=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>`;
+const CALI=`<svg viewBox="0 0 34 34" aria-hidden="true"><rect x="3" y="6" width="28" height="25" rx="5" fill="#FFFFFF" stroke="#E8613C" stroke-width="2.5"/><path d="M3 11a5 5 0 0 1 5-5h18a5 5 0 0 1 5 5v3H3z" fill="#E8613C"/><path d="M10 3v6M24 3v6" stroke="#B8432A" stroke-width="3" stroke-linecap="round"/><g fill="#F2A23C"><rect x="8" y="18" width="5" height="4" rx="1"/><rect x="15" y="18" width="5" height="4" rx="1"/><rect x="22" y="18" width="5" height="4" rx="1"/><rect x="8" y="24" width="5" height="4" rx="1"/><rect x="15" y="24" width="5" height="4" rx="1"/></g></svg>`;
+const BARI=`<svg viewBox="0 0 34 34" aria-hidden="true"><rect x="4" y="18" width="7" height="13" rx="2" fill="#F2A23C"/><rect x="13.5" y="11" width="7" height="20" rx="2" fill="#2E9E4F"/><rect x="23" y="4" width="7" height="27" rx="2" fill="#16878F"/></svg>`;
+const STARH=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${STAR}" fill="#F6C945" stroke="#D99A00" stroke-width="1.2" stroke-linejoin="round"/></svg>`;
+const CHEST=`<svg class="chest" viewBox="0 0 120 96" aria-hidden="true"><ellipse cx="62" cy="88" rx="54" ry="7" fill="#F1DFAE"/><path d="M14 84c6-10 12-12 18-6M98 84c4-9 10-11 16-4" stroke="#4FA35A" stroke-width="4" fill="none" stroke-linecap="round"/><rect x="22" y="44" width="78" height="40" rx="6" fill="#B8742A" stroke="#7A4A16" stroke-width="3"/><path d="M22 44c0-22 14-32 39-32s39 10 39 32z" fill="#D08A35" stroke="#7A4A16" stroke-width="3"/><path d="M30 44V28M92 44V28M30 84V44M92 84V44" stroke="#F2C230" stroke-width="5"/><rect x="18" y="40" width="86" height="9" rx="4" fill="#F2C230" stroke="#B8860B" stroke-width="2"/><rect x="53" y="44" width="16" height="18" rx="3" fill="#F2C230" stroke="#B8860B" stroke-width="2"/><circle cx="61" cy="52" r="3" fill="#7A4A16"/><path d="M40 22l3 5 6 1-4 4 1 6-6-3-6 3 1-6-4-4 6-1z" fill="#FFE27A" opacity=".9"/></svg>`;
 function homeHTML(){PROG=progItems();const n=PROG.length,dn=PROG.filter(x=>x.done).length,first=PROG.findIndex(x=>!x.done),nm=esc(S.name);
-  const msg=dn===n?"Tout ton programme est fait. Bravo! Tu peux explorer les îles.":dn?`Tu as déjà fini ${dn} activité${dn>1?"s":""} sur ${n}. On continue?`:`Aujourd'hui, ${n} activités t'attendent. On commence?`;
-  const g=SUBJS.reduce((a,k)=>a+goalOf(k),0);
+  const msg=dn===n?"Tout ton programme est fait. Bravo! Tu peux explorer les îles.":dn?`Tu as déjà fini ${dn} activité${dn>1?"s":""} sur ${n}. On continue?`:"Prête pour une nouvelle aventure d'apprentissage?";
+  const g=SUBJS.reduce((a,k)=>a+goalOf(k),0),ts=totStars();
   const hero=`<div class="herow"><section class="hero" aria-label="Les îles"><img class="hero-img" src="${HERO}" alt="">
-    <span class="hstars" aria-label="${totStars()} étoiles gagnées">${STARI}${totStars()}</span>
-    <button class="hisle" data-subj="francais" style="--x:17%;--c:var(--i7)">Français</button>
-    <button class="hisle" data-subj="maths" style="--x:50%;--c:var(--i1)">Maths</button>
-    <button class="hisle" data-subj="anglais" style="--x:83%;--c:var(--i4)">Anglais</button>
-    </section><div class="hgreet"><button class="hbuddy" id="b-buddy" aria-label="Parler à ${esc(BN())}">${buddySVG(S.comp.type,S.comp.items,"idle")}</button><div class="hbub"><b>Bonjour ${nm}!</b><span>${msg}</span></div></div></div>`;
-  const prog=`<section class="hcard progc" aria-label="Mon programme d'aujourd'hui"><div class="ph"><h2>Mon programme d'aujourd'hui</h2><span>${dn} sur ${n}</span></div>
+    <button class="hisle" data-subj="francais" style="--x:17%">Français</button>
+    <button class="hisle" data-subj="maths" style="--x:50%">Maths</button>
+    <button class="hisle" data-subj="anglais" style="--x:83%">Anglais</button></section>
+    <div class="hin"><span class="hstars" aria-label="${ts} étoile${ts>1?"s":""} gagnée${ts>1?"s":""}">${STARH}${ts} étoile${ts>1?"s":""}</span>
+    <div class="hgreet"><button class="hbuddy" id="b-buddy" aria-label="Parler à ${esc(BN())}">${buddySVG(S.comp.type,S.comp.items,"idle")}</button><div class="hbub"><b>Bonjour ${nm}! 👋</b><span>${msg}</span></div></div></div></div>`;
+  const prog=`<section class="hcard progc" aria-label="Mon programme d'aujourd'hui"><div class="ph"><h2>${CALI}Mon programme d'aujourd'hui</h2><span>${dn} sur ${n}</span></div>
     <div class="pbar"><i style="width:${n?Math.round(dn/n*100):0}%"></i></div>
-    <div class="hplist">${PROG.map((x,i)=>`<div class="pitem${x.done?" done":""}" style="--c:var(${x.c})"><span class="pic">${x.done?CHECKI:x.ic}</span><div class="ptx"><p class="pn">${x.nom}</p><p class="ps">${x.done&&x.id!=="dict"?"Terminé · "+x.sous:x.sous}</p></div>${x.done?"":`<button class="pgo${i===first?" main":""}" data-prog="${i}">${x.started?"Continuer":"Commencer"}</button>`}</div>`).join("")}</div>
-    <div class="pmeta">${g?`<span>⏱ ${mins(S.day.sec)} min d'étude aujourd'hui · objectif ${g/60} min</span>`:"<span></span>"}${planActive()?`<button class="plink" id="b-semaine">🏫 Ma semaine à l'école</button>`:""}</div></section>`;
-  const w=weekInfo(),pc=w.t?Math.round(w.d/w.t*100):0,C=2*Math.PI*44;
-  const ring=`<section class="hcard" aria-label="Ma progression"><h2>Ma progression</h2><div class="ringw"><div class="ring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="var(--line)" stroke-width="11"/><circle cx="50" cy="50" r="44" fill="none" stroke="var(--good)" stroke-width="11" stroke-linecap="round"${pc?"":` opacity="0"`} stroke-dasharray="${(C*pc/100).toFixed(1)} ${C.toFixed(1)}"/></svg><b>${pc}%</b></div>
-    <div><p class="rtxt">Cette semaine : <strong>${w.d} activité${w.d>1?"s":""} faite${w.d>1?"s":""} sur ${w.t}</strong> de ton programme.</p><div class="wdays">${w.days.map(d=>`<span class="${d.x&&d.x.t&&d.x.d>=d.x.t?"full":d.x&&d.x.d?"part":""}${d.today?" today":""}" title="${d.l}">${d.l}</span>`).join("")}</div></div></div></section>`;
-  const found=OBJETS.filter(o=>S.comp.items.includes(o[0])),pend=S.gifts.pending.length;
-  const rew=`<section class="hcard rewc" aria-label="Mes récompenses"><h2>Mes récompenses</h2><div class="rw">${buddySVG(S.comp.type,S.comp.items,"idle")}<div><p class="rtxt"><strong>${found.length} objet${found.length>1?"s":""} sur ${OBJETS.length}</strong> pour ${esc(BN())}${S.comp.gold?` · ${S.comp.gold} étoile${S.comp.gold>1?"s":""} dorée${S.comp.gold>1?"s":""}`:""}</p>
-    <div class="slots">${OBJETS.map(o=>found.includes(o)?`<span>${o[0]}</span>`:`<span class="no">?</span>`).join("")}</div></div></div>
-    ${pend?`<p class="giftnote">${GIFTICON}${pend} cadeau${pend>1?"x":""} à réclamer auprès de papa et maman</p>`:""}<button class="pgo" id="b-coll" style="align-self:flex-start">Voir ma collection</button></section>`;
-  return hero+`<div class="hgrid">${prog}<div class="hgrid2">${ring}${rew}</div></div>`}
+    <div class="hplist">${PROG.map((x,i)=>`<div class="pitem${x.done?" done":""}" style="--c:var(${x.c})"><span class="pic">${x.done?CHECKI:x.ic}</span><div class="ptx"><p class="pn">${x.nom}</p><p class="ps">${x.done?`<b class="ok">Terminé</b> · `:""}${x.sous}</p></div>${x.done?"":`<button class="pgo${i===first?" main":""}" data-prog="${i}">${x.started?"Continuer":"Commencer"}${PLAYI}</button>`}</div>`).join("")}</div>
+    ${g||planActive()?`<div class="pmeta">${g?`<span>⏱ ${mins(S.day.sec)} min d'étude aujourd'hui · objectif ${g/60} min</span>`:"<span></span>"}${planActive()?`<button class="plink" id="b-semaine">🏫 Ma semaine à l'école</button>`:""}</div>`:""}</section>`;
+  const w=weekInfo(),pc=w.t?Math.round(w.d/w.t*100):0,C=2*Math.PI*42;
+  const ring=`<section class="hcard" aria-label="Ma progression"><h2>${BARI}Ma progression</h2><div class="ringw"><div class="ring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="#F1E6CF" stroke-width="12"/><circle cx="50" cy="50" r="42" fill="none" stroke="#16878F" stroke-width="12" stroke-linecap="round"${pc?"":` opacity="0"`} stroke-dasharray="${(C*pc/100).toFixed(1)} ${C.toFixed(1)}"/></svg><b>${pc}%</b></div>
+    <p class="rtxt"><strong>${w.d} activité${w.d>1?"s":""}</strong>sur ${w.t} cette semaine</p>${CHEST}</div></section>`;
+  const it=S.comp.items,pend=S.gifts.pending.length,shown=OBJETS.map((o,i)=>({o,i,on:it.includes(o[0])}));
+  const badges=shown.filter(x=>x.on).slice(-3).concat(shown.filter(x=>!x.on)).slice(0,3);
+  const rew=`<section class="hcard rewc" aria-label="Mes récompenses"><h2>${STARH}Mes récompenses</h2>
+    <div class="hexes">${badges.map(x=>`<span class="hex${x.on?"":" no"}" title="${x.on?esc(x.o[1]):"Objet à découvrir"}">${hexSVG(HEXC[x.i],x.on)}<span>${x.on?OBJIC[x.o[0]]||"🎁":"?"}</span></span>`).join("")}</div>
+    <p class="rtxt" style="text-align:center">${esc(BN())} a trouvé <b>${it.length} objet${it.length>1?"s":""} sur ${OBJETS.length}</b>${S.comp.gold?` · ${S.comp.gold} étoile${S.comp.gold>1?"s":""} dorée${S.comp.gold>1?"s":""}`:""}</p>
+    ${pend?`<p class="giftnote">${GIFTICON}${pend} cadeau${pend>1?"x":""} à réclamer auprès de papa et maman</p>`:""}<button class="pgo" id="b-coll">Voir ma collection</button></section>`;
+  return hero+`<div class="hgrid">${prog}<div class="hcol">${ring}${rew}</div></div>`}
 function defisHTML(){
   return`<div class="hello"><h2>Les défis</h2><p>Teste-toi! Des questions mélangées, une course contre la montre ou une mission à écrire à la main.</p></div><div class="dgrid">${SUBJS.map(k=>{const s=SUBJ[k];return`<div class="dcard" style="--c:var(${s.c})"><h3><span class="g">${s.glyph}</span>${s.nom}</h3><div class="drow"><button data-defi="${k}|defi"><b>?</b> Le Grand Défi</button><button data-defi="${k}|sprint">${BOLT} La Course Éclair</button><button data-defi="${k}|tableau">${CHALKICON} Mission tableau</button></div></div>`}).join("")}</div>`}
 function navSync(){document.querySelectorAll("#bnav [data-nav]").forEach(b=>{const on=b.dataset.nav===(CUR?"explore":HTAB);b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});const nb=$("#nav-biblio");if(nb)nb.hidden=S.gamesOn===false}
-function openColl(){const it=S.comp.items;const o=ovl(`<div class="buddywrap">${buddySVG(S.comp.type,it,"happy")}</div><h2 class="ovl-title">La collection de ${esc(BN())}</h2><div class="collg">${OBJETS.map(x=>it.includes(x[0])?`<div>✓ ${x[1]}</div>`:`<div class="no">? Objet à découvrir</div>`).join("")}</div><p class="msg" style="margin:0">Les boîtes surprises arrivent quand tu franchis de grandes étapes.</p><button class="btn" id="o-close">Fermer</button>`);
+function openColl(){const it=S.comp.items;const o=ovl(`<div class="buddywrap">${buddySVG(S.comp.type,it,"happy")}</div><h2 class="ovl-title">La collection de ${esc(BN())}</h2><div class="collg">${OBJETS.map(x=>it.includes(x[0])?`<div>${OBJIC[x[0]]||"✓"} ${x[1]}</div>`:`<div class="no">? Objet à découvrir</div>`).join("")}</div><p class="msg" style="margin:0">Les boîtes surprises arrivent quand tu franchis de grandes étapes.</p><button class="btn" id="o-close">Fermer</button>`);
   const b=o.querySelector("#o-close");b.focus({preventScroll:true});b.onclick=()=>o.remove()}
 function homeBind(el){
   el.querySelectorAll("[data-prog]").forEach(b=>b.onclick=()=>{const x=PROG[+b.dataset.prog];if(x){tone([[659,.08],[880,.12]]);x.go()}});
@@ -3961,7 +3993,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-145829";
+const APP_VER="20261104-151936";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
