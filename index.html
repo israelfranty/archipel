@@ -944,7 +944,8 @@ body.skyin .isle{border:1px solid var(--cream-line);border-radius:26px;box-shado
  body.skyin #studybar .chip2{flex:1 1 0;min-height:36px;font-size:.9rem}
  body.skyin .gamebar .back{order:1;min-height:42px;font-size:.95rem;padding:0 14px}
  body.skyin .gamebar .levelchip{order:2;margin-left:auto}
- body.skyin .gamebar .gtitle{order:3;flex:1 1 100%;margin-right:0;font-size:1rem;padding:8px 14px 8px 8px}}
+ body.skyin .gamebar .gtitle{order:3;flex:1 1 100%;margin-right:0;font-size:1rem;padding:8px 14px 8px 8px}
+ body.skyin .key.ok,body.skyin .key.del{font-size:.85rem;padding:0 2px}}
 </style>
 
 <header class="top">
@@ -1903,12 +1904,12 @@ function bye(){BYE=true;PAUSED=false;G=null;save();if(MUS)MUS.pause();if(TTS)try
   $("#b-reopen").onclick=()=>{BYE=false;renderCarte();go("carte");musicSync()}}
 
 /* ---------- Écrans ---------- */
-function go(id){if(!(G&&G.mode==="dict"))FORCEV=false;const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||id==="carte"||BYE;document.body.classList.toggle("has-nav",id==="carte"&&!!S.name&&!!S.comp.type);if(id!=="carte")document.body.classList.remove("homew");SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);if(id==="jeu"&&G)LSUB=G.mode==="trace"?null:G.subj;skyIn((id==="jeu"||id==="fin")&&SKYSUB.includes(G&&id==="jeu"?(G.mode==="trace"?null:G.subj):LSUB));window.scrollTo(0,0)}
+function go(id){if(!(G&&G.mode==="dict"))FORCEV=false;const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||id==="carte"||BYE;document.body.classList.toggle("has-nav",id==="carte"&&!!S.name&&!!S.comp.type);if(id!=="carte")document.body.classList.remove("homew");SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);const gs=G&&!["trace","biblio","donjon","bat"].includes(G.mode)?G.subj:null;if(id==="jeu")LSUB=gs;skyIn((id==="jeu"||id==="fin")&&SKYSUB.includes(id==="jeu"?gs:LSUB));window.scrollTo(0,0)}
 /* Pages intérieures au thème « ciel et crème » : activées île par île (SKYSUB). */
-const SKYSUB=["francais"];let LSUB=null;
+const SKYSUB=["francais","maths","anglais"];let LSUB=null;
 function skyDeco(id){const gt=document.querySelector(`#ecran-${id} .gtitle`);if(!gt||gt.querySelector(".gic"))return;const t=gt.textContent;
   if(G&&G.mode==="q"&&G.id&&!["defi","tableau"].includes(G.id)&&byId(G.id)){const z=byId(G.id);gt.insertAdjacentHTML("afterbegin",`<span class="gic gmed" style="--c:var(${z.c})" aria-hidden="true">${z.glyph}</span>`);return}
-  const ic=/Révision mélangée/.test(t)?IC3.cible:/tableau/i.test(t)?XIC.aa:/vitesse/i.test(t)?IC3.eclair:/évaluation/.test(t)?IC3.cible:/dictée/i.test(t)?IC3.micro:/phrases complètes/.test(t)?IC3.conte:/groupe du nom/.test(t)?IC3.casse:/verbe|conjug/i.test(t)?IC3.cahier:null;
+  const ic=/Révision mélangée/.test(t)?IC3.cible:/tableau/i.test(t)?XIC.aa:/vitesse/i.test(t)?IC3.eclair:/évaluation/.test(t)?IC3.cible:/dictée/i.test(t)?IC3.micro:/phrases complètes/.test(t)?IC3.conte:/Tables d.addition/.test(t)?IC3.boulier:/groupe du nom/.test(t)?IC3.casse:/verbe|conjug/i.test(t)?IC3.cahier:null;
   if(ic)gt.insertAdjacentHTML("afterbegin",`<img class="gic" src="${ic}" alt="">`)}
 function skyIn(on){document.body.classList.toggle("skyin",!!on);if(on){document.documentElement.style.setProperty("--heroimg",`url(${HERO})`);document.body.classList.add("homew");skyDeco("jeu");skyDeco("fin")}}
 ["jeu","fin"].forEach(k=>new MutationObserver(()=>{if(document.body.classList.contains("skyin"))skyDeco(k)}).observe(document.getElementById("ecran-"+k),{childList:true}));
@@ -3403,7 +3404,7 @@ function tbSession(){const t=TBS(),T=TB_TABLES[t.cur],F=T.f,L=[];
   return shuffle(L)}
 let TB=null;
 function startTables(){tbAlign();if(tbDay().done){tbDone();return}FORCEV=false;G={mode:"tables",subj:"maths",events:[]};TB={list:tbSession(),i:0,ok:0,fast:0,cur:0,res:[]};tbIntro()}
-function tbBar(){return`<div class="gamebar"><button class="back" id="tb-back">← L'Île des Nombres</button><span class="gtitle">Mes tables du jour</span>${TB&&TB.i<TB.list.length&&TB.started?`<span class="levelchip">${TB.i+1} / ${TB.list.length}</span>`:""}</div>`}
+function tbBar(){return`<div class="gamebar"><button class="back" id="tb-back">← L'Île aux Nombres</button><span class="gtitle">Tables d'addition et de soustraction</span>${TB&&TB.i<TB.list.length&&TB.started?`<span class="levelchip">${TB.i+1} / ${TB.list.length}</span>`:""}</div>`}
 function tbBack(){const b=$("#tb-back");if(b)b.onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}tbKeys(false);G=null;TB=null;renderCarte();go("carte")}}
 function tbIntro(){const t=TBS(),T=TB_TABLES[t.cur],E=TB_ET[t.et],el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");
   el.innerHTML=tbBar()+`<div class="card pop tbcard" style="--c:var(--i5)"><div class="notion">Table ${t.cur+1} sur ${TB_TABLES.length} · étape ${t.et+1} sur 3 : ${E.nom}</div>
@@ -4334,7 +4335,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-225443";
+const APP_VER="20261104-231853";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
