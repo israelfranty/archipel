@@ -702,9 +702,9 @@ body.onb main.wrap{max-width:560px;padding-top:14px;padding-bottom:28px}
 @media (max-width:600px){.onb-pc img{height:105px}.onb-help img{width:110px}.onb-sign h2{font-size:2rem}.onb-scroll{padding:20px 34px 24px}.onb-scroll h2{font-size:1.3rem}.onb-kids{margin-bottom:-56px}}
 
 /* ---------- Accueil (refonte, selon la maquette) ---------- */
-:root{--cream:#FFF9EE;--cream-line:#F1E6CF;--teal-d:#14596A;--hb:#D6EFF3}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--cream:var(--surface);--cream-line:var(--line);--teal-d:#0F3D49;--hb:var(--bg)}}
-:root[data-theme="dark"]{--cream:var(--surface);--cream-line:var(--line);--teal-d:#0F3D49;--hb:var(--bg)}
+:root{--cream:#FFF9EE;--cream-line:#F1E6CF;--teal-d:#14596A;--hb:#D6EFF3;--chbg:#FFFFFF;--btnbg:#14596A;--btnink:#FFFFFF}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--chbg:var(--bg);--btnbg:var(--sea);--btnink:#0E1C23;--cream:var(--surface);--cream-line:var(--line);--teal-d:#0F3D49;--hb:var(--bg)}}
+:root[data-theme="dark"]{--chbg:var(--bg);--btnbg:var(--sea);--btnink:#0E1C23;--cream:var(--surface);--cream-line:var(--line);--teal-d:#0F3D49;--hb:var(--bg)}
 .brand{display:flex;align-items:center;gap:12px}
 .brand .logo{width:46px;height:46px;flex:none;border-radius:12px}
 .brand .btxt{min-width:0}
@@ -906,6 +906,45 @@ body.homew #studybar{display:none}
  .qbtn{flex-wrap:wrap!important}.qbtn .qchip{max-width:none}
  .xh{font-size:1.3rem}
 }
+/* ---------- Pages intérieures : ciel en haut, cartes crème ---------- */
+body.skyin::before{content:"";position:absolute;left:0;right:0;top:0;height:250px;background:var(--heroimg) 50% 0/cover no-repeat;-webkit-mask-image:linear-gradient(180deg,#000 62%,transparent);mask-image:linear-gradient(180deg,#000 62%,transparent);z-index:0;pointer-events:none}
+body.skyin main.wrap{position:relative;z-index:1;padding-top:92px}
+body.homew.skyin #studybar:not([hidden]){display:flex;flex-wrap:nowrap;align-items:center;background:color-mix(in srgb,var(--cream) 94%,transparent);border:1px solid var(--cream-line);border-radius:22px;box-shadow:0 6px 16px rgba(10,60,80,.14);padding:8px 14px;margin-bottom:14px}
+body.skyin #studybar .sb-info{flex:1 1 auto;min-width:0}
+body.skyin #studybar .chip2{border-radius:999px;min-height:40px;padding:0 16px}
+body.skyin .screen{--surface:var(--cream);--line:var(--cream-line)}
+body.skyin .gamebar{gap:10px;margin-bottom:4px}
+body.skyin .gamebar .back{display:inline-flex;align-items:center;gap:6px;min-height:46px;border:0;border-radius:999px;background:#FFFFFF;color:#12465A;padding:0 18px;font-family:var(--f-display);font-weight:600;font-size:1.02rem;box-shadow:0 3px 10px rgba(10,60,80,.18)}
+body.skyin .gamebar .gtitle{flex:0 1 auto;margin-right:auto;background:var(--cream);color:var(--ink);border:1px solid var(--cream-line);border-radius:999px;padding:9px 18px;font-size:1.12rem;font-weight:700;box-shadow:0 3px 10px rgba(10,60,80,.14)}
+body.skyin .gamebar .gtitle{display:inline-flex;align-items:center;gap:10px;padding-left:10px}
+body.skyin .gic{width:34px;height:34px;object-fit:contain;margin:-6px 0;flex:none}
+body.skyin .gmed{display:grid;place-items:center;border-radius:50%;background:var(--c);color:var(--on-i,#fff);font-size:.72rem;font-weight:700;box-shadow:inset 0 -2px 0 rgba(0,0,0,.15)}.gmed svg{width:18px;height:18px}
+body.skyin .gamebar .levelchip{background:#F6C945;color:#12343B;padding:9px 16px;font-size:.95rem;box-shadow:0 3px 10px rgba(10,60,80,.18)}
+body.skyin .card,body.skyin .panel,body.skyin .les-card{border:1px solid var(--cream-line);border-radius:28px;box-shadow:0 10px 24px rgba(10,60,80,.12)}
+body.skyin .card .notion{color:var(--sea)}
+body.skyin .choice,body.skyin .key,body.skyin .numdisplay,body.skyin .screen input:not([type=checkbox]):not([type=radio]),body.skyin .screen textarea{background:var(--chbg);border:2px solid var(--cream-line);border-radius:18px;box-shadow:0 3px 0 var(--cream-line)}
+body.skyin .choice:hover:not(:disabled),body.skyin .key:hover:not(:disabled){border-color:var(--sea)}
+body.skyin .choice.right,body.skyin .numdisplay.right{border-color:var(--good);background:var(--good-bg)}
+body.skyin .choice.wrong{border-color:var(--bad);background:var(--bad-bg)}
+body.skyin .key.ok{background:var(--btnbg);color:var(--btnink);border-color:var(--btnbg)}
+body.skyin .btn{border-radius:999px;min-height:50px;padding:10px 24px}
+body.skyin .btn[class="btn"],body.skyin .btn.notions{background:var(--btnbg);color:var(--btnink)}
+body.skyin .btn.ghost:not(.boardcard *){border:2px solid var(--sea);color:var(--ink);background:transparent}
+body.skyin .btn.sun{background:#F6C945;color:#12343B}
+body.skyin .listen{border-color:var(--sea);min-height:40px;padding:6px 14px;background:var(--chbg)}
+body.skyin .dots span{height:10px;border-radius:5px}
+body.skyin .hello p{color:var(--ink)}
+body.skyin .isle{border:1px solid var(--cream-line);border-radius:26px;box-shadow:0 10px 22px rgba(10,60,80,.12)}
+.ovl-in{background:var(--cream);border:1px solid var(--cream-line);border-radius:28px}
+.ovl-in .les-card,.ovl-in .les-ex{background:var(--chbg)}
+@media (max-width:640px){body.skyin::before{height:170px}body.skyin main.wrap{padding-top:68px}
+ body.homew.skyin #studybar:not([hidden]){flex-wrap:wrap;gap:8px;padding:8px 10px;border-radius:18px}
+ body.skyin #studybar .sb-info{flex:1 1 100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 8px;font-size:.78rem}
+ body.skyin #studybar .sb-item{font-size:.72rem}
+ body.skyin #studybar .chip2{flex:1 1 0;min-height:36px;font-size:.9rem}
+ body.skyin .gamebar .back{order:1;min-height:42px;font-size:.95rem;padding:0 14px}
+ body.skyin .gamebar .levelchip{order:2;margin-left:auto}
+ body.skyin .gamebar .gtitle{order:3;flex:1 1 100%;margin-right:0;font-size:1rem;padding:8px 14px 8px 8px}}
 </style>
 
 <header class="top">
@@ -1864,7 +1903,15 @@ function bye(){BYE=true;PAUSED=false;G=null;save();if(MUS)MUS.pause();if(TTS)try
   $("#b-reopen").onclick=()=>{BYE=false;renderCarte();go("carte");musicSync()}}
 
 /* ---------- Écrans ---------- */
-function go(id){if(!(G&&G.mode==="dict"))FORCEV=false;const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||id==="carte"||BYE;document.body.classList.toggle("has-nav",id==="carte"&&!!S.name&&!!S.comp.type);if(id!=="carte")document.body.classList.remove("homew");SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);window.scrollTo(0,0)}
+function go(id){if(!(G&&G.mode==="dict"))FORCEV=false;const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||id==="carte"||BYE;document.body.classList.toggle("has-nav",id==="carte"&&!!S.name&&!!S.comp.type);if(id!=="carte")document.body.classList.remove("homew");SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);if(id==="jeu"&&G)LSUB=G.mode==="trace"?null:G.subj;skyIn((id==="jeu"||id==="fin")&&SKYSUB.includes(G&&id==="jeu"?(G.mode==="trace"?null:G.subj):LSUB));window.scrollTo(0,0)}
+/* Pages intérieures au thème « ciel et crème » : activées île par île (SKYSUB). */
+const SKYSUB=["francais"];let LSUB=null;
+function skyDeco(id){const gt=document.querySelector(`#ecran-${id} .gtitle`);if(!gt||gt.querySelector(".gic"))return;const t=gt.textContent;
+  if(G&&G.mode==="q"&&G.id&&!["defi","tableau"].includes(G.id)&&byId(G.id)){const z=byId(G.id);gt.insertAdjacentHTML("afterbegin",`<span class="gic gmed" style="--c:var(${z.c})" aria-hidden="true">${z.glyph}</span>`);return}
+  const ic=/Révision mélangée/.test(t)?IC3.cible:/tableau/i.test(t)?XIC.aa:/vitesse/i.test(t)?IC3.eclair:/évaluation/.test(t)?IC3.cible:/dictée/i.test(t)?IC3.micro:/phrases complètes/.test(t)?IC3.conte:/groupe du nom/.test(t)?IC3.casse:/verbe|conjug/i.test(t)?IC3.cahier:null;
+  if(ic)gt.insertAdjacentHTML("afterbegin",`<img class="gic" src="${ic}" alt="">`)}
+function skyIn(on){document.body.classList.toggle("skyin",!!on);if(on){document.documentElement.style.setProperty("--heroimg",`url(${HERO})`);document.body.classList.add("homew");skyDeco("jeu");skyDeco("fin")}}
+["jeu","fin"].forEach(k=>new MutationObserver(()=>{if(document.body.classList.contains("skyin"))skyDeco(k)}).observe(document.getElementById("ecran-"+k),{childList:true}));
 
 let OB=null,OBSEL=null,ONB_EDIT=false,CUR=null;
 const ONB_CK=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>`;
@@ -1988,7 +2035,7 @@ function fmtDur(ms){const s=Math.round(ms/1000),m=Math.floor(s/60);return m?`${m
 const keysHTML=()=>`<div class="keys">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="key" data-k="${n}">${n}</button>`).join("")}<button class="key del" data-k="del">Effacer</button><button class="key" data-k="0">0</button><button class="key ok" data-k="ok">Valider</button></div>`;
 document.addEventListener("visibilitychange",()=>{if(document.hidden){HID=performance.now()}else if(HID){const d=performance.now()-HID;HID=0;if(G){if(G.t0)G.t0+=d;if(G.end)G.end+=d;requestAnimationFrame(G.mode==="sprint"?stick:tick)}}});
 
-const headOf=()=>G.id==="defi"?{nom:"Le Grand Défi · "+SUBJ[G.subj].court,c:"--sun"}:G.id==="tableau"?{nom:"Mission tableau · "+SUBJ[G.subj].court,c:"--i2"}:byId(G.id);
+const headOf=()=>G.id==="defi"?{nom:"Révision mélangée",c:"--sun"}:G.id==="tableau"?{nom:"Défis au tableau",c:"--i2"}:byId(G.id);
 function start(id){G={mode:"q",id,subj:(id==="defi"||id==="tableau")?CUR:byId(id).subj,n:id==="tableau"?4:ROUND,boardAt:id!=="tableau"&&S.boardOn!==false?ROUND-1:-1,i:0,score:0,res:[],recent:[],eclairs:0,totalMs:0,events:[]};tone([[523,.08]]);next()}
 function next(){
   let q,tries=0;
@@ -1999,7 +2046,7 @@ function next(){
 function renderQ(){
   const q=G.q,isl=byId(q.isl),head=headOf(),el=$("#ecran-jeu");
   el.style.setProperty("--c",`var(${head.c})`);
-  el.innerHTML=`<div class="gamebar"><button class="back" id="b-retour">← Carte</button><span class="gtitle">${head.nom}</span><span class="levelchip">Niveau ${IS(q.isl).level}</span></div>
+  el.innerHTML=`<div class="gamebar"><button class="back" id="b-retour">← ${SUBJ[G.subj].nom}</button><span class="gtitle">${head.nom}</span><span class="levelchip">Niveau ${IS(q.isl).level}</span></div>
   <div class="dots" aria-label="Question ${G.i+1} sur ${G.n}">${Array.from({length:G.n},(_,i)=>`<span class="${i<G.i?(G.res[i]?"ok":"ko"):i===G.i?"now":""}"></span>`).join("")}</div>
   <div class="timerow" id="trow">${BOLT}<div class="fuse"><i id="fuse"></i></div><span id="tlabel"></span></div>
   <div class="card pop" style="--c:var(${isl.c})"><div class="cardtop"><div class="notion">${q.notion}</div><span class="cardbtns">${q.fr?`<button class="listen" id="b-help" aria-expanded="false">Aide</button>`:""}${canSpeak()?`<button class="listen" id="b-listen">${SPK}Réécouter</button>`:""}</span></div><p class="prompt"${q.lang==="en"?' lang="en"':""}>${q.prompt}</p>${q.fr?`<p class="help" id="q-help" hidden>${q.fr}</p>`:""}<div class="visual">${q.visual||""}</div><div id="answer"></div><div id="fb"></div></div>`;
@@ -2098,7 +2145,7 @@ function finish(){
   const el=$("#ecran-fin");el.style.setProperty("--c",`var(${head.c})`);
   el.innerHTML=`<div class="card result pop" style="--c:var(${head.c})"><div class="notion">${head.nom}</div><h2>${sc>=N*.75?"Mission réussie":"Mission terminée"}${S.name?", "+esc(S.name):""}!</h2><div class="score">${sc} / ${N}</div>${stars(st)}
   ${G.id==="tableau"?"":`<p class="msg"><span class="bolt">${BOLT}<b>${G.eclairs} éclair${G.eclairs>1?"s":""} sur ${N}</b></span><br>Temps total : ${fmtDur(G.totalMs)}</p>`}${recMsg?`<p class="msg"><b>${recMsg}</b></p>`:""}
-  <p class="msg">${msg}</p>${lvlMsg?`<p class="msg"><b>${lvlMsg}</b></p>`:""}${reviewHTML((G.review||[]).slice(0,4),"end-rev")}<div class="row-btns"><button class="btn" id="b-again">Rejouer</button><button class="btn ghost" id="b-map">Retour à la carte</button></div></div>`;
+  <p class="msg">${msg}</p>${lvlMsg?`<p class="msg"><b>${lvlMsg}</b></p>`:""}${reviewHTML((G.review||[]).slice(0,4),"end-rev")}<div class="row-btns"><button class="btn" id="b-again">Rejouer</button><button class="btn ghost" id="b-map">Retour à ${SUBJ[G.subj]?SUBJ[G.subj].nom:"la carte"}</button></div></div>`;
   bindReview(el,G.subj,false);
   const id=G.id;$("#b-again").onclick=()=>start(id);$("#b-map").onclick=()=>{G=null;renderCarte();go("carte")};
   tone(st>=2?[[523,.12],[659,.12],[784,.12],[1047,.25]]:[[523,.15],[659,.2]]);go("fin");
@@ -2121,7 +2168,7 @@ function startSprint(){
   const subj=CUR||"maths",pad=subj==="maths",c=pad?"--i3":subj==="anglais"?"--i4":"--i5";
   G={mode:"sprint",subj,pad,score:0,miss:0,input:"",wrong:[],end:performance.now()+SPRINT,done:false,lock:false};
   const el=$("#ecran-jeu");el.style.setProperty("--c",`var(${c})`);
-  el.innerHTML=`<div class="gamebar"><button class="back" id="b-retour">← Carte</button><span class="gtitle">La Course Éclair · ${SUBJ[subj].court}</span><span class="levelchip">Record : ${SPR(subj).best}</span></div>
+  el.innerHTML=`<div class="gamebar"><button class="back" id="b-retour">← ${SUBJ[subj].nom}</button><span class="gtitle">Course de vitesse</span><span class="levelchip">Record : ${SPR(subj).best}</span></div>
   <div class="card" id="scard" style="--c:var(${c})"><div class="sprint-clock" id="sc" aria-live="off">60</div><div class="timerow"><div class="fuse"><i id="fuse"></i></div></div>
   <div class="sprint-score"><span id="sok">Réussis : 0</span><span id="sko">À revoir : 0</span></div>
   ${pad?`<div class="visual"><div class="bigexpr" id="sq"></div></div><div class="numpad"><div class="numdisplay" id="nd">&nbsp;</div>${keysHTML()}</div>`:`<div id="sq"></div>`}</div>`;
@@ -2160,7 +2207,7 @@ function finishSprint(){
   el.innerHTML=`<div class="card result pop" style="--c:var(${c})"><div class="notion">La Course Éclair · ${SUBJ[G.subj].court}</div><h2>${rec?"Nouveau record":"Temps écoulé"}${S.name?", "+esc(S.name):""}!</h2><div class="score">${sc}</div><p class="msg">bonne${sc>1?"s":""} réponse${sc>1?"s":""} en 60 secondes</p>
   <p class="msg"><b>${rec?(prev?`Tu as battu ton ancien record de ${prev}. Bravo!`:"C'est ton premier record. Essaie de le battre!"):`Ton record : ${prev}. ${sc>=prev-2?"Tu y étais presque!":"Tu peux y arriver!"}`}</b></p>
   ${redo.length?`<p class="msg">À revoir :</p><div class="redo">${redo.map(r=>`<span>${r}</span>`).join("")}</div>`:""}${reviewHTML((G.review||[]).slice(0,3),"end-rev")}
-  <div class="row-btns"><button class="btn" id="b-again">Rejouer</button><button class="btn ghost" id="b-map">Retour à la carte</button></div></div>`;
+  <div class="row-btns"><button class="btn" id="b-again">Rejouer</button><button class="btn ghost" id="b-map">Retour à ${SUBJ[G.subj]?SUBJ[G.subj].nom:"la carte"}</button></div></div>`;
   bindReview(el,G.subj,false);
   $("#b-again").onclick=startSprint;$("#b-map").onclick=()=>{G=null;renderCarte();go("carte")};
   tone(rec?[[523,.12],[659,.12],[784,.12],[1047,.25]]:[[523,.15],[659,.2]]);go("fin");
@@ -3048,7 +3095,7 @@ function startDictee(){dSync();const list=dPick();
   if(!list.length){alertDict();return}
   FORCEV=true;G={mode:"dict",subj:"francais",events:[]};DC={list,i:0,res:{},first:{},retried:new Set(),ok:0,n:list.length,flash:0};dWord()}
 function alertDict(){const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i7)");G={mode:"dict",subj:"francais"};
-  el.innerHTML=`<div class="gamebar"><button class="back" id="d-back">← L'Île aux Mots</button><span class="gtitle">Ma dictée du jour</span></div><div class="card"><p class="prompt">${dWeeks().length?"Tous tes mots sont révisés pour aujourd'hui. Reviens demain!":"Papa ou maman doit d'abord ajouter les listes de mots dans l'espace parent."}</p></div>`;
+  el.innerHTML=`<div class="gamebar"><button class="back" id="d-back">← L'Île aux Mots</button><span class="gtitle">Dictée du jour</span></div><div class="card"><p class="prompt">${dWeeks().length?"Tous tes mots sont révisés pour aujourd'hui. Reviens demain!":"Papa ou maman doit d'abord ajouter les listes de mots dans l'espace parent."}</p></div>`;
   $("#d-back").onclick=()=>{G=null;renderCarte();go("carte")};go("jeu")}
 /* Débit de la dictée : plus lent que la voix normale, et le mot encore plus lentement */
 const dRate=()=>Math.min(S.rate||.63,.81),dRateW=()=>Math.min(S.rate||.63,.81)*.92;
@@ -3062,7 +3109,7 @@ function dWord(){
   clearTimeout(DC.flash);const it=DC.list[DC.i],e=dInfo(it.w),x=DS().bank[it.w]||{b:0};DC.cur={it,e,phase:it.mode==="new"?"look":"write",tries:0};
   const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i7)");
   const voice=canSpeak();
-  el.innerHTML=`<div class="gamebar"><button class="back" id="d-back">← L'Île aux Mots</button><span class="gtitle">${DC.exam?"Révision : grande dictée":"Ma dictée du jour"}</span><span class="levelchip">${Math.min(DC.i+1,DC.list.length)} / ${DC.list.length}</span></div>
+  el.innerHTML=`<div class="gamebar"><button class="back" id="d-back">← L'Île aux Mots</button><span class="gtitle">${DC.exam?"Préparer l'évaluation":"Dictée du jour"}</span><span class="levelchip">${Math.min(DC.i+1,DC.list.length)} / ${DC.list.length}</span></div>
   <div class="dots">${DC.list.map((_,i)=>`<span class="${i<DC.i?(DC.res[i]?"ok":"ko"):i===DC.i?"now":""}"></span>`).join("")}</div>
   <div class="card pop dcard" style="--c:var(--i7)"><div class="cardtop"><div class="notion">${it.mode==="new"?"Mot nouveau · semaine "+e.n:it.mode==="retry"?"On réessaie":"Dictée · semaine "+e.n}</div><span class="cardbtns">${voice?`<button class="listen" id="d-listen">${SPK}Réécouter</button>`:""}</span></div>
   <div id="d-body"></div><div id="fb"></div></div>`;
@@ -3222,7 +3269,7 @@ function startRep(){const r=RS(),pool=REP_ITEMS.filter(it=>repText(it)).slice().
   const list=[];for(const it of pool){if(list.length>=3)break;if(!list.some(x=>x.t===it.t))list.push(it)}
   FORCEV=false;G={mode:"rep",subj:"francais",events:[]};RC={list:shuffle(list),i:0,first:0,tot:0,written:0};repItem()}
 function repShell(){if(RC.rd&&RC.rd.playing)rdPause();const it=RC.list[RC.i],T=repText(it),el=$("#ecran-jeu");el.style.setProperty("--c","var(--i6)");
-  el.innerHTML=`<div class="gamebar"><button class="back" id="r-back">← L'Île aux Mots</button><span class="gtitle">Je réponds en phrases complètes</span><span class="levelchip">${RC.i+1} / ${RC.list.length}</span></div>
+  el.innerHTML=`<div class="gamebar"><button class="back" id="r-back">← L'Île aux Mots</button><span class="gtitle">Répondre en phrases complètes</span><span class="levelchip">${RC.i+1} / ${RC.list.length}</span></div>
   <div class="card pop rcard" style="--c:var(--i6)"><div class="rhelp">${RC.step==="type"?`<p>📖 <b>Prends le temps de lire le texte et la question par toi-même.</b> Si tu as besoin d'aide, je peux te les lire.</p>`:""}${TTS?`<div class="rdctl" id="r-rd"></div>`:""}</div><details class="rtxt" ${RC.step==="type"?"open":""}><summary>Le texte : <b>${esc(T.titre)}</b></summary><article class="readtext"><p>${T.texte}</p></article></details>
    <div class="rq"><span class="rqlab">Question</span><p class="prompt readq">${esc(it.q)}</p></div>
    <div class="rsteps">${["type","start","marq","proof","write"].map((k,i)=>`<span class="${k===RC.step?"now":["type","start","marq","proof","write"].indexOf(RC.step)>i||RC.step==="done"?"ok":""}">${i+1}</span>`).join("")}</div>
@@ -3533,13 +3580,13 @@ function cjQ(u,rev){const v=pick(u.verbs),kind=Math.random()<.3?"pron":"form";
   return{notion:u.nom,key:"conj|"+u.id,rev,prompt:`Complète avec le verbe <b>${v.inf}</b> :<br><span class="cjbig">${blank} ${esc(c)}.</span>`,say:`Complète avec le verbe ${v.inf}. ${subj==="J'"?"Je":subj}, blanc, ${c}.`,choices:ch,answer:form,
     explain:`${p===2&&!/^(Il|Elle|On)$/.test(subj)?`« ${subj} », c'est comme « il » ou « elle ». `:p===5&&!/^(Ils|Elles)$/.test(subj)?`« ${subj} », c'est comme « ils ». `:""}Avec ${CJ_PR[p]}, le verbe ${v.inf} s'écrit « ${form} » : ${p===0&&cjVowel(form)?"j'":CJ_PR[p]+" "}${form}.`,table:cjTable(v,p)}}
 function renderConj(){const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i3)");G={mode:"conjmenu",subj:"francais"};const cur=cjCur();
-  el.innerHTML=`<div class="gamebar"><button class="back" id="cj-back">← L'Île aux Mots</button><span class="gtitle">Ma conjugaison</span></div>
+  el.innerHTML=`<div class="gamebar"><button class="back" id="cj-back">← L'Île aux Mots</button><span class="gtitle">Apprendre un verbe à la fois</span></div>
    <div class="card pop tbcard" style="--c:var(--i3)"><p class="msg">Le présent, un verbe à la fois. Une étape est réussie avec <b>9 sur 10, deux jours différents</b>.</p>
    <div class="cjpath">${CJ_UNITS.map((u,i)=>{const m=cjMastered(u.id),isCur=u===cur,days=(CJS().pass[u.id]||[]).length,open=m||isCur||planConj().has(u.id);return`<button class="cjstep${m?" ok":isCur?" now":""}" data-u="${u.id}" ${open?"":"disabled"}><span class="cjic">${m?"✓":u.ic}</span><span><b>${i+1}. ${u.nom}</b><br><small>${m?"Maîtrisé":isCur?`En cours · ${days} jour${days>1?"s":""} réussi${days>1?"s":""} sur 2`:open?"Demandé par l'école cette semaine":"À venir"}</small></span></button>`}).join("")}</div></div>`;
   $("#cj-back").onclick=()=>{G=null;renderCarte();go("carte")};el.querySelectorAll(".cjstep").forEach(b=>b.onclick=()=>startConj(b.dataset.u));go("jeu")}
 function startConj(id){const u=cjU(id)||cjCur(),done=CJ_UNITS.filter(x=>x!==u&&cjMastered(x.id));DR_BACK=renderConj;
   const v0=u.verbs[0];
-  runDrill({title:"Ma conjugaison · "+u.nom,color:"var(--i3)",back:"← Ma conjugaison",n:10,gen:()=>cjQ(u),extra:done.length?[0,1].map(()=>cjQ(pick(done),true)):[],
+  runDrill({title:""+u.nom,color:"var(--i3)",back:"← Les verbes",n:10,gen:()=>cjQ(u),extra:done.length?[0,1].map(()=>cjQ(pick(done),true)):[],
     intro:`<div class="notion">${cjMastered(u.id)?"Révision":"Étape "+(CJ_UNITS.indexOf(u)+1)+" sur "+CJ_UNITS.length}</div><h2 class="tbh">${u.ic} ${u.nom}</h2><div class="tbast"><b>À retenir</b>${u.ast.map(x=>`<p>${esc(x)}</p>`).join("")}</div>${cjTable(v0,-1)}`,
     introSay:[u.nom+".",...u.ast],again:()=>startConj(u.id),
     onEnd:R=>{const c=CJS(),dn=dayNum();let msg;if(R.cur&&R.ok>=9){const P=c.pass[u.id]||(c.pass[u.id]=[]);if(!P.includes(dn))P.push(dn);
@@ -4287,7 +4334,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-223139";
+const APP_VER="20261104-225443";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
