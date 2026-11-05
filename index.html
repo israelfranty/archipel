@@ -973,6 +973,7 @@ body.skyin .village{border:1px solid var(--cream-line);border-radius:26px;box-sh
 body.skyin .cg-h{font-family:var(--f-display);font-weight:700;font-size:1.4rem;margin-top:8px}
 @media (max-width:640px){body.skyin .isles{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:480px){.b10ctl{flex-wrap:wrap;justify-content:center;gap:6px}.b10ctl .b10n{order:-1;flex-basis:100%}}
+.fbtime:empty{display:none}
 </style>
 
 <header class="top">
@@ -1017,7 +1018,7 @@ const NOMS=["Léa","Noah","Maya","Samuel","Jade","Ilan","Rosalie","Malik","Chlo�
 const NOMG=[["Léa","f"],["Noah","m"],["Maya","f"],["Samuel","m"],["Jade","f"],["Ilan","m"],["Rosalie","f"],["Malik","m"],["Chloé","f"],["Félix","m"]];
 
 /* ---------- Sauvegarde (sur cet appareil seulement) ---------- */
-function fresh(){return{v:1,name:"",sound:true,strict:false,boardOn:true,week:{fr:[],en:[],updated:0},wstats:{},trace:{},goals:{francais:20,maths:15,anglais:10},music:true,goalMin:20,day:null,hist:[],voice:true,voiceName:"",rate:0.63,rateV:3,pin:"",totalOk:0,hard:0,nlast:{},comp:{type:"",name:"",items:[],gold:0},boxes:{n:0,since:0},ms:{first:0,stars3:{},mastered:{}},gifts:{on:true,freq:"parfois",reveal:true,list:["Choisir le dessert du souper","15 minutes de plus avant le dodo","Une sortie au parc avec papa ou maman","Choisir le film de la soirée en famille","Un crayon ou des autocollants spéciaux"],pending:[],given:0},isl:{},notions:{},times:{},rec:{},sprints:{maths:{best:0,hist:[]},francais:{best:0,hist:[]}}}}
+function fresh(){return{v:1,name:"",sound:true,strict:false,boardOn:true,week:{fr:[],en:[],updated:0},wstats:{},trace:{},goals:{francais:10,maths:10,anglais:5},music:true,goalMin:20,day:null,hist:[],voice:true,voiceName:"",rate:0.63,rateV:3,pin:"",totalOk:0,hard:0,nlast:{},comp:{type:"",name:"",items:[],gold:0},boxes:{n:0,since:0},ms:{first:0,stars3:{},mastered:{}},gifts:{on:true,freq:"parfois",reveal:true,list:["Choisir le dessert du souper","15 minutes de plus avant le dodo","Une sortie au parc avec papa ou maman","Choisir le film de la soirée en famille","Un crayon ou des autocollants spéciaux"],pending:[],given:0},isl:{},notions:{},times:{},rec:{},sprints:{maths:{best:0,hist:[]},francais:{best:0,hist:[]}}}}
 function load(){let r=null;try{r=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!r||r.v!==1)return fresh();if(r.rateV!==3){r.rate=.63;r.rateV=3}if(r.sprint&&!r.sprints){r.sprints={maths:r.sprint,francais:{best:0,hist:[]}};delete r.sprint}return Object.assign(fresh(),r)}
 let S=load();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -1835,7 +1836,7 @@ function evText(e){const n=KID();switch(e.k){
   case"maitrise":return`Tu réussis maintenant presque toujours : « ${e.notion} ». Ce sont tes efforts qui ont fait ça!`;
   case"cent":return`Déjà ${e.n} bonnes réponses depuis le début! Chaque question t'a rendue plus forte.`;
   case"vitesse":return`Nouveau record de vitesse ${e.a}! Tu réponds de plus en plus vite.`;
-  case"eclair":return`Nouveau record à la Course Éclair : ${e.s} bonnes réponses! Ton entraînement paie.`;
+  case"eclair":return`Nouveau record à la Course de vitesse : ${e.s} bonnes réponses! Ton entraînement paie.`;
   case"courage":return`C'était difficile, et tu as continué quand même. C'est comme ça qu'on progresse. On réessaie ensemble?`;
   case"objectif":return`Tu as atteint tous tes objectifs d'étude d'aujourd'hui! Bravo pour ta persévérance.`;
   case"objectifS":return`Objectif ${DE[e.s]} atteint pour aujourd'hui : ${S.goals[e.s]} minutes! ${allDone()?"":"Il te reste "+resteTxt()+"."}`;
@@ -1843,7 +1844,7 @@ function evText(e){const n=KID();switch(e.k){
   case"dicteeN":return`${e.n} mots de dictée bien rangés dans ta mémoire! Tu ne les oublies plus.`;
   case"donjon":return`Trois pierres précieuses dans le Donjon des nombres (${e.th})! Tu as été rapide et précise.`;
   case"village":return`Ton village compte maintenant ${e.n} bâtiments! Tu es une vraie bâtisseuse.`;
-  case"poke":return pick([`Je crois en toi${n}!`,`Une île de plus aujourd'hui?`,`Chaque erreur t'apprend quelque chose.`,`J'adore explorer avec toi${n}!`,`Prête pour une Course Éclair?`]);
+  case"poke":return pick([`Je crois en toi${n}!`,`Une île de plus aujourd'hui?`,`Chaque erreur t'apprend quelque chose.`,`J'adore explorer avec toi${n}!`,`Prête pour une Course de vitesse?`]);
  }return""}
 /* Cadeau en vrai : au plus un toutes les 2 semaines, à la première boîte surprise après ce délai */
 const GIFT_GAP=14*864e5;
@@ -1857,7 +1858,10 @@ function drawPrize(){
 }
 function celebrate(events){
   if(!S.comp.type||!events.length)return;
-  const steps=events.map(e=>({txt:evText(e),mood:e.k==="courage"?"think":e.k==="intro"?"wave":"happy"}));
+  /* Une seule célébration à la fois : la plus importante. La boîte surprise, elle, est toujours gardée. */
+  const PRI=["intro","first","maitrise","niveau","etoiles","donjon","village","objectif","objectifS","cent","vitesse","eclair","courage"],rk=e=>{const i=PRI.indexOf(e.k);return i<0?PRI.length:i};
+  const top=events.slice().sort((a,b)=>rk(a)-rk(b))[0];
+  const steps=[top].map(e=>({txt:evText(e),mood:e.k==="courage"?"think":e.k==="intro"?"wave":"happy"}));
   const box=events.some(e=>e.box);
   if(box)steps.push({txt:"J'ai une boîte surprise pour toi! Touche-la pour l'ouvrir.",mood:"wave",box:true});
   let i=0;const o=document.createElement("div");o.className="ovl";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-label",BN());document.body.appendChild(o);
@@ -2090,7 +2094,7 @@ function renderQ(){
   else{A.innerHTML=`<div class="numpad"><div class="numdisplay" id="nd" aria-live="polite">&nbsp;</div>${keysHTML()}</div>`;
     A.querySelectorAll(".key").forEach(b=>b.onclick=()=>key(b.dataset.k))}
   go("jeu");
-  G.target=targetMs(q);G.over=false;G.t0=0;if(q.kind==="board")$("#trow").hidden=true;
+  G.target=targetMs(q);G.over=false;G.t0=0;G.timed=TIMED.has(q.isl)&&q.kind!=="board";if(G.timed)G.anyT=true;if(!G.timed)$("#trow").hidden=true;
   const begin=()=>{if(!G||G.q!==q||G.done||G.t0)return;G.t0=performance.now();requestAnimationFrame(tick)};
   const bl=$("#b-listen");if(bl)bl.onclick=()=>speak(qSay(q),begin,q.lang);
   const bh=$("#b-help");if(bh)bh.onclick=()=>{const h=$("#q-help");h.hidden=!h.hidden;bh.setAttribute("aria-expanded",String(!h.hidden))};
@@ -2098,7 +2102,7 @@ function renderQ(){
   if(canSpeak()){$("#tlabel").textContent="Écoute…";speak(qSay(q),begin,q.lang)}else begin();
 }
 function tick(){
-  if(!G||G.mode!=="q"||G.done||document.hidden||!G.t0||PAUSED||G.q.kind==="board")return;
+  if(!G||G.mode!=="q"||G.done||document.hidden||!G.t0||PAUSED||G.q.kind==="board"||!G.timed)return;
   const f=$("#fuse"),lab=$("#tlabel");if(!f)return;
   const left=G.target-(performance.now()-G.t0);
   f.style.width=Math.max(0,left/G.target*100)+"%";
@@ -2121,7 +2125,7 @@ document.addEventListener("keydown",e=>{
 });
 function answer(v,btn){
   if(!G||G.done)return;G.done=true;
-  const q=G.q,BRD=q.kind==="board",ms=G.t0?performance.now()-G.t0:0,timeout=v===null,ok=!timeout&&String(v)===q.answer,fast=ok&&!BRD&&ms<=G.target;
+  const q=G.q,BRD=q.kind==="board",ms=G.t0?performance.now()-G.t0:0,timeout=v===null,ok=!timeout&&String(v)===q.answer,fast=ok&&!BRD&&G.timed&&ms<=G.target;
   G.res.push(ok);if(ok)G.score++;if(fast)G.eclairs++;if(!BRD)G.totalMs+=ms;
   const s=IS(q.isl);s.t++;if(ok)s.r++;
   const nk=nkey(q),n=S.notions[nk]||(S.notions[nk]={r:0,t:0});n.t++;if(ok)n.r++;logAct(nk,ok);
@@ -2138,7 +2142,7 @@ function answer(v,btn){
   const last=G.i===G.n-1;
   const REV=ok?[]:lessonsFor(q.isl,q.notion,q);if(!ok)REV.forEach(r=>{if(!(G.review||(G.review=[])).some(x=>revKey(x)===revKey(r)))G.review.push(r)});
   const EN=q.lang==="en",title=timeout?"Temps écoulé!":fast?`<span class="bolt">${BOLT}Éclair!</span>`:ok?pick(EN?["Great job!","Well done!","Awesome!","Yes!"]:["Bravo!","Bonne réponse!","Tu l'as!","Bien joué!"]):(EN?"Almost!":"Presque!");
-  const time=BRD?(ok?"Tu as pris le temps de bien écrire. Bravo!":"Recopie la bonne réponse au tableau pour bien la retenir."):timeout?`L'objectif était ${secs(G.target)} s. Tu feras mieux à la prochaine!`:fast?`Réponse en ${secs(ms)} s : plus vite que l'objectif de ${secs(G.target)} s!`:ok?`Réponse en ${secs(ms)} s. Objectif : ${secs(G.target)} s. Essaie d'aller un peu plus vite!`:`Temps : ${secs(ms)} s.`;
+  const time=!BRD&&!G.timed?"":BRD?(ok?"Tu as pris le temps de bien écrire. Bravo!":"Recopie la bonne réponse au tableau pour bien la retenir."):timeout?`L'objectif était ${secs(G.target)} s. Tu feras mieux à la prochaine!`:fast?`Réponse en ${secs(ms)} s : plus vite que l'objectif de ${secs(G.target)} s!`:ok?`Réponse en ${secs(ms)} s. Objectif : ${secs(G.target)} s. Essaie d'aller un peu plus vite!`:`Temps : ${secs(ms)} s.`;
   $("#fb").innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${title}</h3><p class="fbtime">${time}</p>${ok||BRD?"":`<p>La bonne réponse est <b>${q.disp?q.disp[q.answer]:show(q.answer)}</b>.</p>`}${ok&&Math.random()<.6&&!EN?"":`<p>${q.explain}</p>`}${!ok&&q.hm&&q.hm[1]?`<div class="fbclock">${clock(q.hm[0],q.hm[1],true).replace(/<div class="fraclegend">.*<\/div><\/div>$/s,"</div>")}<p><small>La petite aiguille est dans la zone jaune, <b>entre le ${q.hm[0]} et le ${q.hm[0]%12+1}</b>. Elle n'a pas encore atteint le ${q.hm[0]%12+1} : l'heure est donc <b>${q.hm[0]} h</b>.</small></p></div>`:""}${q.rep&&TTS?`<button class="listen rep" id="b-rep">${SPK}Répète après moi : <b lang="en">${esc(q.rep)}</b></button>`:""}${!ok?reviewHTML(REV,"fb-rev"):""}<button class="btn" id="b-cont">${last?"Voir mon résultat":"Question suivante"}</button></div>`;
   const c=$("#b-cont");c.onclick=()=>{if(c.disabled)return;G.i++;if(G.i>=G.n)finish();else next()};
   /* Après une erreur, le bouton reste bloqué tant que l'explication n'est pas terminée */
@@ -2162,7 +2166,7 @@ function finish(){
   if(G.id!=="defi"&&G.id!=="tableau"){const s=IS(G.id);s.played++;s.stars=Math.max(s.stars,st);
     if(sc>=7&&s.level<3){s.level++;lvlMsg=`Tu passes au niveau ${s.level}! Les questions seront un peu plus difficiles.`}
     else if(sc<=3&&s.level>1){s.level--;lvlMsg=`On revient au niveau ${s.level} pour bien pratiquer. Tu vas y arriver!`}
-    if(sc>=6){const prev=S.rec[G.id];if(!prev||G.totalMs<prev){S.rec[G.id]=Math.round(G.totalMs);recMsg=prev?`Nouveau record de vitesse! Avant : ${fmtDur(prev)}.`:"Premier record de vitesse enregistré!";if(prev)G.events.push({k:"vitesse",a:byId(G.id).a})}else recMsg=`Ton record : ${fmtDur(prev)}.`}
+    if(sc>=6&&TIMED.has(G.id)){const prev=S.rec[G.id];if(!prev||G.totalMs<prev){S.rec[G.id]=Math.round(G.totalMs);recMsg=prev?`Nouveau record de vitesse! Avant : ${fmtDur(prev)}.`:"Premier record de vitesse enregistré!";if(prev)G.events.push({k:"vitesse",a:byId(G.id).a})}else recMsg=`Ton record : ${fmtDur(prev)}.`}
     if(lvlMsg&&sc>=7)G.events.push({k:"niveau",L:s.level,a:byId(G.id).a,box:true});
     if(st===3&&!S.ms.stars3[G.id]){S.ms.stars3[G.id]=1;G.events.push({k:"etoiles",a:byId(G.id).a,box:true})}}
   if(!S.ms.first){S.ms.first=1;G.events.unshift({k:"first"})}
@@ -2171,18 +2175,20 @@ function finish(){
   const head=headOf();
   const msg=sc===N?"Parfait! Tu maîtrises ces notions.":sc>=N*.75?"Très bon travail! Encore un peu de pratique et ce sera parfait.":sc>=N*.5?"Bon effort! Relis bien les explications quand tu te trompes.":"Ce n'est pas grave de se tromper : c'est comme ça qu'on apprend. Essaie encore!";
   const el=$("#ecran-fin");el.style.setProperty("--c",`var(${head.c})`);
-  el.innerHTML=`<div class="card result pop" style="--c:var(${head.c})"><div class="notion">${head.nom}</div><h2>${sc>=N*.75?"Mission réussie":"Mission terminée"}${S.name?", "+esc(S.name):""}!</h2><div class="score">${sc} / ${N}</div>${stars(st)}
-  ${G.id==="tableau"?"":`<p class="msg"><span class="bolt">${BOLT}<b>${G.eclairs} éclair${G.eclairs>1?"s":""} sur ${N}</b></span><br>Temps total : ${fmtDur(G.totalMs)}</p>`}${recMsg?`<p class="msg"><b>${recMsg}</b></p>`:""}
+  el.innerHTML=`<div class="card result pop" style="--c:var(${head.c})"><div class="notion">${head.nom}</div><h2>${sc>=N*.75?"Bravo":"Partie terminée"}${S.name?", "+esc(S.name):""}!</h2><div class="score">${sc} / ${N}</div>${stars(st)}
+  ${G.id==="tableau"||!G.anyT?"":`<p class="msg"><span class="bolt">${BOLT}<b>${G.eclairs} éclair${G.eclairs>1?"s":""} sur ${N}</b></span><br>Temps total : ${fmtDur(G.totalMs)}</p>`}${recMsg?`<p class="msg"><b>${recMsg}</b></p>`:""}
   <p class="msg">${msg}</p>${lvlMsg?`<p class="msg"><b>${lvlMsg}</b></p>`:""}${reviewHTML((G.review||[]).slice(0,4),"end-rev")}<div class="row-btns"><button class="btn" id="b-again">Rejouer</button><button class="btn ghost" id="b-map">Retour à ${SUBJ[G.subj]?SUBJ[G.subj].nom:"la carte"}</button></div></div>`;
   bindReview(el,G.subj,false);
   const id=G.id;$("#b-again").onclick=()=>start(id);$("#b-map").onclick=()=>{G=null;renderCarte();go("carte")};
   tone(st>=2?[[523,.12],[659,.12],[784,.12],[1047,.25]]:[[523,.15],[659,.2]]);go("fin");
-  speak(`${sc>=N*.75?"Mission réussie":"Mission terminée"}${S.name?", "+S.name:""}! ${sc} sur ${N}. ${G.id==="tableau"?"":G.eclairs+" éclair"+(G.eclairs>1?"s":"")+". "}${msg} ${revSay((G.review||[]).slice(0,4))}`);
+  speak(`${sc>=N*.75?"Bravo":"Partie terminée"}${S.name?", "+S.name:""}! ${sc} sur ${N}. ${G.id==="tableau"||!G.anyT?"":G.eclairs+" éclair"+(G.eclairs>1?"s":"")+". "}${msg} ${revSay((G.review||[]).slice(0,4))}`);
   const evs=G.events.concat(PEND.splice(0));if(evs.length&&S.comp.type)setTimeout(()=>{if(!$("#ecran-fin").hidden&&!BYE)celebrate(evs);else PEND.push(...evs)},1200);
 }
 
 /* ---------- Course Éclair : 60 secondes (maths : calculs au clavier; français : homophones et conjugaison) ---------- */
 const SPRINT=60000;
+/* Le chronomètre ne sert que là où la rapidité compte : les faits de calcul. Ailleurs, elle prend le temps de comprendre. */
+const TIMED=new Set(["foret","volcan"]);
 const SPR=subj=>S.sprints[subj]||(S.sprints[subj]={best:0,hist:[]});
 function sprintQM(){
   const t=pick(["mul","mul","add","sub"]);
@@ -2232,7 +2238,7 @@ function finishSprint(){
   const evs=(rec&&prev>0?[{k:"eclair",s:sc,box:sc>=prev+2}]:[]).concat(PEND.splice(0));if(evs.length&&S.comp.type)setTimeout(()=>{if(!$("#ecran-fin").hidden&&!BYE)celebrate(evs);else PEND.push(...evs)},1200);
   const el=$("#ecran-fin");el.style.setProperty("--c",`var(${c})`);
   const redo=[...new Set(G.wrong)].slice(0,8);
-  el.innerHTML=`<div class="card result pop" style="--c:var(${c})"><div class="notion">La Course Éclair · ${SUBJ[G.subj].court}</div><h2>${rec?"Nouveau record":"Temps écoulé"}${S.name?", "+esc(S.name):""}!</h2><div class="score">${sc}</div><p class="msg">bonne${sc>1?"s":""} réponse${sc>1?"s":""} en 60 secondes</p>
+  el.innerHTML=`<div class="card result pop" style="--c:var(${c})"><div class="notion">Course de vitesse · ${SUBJ[G.subj].court}</div><h2>${rec?"Nouveau record":"Temps écoulé"}${S.name?", "+esc(S.name):""}!</h2><div class="score">${sc}</div><p class="msg">bonne${sc>1?"s":""} réponse${sc>1?"s":""} en 60 secondes</p>
   <p class="msg"><b>${rec?(prev?`Tu as battu ton ancien record de ${prev}. Bravo!`:"C'est ton premier record. Essaie de le battre!"):`Ton record : ${prev}. ${sc>=prev-2?"Tu y étais presque!":"Tu peux y arriver!"}`}</b></p>
   ${redo.length?`<p class="msg">À revoir :</p><div class="redo">${redo.map(r=>`<span>${r}</span>`).join("")}</div>`:""}${reviewHTML((G.review||[]).slice(0,3),"end-rev")}
   <div class="row-btns"><button class="btn" id="b-again">Rejouer</button><button class="btn ghost" id="b-map">Retour à ${SUBJ[G.subj]?SUBJ[G.subj].nom:"la carte"}</button></div></div>`;
@@ -2281,7 +2287,7 @@ function renderParent(){
   const tab=PTABS.some(t=>t[0]===S.ptab)?S.ptab:"suivi";
   /* --- données calculées --- */
   const rows=Object.keys(SUBJ).map(sj=>`<tr><th colspan="6">${SUBJ[sj].nom}</th></tr>`+zones(sj).map(i=>{const s=IS(i.id),p=s.t?Math.round(100*s.r/s.t):null;return`<tr><td><span class="dot" style="background:var(${i.c})"></span>${i.nom}</td><td>${s.level}</td><td>${s.t}</td><td>${p===null?"—":p+" %"}</td><td>${S.rec[i.id]?fmtDur(S.rec[i.id]):"—"}</td><td>${stars(s.stars)}</td></tr>`}).join("")).join("");
-  const nl=Object.entries(S.notions).filter(([,v])=>v.t>0).map(([k,v])=>{const[isl,notion]=k.split("|");const a=S.times[k]||[];let tm="";if(a.length){tm=` · ${secs(median(a.slice(-5)))} s par bonne réponse`;if(a.length>=6){const d=median(a.slice(0,3))-median(a.slice(-3));if(d>=1000)tm+=` (${secs(d)} s plus vite qu'au début)`;else if(d<=-1000)tm+=` (${secs(-d)} s plus lent qu'au début)`}}return{isl,notion,tm,...v,p:v.r/v.t}}).sort((a,b)=>a.p-b.p||b.t-a.t);
+  const nl=Object.entries(S.notions).filter(([,v])=>v.t>=5).map(([k,v])=>{const[isl,notion]=k.split("|");const a=S.times[k]||[];let tm="";if(a.length){tm=` · ${secs(median(a.slice(-5)))} s par bonne réponse`;if(a.length>=6){const d=median(a.slice(0,3))-median(a.slice(-3));if(d>=1000)tm+=` (${secs(d)} s plus vite qu'au début)`;else if(d<=-1000)tm+=` (${secs(-d)} s plus lent qu'au début)`}}return{isl,notion,tm,...v,p:v.r/v.t}}).sort((a,b)=>a.p-b.p||b.t-a.t);
   const col=p=>p>=.8?"var(--good)":p>=.6?"var(--sun)":"var(--bad)";
   const weak=nl.find(n=>n.t>=5&&n.p<.7);
   const days=(()=>{const all=[...S.hist,{d:S.day.d,sec:S.day.sec,subj:S.day.subj,goals:S.goals}],out=[];for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);const k=dt.toLocaleDateString("en-CA"),r=all.find(x=>x.d===k),sj=(r&&r.subj)||{},gs=(r&&r.goals)||S.goals,ok=r&&r.subj&&SUBJS.every(x=>(sj[x]||0)>=(gs[x]||0)*60);
@@ -2297,7 +2303,7 @@ function renderParent(){
   /* --- onglet Suivi --- */
   const tSuivi=
    pcard("Temps d'étude — 7 derniers jours","Le temps compte seulement pendant les activités, application ouverte et sans pause. Laisser la tablette ouverte sans jouer ne compte pas.",`<div class="days">${days}</div>`)+
-   pcard("Notions à surveiller","Les plus difficiles d'abord. Une notion se lit bien après 5 questions ou plus.",`<div class="nlist">${nl.length?nl.map(n=>`<div class="nrow"><div><b>${n.notion}</b><br><small>${byId(n.isl).nom} · ${n.r}/${n.t} réussies${n.tm}</small></div><div class="meter"><i style="width:${Math.round(n.p*100)}%;background:${col(n.p)}"></i></div><div class="pct">${Math.round(n.p*100)} %</div></div>`).join(""):`<p>Aucune question répondue pour l'instant.</p>`}</div>`)+
+   pcard("Notions à surveiller","Les plus difficiles d'abord. Une notion se lit bien après 5 questions ou plus.",`<div class="nlist">${nl.length?nl.map(n=>`<div class="nrow"><div><b>${n.notion}</b><br><small>${byId(n.isl).nom} · ${n.r}/${n.t} réussies${n.tm}</small></div><div class="meter"><i style="width:${Math.round(n.p*100)}%;background:${col(n.p)}"></i></div><div class="pct">${Math.round(n.p*100)} %</div></div>`).join(""):`<p>Pas encore assez de réponses : une notion s'affiche ici après 5 questions.</p>`}</div>`)+
    pcard("Progrès par île","Le niveau s'ajuste seul : il monte à 7 bonnes réponses sur 8 et descend à 3 ou moins (à changer au besoin dans Réglages). Le record de temps ne compte que les parties d'au moins 6 sur 8.",`<div class="tablewrap"><table><thead><tr><th>Île</th><th>Niveau</th><th>Questions</th><th>Réussite</th><th>Record</th><th>Étoiles</th></tr></thead><tbody>${rows}</tbody></table></div>`)+
    pcard("Rapport de la semaine d'école","Ce qu'elle a fait dans le jeu pour les notions et l'évaluation du plan de la semaine.",weekReportHTML())+
    pcard("Rapport général","Les 7 derniers jours, toutes matières.",generalReportHTML())+
@@ -2305,8 +2311,8 @@ function renderParent(){
    pcard("Réponses écrites (lecture)","Les dernières réponses de « Je réponds en phrases complètes ». Le jeu vérifie seulement la forme; c'est vous qui jugez le contenu.",repParentHTML())+
    pcard("Dictée du jour","Un mot revient après 1, 2, 4, 8, 16 puis 35 jours s'il est réussi; un mot raté revient le lendemain. Il est « maîtrisé » après 5 réussites espacées.",dStatsHTML())+
    pcard("Écriture","Caractères tracés sans modèle. « À l'envers » : le jeu a reconnu le caractère retourné (un d au lieu d'un b, par exemple).",Object.keys(S.trace||{}).length?`<div class="items tglyphs">${Object.entries(S.trace).sort((a,b)=>b[1].rev-a[1].rev||a[0].localeCompare(b[0])).map(([c,t])=>`<span class="${t.rev?"warnc":""}">${c} · réussi ${t.ok}${t.rev?` · à l'envers ${t.rev}`:""}</span>`).join("")}</div>`:`<p>Aucun exercice d'écriture pour l'instant.</p>`)+
-   pcard("Vitesse et jeux","Records de la Course Éclair et de la Bibliothèque de jeux.",
-     `<ul class="plist">${Object.keys(SUBJ).map(sj=>{const r=SPR(sj);return`<li><b>Course Éclair ${SUBJ[sj].court} :</b> record de ${r.best} bonnes réponses en 60 s${r.hist.length?` (dernières : ${r.hist.slice(-6).map(h=>h.s).join(", ")})`:""}.</li>`}).join("")}
+   pcard("Vitesse et jeux","Records de la Course de vitesse et de la Bibliothèque de jeux.",
+     `<ul class="plist">${Object.keys(SUBJ).map(sj=>{const r=SPR(sj);return`<li><b>Course de vitesse, ${SUBJ[sj].court} :</b> ${r.best?`record de ${r.best} bonne${r.best>1?"s":""} réponse${r.best>1?"s":""} en 60 s`:"pas encore jouée"}${r.hist.length?` (dernières : ${r.hist.slice(-6).map(h=>h.s).join(", ")})`:""}.</li>`}).join("")}
      <li><b>Donjon des nombres :</b> ${Object.keys(g.donjon||{}).length?Object.entries(g.donjon).map(([k,v])=>`${(DTHEMES[k]||{nom:k}).nom} : étage ${v.lvl}, record ${v.best||0}/15`).join(" · "):"pas encore joué"}. 🪙 ${g.coins||0} · 💎 ${g.gems||0}</li>
      <li><b>Les bâtisseurs :</b> ${b?`${b.village.length} bâtiment${b.village.length>1?"s":""} · construire le nombre niveau ${b.lvl.nombre} · mur niveau ${b.lvl.mur}`:"pas encore joué"}.</li></ul>`);
   /* --- onglet Matière scolaire --- */
@@ -2318,8 +2324,8 @@ function renderParent(){
   /* --- onglet Réglages --- */
   const tReglages=
    pcard("Objectifs quotidiens","Minutes d'étude visées chaque jour, par matière.",`<div class="goals">${SUBJS.map(k=>`<label for="p-goal-${k}"><b>${LBL[k]}</b><select id="p-goal-${k}" data-goal="${k}">${[0,5,10,15,20,25,30,45].map(m=>`<option value="${m}" ${(S.goals[k]??0)===m?"selected":""}>${m?m+" minutes":"aucun objectif"}</option>`).join("")}</select></label>`).join("")}</div><p class="pdesc">Total : ${SUBJS.reduce((t,k)=>t+(S.goals[k]||0),0)} minutes par jour.</p>`)+
-   pcard("Missions","Chaque question a un objectif de temps : 10 % plus rapide que son temps habituel sur la notion. Une bonne réponse sous l'objectif donne un « éclair ».",
-     `<label class="toggle" for="p-board"><input type="checkbox" id="p-board" ${S.boardOn!==false?"checked":""}><span><b>Un défi au tableau dans chaque mission</b><br><small>La dernière question se fait à la main. Elle peut la passer si elle n'a pas son tableau.</small></span></label>
+   pcard("Questions et temps","En calcul (additions, soustractions, multiplications), chaque question a un objectif de temps : 10 % plus rapide que son temps habituel. Une bonne réponse sous l'objectif donne un « éclair ». Ailleurs, pas de chronomètre : elle prend le temps de comprendre.",
+     `<label class="toggle" for="p-board"><input type="checkbox" id="p-board" ${S.boardOn!==false?"checked":""}><span><b>Un défi au tableau dans chaque partie</b><br><small>La dernière question se fait à la main. Elle peut la passer si elle n'a pas son tableau.</small></span></label>
      <label class="toggle" for="p-strict"><input type="checkbox" id="p-strict" ${S.strict?"checked":""}><span><b>Compte à rebours strict</b><br><small>Le temps écoulé compte comme une erreur. Seulement quand elle réussit bien en mode normal.</small></span></label>`)+
    pcard("Niveaux des îles","Le niveau s'ajuste seul. Changez-le ici seulement pour la faire avancer ou reculer volontairement.",`<div class="lvlgrid">${Object.keys(SUBJ).map(sj=>`<div><b class="lvlh">${SUBJ[sj].court}</b>${zones(sj).map(i=>`<label><span>${i.nom}</span><select data-isle="${i.id}" aria-label="Niveau ${i.nom}">${[1,2,3].map(n=>`<option ${n===IS(i.id).level?"selected":""}>${n}</option>`).join("")}</select></label>`).join("")}</div>`).join("")}</div>`)+
    pcard("Bibliothèque de jeux","Les jeux d'aventure (Donjon des nombres, Bâtisseurs…).",`<label class="toggle" for="p-games"><input type="checkbox" id="p-games" ${S.gamesOn!==false?"checked":""}><span><b>Accès à la Bibliothèque de jeux</b><br><small>Décoché, la carte disparaît de l'accueil. Pièces, pierres et records sont gardés.</small></span></label>`)+
@@ -2337,14 +2343,14 @@ function renderParent(){
   /* --- onglet Récompenses --- */
   const tRecomp=
    pcard("À remettre","Les cadeaux en vrai qu'elle a débloqués.",S.gifts.pending.length?`<div class="gifts-list">${S.gifts.pending.map((x,i)=>`<div class="g"><span><b>${esc(x.txt)}</b><br><small>Débloqué le ${new Date(x.t).toLocaleDateString("fr-CA",{day:"numeric",month:"long"})}</small></span><button class="btn ghost" data-given="${i}">Remis</button></div>`).join("")}</div>`:`<p><b>Aucun cadeau à remettre pour l'instant.</b>${S.gifts.given?` Déjà remis : ${S.gifts.given}.`:""}</p>`)+
-   pcard("Cadeaux en vrai",`Aux grandes étapes, le compagnon offre une boîte surprise (au plus une par mission). D'habitude, elle contient un objet pour le compagnon; <b>une fois toutes les 2 semaines</b>, un cadeau de votre liste. ${giftNext()>Date.now()?`Prochain cadeau possible à partir du <b>${new Date(giftNext()).toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"})}</b>.`:"Le prochain peut arriver dès la prochaine boîte."}`,
+   pcard("Cadeaux en vrai",`Aux grandes étapes, le compagnon offre une boîte surprise (au plus une par partie). D'habitude, elle contient un objet pour le compagnon; <b>une fois toutes les 2 semaines</b>, un cadeau de votre liste. ${giftNext()>Date.now()?`Prochain cadeau possible à partir du <b>${new Date(giftNext()).toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"})}</b>.`:"Le prochain peut arriver dès la prochaine boîte."}`,
      `<label class="toggle" for="p-gon"><input type="checkbox" id="p-gon" ${S.gifts.on?"checked":""}><span><b>Activer les cadeaux en vrai</b><br><small>Désactivé, les boîtes contiennent seulement des objets pour le compagnon.</small></span></label>
      <label class="toggle" for="p-greveal"><input type="checkbox" id="p-greveal" ${S.gifts.reveal?"checked":""}><span><b>Lui dire quel cadeau elle a gagné</b><br><small>Décoché, le compagnon annonce « un cadeau surprise ».</small></span></label>
      <label for="p-glist"><b>Liste des cadeaux</b> <small>(un par ligne, tiré au hasard)</small></label><textarea id="p-glist">${esc(S.gifts.list.join("\n"))}</textarea>
      <button class="btn ghost" id="p-gsave">Enregistrer la liste</button><p class="pdesc">Conseil : des moments partagés (une sortie, un jeu, choisir le dessert) plutôt que des achats.</p>`);
   /* --- onglet Données (le dangereux tout en bas) --- */
   const tDonnees=
-   pcard("Version du jeu","",typeof APP_VER!=="undefined"?`<p>Version installée : <b>${verTxt(APP_VER)}</b></p><div class="confirm"><button class="btn ghost" id="p-upd">Vérifier les mises à jour</button><span id="p-updmsg" aria-live="polite"></span></div>`:`<p>Version Claude : toujours à jour automatiquement.</p>`)+
+   pcard("Version du jeu","",typeof APP_VER!=="undefined"?`<p>Version installée : <b>${verTxt(APP_VER)}</b></p><div class="confirm"><button class="btn ghost" id="p-upd">Vérifier les mises à jour</button><span id="p-updmsg" aria-live="polite"></span></div>`:`<p>Toujours à jour : chaque amélioration apparaît dès la prochaine ouverture.</p>`)+
    pcard("Sauvegarde de la progression","Pour passer la progression d'un appareil à l'autre : « Exporter » sur l'ancien, puis « Importer » sur le nouveau. Les progrès sont enregistrés seulement sur cet appareil.",
      `<div class="confirm"><button class="btn ghost" id="p-exp">Exporter la progression</button><button class="btn ghost" id="p-imp">Importer une progression</button></div><div id="p-xzone" class="xzone"></div>`)+
    pcard("Remettre la journée à zéro","Après vos tests, pour qu'ils ne comptent pas dans sa journée.",
@@ -3018,7 +3024,7 @@ function bindSearch(subj){const inp=$("#q-search"),out=$("#q-res");if(!inp)retur
    (1, 2, 4, 8, 16 puis 35 jours). Raté : il retourne à la boîte 1 et revient dès le lendemain.
    C'est la révision espacée : on se rappelle le mot juste au moment où on allait l'oublier. */
 const LISTE_DEF=/*LISTE*/""/*FIN-LISTE*/;
-const DINT=[0,1,2,4,8,16,35],DN=10,DMAST=5,DCAP=30;
+const DINT=[0,1,2,4,8,16,35],DN=10,DMAST=5,DCAP=15;
 const dToday=()=>{const d=DS(),dn=dayNum();if(!d.today||d.today.d!==dn)d.today={d:dn,n:0};return d.today};
 const dRoom=()=>Math.max(0,DCAP-dToday().n);
 const DALT={"clé":["clef"],"boîte":["boite"],"paraître":["paraitre"],"août":["aout"],"fraîche":["fraiche"],"fou":["fol"]};
@@ -3739,7 +3745,7 @@ function weekReportHTML(){const p=S.plan;if(!p)return`<p>Aucun plan de la semain
 function generalReportHTML(){const dn=dayNum(),from=dn-6,SUB={maths:"Maths",francais:"Français",anglais:"Anglais"},mins={};
   [...(S.hist||[]),...(S.day?[S.day]:[])].forEach(h=>{const d=isoDn(h.d);if(d==null||d<from)return;Object.entries(h.subj||{}).forEach(([k,v])=>mins[k]=(mins[k]||0)+v)});
   const all=logSum(from,dn,()=>true),N=Object.entries(S.notions||{}).filter(([,x])=>x.t>=6).map(([k,x])=>({k:k.split("|")[1]||k,p:x.r/x.t,t:x.t}));
-  const best=N.slice().sort((a,b)=>b.p-a.p).slice(0,3),weak=N.slice().sort((a,b)=>a.p-b.p).filter(x=>x.p<.8).slice(0,3);
+  const best=N.filter(x=>x.p>=.8).sort((a,b)=>b.p-a.p).slice(0,3),weak=N.slice().sort((a,b)=>a.p-b.p).filter(x=>x.p<.8).slice(0,3);
   const T=S.tables?TB_TABLES[TBS().cur].nom+" ("+TB_ET[TBS().et].nom+")":"pas commencé",cj=CJ_UNITS.filter(u=>cjMastered(u.id)).length,days=new Set(Object.keys(S.dlog||{}).map(Number).filter(d=>d>=from)).size;
   return`<p>7 derniers jours : <b>${days} jour${days>1?"s":""} d'activité</b> · ${all.t} réponses, ${pct(all.r,all.t)} de réussite.</p>
    <p class="pdesc">Temps : ${Object.keys(SUB).map(k=>`${SUB[k]} ${Math.round((mins[k]||0)/60)} min`).join(" · ")}.</p>
@@ -3937,7 +3943,7 @@ const GIC={donjon:"chateau",batisseurs:"blocs",galaxie:"ampoule",tresor:"trophee
 function renderBiblio(){if(S.gamesOn===false){stopDonjon();G=null;renderCarte();go("carte");return}stopDonjon();G={mode:"biblio",subj:null};const g=GS();
   const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");
   const sub={donjon:"Passe par la bonne porte",batisseurs:"Construis les nombres du village"};
-  const grp=k=>`<h3 class="xh">${k}</h3><div class="ggrid">${GAMES.filter(x=>x.sous===k).map(x=>`<button class="gc${x.ready?"":" locked"}" data-game="${x.id}" ${x.ready?"":"aria-disabled=\"true\""}>${x.ready?"":`<span class="soon">Bientôt</span>`}<img src="${XIC[GIC[x.id]]||IC3[GIC[x.id]]}" alt=""><span class="gb"><b>${x.nom}</b><small>${x.ready?(sub[x.id]||x.sous):x.sous}</small></span></button>`).join("")}</div>`;
+  const grp=k=>!GAMES.some(x=>x.sous===k&&x.ready)?"":`<h3 class="xh">${k}</h3><div class="ggrid">${GAMES.filter(x=>x.sous===k&&x.ready).map(x=>`<button class="gc${x.ready?"":" locked"}" data-game="${x.id}" ${x.ready?"":"aria-disabled=\"true\""}>${x.ready?"":`<span class="soon">Bientôt</span>`}<img src="${XIC[GIC[x.id]]||IC3[GIC[x.id]]}" alt=""><span class="gb"><b>${x.nom}</b><small>${x.ready?(sub[x.id]||x.sous):x.sous}</small></span></button>`).join("")}</div>`;
   el.innerHTML=skyHead("Explorer","bb-home",`<span class="skychip">🪙 ${g.coins} pièce${g.coins>1?"s":""}</span>`)+`<div class="xpage">`+tCard(XIC.chateau,"La Bibliothèque de jeux","Chaque jeu fait pratiquer les notions de l'école en s'amusant.")+grp("Mathématiques")+grp("Français")+`</div>`;
   $("#bb-home").onclick=()=>{G=null;HTAB="explore";renderCarte();go("carte")};
   el.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>{const nx={donjon:donjonMenu,batisseurs:batMenu}[b.dataset.game];if(nx)(heroOf()?nx():pickHero(nx));else{tone([[300,.1]]);b.classList.add("shake1");setTimeout(()=>b.classList.remove("shake1"),400)}});
@@ -4369,7 +4375,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-235159";
+const APP_VER="20261105-111121";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
