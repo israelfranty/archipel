@@ -946,6 +946,20 @@ body.skyin .isle{border:1px solid var(--cream-line);border-radius:26px;box-shado
  body.skyin .gamebar .levelchip{order:2;margin-left:auto}
  body.skyin .gamebar .gtitle{order:3;flex:1 1 100%;margin-right:0;font-size:1rem;padding:8px 14px 8px 8px}
  body.skyin .key.ok,body.skyin .key.del{font-size:.85rem;padding:0 2px}}
+.dpage .tcard{margin-top:0}
+.dfc{background:var(--cream);border:1px solid var(--cream-line);border-radius:28px;box-shadow:0 10px 24px rgba(10,60,80,.12);padding:16px 18px;display:flex;flex-direction:column;gap:14px;color:var(--ink)}
+.dft{display:flex;align-items:center;gap:14px}
+.dft img{width:72px;height:72px;object-fit:contain;flex:none}
+.dft h3{margin:0;font-family:var(--f-display);font-weight:700;font-size:1.45rem}
+.dft p{margin:2px 0 0;color:var(--muted);font-size:1rem;line-height:1.35}
+.dsub{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.dsb{display:flex;align-items:center;gap:10px;min-height:68px;padding:8px 12px;background:var(--chbg);border:2px solid var(--cream-line);border-radius:20px;box-shadow:0 3px 0 var(--cream-line);text-align:left;color:var(--ink);transition:transform .15s}
+.dsb:hover{transform:translateY(-2px);border-color:var(--sea)}
+.dsb img{width:46px;height:46px;object-fit:contain;flex:none}
+.dsb span{display:flex;flex-direction:column;min-width:0}
+.dsb b{font-family:var(--f-display);font-weight:700;font-size:1.12rem}
+.dsb small{color:var(--muted);font-size:.82rem;line-height:1.25}
+@media (max-width:640px){.dsub{gap:8px}.dsb{flex-direction:column;justify-content:center;text-align:center;gap:4px;padding:10px 4px}.dsb img{width:40px;height:40px}.dsb span{align-items:center}.dsb b{font-size:1rem}.dsb small{font-size:.72rem}.dft img{width:56px;height:56px}.dft h3{font-size:1.25rem}}
 </style>
 
 <header class="top">
@@ -1960,7 +1974,7 @@ function renderCarte(){
     $("#compnom").focus({preventScroll:true});return}
   const pend=S.gifts.pending.length;
   const buddy=`<button class="buddycard" id="b-buddy" aria-label="Parler à ${esc(BN())}">${buddySVG(S.comp.type,S.comp.items,"idle")}<span class="info"><span class="bname">${esc(BN())}</span><small>Objets trouvés : ${S.comp.items.length} sur ${OBJETS.length}${S.comp.gold?` · ${S.comp.gold} étoile${S.comp.gold>1?"s":""} dorée${S.comp.gold>1?"s":""}`:""}</small>${S.comp.items.length?`<span class="items">${OBJETS.filter(o=>S.comp.items.includes(o[0])).map(o=>`<span>${o[0]}</span>`).join("")}</span>`:""}${pend?`<span class="giftnote">${GIFTICON}${pend} cadeau${pend>1?"x":""} à réclamer auprès de papa et maman</span>`:""}</span></button>`;
-  let h;document.body.classList.toggle("homew",!!CUR||HTAB==="home"||HTAB==="explore");navSync();
+  let h;document.body.classList.toggle("homew",!!CUR||HTAB==="home"||HTAB==="explore"||HTAB==="defis");navSync();
   if(!CUR&&HTAB==="home")h=homeHTML();
   else if(!CUR&&HTAB==="defis")h=defisHTML();
   else if(!CUR){
@@ -4291,8 +4305,15 @@ function homeHTML(){PROG=progItems();const n=PROG.length,dn=PROG.filter(x=>x.don
     <p class="rtxt" style="text-align:center">${esc(BN())} a trouvé <b>${it.length} objet${it.length>1?"s":""} sur ${OBJETS.length}</b>${S.comp.gold?` · ${S.comp.gold} étoile${S.comp.gold>1?"s":""} dorée${S.comp.gold>1?"s":""}`:""}</p>
     ${pend?`<p class="giftnote">${GIFTICON}${pend} cadeau${pend>1?"x":""} à réclamer auprès de papa et maman</p>`:""}<button class="pgo" id="b-coll">Voir ma collection</button></section>`;
   return hero+`<div class="hgrid">${prog}<div class="hcol">${ring}${rew}</div></div>`}
-function defisHTML(){
-  return`<div class="hello"><h2>Les défis</h2><p>Teste-toi! Des questions mélangées, une course contre la montre ou une mission à écrire à la main.</p></div><div class="dgrid">${SUBJS.map(k=>{const s=SUBJ[k];return`<div class="dcard" style="--c:var(${s.c})"><h3><span class="g">${s.glyph}</span>${s.nom}</h3><div class="drow"><button data-defi="${k}|defi"><b>?</b> Le Grand Défi</button><button data-defi="${k}|sprint">${BOLT} La Course Éclair</button><button data-defi="${k}|tableau">${CHALKICON} Mission tableau</button></div></div>`}).join("")}</div>`}
+function defisHTML(){const XI={francais:XIC.livres,maths:XIC.blocs,anglais:XIC.hi};
+  const sb=(k,m,meta)=>`<button class="dsb" data-defi="${k}|${m}"><img src="${XI[k]}" alt=""><span><b>${SUBJ[k].court}</b><small>${meta}</small></span></button>`;
+  const card=(ic,t,d,m,meta)=>`<section class="dfc" aria-label="${t}"><div class="dft"><img src="${ic}" alt=""><div><h3>${t}</h3><p>${d}</p></div></div><div class="dsub">${SUBJS.map(k=>sb(k,m,meta(k))).join("")}</div></section>`;
+  return`<div class="herow short sky"><section class="hero" aria-hidden="true"><img class="hero-img" src="${HERO}" alt=""></section></div><div class="xpage dpage">`
+   +tCard(IC3.trophee,"Les défis","Teste ce que tu sais. Choisis un défi, puis une île.")
+   +card(IC3.cible,"Révision mélangée",`${ROUND} questions de toutes les notions d'une île, pour vérifier ce que tu sais.`,"defi",k=>{const st=starsOf(k),mx=zones(k).length*3;return`${st} étoile${st>1?"s":""} sur ${mx}`})
+   +card(IC3.eclair,"Course de vitesse","Le plus de bonnes réponses possible en 60 secondes.","sprint",k=>SPR(k).best?`Record : ${SPR(k).best}`:"Pas encore de record")
+   +card(XIC.aa,"Défis au tableau","4 défis à écrire ou dessiner à la main, au tableau ou sur une feuille.","tableau",k=>({francais:"Dictée, phrases",maths:"Calculs, dessins",anglais:"Mots à écrire"})[k])
+   +`</div>`}
 function navSync(){document.querySelectorAll("#bnav [data-nav]").forEach(b=>{const on=b.dataset.nav===(CUR?"explore":HTAB);b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});const nb=$("#nav-biblio");if(nb)nb.hidden=S.gamesOn===false}
 function openColl(){const it=S.comp.items;const o=ovl(`<div class="buddywrap">${buddySVG(S.comp.type,it,"happy")}</div><h2 class="ovl-title">La collection de ${esc(BN())}</h2><div class="collg">${OBJETS.map(x=>it.includes(x[0])?`<div>${OBJIC[x[0]]||"✓"} ${x[1]}</div>`:`<div class="no">? Objet à découvrir</div>`).join("")}</div><p class="msg" style="margin:0">Les boîtes surprises arrivent quand tu franchis de grandes étapes.</p><button class="btn" id="o-close">Fermer</button>`);
   const b=o.querySelector("#o-close");b.focus({preventScroll:true});b.onclick=()=>o.remove()}
@@ -4335,7 +4356,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-231853";
+const APP_VER="20261104-233406";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
