@@ -960,6 +960,19 @@ body.skyin .isle{border:1px solid var(--cream-line);border-radius:26px;box-shado
 .dsb b{font-family:var(--f-display);font-weight:700;font-size:1.12rem}
 .dsb small{color:var(--muted);font-size:.82rem;line-height:1.25}
 @media (max-width:640px){.dsub{gap:8px}.dsb{flex-direction:column;justify-content:center;text-align:center;gap:4px;padding:10px 4px}.dsb img{width:40px;height:40px}.dsb span{align-items:center}.dsb b{font-size:1rem}.dsb small{font-size:.72rem}.dft img{width:56px;height:56px}.dft h3{font-size:1.25rem}}
+body.skyin .isles{grid-template-columns:repeat(2,minmax(0,1fr))}
+body.skyin .isle{flex-direction:row;align-items:center;gap:14px;padding:14px 16px;background:var(--cream);color:var(--ink)}
+body.skyin .isle .badge{width:64px;height:64px;border-radius:50%;flex:none;font-size:1.25rem;box-shadow:inset 0 -4px 0 rgba(0,0,0,.15)}
+body.skyin .isle .badge::after{display:none}
+body.skyin .isle .badge svg{width:30px;height:30px}
+body.skyin .isle .body{padding:0}
+body.skyin .isle .nom{font-size:1.2rem;font-weight:700}
+body.skyin .dmhead,body.skyin .herocard{background:var(--cream);border:1px solid var(--cream-line);border-radius:26px;box-shadow:0 10px 22px rgba(10,60,80,.12)}
+body.skyin .herocard.on{border:2px solid var(--sea)}
+body.skyin .village{border:1px solid var(--cream-line);border-radius:26px;box-shadow:0 10px 22px rgba(10,60,80,.12)}
+body.skyin .cg-h{font-family:var(--f-display);font-weight:700;font-size:1.4rem;margin-top:8px}
+@media (max-width:640px){body.skyin .isles{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:480px){.b10ctl{flex-wrap:wrap;justify-content:center;gap:6px}.b10ctl .b10n{order:-1;flex-basis:100%}}
 </style>
 
 <header class="top">
@@ -1918,12 +1931,12 @@ function bye(){BYE=true;PAUSED=false;G=null;save();if(MUS)MUS.pause();if(TTS)try
   $("#b-reopen").onclick=()=>{BYE=false;renderCarte();go("carte");musicSync()}}
 
 /* ---------- Écrans ---------- */
-function go(id){if(!(G&&G.mode==="dict"))FORCEV=false;const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||id==="carte"||BYE;document.body.classList.toggle("has-nav",id==="carte"&&!!S.name&&!!S.comp.type);if(id!=="carte")document.body.classList.remove("homew");SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);const gs=G&&!["trace","biblio","donjon","bat"].includes(G.mode)?G.subj:null;if(id==="jeu")LSUB=gs;skyIn((id==="jeu"||id==="fin")&&SKYSUB.includes(id==="jeu"?gs:LSUB));window.scrollTo(0,0)}
+function go(id){if(!(G&&G.mode==="dict"))FORCEV=false;const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||id==="carte"||BYE;document.body.classList.toggle("has-nav",id==="carte"&&!!S.name&&!!S.comp.type);if(id!=="carte")document.body.classList.remove("homew");SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);const gs=!G?null:G.mode==="trace"?null:["biblio","donjon","bat"].includes(G.mode)?"jeux":G.subj;if(id==="jeu")LSUB=gs;skyIn((id==="jeu"||id==="fin")&&SKYSUB.includes(id==="jeu"?gs:LSUB));window.scrollTo(0,0)}
 /* Pages intérieures au thème « ciel et crème » : activées île par île (SKYSUB). */
-const SKYSUB=["francais","maths","anglais"];let LSUB=null;
+const SKYSUB=["francais","maths","anglais","jeux"];let LSUB=null;
 function skyDeco(id){const gt=document.querySelector(`#ecran-${id} .gtitle`);if(!gt||gt.querySelector(".gic"))return;const t=gt.textContent;
   if(G&&G.mode==="q"&&G.id&&!["defi","tableau"].includes(G.id)&&byId(G.id)){const z=byId(G.id);gt.insertAdjacentHTML("afterbegin",`<span class="gic gmed" style="--c:var(${z.c})" aria-hidden="true">${z.glyph}</span>`);return}
-  const ic=/Révision mélangée/.test(t)?IC3.cible:/tableau/i.test(t)?XIC.aa:/vitesse/i.test(t)?IC3.eclair:/évaluation/.test(t)?IC3.cible:/dictée/i.test(t)?IC3.micro:/phrases complètes/.test(t)?IC3.conte:/Tables d.addition/.test(t)?IC3.boulier:/groupe du nom/.test(t)?IC3.casse:/verbe|conjug/i.test(t)?IC3.cahier:null;
+  const ic=/Révision mélangée/.test(t)?IC3.cible:/tableau/i.test(t)?XIC.aa:/vitesse/i.test(t)?IC3.eclair:/évaluation/.test(t)?IC3.cible:/dictée/i.test(t)?IC3.micro:/phrases complètes/.test(t)?IC3.conte:/Donjon/.test(t)?XIC.chateau:/bâtisseurs/.test(t)?XIC.blocs:/Tables d.addition/.test(t)?IC3.boulier:/groupe du nom/.test(t)?IC3.casse:/verbe|conjug/i.test(t)?IC3.cahier:null;
   if(ic)gt.insertAdjacentHTML("afterbegin",`<img class="gic" src="${ic}" alt="">`)}
 function skyIn(on){document.body.classList.toggle("skyin",!!on);if(on){document.documentElement.style.setProperty("--heroimg",`url(${HERO})`);document.body.classList.add("homew");skyDeco("jeu");skyDeco("fin")}}
 ["jeu","fin"].forEach(k=>new MutationObserver(()=>{if(document.body.classList.contains("skyin"))skyDeco(k)}).observe(document.getElementById("ecran-"+k),{childList:true}));
@@ -1945,7 +1958,7 @@ const CHEVR=`<svg class="qchev" viewBox="0 0 24 24" fill="none" stroke="currentC
 function skyHead(lbl,id,right){return`<div class="herow short sky"><section class="hero" aria-hidden="true"><img class="hero-img" src="${HERO}" alt=""></section><div class="hin"><div class="skyrow"><button class="skyback" id="${id}">${ONB_BACK}<span>${lbl}</span></button>${right||""}</div></div></div>`}
 function tCard(img,title,sub,extra,right){return`<div class="tcard"><img class="tci" src="${img}" alt=""><div class="tcb"><h2>${title}</h2>${sub?`<p>${sub}</p>`:""}${extra||""}</div>${right||""}</div>`}
 function cardBits(html){const g=r=>{const m=html.match(r);return m?m[1]:""};return{id:g(/id="([^"]+)"/),nom:g(/class="nom">([\s\S]*?)<\/span>/),sous:g(/class="sous">([\s\S]*?)<\/span><\/span><\/button>/)}}
-function skyOn(nav){document.body.classList.add("homew");document.body.classList.toggle("has-nav",!!nav);document.querySelectorAll("#bnav [data-nav]").forEach(b=>{const on=b.dataset.nav===nav;b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")})}
+function skyOn(nav){document.body.classList.remove("skyin");document.body.classList.add("homew");document.body.classList.toggle("has-nav",!!nav);document.querySelectorAll("#bnav [data-nav]").forEach(b=>{const on=b.dataset.nav===nav;b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")})}
 function renderCarte(){
   const el=$("#ecran-carte");
   const onb=!S.name||!S.comp.type||ONB_EDIT;document.body.classList.toggle("onb",onb);
@@ -4356,7 +4369,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-233406";
+const APP_VER="20261104-235159";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
