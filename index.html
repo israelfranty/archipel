@@ -1592,13 +1592,13 @@ en_verbs(L){
 }
 };
 const ISL_EN=[
- {id:"en_words",a:"au Word Garden",nom:"Word Garden",sous:"Vocabulaire : animaux, nourriture, couleurs, nombres",glyph:"ABC",c:"--i2"},
- {id:"en_listen",a:"à Simon Says",nom:"Simon Says",sous:"Écouter : consignes, nombres, positions",glyph:SPK,c:"--i4"},
- {id:"en_talk",a:"aux Little Talks",nom:"Little Talks",sous:"Petites conversations : questions et réponses",glyph:"Hi!",c:"--i5"},
- {id:"en_read",a:"au Story Corner",nom:"Story Corner",sous:"Lire de courtes histoires",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg>`,c:"--i7"},
- {id:"en_build",a:"au Sentence Builder",nom:"Sentence Builder",sous:"Construire une phrase : a/an, he/she, am/have",glyph:"a·b·c",c:"--i1"},
- {id:"en_spell",a:"au Spelling Bee",nom:"Spelling Bee",sous:"Lettres et orthographe",glyph:"A-Z",c:"--i6"},
- {id:"en_verbs",a:"aux Action Verbs",nom:"Action Verbs",sous:"Les verbes : run, swim, likes, can…",glyph:`<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="14" cy="4" r="2.4"/><path d="M8 22l3-7 3 2v5h2v-7l-3-3 1-4 2 2h4v-2h-3l-3-3h-3L6 9v4h2v-3l2-1-4 13z"/></svg>`,c:"--i3"}
+ {id:"en_words",a:"dans le vocabulaire",nom:"Le vocabulaire",sous:"Les mots de tous les jours : animaux, nourriture, couleurs, nombres",glyph:"ABC",c:"--i2"},
+ {id:"en_listen",a:"en écoute",nom:"Écouter et comprendre",sous:"Comprendre les consignes de classe, les nombres, les couleurs et les positions",glyph:SPK,c:"--i4"},
+ {id:"en_talk",a:"dans les conversations",nom:"Petites conversations",sous:"Choisir la bonne réponse à une question simple",glyph:"Hi!",c:"--i5"},
+ {id:"en_read",a:"en lecture anglaise",nom:"Lire une histoire",sous:"Lire une courte histoire en anglais et répondre aux questions",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg>`,c:"--i7"},
+ {id:"en_build",a:"dans les phrases",nom:"Construire une phrase",sous:"a ou an, he ou she, I am ou I have, la place de l'adjectif, le pluriel",glyph:"a·b·c",c:"--i1"},
+ {id:"en_spell",a:"en épellation",nom:"Épeler et écrire les mots",sous:"L'alphabet anglais et l'orthographe des mots",glyph:"A-Z",c:"--i6"},
+ {id:"en_verbs",a:"dans les verbes",nom:"Les verbes d'action",sous:"run, swim, likes, can… et ce qu'on fait maintenant (-ing)",glyph:`<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="14" cy="4" r="2.4"/><path d="M8 22l3-7 3 2v5h2v-7l-3-3 1-4 2 2h4v-2h-3l-3-3h-3L6 9v4h2v-3l2-1-4 13z"/></svg>`,c:"--i3"}
 ];
 
 Object.assign(GEN,GEN_FR,GEN_EN);
@@ -1698,7 +1698,7 @@ GEN.en_week=function(L,force){
  GEN.orthographe=L=>weekFR().length&&Math.random()<.35?Object.assign(GEN.fr_week(L,"spell"),{isl:"orthographe"}):o1(L);
  GEN.en_spell=L=>weekEN().length&&Math.random()<.35?Object.assign(GEN.en_week(L,"spell"),{isl:"en_spell"}):o2(L);}
 const WEEK_ISL=[
- {id:"en_week",subj:"anglais",week:true,a:"dans tes words of the week",nom:"My Words of the Week",sous:"La liste d'anglais de l'école",glyph:"Wk",c:"--i3"}];
+ {id:"en_week",subj:"anglais",week:true,a:"dans tes mots de la semaine",nom:"Mes mots de la semaine",sous:"La liste d'anglais de l'école",glyph:"Wk",c:"--i3"}];
 {const b1=BOARD.francais,b2=BOARD.anglais;
  BOARD.francais=(L,zone)=>{const ws=weekFR();if(ws.length&&(zone==="fr_week"||(zone==="orthographe"&&Math.random()<.5))){const pk=shuffle(ws).slice(0,Math.min(ws.length,L===1?3:4));
    return{isl:zone==="orthographe"?"orthographe":"fr_week",notion:zone==="orthographe"?"Dictée de mots":"Mots de la semaine",words:pk,prompt:`Dictée de ta liste : écris les ${pk.length} mots que tu entends.`,say:pk.join(". … ")+".",dictee:pk.join(", "),reveal:`<div class="phrase">${pk.join("<br>")}</div>`,answer:"ok",explain:"Pour chaque mot mal écrit, recopie-le trois fois au tableau."}}return b1(L,zone==="fr_week"?"orthographe":zone)};
@@ -1928,7 +1928,7 @@ function renderCarte(){
     const act=(html,ic,tint,go,sub)=>{if(!html)return"";const c=cardBits(html);if(sub)c.sous=sub;return`<button class="act${tint?" "+tint:""}" id="${c.id}"><img src="${ic}" alt=""><span class="ab"><b>${c.nom}</b><span class="as">${c.sous}</span></span>${go?`<span class="actgo">Commencer ▸</span>`:""}</button>`};
     const dsub=dWeeks().length?(dDue()?`<b>${dDue()} mot${dDue()>1?"s":""}</b> de tes listes à réviser aujourd'hui`:"Tout est révisé pour aujourd'hui. Tu peux t'entraîner encore!"):"Les mots de tes listes d'orthographe, jour après jour";
     let mid="";
-    const zc=id=>{const i=byId(id);if(!i||i.subj!==CUR)return"";const z=IS(id);return`<button class="zc" data-isle="${id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`};
+    const zc=id=>{const i=byId(id);if(!i||i.subj!==CUR||(i.week&&!weekList(CUR).length))return"";const z=IS(id);return`<button class="zc" data-isle="${id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`};
     const ac=(id,ic,nom,sous,meta,today)=>`<button class="zc ac${today?" today":""}" id="${id}"><img src="${ic}" alt="">${today?`<span class="tbadge">Aujourd'hui</span>`:""}<span class="zb"><b>${nom}</b><span class="zs">${sous}</span>${meta?`<span class="zm">${meta}</span>`:""}</span></button>`;
     const sec=(t,d,cards)=>`<section class="fsec" aria-label="${t}"><h3 class="xh">${t}</h3><p class="fsd">${d}</p><div class="zgrid">${cards}</div></section>`;
     if(CUR==="maths"){const t=TBS(),d=tbDay();
@@ -1948,12 +1948,16 @@ function renderCarte(){
         ac("b-conj",IC3.cahier,"Apprendre un verbe à la fois","Avoir, être, les verbes en -er, aller, les verbes en -ir, faire",`ÉTAPE ${CJ_UNITS.indexOf(u)+1} SUR ${CJ_UNITS.length} : ${esc(u.nom).toUpperCase()}`)+zc("conjugaison"))
        +sec("Lecture","Lire, comprendre et répondre.",
         zc("lecture")+ac("b-rep",IC3.conte,"Répondre en phrases complètes","Reprendre la question, expliquer avec « car », justifier avec le texte","UNE QUESTION À LA FOIS"))}
-    if(CUR==="anglais")mid=`<div class="tipc"><img src="${C3D[S.comp.type]||C3D.tortue}" alt=""><p><b>Le conseil de ${esc(BN())}</b>Touche le haut-parleur pour écouter chaque mot en anglais avant de répondre.</p></div>`;
+    if(CUR==="anglais")mid=`<div class="tipc"><img src="${C3D[S.comp.type]||C3D.tortue}" alt=""><p><b>Le conseil de ${esc(BN())}</b>Touche le haut-parleur pour écouter chaque mot en anglais avant de répondre.</p></div>`
+      +sec("Les mots","Apprendre les mots en anglais et bien les écrire.",zc("en_week")+zc("en_words")+zc("en_spell"))
+      +sec("Écouter et parler","Comprendre ce qu'on entend et répondre.",zc("en_listen")+zc("en_talk"))
+      +sec("Les phrases","Placer les mots dans le bon ordre et choisir le bon verbe.",zc("en_build")+zc("en_verbs"))
+      +sec("Lecture","Lire en anglais et comprendre.",zc("en_read"));
     const spr=(CUR==="maths"?"Le plus de calculs en 60 secondes":CUR==="francais"?"Homophones et conjugaison en 60 secondes":"Le plus de mots en 60 secondes")+(SPR(CUR).best?` · record : ${SPR(CUR).best}`:"");
     h=skyHead("Explorer","b-home")+`<div class="xpage">`
      +tCard(XIC[{francais:"livres",maths:"blocs",anglais:"hi"}[CUR]],s.nom,{francais:"Orthographe, grammaire, conjugaison, lecture",maths:"Nombres, calculs, fractions, mesures, problèmes",anglais:"Mots, écoute, petites conversations, lecture"}[CUR],`<p class="tstars">${STARX}${st} ÉTOILE${st>1?"S":""} SUR ${max}</p>`,`<button class="notb" id="b-notions"><img src="${IC3.pile}" alt="">Revoir les règles</button>`)
      +searchBox(CUR)+mid
-     +(CUR!=="anglais"?"":`<h3 class="xh">Les zones à explorer</h3><div class="zgrid">`+zs.map(i=>{const z=IS(i.id);return`<button class="zc${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`}).join("")+`</div>`)
+     +(true?"":`<h3 class="xh">Les zones à explorer</h3><div class="zgrid">`+zs.map(i=>{const z=IS(i.id);return`<button class="zc${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`}).join("")+`</div>`)
      +`<h3 class="xh">Réviser toute l'île</h3><p class="fsd">Des questions de toutes les notions de l'île, pour vérifier ce que tu sais.</p><div class="dgrid">`
      +`<button class="dc" data-isle="defi"><img src="${IC3.cible}" alt=""><b>Révision mélangée</b><span>${ROUND} questions de toutes les notions de l'île</span></button>`
      +`<button class="dc" data-isle="tableau"><img src="${XIC.aa}" alt=""><b>Défis au tableau</b><span>4 défis à écrire à la main, au tableau ou sur une feuille</span></button>`
@@ -4283,7 +4287,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-222229";
+const APP_VER="20261104-223139";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
