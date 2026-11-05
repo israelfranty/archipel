@@ -974,6 +974,59 @@ body.skyin .cg-h{font-family:var(--f-display);font-weight:700;font-size:1.4rem;m
 @media (max-width:640px){body.skyin .isles{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:480px){.b10ctl{flex-wrap:wrap;justify-content:center;gap:6px}.b10ctl .b10n{order:-1;flex-basis:100%}}
 .fbtime:empty{display:none}
+/* ---------- Rapports au parent ---------- */
+.spill{display:inline-flex;align-items:center;white-space:nowrap;border-radius:999px;padding:3px 10px;font-size:.8rem;font-weight:700;border:1.5px solid transparent}
+.s-ok{background:color-mix(in srgb,var(--good) 16%,var(--surface));border-color:var(--good);color:var(--ink)}
+.s-mid{background:color-mix(in srgb,var(--sun) 22%,var(--surface));border-color:var(--sun);color:var(--ink)}
+.s-low{background:color-mix(in srgb,var(--bad) 14%,var(--surface));border-color:var(--bad);color:var(--ink)}
+.s-tot,.s-none{background:var(--bg);border-color:var(--line);color:var(--muted)}
+.brief{border-color:var(--sea)}
+.brief .blead{margin:0;font-size:1.05rem;line-height:1.5}
+.bstat{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bnote{color:var(--muted);font-size:.85rem}
+.bh{margin:4px 0 0;font-family:var(--f-display);font-size:1.05rem}
+.bacts{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:10px}
+.bacts li{padding-left:2px}
+.bacts li>span{display:block;margin-bottom:6px;line-height:1.45}
+.bacts .btn{min-height:42px;padding:6px 16px;font-size:.95rem}
+.tbars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;align-items:end;height:170px}
+.tb{display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.tbv{font-size:.82rem;font-weight:700;font-variant-numeric:tabular-nums}
+.tbcol{position:relative;flex:1;width:100%;max-width:46px;background:var(--bg);border-radius:10px 10px 4px 4px;overflow:visible;display:flex;align-items:flex-end}
+.tbcol i{display:block;width:100%;background:var(--sea);border-radius:10px 10px 4px 4px;min-height:2px}
+.tb.ok .tbcol i{background:var(--good)}
+.tbg{position:absolute;left:-4px;right:-4px;height:0;border-top:2px dashed var(--ink);opacity:.55}
+.tbl{font-size:.78rem;color:var(--muted);text-transform:capitalize}
+.tbleg{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.lg-bar{display:inline-block;width:14px;height:10px;border-radius:3px;background:var(--sea)}
+.lg-goal{display:inline-block;width:16px;border-top:2px dashed var(--ink);opacity:.55;margin-left:8px}
+.nrow2{display:grid;grid-template-columns:minmax(0,1fr) auto 52px auto;gap:12px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.nrow2:first-child{border-top:0}
+.nrow2.wk{grid-template-columns:minmax(0,1fr) auto}
+.nrow2 small{color:var(--muted)}
+.nrc{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:.9rem}
+.ldots{display:inline-flex;gap:3px}
+.ldots i{width:10px;height:10px;border-radius:50%;display:block}
+.ldots i.y{background:var(--good)}
+.ldots i.n{background:var(--bad)}
+.nlist2{display:flex;flex-direction:column}
+.prows{display:flex;flex-direction:column;gap:10px}
+.prow{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) auto;gap:12px;align-items:center}
+.prow small{color:var(--muted)}
+.prow .meter{height:10px;border-radius:5px}
+.prow .pgv{font-weight:700;font-size:.9rem;font-variant-numeric:tabular-nums;text-align:right}
+.pdet{border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.pdet+.pdet{margin-top:8px}
+.pdet>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;font-weight:700}
+.pdet>summary::-webkit-details-marker{display:none}
+.pdet>summary::after{content:"";width:9px;height:9px;border-right:2.5px solid var(--muted);border-bottom:2.5px solid var(--muted);transform:rotate(45deg);margin-left:4px;flex:none;transition:transform .15s}
+.pdet[open]>summary::after{transform:rotate(-135deg)}
+.pdt{flex:1;min-width:0}
+.pds{color:var(--muted);font-weight:600;font-size:.88rem;text-align:right}
+.pdb{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+@media (max-width:600px){.nrow2{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}.nrow2 .ldots{grid-column:1}.nrow2 .nrc{display:none}.prow{grid-template-columns:minmax(0,1fr) auto}.prow .meter{grid-column:1/-1;grid-row:2}.tbars{height:140px;gap:5px}}
+.days .dsub,.d .dsub{display:inline}
+.prow .meter{display:block;width:100%;background:var(--line);overflow:hidden}.prow .meter i{display:block;height:100%;background:var(--good)}
 </style>
 
 <header class="top">
@@ -1889,7 +1942,7 @@ let PAUSED=false,PAUSE_T=0,BYE=false,LAST_ACT=Date.now();const PEND=[];
 const today=()=>new Date().toLocaleDateString("en-CA");
 const SUBJS=["francais","maths","anglais"],DE={maths:"de maths",francais:"de français",anglais:"d'anglais"},LBL={maths:"Maths",francais:"Français",anglais:"Anglais"};
 const goalOf=k=>((S.goals||{})[k]??0)*60;
-function rollDay(){if(!S.goals)S.goals={francais:20,maths:15,anglais:10};
+function rollDay(){if(!S.goals)S.goals={francais:10,maths:10,anglais:5};
   if(S.day&&S.day.d===today()){if(!S.day.subj)S.day.subj={};if(typeof S.day.done!=="object")S.day.done={};return}
   if(S.day&&S.day.sec>0){S.hist.push({d:S.day.d,sec:S.day.sec,subj:S.day.subj||{},goals:{...S.goals}});if(S.hist.length>60)S.hist.shift()}
   S.day={d:today(),sec:0,subj:{},done:{}};save();snapDay()}
@@ -2269,6 +2322,20 @@ let PARENT_OK=false;
    ====================================================================== */
 const PTABS=[["suivi","📊","Suivi"],["matiere","📚","Matière scolaire"],["reglages","⚙️","Réglages"],["recompenses","🎁","Récompenses"],["donnees","🛠️","Données"]];
 const pcard=(title,desc,body,cls)=>`<section class="pcard${cls?" "+cls:""}"><h3>${title}</h3>${desc?`<p class="pdesc">${desc}</p>`:""}${body}</section>`;
+/* ======================================================================
+   RAPPORTS AU PARENT : une seule règle pour juger une notion, partout.
+   Statut = ses 10 dernières réponses sur la notion (au moins 5 pour juger).
+   Solide : 8 sur 10 ou plus · En progrès : 6 ou 7 sur 10 · À travailler : moins de 6 sur 10.
+   Chaque carte dit sa période : aujourd'hui, 7 derniers jours, semaine d'école, depuis le début.
+   ====================================================================== */
+function stOf(r,t){if(!t)return{st:"none",lab:"Pas encore pratiqué"};if(t<5)return{st:"tot",lab:"Trop tôt pour juger"};const p=r/t;return p>=.8?{st:"ok",lab:"Solide"}:p>=.6?{st:"mid",lab:"En progrès"}:{st:"low",lab:"À travailler"}}
+function nAll(){return Object.keys(S.notions||{}).map(k=>{const[isl,notion]=k.split("|"),L=((S.nlast||{})[k]||[]).slice(-10),r=L.reduce((a,b)=>a+b,0);return{k,isl,notion,L,r,n:L.length,p:L.length?r/L.length:0,...stOf(r,L.length)}}).filter(x=>x.n>0&&byId(x.isl))}
+const SORD={low:0,mid:1,ok:2,tot:3,none:4};
+const pill=x=>`<span class="spill s-${x.st}">${x.lab}</span>`;
+const ldots=L=>`<span class="ldots" role="img" aria-label="${L.filter(Boolean).length} bonnes réponses sur ${L.length}">${L.map(v=>`<i class="${v?"y":"n"}"></i>`).join("")}</span>`;
+const pdet=(title,sum,body,open)=>`<details class="pdet"${open?" open":""}><summary><span class="pdt">${title}</span><span class="pds">${sum}</span></summary><div class="pdb">${body}</div></details>`;
+function runFromParent(what){PARENT_OK=false;const[k,v]=what.split(":");
+  if(k==="zone"){const z=byId(v);if(!z)return;CUR=z.subj;start(v)}else if(k==="dict")startDictee();else if(k==="exam")startExam()}
 function renderParent(){
   const el=$("#ecran-parent");
   if(!PARENT_OK&&!PW_H&&!(pwGet()||{}).h){el.innerHTML=`<div class="gamebar"><button class="back" id="p-retour">← Carte</button><span class="gtitle">Espace parent</span></div><form class="panel pinbox pwform" id="p-new" autocomplete="off"><h2>Créer le mot de passe parent</h2><p><b>À faire par un adulte.</b> Ce mot de passe protège l'espace parent. Il est gardé sur cet appareil seulement et ne peut pas être récupéré : notez-le.</p>
@@ -2287,34 +2354,65 @@ function renderParent(){
   const tab=PTABS.some(t=>t[0]===S.ptab)?S.ptab:"suivi";
   /* --- données calculées --- */
   const rows=Object.keys(SUBJ).map(sj=>`<tr><th colspan="6">${SUBJ[sj].nom}</th></tr>`+zones(sj).map(i=>{const s=IS(i.id),p=s.t?Math.round(100*s.r/s.t):null;return`<tr><td><span class="dot" style="background:var(${i.c})"></span>${i.nom}</td><td>${s.level}</td><td>${s.t}</td><td>${p===null?"—":p+" %"}</td><td>${S.rec[i.id]?fmtDur(S.rec[i.id]):"—"}</td><td>${stars(s.stars)}</td></tr>`}).join("")).join("");
-  const nl=Object.entries(S.notions).filter(([,v])=>v.t>=5).map(([k,v])=>{const[isl,notion]=k.split("|");const a=S.times[k]||[];let tm="";if(a.length){tm=` · ${secs(median(a.slice(-5)))} s par bonne réponse`;if(a.length>=6){const d=median(a.slice(0,3))-median(a.slice(-3));if(d>=1000)tm+=` (${secs(d)} s plus vite qu'au début)`;else if(d<=-1000)tm+=` (${secs(-d)} s plus lent qu'au début)`}}return{isl,notion,tm,...v,p:v.r/v.t}}).sort((a,b)=>a.p-b.p||b.t-a.t);
-  const col=p=>p>=.8?"var(--good)":p>=.6?"var(--sun)":"var(--bad)";
-  const weak=nl.find(n=>n.t>=5&&n.p<.7);
-  const days=(()=>{const all=[...S.hist,{d:S.day.d,sec:S.day.sec,subj:S.day.subj,goals:S.goals}],out=[];for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);const k=dt.toLocaleDateString("en-CA"),r=all.find(x=>x.d===k),sj=(r&&r.subj)||{},gs=(r&&r.goals)||S.goals,ok=r&&r.subj&&SUBJS.every(x=>(sj[x]||0)>=(gs[x]||0)*60);
-    out.push(`<div class="d"><span>${i===0?"Aujourd'hui":dt.toLocaleDateString("fr-CA",{weekday:"long",day:"numeric"})}</span><span class="dsub">${r&&r.subj?SUBJS.map(x=>`${LBL[x].slice(0,2)}. ${mins(sj[x]||0)}`).join(" · "):r?mins(r.sec)+" min":"—"}</span><b>${r?mins(r.sec):0} min${ok?" ✓":""}</b></div>`)}return out.join("")})();
+  const NA=nAll().sort((x,y)=>SORD[x.st]-SORD[y.st]||x.p-y.p||y.n-x.n);
+  const weak=NA.find(x=>x.st==="low");
+  /* 7 derniers jours : minutes par jour et objectif du jour */
+  const dn0=dayNum(),D7=(()=>{const all=[...S.hist,{d:S.day.d,sec:S.day.sec,subj:S.day.subj,goals:S.goals}],out=[];for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);const k=dt.toLocaleDateString("en-CA"),r=all.find(x=>x.d===k),sj=(r&&r.subj)||{},gs=(r&&r.goals)||S.goals,gm=SUBJS.reduce((t,x)=>t+(gs[x]||0),0),m=r?mins(r.sec):0,ok=!!(r&&r.subj&&gm&&SUBJS.every(x=>(sj[x]||0)>=(gs[x]||0)*60));out.push({lab:i===0?"Auj.":dt.toLocaleDateString("fr-CA",{weekday:"short"}).replace(".",""),full:i===0?"Aujourd'hui":dt.toLocaleDateString("fr-CA",{weekday:"long",day:"numeric"}),m,gm,ok,sj})}return out})();
+  const days=(()=>{const mx=Math.max(1,...D7.map(d=>Math.max(d.m,d.gm)));return`<div class="tbars" role="img" aria-label="Minutes d'étude des 7 derniers jours">${D7.map(d=>`<div class="tb${d.ok?" ok":""}"><span class="tbv">${d.m}</span><span class="tbcol"><i style="height:${Math.round(d.m/mx*100)}%"></i>${d.gm?`<b class="tbg" style="bottom:${Math.round(d.gm/mx*100)}%"></b>`:""}</span><span class="tbl">${d.lab}</span></div>`).join("")}</div><p class="pdesc tbleg"><span class="lg-bar"></span> minutes d'étude <span class="lg-goal"></span> objectif du jour · barre verte : objectif atteint</p>`})();
   const g=GS(),b=S.games&&S.games.bat;
   /* --- tableau de bord --- */
   const dash=`<section class="pdash" aria-label="Aujourd'hui"><div class="pdh"><h2>Aujourd'hui</h2><span>${new Date().toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"})}</span></div>
    <div class="pdgrid">${SUBJS.filter(k=>goalOf(k)>0).map(k=>{const s=subjSec(k),gl=goalOf(k),ok=s>=gl;return`<div class="pdi${ok?" ok":""}"><small>${LBL[k]}</small><b>${mins(s)} / ${gl/60} min${ok?" ✓":""}</b><span class="meter"><i style="width:${Math.min(100,s/gl*100)}%"></i></span></div>`}).join("")}</div>
    <div class="pdalerts">${dWeeks().length?`<button class="pda" data-go="suivi">📝 <b>${dDue()}</b> mot${dDue()>1?"s":""} de dictée à réviser aujourd'hui</button>`:`<button class="pda warn" data-go="matiere">📝 Ajouter les listes de dictée</button>`}
    ${S.gifts.pending.length?`<button class="pda gift" data-go="recompenses">🎁 <b>${S.gifts.pending.length}</b> cadeau${S.gifts.pending.length>1?"x":""} à remettre</button>`:""}
-   ${weak?`<button class="pda warn" data-go="suivi">⚠️ À surveiller : <b>${esc(weak.notion)}</b> (${Math.round(weak.p*100)} %)</button>`:""}
+   ${weak?`<button class="pda warn" data-go="suivi">⚠️ À travailler : <b>${esc(weak.notion)}</b> (${weak.r} sur ${weak.n} dernières réponses)</button>`:""}
    ${dNeedList()?`<button class="pda warn" data-go="matiere">📅 Ajouter la liste de mots de cette semaine</button>`:""}</div></section>`;
   /* --- onglet Suivi --- */
-  const tSuivi=
-   pcard("Temps d'étude — 7 derniers jours","Le temps compte seulement pendant les activités, application ouverte et sans pause. Laisser la tablette ouverte sans jouer ne compte pas.",`<div class="days">${days}</div>`)+
-   pcard("Notions à surveiller","Les plus difficiles d'abord. Une notion se lit bien après 5 questions ou plus.",`<div class="nlist">${nl.length?nl.map(n=>`<div class="nrow"><div><b>${n.notion}</b><br><small>${byId(n.isl).nom} · ${n.r}/${n.t} réussies${n.tm}</small></div><div class="meter"><i style="width:${Math.round(n.p*100)}%;background:${col(n.p)}"></i></div><div class="pct">${Math.round(n.p*100)} %</div></div>`).join(""):`<p>Pas encore assez de réponses : une notion s'affiche ici après 5 questions.</p>`}</div>`)+
-   pcard("Progrès par île","Le niveau s'ajuste seul : il monte à 7 bonnes réponses sur 8 et descend à 3 ou moins (à changer au besoin dans Réglages). Le record de temps ne compte que les parties d'au moins 6 sur 8.",`<div class="tablewrap"><table><thead><tr><th>Île</th><th>Niveau</th><th>Questions</th><th>Réussite</th><th>Record</th><th>Étoiles</th></tr></thead><tbody>${rows}</tbody></table></div>`)+
-   pcard("Rapport de la semaine d'école","Ce qu'elle a fait dans le jeu pour les notions et l'évaluation du plan de la semaine.",weekReportHTML())+
-   pcard("Rapport général","Les 7 derniers jours, toutes matières.",generalReportHTML())+
-   pcard("Tables d'addition et de soustraction","Une table aux 2 semaines environ, dans l'ordre des astuces : unités, puis dizaines, puis centaines.",tbParentHTML())+
-   pcard("Réponses écrites (lecture)","Les dernières réponses de « Je réponds en phrases complètes ». Le jeu vérifie seulement la forme; c'est vous qui jugez le contenu.",repParentHTML())+
-   pcard("Dictée du jour","Un mot revient après 1, 2, 4, 8, 16 puis 35 jours s'il est réussi; un mot raté revient le lendemain. Il est « maîtrisé » après 5 réussites espacées.",dStatsHTML())+
-   pcard("Écriture","Caractères tracés sans modèle. « À l'envers » : le jeu a reconnu le caractère retourné (un d au lieu d'un b, par exemple).",Object.keys(S.trace||{}).length?`<div class="items tglyphs">${Object.entries(S.trace).sort((a,b)=>b[1].rev-a[1].rev||a[0].localeCompare(b[0])).map(([c,t])=>`<span class="${t.rev?"warnc":""}">${c} · réussi ${t.ok}${t.rev?` · à l'envers ${t.rev}`:""}</span>`).join("")}</div>`:`<p>Aucun exercice d'écriture pour l'instant.</p>`)+
-   pcard("Vitesse et jeux","Records de la Course de vitesse et de la Bibliothèque de jeux.",
-     `<ul class="plist">${Object.keys(SUBJ).map(sj=>{const r=SPR(sj);return`<li><b>Course de vitesse, ${SUBJ[sj].court} :</b> ${r.best?`record de ${r.best} bonne${r.best>1?"s":""} réponse${r.best>1?"s":""} en 60 s`:"pas encore jouée"}${r.hist.length?` (dernières : ${r.hist.slice(-6).map(h=>h.s).join(", ")})`:""}.</li>`}).join("")}
+  /* Résumé de la semaine : ce qui compte, en phrases */
+  const dnow=dayNum(),from7=dnow-6,all7=logSum(from7,dnow,()=>true),act7=D7.filter(d=>d.m>0).length,min7=D7.reduce((t,d)=>t+d.m,0),ok7=D7.filter(d=>d.ok).length;
+  const cnt={low:NA.filter(x=>x.st==="low").length,mid:NA.filter(x=>x.st==="mid").length,ok:NA.filter(x=>x.st==="ok").length};
+  const exA=examActive()?DS().exam:null,exN=exA?examWords().length:0,exR=exA?examReady():0,exL=exA?examLeft():0;
+  const acts=[];
+  if(exA&&exR<exN&&exL<=10)acts.push({t:`<b>${esc(exA.label)}</b> ${exL===0?"aujourd'hui":exL===1?"demain":`dans ${exL} jours`} : ${exR} mot${exR>1?"s":""} prêt${exR>1?"s":""} sur ${exN}. Une révision chaque jour d'ici là.`,b:"Lancer la révision",run:"exam"});
+  if(weak)acts.push({t:`<b>${esc(weak.notion)}</b> (${byId(weak.isl).nom}) : ${weak.r} bonne${weak.r>1?"s":""} réponse${weak.r>1?"s":""} sur ses ${weak.n} dernières. Quelques minutes là-dessus aideraient.`,b:"La faire pratiquer",run:"zone:"+weak.isl});
+  if(dWeeks().length&&dDue()>0)acts.push({t:`<b>${dDue()} mot${dDue()>1?"s":""} de dictée</b> à réviser aujourd'hui.`,b:"Lancer la dictée",run:"dict"});
+  const brief=`<section class="pcard brief" aria-label="En bref"><h3>En bref : les 7 derniers jours</h3>
+   <p class="blead">${act7?`${esc(S.name||"Votre enfant")} a étudié <b>${act7} jour${act7>1?"s":""} sur 7</b>, pour <b>${min7} minutes</b> au total${ok7?`, et a atteint son objectif ${ok7} jour${ok7>1?"s":""}`:""}. Elle a répondu à <b>${all7.t} question${all7.t>1?"s":""}</b>, avec <b>${pct(all7.r,all7.t)}</b> de bonnes réponses.`:`Pas encore d'activité ces 7 derniers jours.`}</p>
+   <div class="bstat"><span class="spill s-low">${cnt.low} à travailler</span><span class="spill s-mid">${cnt.mid} en progrès</span><span class="spill s-ok">${cnt.ok} solide${cnt.ok>1?"s":""}</span><span class="bnote">notions, selon leurs 10 dernières réponses</span></div>
+   <h4 class="bh">À faire en priorité</h4>
+   ${acts.length?`<ol class="bacts">${acts.slice(0,3).map(a=>`<li><span>${a.t}</span><button class="btn ghost" data-run="${a.run}">${a.b}</button></li>`).join("")}</ol>`:`<p class="pdesc">Rien d'urgent : la routine actuelle fonctionne. Continuez ainsi.</p>`}</section>`;
+  /* Ses parcours guidés : où elle en est */
+  const by=dLists().by,dTot=Object.keys(by).filter(w=>dActive(by[w])).length,dM=dMastered(),tb=TBS(),tbPos=tb.cur*3+tb.et,cjM=CJ_UNITS.filter(u=>cjMastered(u.id)).length,rep7=(S.rep&&S.rep.log||[]).filter(x=>isoDn(x.d)>=from7).length;
+  const prow=(lab,sub,v,mx,tail)=>`<div class="prow"><span><b>${lab}</b><br><small>${sub}</small></span><span class="meter"><i style="width:${mx?Math.round(v/mx*100):0}%"></i></span><span class="pgv">${tail}</span></div>`;
+  const parcours=pcard("Ses parcours guidés","Où elle en est dans les activités qui avancent étape par étape (depuis le début).",`<div class="prows">
+    ${dTot?prow("Dictée",`${dDue()} mot${dDue()>1?"s":""} à réviser aujourd'hui`,dM,dTot,`${dM} / ${dTot} mots maîtrisés`):""}
+    ${exA?prow(esc(exA.label),exL===0?"aujourd'hui":`dans ${exL} jour${exL>1?"s":""}`,exR,exN,`${exR} / ${exN} mots prêts`):""}
+    ${prow("Tables d'addition et de soustraction",`table ${tb.cur+1} : ${esc(TB_TABLES[tb.cur].nom)}, ${TB_ET[tb.et].nom}`,tbPos,TB_TABLES.length*3,`table ${tb.cur+1} sur ${TB_TABLES.length}`)}
+    ${prow("Apprendre un verbe à la fois",`en cours : ${esc(cjCur().nom)}`,cjM,CJ_UNITS.length,`${cjM} / ${CJ_UNITS.length} verbes maîtrisés`)}
+    ${prow("Répondre en phrases complètes","réponses à relire plus bas",Math.min(rep7,3),3,`${rep7} cette semaine`)}</div>`);
+  /* Les notions, regroupées par statut */
+  const nrow=x=>`<div class="nrow2"><div><b>${esc(x.notion)}</b><br><small>${byId(x.isl).nom}${TIMED.has(x.isl)&&(S.times[x.k]||[]).length?` · ${secs(median((S.times[x.k]||[]).slice(-5)))} s par bonne réponse`:""}</small></div>${ldots(x.L)}<span class="nrc">${x.r} / ${x.n}</span>${pill(x)}</div>`;
+  const grp=(st,title,open)=>{const L=NA.filter(x=>x.st===st);return L.length?pdet(title,`${L.length} notion${L.length>1?"s":""}`,L.map(nrow).join(""),open):""};
+  const notions=pcard("Les notions","Chaque point est une de ses 10 dernières réponses sur la notion (vert : réussie, rouge : ratée). Solide : 8 sur 10 ou plus. En progrès : 6 ou 7 sur 10. À travailler : moins de 6 sur 10. Il faut au moins 5 réponses pour juger.",
+    NA.length?grp("low","À travailler",true)+grp("mid","En progrès",true)+grp("ok","Solides",false)+grp("tot","Trop tôt pour juger (moins de 5 réponses)",false):`<p>Aucune question répondue pour l'instant.</p>`);
+  /* Détails, repliés : pour qui veut creuser */
+  const zrows=Object.keys(SUBJ).map(sj=>`<tr><th colspan="5">${SUBJ[sj].nom}</th></tr>`+zones(sj).map(i=>{const z=IS(i.id);return`<tr><td><span class="dot" style="background:var(${i.c})"></span>${i.nom}</td><td>${z.level}</td><td>${z.t}</td><td>${pct(z.r,z.t)}</td><td>${stars(z.stars)}</td></tr>`}).join("")).join("");
+  const zPlayed=Object.keys(SUBJ).reduce((t,sj)=>t+zones(sj).filter(i=>IS(i.id).t>0).length,0);
+  const vit=`<ul class="plist">${Object.keys(SUBJ).map(sj=>{const r=SPR(sj);return`<li><b>Course de vitesse, ${SUBJ[sj].court} :</b> ${r.best?`record de ${r.best} bonne${r.best>1?"s":""} réponse${r.best>1?"s":""} en 60 s`:"pas encore jouée"}${r.hist.length?` (dernières : ${r.hist.slice(-6).map(h=>h.s).join(", ")})`:""}.</li>`}).join("")}
      <li><b>Donjon des nombres :</b> ${Object.keys(g.donjon||{}).length?Object.entries(g.donjon).map(([k,v])=>`${(DTHEMES[k]||{nom:k}).nom} : étage ${v.lvl}, record ${v.best||0}/15`).join(" · "):"pas encore joué"}. 🪙 ${g.coins||0} · 💎 ${g.gems||0}</li>
-     <li><b>Les bâtisseurs :</b> ${b?`${b.village.length} bâtiment${b.village.length>1?"s":""} · construire le nombre niveau ${b.lvl.nombre} · mur niveau ${b.lvl.mur}`:"pas encore joué"}.</li></ul>`);
+     <li><b>Les bâtisseurs :</b> ${b?`${b.village.length} bâtiment${b.village.length>1?"s":""} · construire le nombre niveau ${b.lvl.nombre} · mur niveau ${b.lvl.mur}`:"pas encore joué"}.</li></ul>`;
+  const nRep=RS().log.length,nTr=Object.keys(S.trace||{}).length;
+  const details=pcard("Les détails","Tout le reste, à ouvrir au besoin.",
+    pdet("Zones des îles (depuis le début)",`${zPlayed} zone${zPlayed>1?"s":""} pratiquée${zPlayed>1?"s":""} sur 21`,`<p class="pdesc">Le niveau s'ajuste seul : il monte à 7 bonnes réponses sur 8 et descend à 3 ou moins. La réussite compte toutes ses réponses depuis le début; le statut des notions, plus haut, ne regarde que les plus récentes.</p><div class="tablewrap"><table><thead><tr><th>Zone</th><th>Niveau</th><th>Questions</th><th>Réussite</th><th>Étoiles</th></tr></thead><tbody>${zrows}</tbody></table></div>`)+
+    pdet("Dictée, liste par liste",dTot?`${dM} / ${dTot} mots maîtrisés`:"aucune liste",`<p class="pdesc">Un mot revient après 1, 2, 4, 8, 16 puis 35 jours s'il est réussi; un mot raté revient le lendemain. Il est « maîtrisé » après 5 réussites espacées.</p>${dStatsHTML()}`)+
+    pdet("Tables d'addition et de soustraction",`table ${tb.cur+1} sur ${TB_TABLES.length}`,`<p class="pdesc">Une table aux 2 semaines environ, dans l'ordre des astuces : unités, puis dizaines, puis centaines.</p>${tbParentHTML()}`)+
+    pdet("Réponses écrites (lecture)",nRep?`${nRep} réponse${nRep>1?"s":""} à relire`:"aucune",`<p class="pdesc">Le jeu vérifie seulement la forme (reprendre la question, expliquer avec « car »). C'est vous qui jugez le contenu, avec l'exemple sous chaque réponse.</p>${repParentHTML()}`)+
+    pdet("Écriture (Atelier)",nTr?`${nTr} caractère${nTr>1?"s":""} pratiqué${nTr>1?"s":""}`:"pas encore pratiqué",`<p class="pdesc">Caractères tracés sans modèle. « À l'envers » : le jeu a reconnu le caractère retourné (un d au lieu d'un b, par exemple).</p>${nTr?`<div class="items tglyphs">${Object.entries(S.trace).sort((a,b)=>b[1].rev-a[1].rev||a[0].localeCompare(b[0])).map(([c,t])=>`<span class="${t.rev?"warnc":""}">${c} · réussi ${t.ok}${t.rev?` · à l'envers ${t.rev}`:""}</span>`).join("")}</div>`:""}`)+
+    pdet("Vitesse et jeux","records",vit));
+  const tSuivi=brief+
+   pcard("Temps d'étude : les 7 derniers jours","Le temps compte seulement pendant les activités, application ouverte et sans pause.",days)+
+   pcard(S.plan?`La semaine d'école : ${planRange(S.plan)}`:"La semaine d'école","Les notions du plan de la semaine, d'après ses réponses dans le jeu pendant cette semaine.",weekReportHTML())+
+   notions+parcours+details;
   /* --- onglet Matière scolaire --- */
   const tMatiere=planEditHTML()+tbSettingsHTML()+dContentHTML()+
    pcard("Mots d'anglais de la semaine","La liste d'anglais de l'école : exercices dans « My Words of the Week », dictées au tableau et « Write the word ». Un mot par ligne; la traduction après « = » est facultative.",
@@ -2368,6 +2466,7 @@ function renderParent(){
   const showTab=k=>{S.ptab=k;save();el.querySelectorAll(".ptab-b").forEach(x=>{const on=x.dataset.tab===k;x.classList.toggle("on",on);x.setAttribute("aria-selected",on)});el.querySelectorAll(".ptab").forEach(p=>p.hidden=p.dataset.panel!==k)};
   el.querySelectorAll(".ptab-b").forEach(x=>x.onclick=()=>showTab(x.dataset.tab));
   el.querySelectorAll("[data-go]").forEach(x=>x.onclick=()=>{showTab(x.dataset.go);$(".ptabs").scrollIntoView({behavior:"smooth",block:"start"})});
+  el.querySelectorAll("[data-run]").forEach(x=>x.onclick=()=>runFromParent(x.dataset.run));
   $("#p-retour").onclick=()=>{PARENT_OK=false;renderCarte();go("carte")};G=null;
   dParentBind();tbParentBind();planParentBind();
   const pu=$("#p-upd");if(pu)pu.onclick=async()=>{const m=$("#p-updmsg");m.textContent=" Vérification…";
@@ -3736,12 +3835,13 @@ const pct=(r,t)=>t?Math.round(r/t*100)+" %":"—";
 const NOTION_MATCH=g=>{const [k,a]=(g||"").split(":");if(k==="conj")return key=>key==="conj|"+a;if(k==="gn")return key=>key.startsWith("gn|")||key==="grammaire|Accord dans le groupe du nom";if(k==="tables")return key=>key.startsWith("tables|");if(k==="rep")return key=>key.startsWith("rep|");if(k==="dictee")return key=>key.startsWith("dictee|");return key=>key.startsWith(k+"|")};
 function weekMin(from,to){let s=0;const add=(d,sec)=>{const dn=isoDn(d);if(dn!=null&&dn>=from&&dn<=to)s+=sec};(S.hist||[]).forEach(h=>add(h.d,h.sec));if(S.day)add(S.day.d,S.day.sec);return Math.round(s/60)}
 function weekReportHTML(){const p=S.plan;if(!p)return`<p>Aucun plan de la semaine pour l'instant. Ajoutez-le dans l'onglet <b>Matière scolaire</b>.</p>`;
-  const from=p.from,to=Math.max(p.to+2,Math.min(dayNum(),p.to+2)),rows=p.notions.map(n=>{const s=logSum(from,to,NOTION_MATCH(n.go));return`<div class="d"><span><b>${esc(n.label)}</b><br><span class="dsub">${s.t?`${s.t} question${s.t>1?"s":""} · ${s.days} jour${s.days>1?"s":""}`:"pas encore pratiqué"}</span></span><span class="meter"><i style="width:${s.t?s.r/s.t*100:0}%;background:${s.t&&s.r/s.t<.7?"var(--sun)":"var(--good)"}"></i></span><span>${pct(s.r,s.t)}</span></div>`}).join("");
+  const from=p.from,to=Math.max(p.to+2,Math.min(dayNum(),p.to+2)),rows=p.notions.map(n=>{const s=logSum(from,to,NOTION_MATCH(n.go)),x=stOf(s.r,s.t),k=(n.go||"").split(":")[0],src={conj:"Apprendre un verbe à la fois",gn:"Le groupe du nom",tables:"Tables d'addition et de soustraction",rep:"Répondre en phrases complètes",dictee:"Dictée du jour"}[k]||(byId(k)?byId(k).nom:"");return`<div class="nrow2 wk"><div><b>${esc(n.label)}</b><br><small>${s.t?`${s.r} bonne${s.r>1?"s":""} réponse${s.r>1?"s":""} sur ${s.t}, en ${s.days} jour${s.days>1?"s":""}${src?`, dans « ${esc(src)} »`:""}`:`pas encore pratiquée cette semaine${src?` (se pratique dans « ${esc(src)} »)`:""}`}</small></div><span class="spill s-${x.st}">${s.t?`${Math.round(s.r/s.t*100)} % cette semaine`:"Pas encore pratiquée"}</span></div>`}).join("");
   const ex=p.exam&&DS().exam&&DS().exam.d===p.exam.d?DS().exam:null,done=p.tasks.filter(t=>t.done).length;
-  return`<p>Semaine ${planRange(p)} · <b>${weekMin(from,to)} min</b> dans le jeu.</p>
-   ${ex?`<p>🎯 <b>${esc(ex.label)}</b> (${dnFmt(ex.d,{weekday:"long",day:"numeric",month:"long"})}) : <b>${examReady()} mots prêts sur ${examWords().length}</b>${(()=>{const hard=examWords().filter(w=>((DS().ex||{})[w]||{}).miss>0).sort((a,b)=>DS().ex[b].miss-DS().ex[a].miss).slice(0,10);return hard.length?`<br><span class="dsub">Mots difficiles : ${hard.map(esc).join(", ")}</span>`:""})()}</p>`:""}
-   ${rows?`<p class="pdesc"><b>Notions de la semaine</b> (réussite dans le jeu) :</p><div class="days">${rows}</div>`:""}
-   ${p.tasks.length?`<p class="pdesc"><b>Travaux cochés :</b> ${done} sur ${p.tasks.length}${done<p.tasks.length?` · reste : ${p.tasks.filter(t=>!t.done).map(t=>esc(t.label.length>60?t.label.slice(0,58)+"…":t.label)).join(" · ")}`:" ✓"}</p>`:""}`}
+  const hard=ex?examWords().filter(w=>((DS().ex||{})[w]||{}).miss>0).sort((a,b)=>DS().ex[b].miss-DS().ex[a].miss).slice(0,10):[];
+  return`<p class="pdesc"><b>${weekMin(from,to)} minutes</b> dans le jeu pendant cette semaine.</p>
+   ${rows?`<div class="nlist2">${rows}</div>`:""}
+   ${ex?`<div class="prow"><span><b>🎯 ${esc(ex.label)}</b><br><small>${dnFmt(ex.d,{weekday:"long",day:"numeric",month:"long"})}</small></span><span class="meter"><i style="width:${examWords().length?Math.round(examReady()/examWords().length*100):0}%"></i></span><span class="pgv">${examReady()} / ${examWords().length} mots prêts</span></div>${hard.length?`<p class="pdesc">Mots difficiles : ${hard.map(esc).join(", ")}</p>`:""}`:""}
+   ${p.tasks.length?`<p class="pdesc"><b>Travaux de la semaine :</b> ${done} sur ${p.tasks.length} cochés${done<p.tasks.length?` (à cocher dans l'onglet Matière scolaire)`:" ✓"}.</p>`:""}`}
 function generalReportHTML(){const dn=dayNum(),from=dn-6,SUB={maths:"Maths",francais:"Français",anglais:"Anglais"},mins={};
   [...(S.hist||[]),...(S.day?[S.day]:[])].forEach(h=>{const d=isoDn(h.d);if(d==null||d<from)return;Object.entries(h.subj||{}).forEach(([k,v])=>mins[k]=(mins[k]||0)+v)});
   const all=logSum(from,dn,()=>true),N=Object.entries(S.notions||{}).filter(([,x])=>x.t>=6).map(([k,x])=>({k:k.split("|")[1]||k,p:x.r/x.t,t:x.t}));
@@ -4375,7 +4475,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261105-111121";
+const APP_VER="20261105-122927";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
