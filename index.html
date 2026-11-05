@@ -856,6 +856,11 @@ body.homew #studybar{display:none}
 .agrid,.zgrid,.ggrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .zc{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--cream);border:1px solid var(--cream-line);border-radius:26px;box-shadow:0 10px 22px rgba(10,60,80,.12);text-align:left;color:var(--ink);transition:transform .15s}
 .zc.weekz{border:2px solid var(--c)}
+.zc{position:relative}.zc.ac>img{width:64px;height:64px;object-fit:contain;flex:none}
+.zc.today{border:2px solid #E0A800;background:color-mix(in srgb,#F6C945 12%,var(--cream))}
+.tbadge{position:absolute;top:-10px;right:14px;background:#F6C945;color:#12343B;border-radius:999px;padding:2px 10px;font-size:.75rem;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.fsec{display:flex;flex-direction:column;gap:10px}.fsec .xh{margin-top:10px}
+.fsd{margin:-6px 0 2px;color:var(--muted);font-size:1rem}
 .med{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--c);color:var(--on-i,#FFFFFF);font-family:var(--f-display);font-weight:700;font-size:1.35rem;box-shadow:inset 0 -4px 0 rgba(0,0,0,.15)}
 .med svg{width:30px;height:30px}
 .zc .zb{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -1441,13 +1446,13 @@ lecture(L){
 };
 
 const ISL_FR=[
- {id:"grammaire",a:"au Jardin des Mots",nom:"Le Jardin des Mots",sous:"Classes de mots, genre et nombre",glyph:"Aa",c:"--i1"},
- {id:"accords",a:"au Pont des Accords",nom:"Le Pont des Accords",sous:"Accorder le nom, l'adjectif et le verbe",glyph:"s·e",c:"--i2"},
- {id:"conjugaison",a:"à la Tour du Temps",nom:"La Tour du Temps",sous:"Présent, futur simple, imparfait",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 2h12M6 22h12M7 2c0 6 10 6 10 10S7 16 7 22M17 2c0 6-10 6-10 10s10 4 10 10"/></svg>`,c:"--i3"},
- {id:"orthographe",a:"à la Bibliothèque Magique",nom:"La Bibliothèque Magique",sous:"Mots à connaître, pluriel, féminin",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg>`,c:"--i4"},
- {id:"homophones",a:"à la Rivière des Sosies",nom:"La Rivière des Sosies",sous:"Homophones : a/à, et/est, son/sont…",glyph:"a/à",c:"--i5"},
- {id:"phrase",a:"à la Plage de la Phrase",nom:"La Plage de la Phrase",sous:"Ponctuation, types de phrases, sujet",glyph:"?!.",c:"--i6"},
- {id:"lecture",a:"à la Cabane des Histoires",nom:"La Cabane des Histoires",sous:"Lire et comprendre un texte",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 11 12 4l9 7v9H3z"/><path d="M8 20v-5h8v5M9 11h6"/></svg>`,c:"--i7"}
+ {id:"grammaire",a:"dans les classes de mots",nom:"Les classes de mots",sous:"Nom, déterminant, adjectif, verbe, pronom; genre et nombre",glyph:"Aa",c:"--i1"},
+ {id:"accords",a:"dans les accords",nom:"Les accords",sous:"Accorder dans le groupe du nom, et le verbe avec son sujet",glyph:"s·e",c:"--i2"},
+ {id:"conjugaison",a:"dans les temps des verbes",nom:"Les temps des verbes",sous:"Reconnaître et conjuguer le présent, le futur simple et l'imparfait",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 2h12M6 22h12M7 2c0 6 10 6 10 10S7 16 7 22M17 2c0 6-10 6-10 10s10 4 10 10"/></svg>`,c:"--i3"},
+ {id:"orthographe",a:"en pluriel et féminin",nom:"Pluriel et féminin",sous:"Le pluriel des noms, le féminin des noms et des adjectifs",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg>`,c:"--i4"},
+ {id:"homophones",a:"dans les homophones",nom:"Les homophones",sous:"Choisir entre a/à, et/est, son/sont… qui se prononcent pareil",glyph:"a/à",c:"--i5"},
+ {id:"phrase",a:"pour la phrase",nom:"La phrase",sous:"Majuscule et point, ponctuation, types de phrases, sujet",glyph:"?!.",c:"--i6"},
+ {id:"lecture",a:"en lecture",nom:"Lire et comprendre",sous:"Lire un court texte et répondre aux questions",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 11 12 4l9 7v9H3z"/><path d="M8 20v-5h8v5M9 11h6"/></svg>`,c:"--i7"}
 ];
 
 
@@ -1924,22 +1929,30 @@ function renderCarte(){
     const dsub=dWeeks().length?(dDue()?`<b>${dDue()} mot${dDue()>1?"s":""}</b> de tes listes à réviser aujourd'hui`:"Tout est révisé pour aujourd'hui. Tu peux t'entraîner encore!"):"Les mots de tes listes d'orthographe, jour après jour";
     let mid="";
     if(CUR==="maths")mid=`<h3 class="xh">Mon activité du jour</h3>`+(()=>{const t=TBS(),d=tbDay();return act(tbCardHTML(),IC3.boulier,"t-vi",!d.done,d.done?"":`Table ${t.cur+1} : <b>${TB_TABLES[t.cur].nom}</b> · série du jour : ${d.streak} sur ${TB_STREAK}`)})();
-    if(CUR==="francais")mid=`<h3 class="xh">Mes activités</h3><div class="agrid">`
-      +`<button class="act t-rose" id="b-dict"><img src="${IC3.micro}" alt=""><span class="ab"><b>Ma dictée du jour</b><span class="as">${dsub}</span></span></button>`
-      +act(examCardHTML(),IC3.cible,"t-or",false,examActive()?`${examLeft()===0?"C'est aujourd'hui!":`Dans <b>${examLeft()} jour${examLeft()>1?"s":""}</b>`} · ${examReady()} mot${examReady()>1?"s":""} prêt${examReady()>1?"s":""} sur ${examWords().length}`:"")
-      +`<button class="act" id="b-rep"><img src="${IC3.conte}" alt=""><span class="ab"><b>Je réponds en phrases complètes</b><span class="as">Lire un court texte, puis écrire une réponse complète avec « car ».</span></span></button>`
-      +act(cjCardHTML(),IC3.cahier,"",false,`Étape ${CJ_UNITS.indexOf(cjCur())+1} sur ${CJ_UNITS.length} : <b>${cjCur().nom}</b>`)
-      +`<button class="act" id="b-gn"><img src="${IC3.casse}" alt=""><span class="ab"><b>Le groupe du nom</b><span class="as">Les constructions : déterminant, adjectif et nom</span></span></button></div>`;
+    const zc=id=>{const i=byId(id);if(!i||i.subj!==CUR)return"";const z=IS(id);return`<button class="zc" data-isle="${id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`};
+    const ac=(id,ic,nom,sous,meta,today)=>`<button class="zc ac${today?" today":""}" id="${id}"><img src="${ic}" alt="">${today?`<span class="tbadge">Aujourd'hui</span>`:""}<span class="zb"><b>${nom}</b><span class="zs">${sous}</span>${meta?`<span class="zm">${meta}</span>`:""}</span></button>`;
+    const sec=(t,d,cards)=>`<section class="fsec" aria-label="${t}"><h3 class="xh">${t}</h3><p class="fsd">${d}</p><div class="zgrid">${cards}</div></section>`;
+    if(CUR==="francais"){const due=dDue(),ex=examActive()?DS().exam:null,u=cjCur();
+      const exCard=ex?(()=>{const n=examWords().length,r=examReady(),L=examLeft();return ac("b-exam",IC3.cible,"Préparer l'évaluation",`${esc(ex.label)}, ${L===0?"aujourd'hui":dnFmt(ex.d,{weekday:"long",day:"numeric",month:"long"})}`,`${r} MOT${r>1?"S":""} PRÊT${r>1?"S":""} SUR ${n}${L>0?` · DANS ${L} JOUR${L>1?"S":""}`:""}`,L<=3)})():"";
+      mid=sec("Orthographe","Écrire les mots sans faute.",
+        ac("b-dict",IC3.micro,"Dictée du jour","Les mots de tes listes d'orthographe de l'école, révisés jour après jour",dWeeks().length?(due?`${due} MOT${due>1?"S":""} À ÉCRIRE`:"TOUT EST RÉVISÉ ✓"):"LISTES À AJOUTER PAR PAPA OU MAMAN",due>0)
+        +exCard+zc("orthographe")+zc("homophones"))
+       +sec("Grammaire","Reconnaître les mots de la phrase et bien les accorder.",
+        zc("grammaire")+ac("b-gn",IC3.casse,"Le groupe du nom","Trouver le nom et ce qui l'accompagne : déterminant, adjectif","10 QUESTIONS")+zc("accords")+zc("phrase"))
+       +sec("Conjugaison","Conjuguer les verbes au bon temps.",
+        ac("b-conj",IC3.cahier,"Apprendre un verbe à la fois","Avoir, être, les verbes en -er, aller, les verbes en -ir, faire",`ÉTAPE ${CJ_UNITS.indexOf(u)+1} SUR ${CJ_UNITS.length} : ${esc(u.nom).toUpperCase()}`)+zc("conjugaison"))
+       +sec("Lecture","Lire, comprendre et répondre.",
+        zc("lecture")+ac("b-rep",IC3.conte,"Répondre en phrases complètes","Reprendre la question, expliquer avec « car », justifier avec le texte","UNE QUESTION À LA FOIS"))}
     if(CUR==="anglais")mid=`<div class="tipc"><img src="${C3D[S.comp.type]||C3D.tortue}" alt=""><p><b>Le conseil de ${esc(BN())}</b>Touche le haut-parleur pour écouter chaque mot en anglais avant de répondre.</p></div>`;
-    const spr=SPR(CUR).best?`60 secondes · record : ${SPR(CUR).best}`:CUR==="maths"?"60 secondes de calculs":CUR==="francais"?"Homophones et conjugaison":"Images, mots et couleurs";
+    const spr=(CUR==="maths"?"Le plus de calculs en 60 secondes":CUR==="francais"?"Homophones et conjugaison en 60 secondes":"Le plus de mots en 60 secondes")+(SPR(CUR).best?` · record : ${SPR(CUR).best}`:"");
     h=skyHead("Explorer","b-home")+`<div class="xpage">`
-     +tCard(XIC[{francais:"livres",maths:"blocs",anglais:"hi"}[CUR]],s.nom,{francais:"Orthographe, grammaire, conjugaison, lecture",maths:"Nombres, calculs, fractions, mesures, problèmes",anglais:"Mots, écoute, petites conversations, lecture"}[CUR],`<p class="tstars">${STARX}${st} ÉTOILE${st>1?"S":""} SUR ${max}</p>`,`<button class="notb" id="b-notions"><img src="${IC3.pile}" alt="">Les notions</button>`)
+     +tCard(XIC[{francais:"livres",maths:"blocs",anglais:"hi"}[CUR]],s.nom,{francais:"Orthographe, grammaire, conjugaison, lecture",maths:"Nombres, calculs, fractions, mesures, problèmes",anglais:"Mots, écoute, petites conversations, lecture"}[CUR],`<p class="tstars">${STARX}${st} ÉTOILE${st>1?"S":""} SUR ${max}</p>`,`<button class="notb" id="b-notions"><img src="${IC3.pile}" alt="">Revoir les règles</button>`)
      +searchBox(CUR)+mid
-     +`<h3 class="xh">Les zones à explorer</h3><div class="zgrid">`+zs.map(i=>{const z=IS(i.id);return`<button class="zc${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`}).join("")+`</div>`
-     +`<h3 class="xh">Les défis de l'île</h3><div class="dgrid">`
-     +`<button class="dc" data-isle="defi"><img src="${IC3.cible}" alt=""><b>Le Grand Défi</b><span>${ROUND} questions mélangées</span></button>`
-     +`<button class="dc" data-isle="tableau"><img src="${XIC.aa}" alt=""><b>Mission tableau</b><span>4 défis à la main</span></button>`
-     +`<button class="dc" data-isle="sprint"><img src="${IC3.eclair}" alt=""><b>La Course Éclair</b><span>${spr}</span></button></div></div>`;
+     +(CUR==="francais"?"":`<h3 class="xh">Les zones à explorer</h3><div class="zgrid">`+zs.map(i=>{const z=IS(i.id);return`<button class="zc${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`}).join("")+`</div>`)
+     +`<h3 class="xh">Réviser toute l'île</h3><p class="fsd">Des questions de toutes les notions de l'île, pour vérifier ce que tu sais.</p><div class="dgrid">`
+     +`<button class="dc" data-isle="defi"><img src="${IC3.cible}" alt=""><b>Révision mélangée</b><span>${ROUND} questions de toutes les notions de l'île</span></button>`
+     +`<button class="dc" data-isle="tableau"><img src="${XIC.aa}" alt=""><b>Défis au tableau</b><span>4 défis à écrire à la main, au tableau ou sur une feuille</span></button>`
+     +`<button class="dc" data-isle="sprint"><img src="${IC3.eclair}" alt=""><b>Course de vitesse</b><span>${spr}</span></button></div></div>`;
   }
   el.innerHTML=h;
   const bb2=$("#b-buddy2");if(bb2)bb2.onclick=()=>{const b=$("#b-buddy");if(b)b.click()};const bb=$("#b-buddy");if(bb)bb.onclick=()=>{const svg=$("#b-buddy .buddy");svg.classList.remove("m-idle","m-happy");void svg.getBoundingClientRect();svg.classList.add("m-happy");tone([[784,.08],[988,.1]]);speak(evText({k:"poke"}).replace(/<[^>]+>/g,""));setTimeout(()=>{svg.classList.remove("m-happy");svg.classList.add("m-idle")},2600)};
@@ -4265,7 +4278,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-212236";
+const APP_VER="20261104-215651";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
