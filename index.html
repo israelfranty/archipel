@@ -1205,13 +1205,13 @@ phare(L){
 };
 
 const ISL_M=[
- {id:"port",a:"au Port des Nombres",nom:"Le Port des Nombres",sous:"Valeur de position, comparer, suites",glyph:"123",c:"--i1"},
- {id:"foret",a:"dans la Forêt des Calculs",nom:"La Forêt des Calculs",sous:"Additions et soustractions",glyph:"+ −",c:"--i2"},
- {id:"volcan",a:"au Volcan des Groupes",nom:"Le Volcan des Groupes",sous:"Multiplications et partages",glyph:"× ÷",c:"--i3"},
- {id:"baie",a:"dans la Baie des Fractions",nom:"La Baie des Fractions",sous:"Parties d'un tout",glyph:"½",c:"--i4"},
- {id:"horloge",a:"à la Tour de l'Horloge",nom:"La Tour de l'Horloge",sous:"Heure, durées et longueurs",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2"/></svg>`,c:"--i5"},
- {id:"grotte",a:"dans la Grotte des Formes",nom:"La Grotte des Formes",sous:"Figures planes et solides",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2.5 21 20H3z"/><path d="M12 2.5 15 20" stroke-dasharray="2.5 2.5"/></svg>`,c:"--i6"},
- {id:"phare",a:"au Phare des Chances",nom:"Le Phare des Chances",sous:"Probabilités et diagrammes",glyph:`<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="5" width="4" height="16" rx="1"/><rect x="17" y="9" width="4" height="12" rx="1"/></svg>`,c:"--i7"}
+ {id:"port",a:"dans les nombres",nom:"Lire et comparer les nombres",sous:"Valeur de position, décomposer, comparer, suites de nombres",glyph:"123",c:"--i1"},
+ {id:"foret",a:"en additions et soustractions",nom:"Additions et soustractions",sous:"Calculer, trouver le nombre manquant, résoudre des problèmes écrits",glyph:"+ −",c:"--i2"},
+ {id:"volcan",a:"en multiplications et divisions",nom:"Multiplications et divisions",sous:"Groupes égaux, tables de multiplication, partages",glyph:"× ÷",c:"--i3"},
+ {id:"baie",a:"dans les fractions",nom:"Les fractions",sous:"Nommer, lire et comparer des parties d'un tout",glyph:"½",c:"--i4"},
+ {id:"horloge",a:"dans l'heure et les mesures",nom:"L'heure et les mesures",sous:"Lire l'heure, calculer une durée, mesurer des longueurs",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2"/></svg>`,c:"--i5"},
+ {id:"grotte",a:"en géométrie",nom:"Les figures et les solides",sous:"Figures planes, quadrilatères, côtés et faces des solides",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2.5 21 20H3z"/><path d="M12 2.5 15 20" stroke-dasharray="2.5 2.5"/></svg>`,c:"--i6"},
+ {id:"phare",a:"en diagrammes et probabilités",nom:"Diagrammes et probabilités",sous:"Lire un diagramme; dire si c'est certain, possible ou impossible",glyph:`<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="5" width="4" height="16" rx="1"/><rect x="17" y="9" width="4" height="12" rx="1"/></svg>`,c:"--i7"}
 ];
 /* ---------- Contenu de français, 3e année (Progression des apprentissages, 2e cycle) ---------- */
 const CAP=s=>s.charAt(0).toUpperCase()+s.slice(1);
@@ -1928,10 +1928,15 @@ function renderCarte(){
     const act=(html,ic,tint,go,sub)=>{if(!html)return"";const c=cardBits(html);if(sub)c.sous=sub;return`<button class="act${tint?" "+tint:""}" id="${c.id}"><img src="${ic}" alt=""><span class="ab"><b>${c.nom}</b><span class="as">${c.sous}</span></span>${go?`<span class="actgo">Commencer ▸</span>`:""}</button>`};
     const dsub=dWeeks().length?(dDue()?`<b>${dDue()} mot${dDue()>1?"s":""}</b> de tes listes à réviser aujourd'hui`:"Tout est révisé pour aujourd'hui. Tu peux t'entraîner encore!"):"Les mots de tes listes d'orthographe, jour après jour";
     let mid="";
-    if(CUR==="maths")mid=`<h3 class="xh">Mon activité du jour</h3>`+(()=>{const t=TBS(),d=tbDay();return act(tbCardHTML(),IC3.boulier,"t-vi",!d.done,d.done?"":`Table ${t.cur+1} : <b>${TB_TABLES[t.cur].nom}</b> · série du jour : ${d.streak} sur ${TB_STREAK}`)})();
     const zc=id=>{const i=byId(id);if(!i||i.subj!==CUR)return"";const z=IS(id);return`<button class="zc" data-isle="${id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`};
     const ac=(id,ic,nom,sous,meta,today)=>`<button class="zc ac${today?" today":""}" id="${id}"><img src="${ic}" alt="">${today?`<span class="tbadge">Aujourd'hui</span>`:""}<span class="zb"><b>${nom}</b><span class="zs">${sous}</span>${meta?`<span class="zm">${meta}</span>`:""}</span></button>`;
     const sec=(t,d,cards)=>`<section class="fsec" aria-label="${t}"><h3 class="xh">${t}</h3><p class="fsd">${d}</p><div class="zgrid">${cards}</div></section>`;
+    if(CUR==="maths"){const t=TBS(),d=tbDay();
+      mid=sec("Calcul","Calculer vite et bien, de tête et sur papier.",
+        ac("b-tab",IC3.boulier,"Tables d'addition et de soustraction","Retenir les calculs par cœur, avec une astuce pour chaque table",d.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${t.cur+1} : ${TB_TABLES[t.cur].nom.toUpperCase()} · SÉRIE ${d.streak} SUR ${TB_STREAK}`,!d.done)+zc("foret")+zc("volcan"))
+       +sec("Nombres","Comprendre, écrire et comparer les nombres et les fractions.",zc("port")+zc("baie"))
+       +sec("Mesure et géométrie","Lire l'heure, mesurer et reconnaître les formes.",zc("horloge")+zc("grotte"))
+       +sec("Statistique et probabilité","Lire des diagrammes et prévoir le hasard.",zc("phare"))}
     if(CUR==="francais"){const due=dDue(),ex=examActive()?DS().exam:null,u=cjCur();
       const exCard=ex?(()=>{const n=examWords().length,r=examReady(),L=examLeft();return ac("b-exam",IC3.cible,"Préparer l'évaluation",`${esc(ex.label)}, ${L===0?"aujourd'hui":dnFmt(ex.d,{weekday:"long",day:"numeric",month:"long"})}`,`${r} MOT${r>1?"S":""} PRÊT${r>1?"S":""} SUR ${n}${L>0?` · DANS ${L} JOUR${L>1?"S":""}`:""}`,L<=3)})():"";
       mid=sec("Orthographe","Écrire les mots sans faute.",
@@ -1948,7 +1953,7 @@ function renderCarte(){
     h=skyHead("Explorer","b-home")+`<div class="xpage">`
      +tCard(XIC[{francais:"livres",maths:"blocs",anglais:"hi"}[CUR]],s.nom,{francais:"Orthographe, grammaire, conjugaison, lecture",maths:"Nombres, calculs, fractions, mesures, problèmes",anglais:"Mots, écoute, petites conversations, lecture"}[CUR],`<p class="tstars">${STARX}${st} ÉTOILE${st>1?"S":""} SUR ${max}</p>`,`<button class="notb" id="b-notions"><img src="${IC3.pile}" alt="">Revoir les règles</button>`)
      +searchBox(CUR)+mid
-     +(CUR==="francais"?"":`<h3 class="xh">Les zones à explorer</h3><div class="zgrid">`+zs.map(i=>{const z=IS(i.id);return`<button class="zc${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`}).join("")+`</div>`)
+     +(CUR!=="anglais"?"":`<h3 class="xh">Les zones à explorer</h3><div class="zgrid">`+zs.map(i=>{const z=IS(i.id);return`<button class="zc${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`}).join("")+`</div>`)
      +`<h3 class="xh">Réviser toute l'île</h3><p class="fsd">Des questions de toutes les notions de l'île, pour vérifier ce que tu sais.</p><div class="dgrid">`
      +`<button class="dc" data-isle="defi"><img src="${IC3.cible}" alt=""><b>Révision mélangée</b><span>${ROUND} questions de toutes les notions de l'île</span></button>`
      +`<button class="dc" data-isle="tableau"><img src="${XIC.aa}" alt=""><b>Défis au tableau</b><span>4 défis à écrire à la main, au tableau ou sur une feuille</span></button>`
@@ -4278,7 +4283,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261104-215651";
+const APP_VER="20261104-222229";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
