@@ -1072,6 +1072,19 @@ body.skyin .din.wrong,.din.wrong{border-color:var(--bad)!important;background:va
 .pbans{font-size:1.2rem;font-weight:700;margin:.4rem 0}
 .pbans span{display:block;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;opacity:.7}
 .pbcard .numpad{margin-top:.4rem}
+.orlist{display:grid;gap:10px}
+.orpick{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:12px 16px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;min-height:56px}
+.orpick b{font-size:1.1rem}.orpick small{opacity:.75}
+.ortext{font-size:1.45rem;line-height:1.75;margin:.6rem 0 1rem}
+.orctl{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+.orctl .btn.stop{background:#C0392B;border-color:#C0392B;color:#FFFFFF}
+.orrec{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-variant-numeric:tabular-nums}
+.orrec i{width:14px;height:14px;border-radius:50%;background:#E0453A;animation:orpulse 1s infinite}
+@keyframes orpulse{50%{opacity:.25}}
+.orplay{margin:.6rem auto;max-width:420px}.orplay audio{width:100%}
+.orself{display:grid;gap:8px;max-width:420px;margin:0 auto .6rem}
+.orlog .d{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.orlog audio{max-width:220px}.orprog{margin:.2rem 0 .8rem;padding-left:1.2rem}
 </style>
 
 <header class="top">
@@ -2124,12 +2137,12 @@ function renderCarte(){
        +sec("Conjugaison","Conjuguer les verbes au bon temps.",
         ac("b-conj",IC3.cahier,"Apprendre un verbe à la fois","Avoir, être, les verbes en -er, aller, les verbes en -ir, faire",`ÉTAPE ${CJ_UNITS.indexOf(u)+1} SUR ${CJ_UNITS.length} : ${esc(u.nom).toUpperCase()}`)+zc("conjugaison"))
        +sec("Lecture","Lire, comprendre et répondre.",
-        zc("lecture")+ac("b-rep",IC3.conte,"Répondre en phrases complètes","Reprendre la question, expliquer avec « car », justifier avec le texte","UNE QUESTION À LA FOIS"))}
+        zc("lecture")+ac("b-rep",IC3.conte,"Répondre en phrases complètes","Reprendre la question, expliquer avec « car », justifier avec le texte","UNE QUESTION À LA FOIS")+ac("b-oral",IC3.micro,"Lire à voix haute","Je m'enregistre, je me réécoute et je mesure ma vitesse de lecture","MOTS PAR MINUTE"))}
     if(CUR==="anglais")mid=`<div class="tipc"><img src="${C3D[S.comp.type]||C3D.tortue}" alt=""><p><b>Le conseil de ${esc(BN())}</b>Touche le haut-parleur pour écouter chaque mot en anglais avant de répondre.</p></div>`
       +sec("Les mots","Apprendre les mots en anglais et bien les écrire.",zc("en_week")+zc("en_words")+zc("en_spell"))
       +sec("Écouter et parler","Comprendre ce qu'on entend et répondre.",zc("en_listen")+zc("en_talk"))
       +sec("Les phrases","Placer les mots dans le bon ordre et choisir le bon verbe.",zc("en_build")+zc("en_verbs"))
-      +sec("Lecture","Lire en anglais et comprendre.",zc("en_read"));
+      +sec("Lecture","Lire en anglais et comprendre.",zc("en_read")+ac("b-oralen",IC3.micro,"Lire à voix haute en anglais","Écouter le modèle, m'enregistrer, me réécouter","READ ALOUD"));
     const spr=(CUR==="maths"?"Le plus de calculs en 60 secondes":CUR==="francais"?"Homophones et conjugaison en 60 secondes":"Le plus de mots en 60 secondes")+(SPR(CUR).best?` · record : ${SPR(CUR).best}`:"");
     h=skyHead("Explorer","b-home")+`<div class="xpage">`
      +tCard(XIC[{francais:"livres",maths:"blocs",anglais:"hi"}[CUR]],s.nom,{francais:"Orthographe, grammaire, conjugaison, lecture",maths:"Nombres, calculs, fractions, mesures, problèmes",anglais:"Mots, écoute, petites conversations, lecture"}[CUR],`<p class="tstars">${STARX}${st} ÉTOILE${st>1?"S":""} SUR ${max}</p>`,`<button class="notb" id="b-notions"><img src="${IC3.pile}" alt="">Revoir les règles</button>`)
@@ -2146,7 +2159,7 @@ function renderCarte(){
   const bnot=$("#b-notions");if(bnot)bnot.onclick=()=>openLessons(CUR,null);
   bindSearch(CUR);
   const bat=$("#b-atelier");if(bat)bat.onclick=renderAtelier;
-  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;const btb=$("#b-tab");if(btb)btb.onclick=()=>startTables("add");const bmt=$("#b-mtab");if(bmt)bmt.onclick=()=>startTables("mul");const bpb=$("#b-prob");if(bpb)bpb.onclick=startProb;const bex=$("#b-exam");if(bex)bex.onclick=startExam;const bcj=$("#b-conj");if(bcj)bcj.onclick=renderConj;const bgn=$("#b-gn");if(bgn)bgn.onclick=startGN;planBind(el);
+  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;const bor=$("#b-oral");if(bor)bor.onclick=()=>startOral("fr");const bore=$("#b-oralen");if(bore)bore.onclick=()=>startOral("en");const btb=$("#b-tab");if(btb)btb.onclick=()=>startTables("add");const bmt=$("#b-mtab");if(bmt)bmt.onclick=()=>startTables("mul");const bpb=$("#b-prob");if(bpb)bpb.onclick=startProb;const bex=$("#b-exam");if(bex)bex.onclick=startExam;const bcj=$("#b-conj");if(bcj)bcj.onclick=renderConj;const bgn=$("#b-gn");if(bgn)bgn.onclick=startGN;planBind(el);
   const bbi=$("#b-biblio");if(bbi)bbi.onclick=renderBiblio;homeBind(el);
   el.querySelectorAll("[data-subj]").forEach(b=>b.onclick=()=>{CUR=b.dataset.subj;tone([[659,.08],[880,.12]]);renderCarte();window.scrollTo(0,0)});
   el.querySelectorAll("[data-isle]").forEach(b=>b.addEventListener("click",()=>b.dataset.isle==="sprint"?startSprint():start(b.dataset.isle)));
@@ -2546,6 +2559,7 @@ function renderParent(){tbUse("add");
     pdet("Tables d'addition et de soustraction",`table ${tb.cur+1} sur ${TB_TABLES.length}`,`<p class="pdesc">Une table aux 2 semaines environ, dans l'ordre des astuces : unités, puis dizaines, puis centaines.</p>${tbParentHTML()}`)+
     (()=>{tbUse("mul");const t=TBS(),on=t.hist.length||t.daily;const h=on?pdet("Tables de multiplication",`table ${t.cur+1} sur ${TB_TABLES.length}`,`<p class="pdesc">Mêmes règles : une table à la fois, justes et rapides, 2 jours réussis pour avancer. Étape 1 : multiplications; étape 2 : avec la division.</p>${tbParentHTML()}`):"";tbUse("add");return h})()+
     pdet("Problèmes à plusieurs étapes",`niveau ${PBS().lvl} sur 3`,`<p class="pdesc">5 problèmes à deux calculs par partie. Niveaux 1 et 2 : guidée étape par étape; niveau 3 : elle trouve seule la réponse finale, les étapes restent offertes en aide. Le niveau monte à 4 sur 5 réussis sans aide.</p>${pbParentHTML()}`)+
+    pdet("Lecture à voix haute",ORS().list.length?`${ORS().list.length} lecture${ORS().list.length>1?"s":""} · dernière : ${ORS().list[0].wpm} mots/min`:"pas encore",`<p class="pdesc">Elle lit un texte à voix haute; l'app mesure les mots lus par minute et l'enregistre. Rien n'est noté automatiquement : écoutez-la pour juger la justesse et l'intonation. Les enregistrements restent sur cet appareil (les 20 derniers).</p>${orParentHTML()}`)+
     pdet("Réponses écrites (lecture)",nRep?`${nRep} réponse${nRep>1?"s":""} à relire`:"aucune",`<p class="pdesc">Le jeu vérifie seulement la forme (reprendre la question, expliquer avec « car »). C'est vous qui jugez le contenu, avec l'exemple sous chaque réponse.</p>${repParentHTML()}`)+
     pdet("Écriture (Atelier)",nTr?`${nTr} caractère${nTr>1?"s":""} pratiqué${nTr>1?"s":""}`:"pas encore pratiqué",`<p class="pdesc">Caractères tracés sans modèle. « À l'envers » : le jeu a reconnu le caractère retourné (un d au lieu d'un b, par exemple).</p>${nTr?`<div class="items tglyphs">${Object.entries(S.trace).sort((a,b)=>b[1].rev-a[1].rev||a[0].localeCompare(b[0])).map(([c,t])=>`<span class="${t.rev?"warnc":""}">${c} · réussi ${t.ok}${t.rev?` · à l'envers ${t.rev}`:""}</span>`).join("")}</div>`:""}`)+
     pdet("Vitesse et jeux","records",vit));
@@ -2608,7 +2622,7 @@ function renderParent(){tbUse("add");
   el.querySelectorAll("[data-go]").forEach(x=>x.onclick=()=>{showTab(x.dataset.go);$(".ptabs").scrollIntoView({behavior:"smooth",block:"start"})});
   el.querySelectorAll("[data-run]").forEach(x=>x.onclick=()=>runFromParent(x.dataset.run));
   $("#p-retour").onclick=()=>{PARENT_OK=false;renderCarte();go("carte")};G=null;
-  dParentBind();tbParentBind();planParentBind();
+  dParentBind();tbParentBind();planParentBind();orParentBind();
   const pu=$("#p-upd");if(pu)pu.onclick=async()=>{const m=$("#p-updmsg");m.textContent=" Vérification…";
     try{const v=(await (await fetch("version.txt?t="+Date.now(),{cache:"no-store"})).text()).trim();
       if(!v)throw 0;if(v===APP_VER){m.innerHTML=" <b style=\"color:var(--good)\">Le jeu est à jour ✓</b>"}
@@ -3946,6 +3960,76 @@ function pbParentHTML(){const P=PBS(),H=P.hist.slice(0,6);if(!H.length)return`<p
   return`<p>Niveau <b>${P.lvl}</b> sur 3 (${P.lvl<3?"guidé, étape par étape":"elle trouve seule la réponse finale"}).</p><div class="days">${H.map(h=>`<div class="d"><span>${dnFmt(h.d)}<br><span class="dsub">Niveau ${h.L}${h.aided?` · aide ${h.aided} fois`:""}</span></span><span class="meter"><i style="width:${h.n?h.ok/h.n*100:0}%;background:var(--good)"></i></span><span>${h.ok}/${h.n}</span></div>`).join("")}</div>`}
 
 /* ======================================================================
+   LIRE À VOIX HAUTE — je m'enregistre, je me réécoute, je mesure ma vitesse
+   Aucune machine ne juge la lecture : elle se compare au modèle, et le parent écoute.
+   Les enregistrements restent sur l'appareil (IndexedDB). Les 20 derniers sont gardés.
+   ====================================================================== */
+const OR_DB="archipel-audio";let OR=null;
+function orDB(){return new Promise((res,rej)=>{try{const r=indexedDB.open(OR_DB,1);r.onupgradeneeded=()=>r.result.createObjectStore("rec");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
+async function orPut(id,blob){const db=await orDB();return new Promise((res,rej)=>{const t=db.transaction("rec","readwrite");t.objectStore("rec").put(blob,id);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}
+async function orGet(id){const db=await orDB();return new Promise((res,rej)=>{const t=db.transaction("rec","readonly"),q=t.objectStore("rec").get(id);q.onsuccess=()=>res(q.result||null);q.onerror=()=>rej(q.error)})}
+async function orDel(id){try{const db=await orDB();db.transaction("rec","readwrite").objectStore("rec").delete(id)}catch(e){}}
+const ORS=()=>{if(!S.oral||typeof S.oral!=="object")S.oral={};if(!Array.isArray(S.oral.list))S.oral.list=[];return S.oral};
+const orTexts=lang=>lang==="en"?STORIES.map((s,i)=>({id:"en"+i,L:s.L,titre:s.t,texte:s.x})):TEXTES.map((s,i)=>({id:"fr"+i,L:s.L,titre:s.titre,texte:s.texte}));
+const orWords=t=>t.split(/\s+/).filter(w=>/[\p{L}\d]/u.test(w)).length;
+const orCanRec=()=>!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
+function startOral(lang){FORCEV=false;lang=lang==="en"?"en":"fr";G={mode:"oral",subj:lang==="en"?"anglais":"francais",events:[]};OR={lang};orPick()}
+function orBar(){return`<div class="gamebar"><button class="back" id="or-back">← ${OR.lang==="en"?SUBJ.anglais.nom:SUBJ.francais.nom}</button><span class="gtitle">Lire à voix haute${OR.lang==="en"?" en anglais":""}</span></div>`}
+function orStop(){if(OR&&OR.timer){clearInterval(OR.timer);OR.timer=null}if(OR&&OR.rec&&OR.rec.state!=="inactive")try{OR.rec.stop()}catch(e){}if(OR&&OR.stream){OR.stream.getTracks().forEach(t=>t.stop());OR.stream=null}}
+function orBackB(){const b=$("#or-back");if(b)b.onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}orStop();G=null;OR=null;renderCarte();go("carte")}}
+function orPick(){const el=$("#ecran-jeu"),T=orTexts(OR.lang),L=ORS().list;el.style.setProperty("--c","var(--i6)");
+  el.innerHTML=orBar()+`<div class="card pop tbcard" style="--c:var(--i6)"><h2 class="tbh">🎙️ Lire à voix haute</h2>
+   <div class="tbast"><b>Comment ça marche</b><p>1. Écoute d'abord le modèle, si tu veux.</p><p>2. Touche « Je commence » et lis le texte à voix haute. ${orCanRec()?"La tablette t'enregistre.":""}</p><p>3. Touche « J'ai fini ». Tu vois combien de mots tu lis par minute${orCanRec()?" et tu peux te réécouter":""}.</p></div>
+   <p class="pbask"><b>Choisis un texte</b></p><div class="orlist">${T.map(t=>{const p=L.filter(x=>x.tid===t.id),best=p.length?Math.max(...p.map(x=>x.wpm)):0;
+     return`<button class="orpick" data-t="${t.id}"><b${OR.lang==="en"?' lang="en"':""}>${esc(t.titre)}</b><small>Niveau ${t.L} · ${orWords(t.texte)} mots${p.length?` · lu ${p.length} fois · meilleur : ${best} mots/min`:""}</small></button>`}).join("")}</div></div>`;
+  orBackB();go("jeu");el.querySelectorAll(".orpick").forEach(b=>b.onclick=()=>orRead(T.find(t=>t.id===b.dataset.t)))}
+function orRead(t){OR.t=t;OR.sec=0;OR.chunks=[];OR.mic=null;const el=$("#ecran-jeu"),EN=OR.lang==="en";
+  el.innerHTML=orBar()+`<div class="card pop" style="--c:var(--i6)"><div class="cardtop"><div class="notion">${esc(t.titre)}</div><span class="cardbtns"><button class="listen" id="or-model">${SPK}Écouter le modèle</button></span></div>
+   <p class="ortext"${EN?' lang="en"':""}>${esc(t.texte)}</p>
+   <div class="orctl"><span class="orrec" id="or-st" hidden><i></i><span id="or-sec">0 s</span></span><button class="btn" id="or-go">● Je commence à lire</button></div><p class="msg" id="or-msg"><small>${orCanRec()?"La première fois, la tablette demande la permission d'utiliser le micro : touche « Autoriser ».":"Le micro n'est pas disponible ici : on mesure seulement ton temps de lecture."}</small></p></div>`;
+  orBackB();go("jeu");
+  $("#or-model").onclick=()=>{FORCEV=true;speak(t.texte,()=>{FORCEV=false},OR.lang,EN?Math.min(.8,S.rate||.7):undefined)};
+  const btn=$("#or-go");btn.onclick=async()=>{if(OR.t0){orEnd();return}SEQ++;if(TTS)try{TTS.cancel()}catch(e){}btn.disabled=true;
+    if(orCanRec()){try{OR.stream=await navigator.mediaDevices.getUserMedia({audio:true});const mt=["audio/webm","audio/mp4","audio/ogg"].find(m=>MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m));
+      OR.rec=new MediaRecorder(OR.stream,mt?{mimeType:mt}:undefined);OR.rec.ondataavailable=e=>{if(e.data&&e.data.size)OR.chunks.push(e.data)};OR.rec.start();OR.mic=true}
+     catch(e){OR.mic=false;$("#or-msg").innerHTML="<small>Le micro n'est pas autorisé : on mesure seulement ton temps de lecture.</small>"}}
+    OR.t0=performance.now();$("#or-st").hidden=false;btn.disabled=false;btn.textContent="■ J'ai fini";btn.classList.add("stop");
+    OR.timer=setInterval(()=>{LAST_ACT=Date.now();const s=Math.floor((performance.now()-OR.t0)/1000);$("#or-sec")&&($("#or-sec").textContent=s+" s");if(s>=300)orEnd()},500)}}
+function orEnd(){if(!OR||!OR.t0)return;const sec=Math.max(1,Math.round((performance.now()-OR.t0)/1000)),t=OR.t,words=orWords(t.texte);clearInterval(OR.timer);OR.timer=null;
+  const finish=blob=>{if(OR.stream){OR.stream.getTracks().forEach(x=>x.stop());OR.stream=null}OR.t0=0;
+    if(sec<4||words/(sec/60)>220){$("#or-msg").innerHTML="<b>Tu as fini très vite!</b> Lis tout le texte à voix haute, mot par mot, puis touche « J'ai fini ».";const b=$("#or-go");b.textContent="● Je commence à lire";b.classList.remove("stop");$("#or-st").hidden=true;return}
+    orResult(t,sec,words,blob)};
+  if(OR.rec&&OR.rec.state!=="inactive"){OR.rec.onstop=()=>finish(OR.chunks.length?new Blob(OR.chunks,{type:OR.chunks[0].type||"audio/webm"}):null);try{OR.rec.stop()}catch(e){finish(null)}}else finish(null)}
+function orResult(t,sec,words,blob){const O=ORS(),prev=O.list.filter(x=>x.tid===t.id),wpm=Math.round(words/(sec/60)),id="or"+Date.now(),url=blob?URL.createObjectURL(blob):null,EN=OR.lang==="en";
+  const last=prev[0],rec={id,d:dayNum(),lang:OR.lang,tid:t.id,title:t.titre,sec,words,wpm,self:null,audio:!!blob};
+  O.list.unshift(rec);const old=O.list.splice(20);old.forEach(x=>{if(x.audio)orDel(x.id)});logAct("oral|"+OR.lang,true);save();
+  if(blob)orPut(id,blob).catch(()=>{rec.audio=false;save()});
+  const cmp=last?(wpm>last.wpm?`C'est <b>${wpm-last.wpm} mots de plus</b> par minute que la dernière fois (${last.wpm}). Bravo!`:`La dernière fois : ${last.wpm} mots par minute.`):"C'est ta première lecture de ce texte.";
+  const el=$("#ecran-fin");el.style.setProperty("--c","var(--i6)");
+  el.innerHTML=`<div class="card result pop" style="--c:var(--i6)"><div class="notion">Lire à voix haute · ${esc(t.titre)}</div><h2>Bravo${S.name?", "+esc(S.name):""}!</h2>
+   <div class="score">${wpm}</div><p class="msg"><small>mots par minute</small></p><p class="msg">Tu as lu <b>${words} mots</b> en <b>${sec} secondes</b>. ${cmp}</p>
+   ${url?`<div class="orplay"><p><b>Écoute ta lecture</b></p><audio controls src="${url}"></audio></div>`:""}
+   <div class="row-btns" style="margin-top:0"><button class="listen" id="or-model2">${SPK}Écouter le modèle</button></div>
+   <p class="pbask"><b>Comment as-tu lu?</b></p><div class="orself">${[["bien","😊","Je lis bien"],["hesite","🤔","J'ai hésité sur des mots"],["dur","😅","C'était difficile"]].map(([k,e,l])=>`<button class="choice" data-s="${k}">${e} ${l}</button>`).join("")}</div>
+   <p class="msg"><small>Lire le même texte plusieurs fois, c'est comme ça qu'on devient une lectrice rapide et fluide.</small></p>
+   <div class="row-btns"><button class="btn" id="or-again">Relire ce texte</button><button class="btn ghost" id="or-other">Un autre texte</button></div></div>`;
+  go("fin");
+  $("#or-model2").onclick=()=>{FORCEV=true;speak(t.texte,()=>{FORCEV=false},OR.lang,EN?Math.min(.8,S.rate||.7):undefined)};
+  el.querySelectorAll(".orself .choice").forEach(b=>b.onclick=()=>{rec.self=b.dataset.s;save();el.querySelectorAll(".orself .choice").forEach(x=>x.classList.toggle("right",x===b))});
+  const lang=OR.lang;$("#or-again").onclick=()=>{OR=OR||{lang};G={mode:"oral",subj:lang==="en"?"anglais":"francais",events:[]};orRead(t)};$("#or-other").onclick=()=>{OR=OR||{lang};G={mode:"oral",subj:lang==="en"?"anglais":"francais",events:[]};orPick()};
+  speak(`Bravo! ${wpm} mots par minute.`)}
+const OR_SELF={bien:"😊 bien lu",hesite:"🤔 a hésité",dur:"😅 difficile"};
+function orParentHTML(){const L=ORS().list;if(!L.length)return`<p>Pas encore de lecture enregistrée. L'activité « Lire à voix haute » est dans la section Lecture des îles du français et de l'anglais.</p>`;
+  const by={};L.forEach(x=>{(by[x.tid]=by[x.tid]||[]).push(x)});
+  const prog=Object.values(by).filter(a=>a.length>1).map(a=>{const f=a[a.length-1],l=a[0];return`<li><b>${esc(l.title)}</b> : ${f.wpm} → ${l.wpm} mots/min en ${a.length} lectures</li>`}).join("");
+  return`${prog?`<p class="pdesc"><b>Progrès sur un même texte</b></p><ul class="orprog">${prog}</ul>`:""}
+  <div class="orlog">${L.slice(0,12).map(x=>`<div class="d"><span>${dnFmt(x.d)} · <b>${esc(x.title)}</b>${x.lang==="en"?" (anglais)":""}<br><span class="dsub">${x.wpm} mots/min · ${x.sec} s${x.self?" · "+OR_SELF[x.self]:""}</span></span>${x.audio?`<button class="btn ghost orlisten" data-rec="${x.id}">▶ Écouter</button>`:`<span class="dsub">sans son</span>`}</div>`).join("")}</div>
+  <div class="confirm"><button class="btn ghost" id="p-ordel">Effacer tous les enregistrements</button><span id="p-ormsg" aria-live="polite"></span></div>`}
+function orParentBind(){document.querySelectorAll(".orlisten").forEach(b=>b.onclick=async()=>{try{const blob=await orGet(b.dataset.rec);if(!blob){b.textContent="Introuvable";b.disabled=true;return}
+    const a=document.createElement("audio");a.controls=true;a.src=URL.createObjectURL(blob);b.replaceWith(a);a.play().catch(()=>{})}catch(e){b.textContent="Indisponible";b.disabled=true}});
+  const d=$("#p-ordel");if(d)d.onclick=()=>{const O=ORS();O.list.forEach(x=>{if(x.audio)orDel(x.id);x.audio=false});save();$("#p-ormsg").innerHTML=` <b style="color:var(--good)">Enregistrements effacés ✓</b>`;document.querySelectorAll(".orlisten").forEach(b=>{b.replaceWith(Object.assign(document.createElement("span"),{className:"dsub",textContent:"effacé"}))})}}
+
+/* ======================================================================
    JOURNAL D'ACTIVITÉ (par jour) — sert aux rapports du parent
    ====================================================================== */
 function logAct(key,ok){try{const dn=dayNum(),D=S.dlog||(S.dlog={}),d=D[dn]||(D[dn]={}),x=d[key]||(d[key]={r:0,t:0});x.t++;if(ok)x.r++;
@@ -4834,7 +4918,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261106-120950";
+const APP_VER="20261106-124956";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
