@@ -2372,8 +2372,8 @@ function renderParent(){
   const NA=nAll().sort((x,y)=>SORD[x.st]-SORD[y.st]||x.p-y.p||y.n-x.n);
   const weak=NA.find(x=>x.st==="low");
   /* 7 derniers jours : minutes par jour et objectif du jour */
-  const dn0=dayNum(),D7=(()=>{const all=[...S.hist,{d:S.day.d,sec:S.day.sec,subj:S.day.subj,goals:S.goals}],out=[];for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);const k=dt.toLocaleDateString("en-CA"),r=all.find(x=>x.d===k),sj=(r&&r.subj)||{},gs=(r&&r.goals)||S.goals,gm=SUBJS.reduce((t,x)=>t+(gs[x]||0),0),m=r?mins(r.sec):0,ok=!!(r&&r.subj&&gm&&SUBJS.every(x=>(sj[x]||0)>=(gs[x]||0)*60));out.push({lab:i===0?"Auj.":dt.toLocaleDateString("fr-CA",{weekday:"short"}).replace(".",""),full:i===0?"Aujourd'hui":dt.toLocaleDateString("fr-CA",{weekday:"long",day:"numeric"}),m,gm,ok,sj})}return out})();
-  const days=(()=>{const mx=Math.max(1,...D7.map(d=>Math.max(d.m,d.gm)));return`<div class="tbars" role="img" aria-label="Minutes d'étude des 7 derniers jours">${D7.map(d=>`<div class="tb${d.ok?" ok":""}"><span class="tbv">${d.m}</span><span class="tbcol"><i style="height:${Math.round(d.m/mx*100)}%"></i>${d.gm?`<b class="tbg" style="bottom:${Math.round(d.gm/mx*100)}%"></b>`:""}</span><span class="tbl">${d.lab}</span></div>`).join("")}</div><p class="pdesc tbleg"><span class="lg-bar"></span> minutes d'étude <span class="lg-goal"></span> objectif du jour · barre verte : objectif atteint</p>`})();
+  const dn0=dayNum(),D7=(()=>{const all=[...S.hist,{d:S.day.d,sec:S.day.sec,subj:S.day.subj,goals:S.goals}],out=[];for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);const k=dt.toLocaleDateString("en-CA"),r=all.find(x=>x.d===k),sj=(r&&r.subj)||{},gs=(r&&r.goals)||S.goals,gm=SUBJS.reduce((t,x)=>t+(gs[x]||0),0),m=r?mins(r.sec):0,ok=!!(r&&r.subj&&gm&&SUBJS.every(x=>(sj[x]||0)>=(gs[x]||0)*60));out.push({gs,lab:i===0?"Auj.":dt.toLocaleDateString("fr-CA",{weekday:"short"}).replace(".",""),full:i===0?"Aujourd'hui":dt.toLocaleDateString("fr-CA",{weekday:"long",day:"numeric"}),m,gm,ok,sj})}return out})();
+  const days=(()=>{const mx=Math.max(1,...D7.map(d=>Math.max(d.m,d.gm)));return`<div class="tbars" role="img" aria-label="Minutes d'étude des 7 derniers jours">${D7.map(d=>`<div class="tb${d.ok?" ok":""}"><span class="tbv">${d.m}</span><span class="tbcol"><i style="height:${Math.round(d.m/mx*100)}%"></i>${d.gm?`<b class="tbg" style="bottom:${Math.round(d.gm/mx*100)}%"></b>`:""}</span><span class="tbl">${d.lab}</span></div>`).join("")}</div><p class="pdesc tbleg"><span class="lg-bar"></span> minutes d'étude <span class="lg-goal"></span> objectif du jour (total des matières) · barre verte : objectifs atteints dans toutes les matières</p>${(()=>{const ks=SUBJS.filter(k=>D7.some(d=>d.gs&&(d.gs[k]||0)>0));return ks.length?`<p class="pdesc"><b>Objectif atteint, par matière (7 jours) :</b> ${ks.map(k=>{const n=D7.filter(d=>d.gs&&(d.gs[k]||0)>0&&(d.sj[k]||0)>=(d.gs[k]||0)*60).length;return`${LBL[k]} ${n} jour${n>1?"s":""} sur 7`}).join(" · ")}</p>`:""})()}`})();
   const g=GS(),b=S.games&&S.games.bat;
   /* --- tableau de bord --- */
   const dash=`<section class="pdash" aria-label="Aujourd'hui"><div class="pdh"><h2>Aujourd'hui</h2><span>${new Date().toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"})}</span></div>
@@ -2388,11 +2388,11 @@ function renderParent(){
   const cnt={low:NA.filter(x=>x.st==="low").length,mid:NA.filter(x=>x.st==="mid").length,ok:NA.filter(x=>x.st==="ok").length};
   const exA=examActive()?DS().exam:null,exN=exA?examWords().length:0,exR=exA?examReady():0,exL=exA?examLeft():0;
   const acts=[];
-  if(exA&&exR<exN&&exL<=10)acts.push({t:`<b>${esc(exA.label)}</b> ${exL===0?"aujourd'hui":exL===1?"demain":`dans ${exL} jours`} : ${exR} mot${exR>1?"s":""} prêt${exR>1?"s":""} sur ${exN}. Une révision chaque jour d'ici là.`,b:"Lancer la révision",run:"exam"});
+  if(exA&&exR<exN&&exL<=10)acts.push({t:`<b>${esc(exA.label)}</b> ${exL===0?"aujourd'hui":exL===1?"demain":`dans ${exL} jours`} : ${exR} mot${exR>1?"s":""} prêt${exR>1?"s":""} sur ${exN}. Un mot est prêt quand elle l'a bien écrit 2 jours différents (dictée du jour ou révision).`,b:"Lancer la révision",run:"exam"});
   if(weak)acts.push({t:`<b>${esc(weak.notion)}</b> (${byId(weak.isl).nom}) : ${weak.r} bonne${weak.r>1?"s":""} réponse${weak.r>1?"s":""} sur ses ${weak.n} dernières. Quelques minutes là-dessus aideraient.`,b:"La faire pratiquer",run:"zone:"+weak.isl});
   if(dWeeks().length&&dDue()>0)acts.push({t:`<b>${dDue()} mot${dDue()>1?"s":""} de dictée</b> à réviser aujourd'hui.`,b:"Lancer la dictée",run:"dict"});
   const brief=`<section class="pcard brief" aria-label="En bref"><h3>En bref : les 7 derniers jours</h3>
-   <p class="blead">${act7?`${esc(S.name||"Votre enfant")} a étudié <b>${act7} jour${act7>1?"s":""} sur 7</b>, pour <b>${min7} minutes</b> au total${ok7?`, et a atteint son objectif ${ok7} jour${ok7>1?"s":""}`:""}. Elle a répondu à <b>${all7.t} question${all7.t>1?"s":""}</b>, avec <b>${pct(all7.r,all7.t)}</b> de bonnes réponses.`:`Pas encore d'activité ces 7 derniers jours.`}</p>
+   <p class="blead">${act7?`${esc(S.name||"Votre enfant")} a étudié <b>${act7} jour${act7>1?"s":""} sur 7</b>, pour <b>${min7} minutes</b> au total${ok7?`, et a atteint ses objectifs dans toutes les matières ${ok7} jour${ok7>1?"s":""}`:""}. Elle a répondu à <b>${all7.t} question${all7.t>1?"s":""}</b>, avec <b>${pct(all7.r,all7.t)}</b> de bonnes réponses.`:`Pas encore d'activité ces 7 derniers jours.`}</p>
    <div class="bstat"><span class="spill s-low">${cnt.low} à travailler</span><span class="spill s-mid">${cnt.mid} en progrès</span><span class="spill s-ok">${cnt.ok} solide${cnt.ok>1?"s":""}</span><span class="bnote">notions, selon leurs 10 dernières réponses</span></div>
    <h4 class="bh">À faire en priorité</h4>
    ${acts.length?`<ol class="bacts">${acts.slice(0,3).map(a=>`<li><span>${a.t}</span><button class="btn ghost" data-run="${a.run}">${a.b}</button></li>`).join("")}</ol>`:`<p class="pdesc">Rien d'urgent : la routine actuelle fonctionne. Continuez ainsi.</p>`}</section>`;
@@ -3823,7 +3823,9 @@ const examActive=()=>{const e=DS().exam;return!!(e&&dayNum()<=e.d)};
 const examLeft=()=>Math.max(0,DS().exam.d-dayNum());
 function examWords(){const e=DS().exam;if(!e)return[];const L=dLists(),dn=dayNum();return L.L.filter(l=>l.n>=e.from&&l.n<=e.to&&l.start<=dn).flatMap(l=>l.w.filter(x=>L.by[x.w]===x).map(x=>x.w))}
 const exS=w=>{const d=DS();if(!d.ex)d.ex={};return d.ex[w]||(d.ex[w]={ok:0,miss:0,days:[],last:null})};
-const exReadyW=w=>{const x=(DS().ex||{})[w];return!!(x&&x.days.length>=2&&x.last===1)};
+/* Un mot est « prêt » pour l'évaluation quand elle l'a bien écrit 2 jours différents et que son dernier essai est réussi :
+   dans la révision de l'évaluation, ou dans la dictée du jour (boîte 2 ou plus = 2 réussites espacées, dernière réussie). */
+const exReadyW=w=>{const x=(DS().ex||{})[w];if(x&&x.days.length>=2&&x.last===1)return true;const b=DS().bank[w];return!!(b&&b.b>=2&&!(x&&x.last===0))};
 const examReady=()=>examWords().filter(exReadyW).length;
 function startExam(){dSync();const W=examWords();if(!W.length){alertDict();return}
   const ex=DS().ex||{},score=w=>{const x=ex[w];if(!x)return 50;return(exReadyW(w)?-100:0)+x.miss*20-x.days.length*10+(x.last===0?30:0)};
@@ -4490,7 +4492,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261105-231537";
+const APP_VER="20261105-232821";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
