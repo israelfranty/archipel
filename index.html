@@ -1051,6 +1051,16 @@ body.skyin .din.wrong,.din.wrong{border-color:var(--bad)!important;background:va
 .wex .wex-l{display:block;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;opacity:.7}
 .wexfill{display:inline-block;min-width:1.4em;padding:0 .25em;border-radius:10px;border:3px solid var(--c);color:var(--c);font-weight:800;text-align:center}
 .wex .row-btns{margin-top:.4rem}
+.seance{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0 6px}
+.seance span{flex:1 1 220px;font-size:.92rem;opacity:.8}
+.sgo{min-height:58px;padding:0 28px;border-radius:999px;border:0;background:var(--teal-d);color:#FFFFFF;font-family:var(--f-display);font-weight:700;font-size:1.2rem;display:inline-flex;align-items:center;gap:10px;box-shadow:0 4px 0 rgba(0,0,0,.15)}
+.sgo svg{width:22px;height:22px}
+:root[data-theme="dark"] .sgo{background:var(--sea);color:#0E1C23}
+.snext{margin:16px 0 4px;padding:14px;border-radius:16px;border:2px solid var(--c);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.snext .snx-l{margin:0;font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;opacity:.75}
+.snext .snx-done{margin:0;font-weight:700;font-size:1.1rem}
+.snext .btn{max-width:100%;white-space:normal}
+.sstop{background:none;border:0;color:inherit;opacity:.75;text-decoration:underline;font:inherit;font-size:.9rem;min-height:40px}
 </style>
 
 <header class="top">
@@ -2012,7 +2022,7 @@ function bye(){BYE=true;PAUSED=false;G=null;save();if(MUS)MUS.pause();if(TTS)try
   $("#b-reopen").onclick=()=>{BYE=false;renderCarte();go("carte");musicSync()}}
 
 /* ---------- Écrans ---------- */
-function go(id){if(!(G&&G.mode==="dict"))FORCEV=false;const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||id==="carte"||BYE;document.body.classList.toggle("has-nav",id==="carte"&&!!S.name&&!!S.comp.type);if(id!=="carte")document.body.classList.remove("homew");SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);const gs=!G?null:G.mode==="trace"?null:["biblio","donjon","bat"].includes(G.mode)?"jeux":G.subj;if(id==="jeu")LSUB=gs;skyIn((id==="jeu"||id==="fin")&&SKYSUB.includes(id==="jeu"?gs:LSUB));window.scrollTo(0,0)}
+function go(id){if(id==="fin")setTimeout(()=>{if(!$("#ecran-fin").hidden)seanceEnd()},0);if(!(G&&G.mode==="dict"))FORCEV=false;const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||id==="carte"||BYE;document.body.classList.toggle("has-nav",id==="carte"&&!!S.name&&!!S.comp.type);if(id!=="carte")document.body.classList.remove("homew");SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);const gs=!G?null:G.mode==="trace"?null:["biblio","donjon","bat"].includes(G.mode)?"jeux":G.subj;if(id==="jeu")LSUB=gs;skyIn((id==="jeu"||id==="fin")&&SKYSUB.includes(id==="jeu"?gs:LSUB));window.scrollTo(0,0)}
 /* Pages intérieures au thème « ciel et crème » : activées île par île (SKYSUB). */
 const SKYSUB=["francais","maths","anglais","jeux"];let LSUB=null;
 function skyDeco(id){const gt=document.querySelector(`#ecran-${id} .gtitle`);if(!gt||gt.querySelector(".gic"))return;const t=gt.textContent;
@@ -4538,7 +4548,8 @@ function homeHTML(){PROG=progItems();const n=PROG.length,dn=PROG.filter(x=>x.don
     <div class="hgreet"><button class="hbuddy" id="b-buddy" aria-label="Parler à ${esc(BN())}">${buddySVG(S.comp.type,S.comp.items,"idle")}</button><div class="hbub"><b>Bonjour ${nm}! 👋</b><span>${msg}</span></div></div></div></div>`;
   const prog=`<section class="hcard progc" aria-label="Mon programme d'aujourd'hui"><div class="ph"><h2>${CALI}Mon programme d'aujourd'hui</h2><span>${dn} sur ${n}</span></div>
     <div class="pbar"><i style="width:${n?Math.round(dn/n*100):0}%"></i></div>
-    <div class="hplist">${PROG.map((x,i)=>`<div class="pitem${x.done?" done":""}" style="--c:var(${x.c})"><span class="pic">${x.done?CHECKI:x.ic}</span><div class="ptx"><p class="pn">${x.nom}${x.plan?`<span class="ptag">École</span>`:""}</p><p class="ps">${x.done?`<b class="ok">Terminé</b> · `:""}${x.sous}</p></div>${x.done?"":`<button class="pgo${i===first?" main":""}" data-prog="${i}">${x.started?"Continuer":"Commencer"}${PLAYI}</button>`}</div>`).join("")}</div>
+    ${dn<n?`<div class="seance"><button class="sgo" id="b-seance">${PLAYI}${SEANCE||PROG.some(x=>x.started)?"Continuer ma séance":"Commencer ma séance"}</button><span>Tes activités l'une après l'autre. Tu peux aussi en choisir une ci-dessous.</span></div>`:""}
+    <div class="hplist">${PROG.map((x,i)=>`<div class="pitem${x.done?" done":""}" style="--c:var(${x.c})"><span class="pic">${x.done?CHECKI:x.ic}</span><div class="ptx"><p class="pn">${x.nom}${x.plan?`<span class="ptag">École</span>`:""}</p><p class="ps">${x.done?`<b class="ok">Terminé</b> · `:""}${x.sous}</p></div>${x.done?"":`<button class="pgo" data-prog="${i}">${x.started?"Continuer":"Commencer"}${PLAYI}</button>`}</div>`).join("")}</div>
     ${g||planActive()?`<div class="pmeta"><span>${PWEEK?`🏫 Cette semaine : <b>${PWEEK.ok} notion${PWEEK.ok>1?"s":""} de l'école sur ${PWEEK.n}</b> bien pratiquée${PWEEK.ok>1?"s":""}`:""}${PWEEK&&g?"<br>":""}${g?`⏱ ${mins(S.day.sec)} min d'étude aujourd'hui · objectif ${g/60} min`:""}</span>${planActive()?`<button class="plink" id="b-semaine">🏫 Ma semaine à l'école</button>`:""}</div>`:""}</section>`;
   const w=weekInfo(),pc=w.t?Math.round(w.d/w.t*100):0,C=2*Math.PI*42;
   const ring=`<section class="hcard" aria-label="Ma progression"><h2>${BARI}Ma progression</h2><div class="ringw"><div class="ring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="#F1E6CF" stroke-width="12"/><circle cx="50" cy="50" r="42" fill="none" stroke="#16878F" stroke-width="12" stroke-linecap="round"${pc?"":` opacity="0"`} stroke-dasharray="${(C*pc/100).toFixed(1)} ${C.toFixed(1)}"/></svg><b>${pc}%</b></div>
@@ -4562,8 +4573,25 @@ function defisHTML(){const XI={francais:XIC.livres,maths:XIC.blocs,anglais:XIC.h
 function navSync(){document.querySelectorAll("#bnav [data-nav]").forEach(b=>{const on=b.dataset.nav===(CUR?"explore":HTAB);b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});const nb=$("#nav-biblio");if(nb)nb.hidden=S.gamesOn===false}
 function openColl(){const it=S.comp.items;const o=ovl(`<div class="buddywrap">${buddySVG(S.comp.type,it,"happy")}</div><h2 class="ovl-title">La collection de ${esc(BN())}</h2><div class="collg">${OBJETS.map(x=>it.includes(x[0])?`<div>${OBJIC[x[0]]||"✓"} ${x[1]}</div>`:`<div class="no">? Objet à découvrir</div>`).join("")}</div><p class="msg" style="margin:0">Les boîtes surprises arrivent quand tu franchis de grandes étapes.</p><button class="btn" id="o-close">Fermer</button>`);
   const b=o.querySelector("#o-close");b.focus({preventScroll:true});b.onclick=()=>o.remove()}
+/* ---------- Ma séance ----------
+   Un seul bouton enchaîne le programme du jour : à la fin de chaque activité, l'écran de fin propose
+   « Activité suivante ». La séance vit en mémoire seulement (elle recommence chaque jour). */
+let SEANCE=null;
+function seanceGo(x){SEANCE={d:today(),cur:x.id};tone([[659,.08],[880,.12]]);x.go()}
+function seanceStart(){const it=progItems(),x=it.find(y=>!y.done);if(x)seanceGo(x)}
+function seanceEnd(){if(!SEANCE||SEANCE.d!==today()){SEANCE=null;return}const el=$("#ecran-fin");if(!el||el.querySelector(".snext"))return;
+  const it=progItems(),left=it.filter(y=>!y.done),ci=it.findIndex(y=>y.id===SEANCE.cur),nx=(ci<0?it:it.slice(ci+1).concat(it.slice(0,ci))).find(y=>!y.done)||left[0],dn=it.length-left.length;
+  const card=el.querySelector(".card")||el,row=card.querySelector(".row-btns");
+  const box=document.createElement("div");box.className="snext";
+  if(nx){box.innerHTML=`<p class="snx-l">Ma séance · ${dn} activité${dn>1?"s":""} sur ${it.length}</p><button class="btn" id="b-snext">${nx.id===SEANCE.cur?"Continuer":"Activité suivante"} : ${nx.nom} →</button><button class="sstop" id="b-sstop">Arrêter la séance ici</button>`}
+  else{box.innerHTML=`<p class="snx-l">Ma séance</p><p class="snx-done">🎉 Tout ton programme d'aujourd'hui est fait!</p><button class="btn" id="b-shome">Retour à l'accueil</button>`;SEANCE=null}
+  if(row){row.before(box);if(nx)row.querySelectorAll(".btn").forEach(b=>b.classList.add("ghost"))}else card.appendChild(box);
+  const bn=box.querySelector("#b-snext");if(bn)bn.onclick=()=>{G=null;seanceGo(nx)};
+  const bs=box.querySelector("#b-sstop");if(bs)bs.onclick=()=>{SEANCE=null;G=null;HTAB="home";CUR=null;renderCarte();go("carte")};
+  const bh=box.querySelector("#b-shome");if(bh)bh.onclick=()=>{G=null;HTAB="home";CUR=null;renderCarte();go("carte")}}
 function homeBind(el){
-  el.querySelectorAll("[data-prog]").forEach(b=>b.onclick=()=>{const x=PROG[+b.dataset.prog];if(x){tone([[659,.08],[880,.12]]);x.go()}});
+  const bsc=el.querySelector("#b-seance");if(bsc)bsc.onclick=seanceStart;
+  el.querySelectorAll("[data-prog]").forEach(b=>b.onclick=()=>{const x=PROG[+b.dataset.prog];if(x){SEANCE=null;tone([[659,.08],[880,.12]]);x.go()}});
   const bs=el.querySelector("#b-semaine");if(bs)bs.onclick=()=>{const o=ovl(planCardHTML()+`<button class="btn ghost" id="o-close">Fermer</button>`);o.querySelector("#o-close").onclick=()=>o.remove();o.querySelectorAll("[data-plan]").forEach(b=>b.addEventListener("click",()=>o.remove(),true));planBind(o)};
   const bc=el.querySelector("#b-coll");if(bc)bc.onclick=openColl;
   el.querySelectorAll("[data-defi]").forEach(b=>b.onclick=()=>{const [k,m]=b.dataset.defi.split("|");CUR=k;if(m==="sprint")startSprint();else start(m)})}
@@ -4601,7 +4629,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261106-071930";
+const APP_VER="20261106-101658";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
