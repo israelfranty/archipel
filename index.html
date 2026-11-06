@@ -1032,6 +1032,13 @@ body.skyin .cg-h{font-family:var(--f-display);font-weight:700;font-size:1.4rem;m
 .dlalign p{margin:0}
 .dlal{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:600}
 .dlal select{border:2px solid var(--line);border-radius:10px;padding:8px;background:var(--surface);color:var(--ink);font:inherit}
+.tform{display:flex;flex-direction:column;gap:12px}
+.din.right{border-color:var(--good);background:var(--good-bg)}
+.din.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.accnote{margin:0 0 6px;padding:8px 12px;border-radius:12px;background:color-mix(in srgb,var(--sun) 18%,var(--surface))}
+.tform .acck:disabled,.tform .btn:disabled{opacity:.5}
+body.skyin .din.right,.din.right{border-color:var(--good)!important;background:var(--good-bg)!important;color:var(--ink)}
+body.skyin .din.wrong,.din.wrong{border-color:var(--bad)!important;background:var(--bad-bg)!important;color:var(--ink)}
 </style>
 
 <header class="top">
@@ -2148,6 +2155,16 @@ function next(){
   else{const zs=G.id==="defi"?zones(G.subj).map(z=>z.id):[G.id],tg=targetFor(zs),isl=tg?tg.isl:pick(zs);q=pickQ(isl,IS(isl).level,tg&&tg.want);if(tg){G.tcount=G.tcount||{};G.tcount[tg.k]=(G.tcount[tg.k]||0)+1}}
   G.recent=[q.prompt+(q.visual||""),...G.recent].slice(0,4);G.q=q;G.input="";G.done=false;G.lock=false;renderQ();
 }
+/* ---------- Réponse écrite (niveaux 2 et 3) ----------
+   Écrire la réponse se retient mieux que la choisir. Au niveau 2, une question sur deux; au niveau 3, toutes.
+   Seulement là où écrire a du sens : un mot ou une forme à orthographier (pas une classe de mots ou un type de phrase). */
+const TYPE_ISL=new Set(["homophones","conjugaison","accords","orthographe","en_spell","en_words","en_build","en_verbs"]);
+const tnorm=v=>String(v).replace(/[’ʼ]/g,"'").replace(/\s+/g," ").trim().toLowerCase();
+const tbare=v=>tnorm(v).normalize("NFD").replace(/[̀-ͯ]/g,"");
+const NO_TYPE=new Set(["Reconnaître le temps"]);
+const PRORX=/^(je |j'|tu |il |elle |on |nous |vous |ils |elles )/;
+function typeOK(q){if(q.kind!=="choice"||q.disp||q.emo||!TYPE_ISL.has(q.isl)||NO_TYPE.has(q.notion))return false;const a=String(q.answer);
+  return a.length>0&&a.length<=24&&!/[<>&]/.test(a)&&a.split(" ").length<=3&&q.choices.every(c=>typeof c==="string"&&!/[<>]/.test(c))}
 function renderQ(){
   const q=G.q,isl=byId(q.isl),head=headOf(),el=$("#ecran-jeu");
   el.style.setProperty("--c",`var(${head.c})`);
@@ -2157,7 +2174,14 @@ function renderQ(){
   <div class="card pop" style="--c:var(${isl.c})"><div class="cardtop"><div class="notion">${q.notion}</div><span class="cardbtns">${q.fr?`<button class="listen" id="b-help" aria-expanded="false">Aide</button>`:""}${canSpeak()?`<button class="listen" id="b-listen">${SPK}Réécouter</button>`:""}</span></div><p class="prompt"${q.lang==="en"?' lang="en"':""}>${q.prompt}</p>${q.fr?`<p class="help" id="q-help" hidden>${q.fr}</p>`:""}<div class="visual">${q.visual||""}</div><div id="answer"></div><div id="fb"></div></div>`;
   $("#b-retour").onclick=()=>{G=null;renderCarte();go("carte")};
   const A=$("#answer");
-  if(q.kind==="choice"){const lg=!q.disp&&q.choices.some(x=>String(x).length>12);A.innerHTML=`<div class="choices${q.choices.length===3?" three":""}${!q.disp&&q.choices.some(c=>String(c).length>24)?" one":""}${q.emo?" emo":""}"${q.lang==="en"?' lang="en"':""}>${q.choices.map(c=>`<button class="choice${lg?" long":""}" data-v="${esc(c)}">${q.disp?q.disp[c]:show(c)}</button>`).join("")}</div>`;
+  if(typeOK(q)&&!q.notype){const L=IS(q.isl).level;if(L>=3||(L===2&&Math.random()<.5))q.kind="text";else q.notype=1}
+  if(q.kind==="text"){const EN=q.lang==="en";A.innerHTML=`<form id="t-form" class="dform tform" autocomplete="off"><input id="tin" class="din" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" lang="${EN?"en":"fr"}" aria-label="Écris ta réponse ici" placeholder="${EN?"Write your answer":PRORX.test(tnorm(q.answer))?"Écris le verbe conjugué":"Écris ta réponse"}" enterkeyhint="done">
+    ${EN?"":`<div class="acc">${DACC.map(a=>`<button type="button" class="acck" data-a="${a}">${a}</button>`).join("")}</div>`}<button class="btn" type="submit">Valider</button></form>`;
+    const inp=$("#tin");A.querySelectorAll(".acck").forEach(b=>b.onpointerdown=ev=>{ev.preventDefault();const s0=inp.selectionStart??inp.value.length,en=inp.selectionEnd??s0;inp.value=inp.value.slice(0,s0)+b.dataset.a+inp.value.slice(en);inp.focus();inp.setSelectionRange(s0+1,s0+1)});
+    $("#t-form").addEventListener("submit",ev=>{ev.preventDefault();const v=inp.value;if(!v.trim()){inp.focus();return}const A0=tnorm(q.answer),A1=A0.replace(PRORX,""),V=tnorm(v),good=V===A0||(A1!==A0&&V===A1),near=!good&&(tbare(v)===tbare(q.answer)||tbare(v)===tbare(A1));
+      answer(good?q.answer:v);if(near){const f=$("#fb .feedback");if(f)f.insertAdjacentHTML("afterbegin",`<p class="accnote"><b>${EN?"So close!":"Presque!"}</b> ${EN?"Only the spelling marks are different.":"Seuls les accents sont différents : regarde-les bien."}</p>`)}});
+    setTimeout(()=>{if(G&&G.q===q&&!G.done)inp.focus({preventScroll:true})},300)}
+  else if(q.kind==="choice"){const lg=!q.disp&&q.choices.some(x=>String(x).length>12);A.innerHTML=`<div class="choices${q.choices.length===3?" three":""}${!q.disp&&q.choices.some(c=>String(c).length>24)?" one":""}${q.emo?" emo":""}"${q.lang==="en"?' lang="en"':""}>${q.choices.map(c=>`<button class="choice${lg?" long":""}" data-v="${esc(c)}">${q.disp?q.disp[c]:show(c)}</button>`).join("")}</div>`;
     A.querySelectorAll(".choice").forEach(b=>b.onclick=()=>answer(b.dataset.v,b))}
   else if(q.kind==="board"){A.innerHTML=`<div class="boardcard"><div class="board-h">Va à ton tableau!</div><p class="board-tip">${q.dictee?(canSpeak()?"Écoute bien. Touche « Réécouter » pour entendre encore.":"Demande à papa ou maman de te dicter."):"Écris ou dessine au tableau ou sur une feuille."}</p>${q.dictee&&!canSpeak()?`<button class="btn ghost" id="b-dict">Papa ou maman : voir la dictée</button><p class="board-dict" id="dict" hidden>${q.dictee}</p>`:""}<button class="btn chalk" id="b-done">J'ai fini, on vérifie!</button>${G.id!=="tableau"?`<button class="btn ghost" id="b-skip">Je n'ai pas de tableau : passer</button>`:""}</div>`;
     const bsk=$("#b-skip");if(bsk)bsk.onclick=()=>{G.noBoard=true;next()};
@@ -2210,6 +2234,7 @@ function answer(v,btn){
   save();
   if(q.kind==="choice"){$("#answer").querySelectorAll(".choice").forEach(b=>{b.disabled=true;if(b.dataset.v===q.answer)b.classList.add("right")});if(!ok&&btn)btn.classList.add("wrong")}
   else if(q.kind==="num"){$("#nd").classList.add(ok?"right":"wrong");$("#answer").querySelectorAll(".key").forEach(b=>b.disabled=true)}
+  else if(q.kind==="text"){const i=$("#tin");if(i){i.disabled=true;i.classList.add(ok?"right":"wrong")}const tf=$("#t-form");if(tf)tf.classList.add("done");$("#answer").querySelectorAll(".acck,.tform .btn").forEach(b=>b.disabled=true)}
   else{const rv=$(".reveal .row-btns");if(rv)rv.remove()}
   tone(fast?[[660,.08],[880,.08],[1175,.16]]:ok?[[660,.1],[880,.16]]:[[300,.18]]);
   const last=G.i===G.n-1;
@@ -2442,7 +2467,7 @@ function renderParent(){
   /* --- onglet Réglages --- */
   const tReglages=
    pcard("Objectifs quotidiens","Minutes d'étude visées chaque jour, par matière.",`<div class="goals">${SUBJS.map(k=>`<label for="p-goal-${k}"><b>${LBL[k]}</b><select id="p-goal-${k}" data-goal="${k}">${[0,5,10,15,20,25,30,45].map(m=>`<option value="${m}" ${(S.goals[k]??0)===m?"selected":""}>${m?m+" minutes":"aucun objectif"}</option>`).join("")}</select></label>`).join("")}</div><p class="pdesc">Total : ${SUBJS.reduce((t,k)=>t+(S.goals[k]||0),0)} minutes par jour.</p>`)+
-   pcard("Questions et temps","Les questions visent d'abord ses notions à travailler et en progrès. Les notions solides reviennent après quelques jours, pour qu'elle ne les oublie pas. En calcul (additions, soustractions, multiplications), chaque question a un objectif de temps : 10 % plus rapide que son temps habituel. Une bonne réponse sous l'objectif donne un « éclair ». Ailleurs, pas de chronomètre : elle prend le temps de comprendre.",
+   pcard("Questions et temps","Les questions visent d'abord ses notions à travailler et en progrès. Les notions solides reviennent après quelques jours, pour qu'elle ne les oublie pas. Aux niveaux 2 et 3, elle écrit elle-même certaines réponses (homophones, verbes, accords, mots en anglais) au lieu de les choisir. En calcul (additions, soustractions, multiplications), chaque question a un objectif de temps : 10 % plus rapide que son temps habituel. Une bonne réponse sous l'objectif donne un « éclair ». Ailleurs, pas de chronomètre : elle prend le temps de comprendre.",
      `<label class="toggle" for="p-board"><input type="checkbox" id="p-board" ${S.boardOn!==false?"checked":""}><span><b>Un défi au tableau dans chaque partie</b><br><small>La dernière question se fait à la main. Elle peut la passer si elle n'a pas son tableau.</small></span></label>
      <label class="toggle" for="p-strict"><input type="checkbox" id="p-strict" ${S.strict?"checked":""}><span><b>Compte à rebours strict</b><br><small>Le temps écoulé compte comme une erreur. Seulement quand elle réussit bien en mode normal.</small></span></label>`)+
    pcard("Niveaux des îles","Le niveau s'ajuste seul. Changez-le ici seulement pour la faire avancer ou reculer volontairement.",`<div class="lvlgrid">${Object.keys(SUBJ).map(sj=>`<div><b class="lvlh">${SUBJ[sj].court}</b>${zones(sj).map(i=>`<label><span>${i.nom}</span><select data-isle="${i.id}" aria-label="Niveau ${i.nom}">${[1,2,3].map(n=>`<option ${n===IS(i.id).level?"selected":""}>${n}</option>`).join("")}</select></label>`).join("")}</div>`).join("")}</div>`)+
@@ -4507,7 +4532,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261105-233838";
+const APP_VER="20261105-235031";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
