@@ -1042,6 +1042,15 @@ body.skyin .din.wrong,.din.wrong{border-color:var(--bad)!important;background:va
 .diag{margin:0;padding:8px 12px;border-radius:12px;background:var(--surface);border-left:4px solid var(--sea);font-weight:600}
 .sd mark{background:color-mix(in srgb,var(--good) 30%,transparent);color:inherit;border-radius:3px;padding:0 1px}
 .sd mark.x{background:color-mix(in srgb,var(--bad) 30%,transparent);text-decoration:line-through}
+.wex .wex-h{margin:.2rem 0 .6rem;font-weight:700;opacity:.8}
+.wex .wex-q{border:1.5px dashed var(--line);border-radius:14px;padding:.6rem .8rem;margin-bottom:.7rem}
+.wex .wex-q .prompt{margin:.2rem 0}
+.wex .wex-a,.wex .wex-w{border-radius:14px;padding:.6rem .8rem;margin-bottom:.6rem;background:color-mix(in srgb,var(--c) 12%,transparent)}
+.wex .wex-a b{font-size:1.35rem;display:block}
+.wex .wex-w p{margin:.15rem 0 0}
+.wex .wex-l{display:block;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;opacity:.7}
+.wexfill{display:inline-block;min-width:1.4em;padding:0 .25em;border-radius:10px;border:3px solid var(--c);color:var(--c);font-weight:800;text-align:center}
+.wex .row-btns{margin-top:.4rem}
 </style>
 
 <header class="top">
@@ -2152,11 +2161,37 @@ function pickQ(isl,L,want){let first=null;for(let n=0;n<16;n++){const q=GEN[isl]
   /* La notion visée n'existe peut-être qu'à un autre niveau (elle l'a vue avant un changement de niveau) */
   if(want)for(const L2 of [1,2,3].filter(x=>x!==L))for(let n=0;n<10;n++){const q=GEN[isl](L2);q.isl=isl;if(want.has(q.notion)&&!G.recent.includes(q.prompt+(q.visual||"")))return q}
   if(first)return first;const q=GEN[isl](L);q.isl=isl;return q}
+/* ---------- Exemple résolu ----------
+   La première fois qu'une notion arrive, on montre d'abord un exemple déjà résolu (question, réponse, pourquoi),
+   puis elle essaie. Une seule fois par notion, au plus 3 par partie, jamais pour le tableau. */
+function needEx(q){if(!q||q.kind==="board"||G.id==="tableau"||(G.exn||0)>=3)return false;const k=nkey(q);return!(S.notions||{})[k]&&!(S.wex||{})[k]&&!!q.explain}
+function exampleFor(q){for(let n=0;n<14;n++){const L=n<10?IS(q.isl).level:1+(n%3),e=GEN[q.isl](L);e.isl=q.isl;if(e.notion===q.notion&&e.kind!=="board"&&e.prompt+(e.visual||"")!==q.prompt+(q.visual||""))return e}return null}
+const fillEx=(h,a)=>String(h).replace(/<span class="(box|blank)"[^>]*><\/span>/g,`<span class="wexfill">${a}</span>`);
+function showExample(ex,q){const k=nkey(q);(S.wex||(S.wex={}))[k]=1;save();G.exn=(G.exn||0)+1;G.done=true;G.q=q;
+  const isl=byId(q.isl),head=headOf(),el=$("#ecran-jeu"),EN=ex.lang==="en",ans=ex.disp?ex.disp[ex.answer]:show(ex.answer);
+  el.style.setProperty("--c",`var(${head.c})`);
+  el.innerHTML=`<div class="gamebar"><button class="back" id="b-retour">← ${SUBJ[G.subj].nom}</button><span class="gtitle">${head.nom}</span><span class="levelchip">Niveau ${IS(q.isl).level}</span></div>
+  <div class="card pop wex" style="--c:var(${isl.c})"><div class="cardtop"><div class="notion">Nouvelle notion : ${q.notion}</div>${canSpeak()?`<span class="cardbtns"><button class="listen" id="b-listen">${SPK}Réécouter</button></span>`:""}</div>
+  <p class="wex-h">Regarde d'abord un exemple résolu.</p>
+  <div class="wex-q"><p class="prompt"${EN?' lang="en"':""}>${fillEx(ex.prompt,ans)}</p><div class="visual">${fillEx(ex.visual||"",ans)}</div></div>
+  <div class="wex-a"><span class="wex-l">La réponse</span><b${EN?' lang="en"':""}>${ans}</b></div>
+  <div class="wex-w"><span class="wex-l">Pourquoi</span><p>${ex.explain}</p></div>
+  <div class="row-btns"><button class="btn" id="b-cont">J'ai compris, à moi!</button></div></div>`;
+  el.querySelectorAll(".wex-q button,.wex-q input").forEach(b=>{if(!b.dataset.say)b.disabled=true});
+  el.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say,null,"en"));
+  $("#b-retour").onclick=()=>{G=null;renderCarte();go("carte")};
+  $("#b-cont").onclick=()=>{if(!G)return;G.done=false;renderQ()};
+  go("jeu");$("#b-cont").focus({preventScroll:true});
+  const say=()=>{if(!canSpeak())return;const pr=el.querySelector(".wex-q .prompt"),pt=ex.say?(EN?ex.say:normSay(ex.say)):nodeSay(pr);
+    speakSeq([["Nouvelle notion. Regarde d'abord un exemple.","fr"],[pt,EN?"en":"fr"],["La réponse est :","fr"],[EN?(ex.rep||String(ex.answer)):sayAns(ex.answer),EN?"en":"fr"],[normSay(ex.explain),"fr"]])};
+  const bl=$("#b-listen");if(bl)bl.onclick=say;say()}
 function next(){
   let q,tries=0;
   if(G.id==="tableau"||(G.boardAt===G.i&&!G.noBoard)){const z=G.id==="tableau"||G.id==="defi"?pick(zones(G.subj)).id:G.id;q=boardFor(G.subj,IS(z).level,z)}
   else{const zs=G.id==="defi"?zones(G.subj).map(z=>z.id):[G.id],tg=targetFor(zs),isl=tg?tg.isl:pick(zs);q=pickQ(isl,IS(isl).level,tg&&tg.want);if(tg){G.tcount=G.tcount||{};G.tcount[tg.k]=(G.tcount[tg.k]||0)+1}}
-  G.recent=[q.prompt+(q.visual||""),...G.recent].slice(0,4);G.q=q;G.input="";G.done=false;G.lock=false;renderQ();
+  G.recent=[q.prompt+(q.visual||""),...G.recent].slice(0,4);G.q=q;G.input="";G.done=false;G.lock=false;
+  if(needEx(q)){const ex=exampleFor(q);if(ex){showExample(ex,q);return}}
+  renderQ();
 }
 /* ---------- Réponse écrite (niveaux 2 et 3) ----------
    Écrire la réponse se retient mieux que la choisir. Au niveau 2, une question sur deux; au niveau 3, toutes.
@@ -4566,7 +4601,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261106-064459";
+const APP_VER="20261106-071930";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
