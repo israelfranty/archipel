@@ -1039,6 +1039,9 @@ body.skyin .cg-h{font-family:var(--f-display);font-weight:700;font-size:1.4rem;m
 .tform .acck:disabled,.tform .btn:disabled{opacity:.5}
 body.skyin .din.right,.din.right{border-color:var(--good)!important;background:var(--good-bg)!important;color:var(--ink)}
 body.skyin .din.wrong,.din.wrong{border-color:var(--bad)!important;background:var(--bad-bg)!important;color:var(--ink)}
+.diag{margin:0;padding:8px 12px;border-radius:12px;background:var(--surface);border-left:4px solid var(--sea);font-weight:600}
+.sd mark{background:color-mix(in srgb,var(--good) 30%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+.sd mark.x{background:color-mix(in srgb,var(--bad) 30%,transparent);text-decoration:line-through}
 </style>
 
 <header class="top">
@@ -2220,6 +2223,37 @@ document.addEventListener("keydown",e=>{
   if(!((G.mode==="sprint"&&G.pad)||(G.mode==="q"&&G.q&&G.q.kind==="num")))return;
   if(/^\d$/.test(e.key))key(e.key);else if(e.key==="Backspace")key("del");else if(e.key==="Enter"){e.preventDefault();key("ok")}
 });
+/* ---------- Nommer l'erreur ----------
+   Après une mauvaise réponse, dire CE QUI s'est passé (retenue oubliée, s du pluriel, terminaison…),
+   pas seulement la bonne réponse. Sinon, comparer lettre par lettre. */
+function spellDiff(g,a){const n=g.length,m=a.length,D=Array.from({length:n+1},()=>Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)D[i][j]=g[i]===a[j]?D[i+1][j+1]+1:Math.max(D[i+1][j],D[i][j+1]);
+  let i=0,j=0,G="",A="";while(i<n||j<m){if(i<n&&j<m&&g[i]===a[j]){G+=esc(g[i]);A+=esc(a[j]);i++;j++}else if(j<m&&(i>=n||D[i][j+1]>=D[i+1][j])){A+=`<mark>${esc(a[j])}</mark>`;j++}else{G+=`<mark class="x">${esc(g[i])}</mark>`;i++}}
+  return`Compare lettre par lettre : tu as écrit « <span class="sd">${G}</span> », il fallait « <span class="sd">${A}</span> ».`}
+function diagnose(q,v){if(v==null||v==="")return"";
+  if(q.kind==="num"){const g=+v,A=+q.answer;if(isNaN(g)||isNaN(A))return"";
+    let a=null,b=null,op=null;const txt=(q.visual||"").replace(/<span class="box"><\/span>/g,"?").replace(/<[^>]+>/g," ").replace(/[\s  ]/g,"");const m=txt.match(/^(\d+)([+−×])(\d+)=\?$/);
+    if(m){a=+m[1];op=m[2];b=+m[3]}else if(q.notion==="Problème écrit"){const n=[...String(q.prompt).matchAll(/<b>(\d+)<\/b>/g)].map(x=>+x[1]);if(n.length===2){a=n[0];b=n[1];op=a+b===A?"+":"−"}}
+    const gs=String(g),rv=gs.split("").reverse().join("");if(gs.length>1&&rv!==gs&&rv===String(A))return"Tu as les bons chiffres, mais pas dans le bon ordre. Relis le nombre de gauche à droite.";
+    if(op==="+"){if(g===Math.abs(a-b))return"Tu as fait une soustraction. Ici, on additionne : le nombre augmente.";const d=A-g;if(d===10||d===100)return`Tu as oublié une retenue : ta réponse a ${d} de moins que la bonne.`;if(d===-10||d===-100)return`Tu as ajouté une retenue en trop : ta réponse a ${-d} de plus que la bonne.`}
+    if(op==="−"){if(g===a+b)return"Tu as fait une addition. Ici, on enlève : le nombre diminue.";const da=String(a).split("").reverse(),db=String(b).split("").reverse();let t=0,p=1;for(let i=0;i<da.length;i++){t+=Math.abs(+da[i]-(+(db[i]||0)))*p;p*=10}
+      if(t===g)return"Dans une colonne, tu as enlevé le petit chiffre du grand. Quand le chiffre du haut est plus petit, il faut d'abord emprunter une dizaine.";const d=Math.abs(A-g);if(d===10||d===100)return`Vérifie les emprunts : ta réponse est à ${d} de la bonne.`}
+    if(op==="×"){if(g===a+b)return`Tu as additionné. ${a} × ${b}, c'est ${a} groupes de ${b}.`;if([a*(b+1),a*(b-1),(a+1)*b,(a-1)*b].includes(g))return"Tu es tout près : tu as compté un groupe de trop ou de moins."}
+    return""}
+  const A0=tnorm(q.answer),ans=A0.replace(PRORX,""),gv=tnorm(v).replace(PRORX,"");if(!gv||tbare(gv)===tbare(ans))return"";
+  const tu=/^tu /.test(A0),ils=/^(ils|elles) /.test(A0);
+  if(gv+"s"===ans)return tu?"Avec tu, le verbe finit par un s.":"Il manque le s à la fin (le pluriel, ou la terminaison).";
+  if(gv+"x"===ans)return"Il manque le x à la fin.";
+  if(tu&&/[sx]$/.test(ans)&&gv.length===ans.length&&gv.slice(0,-1)===ans.slice(0,-1))return"Avec tu, le verbe finit par un s (ou un x pour peux et veux).";
+  if(ils&&ans.endsWith("ent")&&gv.length>=2&&ans.startsWith(gv.slice(0,-1))&&/[est]$/.test(gv)&&!gv.endsWith("ent"))return"Avec ils ou elles, le verbe finit par -ent, même si on ne l'entend pas.";
+  if(ils&&ans.endsWith("ent")&&gv+"nt"===ans)return"Avec ils ou elles, le verbe finit par -ent, même si on ne l'entend pas.";
+  if(gv+"e"===ans||gv+"es"===ans)return"Il manque le e à la fin (souvent le féminin).";
+  if(gv===ans+"s")return"Il y a un s en trop à la fin.";
+  if(gv===ans+"e")return"Il y a un e en trop à la fin.";
+  const other=(q.choices||[]).map(c=>tnorm(c).replace(PRORX,"")).find(c=>c===gv&&c!==ans);if(other&&PRORX.test(A0))return"Cette forme existe, mais pas avec ce pronom ou pas à ce temps. Regarde bien la terminaison.";
+  if(gv.replace(/(.)\1/g,"$1")===ans.replace(/(.)\1/g,"$1"))return"Attention aux lettres doubles.";
+  if(q.kind==="text"&&Math.abs(gv.length-ans.length)<=3&&ans.length>=3)return spellDiff(gv,ans);
+  return""}
 function answer(v,btn){
   if(!G||G.done)return;G.done=true;
   const q=G.q,BRD=q.kind==="board",ms=G.t0?performance.now()-G.t0:0,timeout=v===null,ok=!timeout&&String(v)===q.answer,fast=ok&&!BRD&&G.timed&&ms<=G.target;
@@ -2241,7 +2275,7 @@ function answer(v,btn){
   const REV=ok?[]:lessonsFor(q.isl,q.notion,q);if(!ok)REV.forEach(r=>{if(!(G.review||(G.review=[])).some(x=>revKey(x)===revKey(r)))G.review.push(r)});
   const EN=q.lang==="en",title=timeout?"Temps écoulé!":fast?`<span class="bolt">${BOLT}Éclair!</span>`:ok?pick(EN?["Great job!","Well done!","Awesome!","Yes!"]:["Bravo!","Bonne réponse!","Tu l'as!","Bien joué!"]):(EN?"Almost!":"Presque!");
   const time=!BRD&&!G.timed?"":BRD?(ok?"Tu as pris le temps de bien écrire. Bravo!":"Recopie la bonne réponse au tableau pour bien la retenir."):timeout?`L'objectif était ${secs(G.target)} s. Tu feras mieux à la prochaine!`:fast?`Réponse en ${secs(ms)} s : plus vite que l'objectif de ${secs(G.target)} s!`:ok?`Réponse en ${secs(ms)} s. Objectif : ${secs(G.target)} s. Essaie d'aller un peu plus vite!`:`Temps : ${secs(ms)} s.`;
-  $("#fb").innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${title}</h3><p class="fbtime">${time}</p>${ok||BRD?"":`<p>La bonne réponse est <b>${q.disp?q.disp[q.answer]:show(q.answer)}</b>.</p>`}${ok&&Math.random()<.6&&!EN?"":`<p>${q.explain}</p>`}${!ok&&q.hm&&q.hm[1]?`<div class="fbclock">${clock(q.hm[0],q.hm[1],true).replace(/<div class="fraclegend">.*<\/div><\/div>$/s,"</div>")}<p><small>La petite aiguille est dans la zone jaune, <b>entre le ${q.hm[0]} et le ${q.hm[0]%12+1}</b>. Elle n'a pas encore atteint le ${q.hm[0]%12+1} : l'heure est donc <b>${q.hm[0]} h</b>.</small></p></div>`:""}${q.rep&&TTS?`<button class="listen rep" id="b-rep">${SPK}Répète après moi : <b lang="en">${esc(q.rep)}</b></button>`:""}${!ok?reviewHTML(REV,"fb-rev"):""}<button class="btn" id="b-cont">${last?"Voir mon résultat":"Question suivante"}</button></div>`;
+  $("#fb").innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${title}</h3><p class="fbtime">${time}</p>${ok||BRD?"":`<p>La bonne réponse est <b>${q.disp?q.disp[q.answer]:show(q.answer)}</b>.</p>${(()=>{const dg=timeout?"":diagnose(q,v);return dg?`<p class="diag">${dg}</p>`:""})()}`}${ok&&Math.random()<.6&&!EN?"":`<p>${q.explain}</p>`}${!ok&&q.hm&&q.hm[1]?`<div class="fbclock">${clock(q.hm[0],q.hm[1],true).replace(/<div class="fraclegend">.*<\/div><\/div>$/s,"</div>")}<p><small>La petite aiguille est dans la zone jaune, <b>entre le ${q.hm[0]} et le ${q.hm[0]%12+1}</b>. Elle n'a pas encore atteint le ${q.hm[0]%12+1} : l'heure est donc <b>${q.hm[0]} h</b>.</small></p></div>`:""}${q.rep&&TTS?`<button class="listen rep" id="b-rep">${SPK}Répète après moi : <b lang="en">${esc(q.rep)}</b></button>`:""}${!ok?reviewHTML(REV,"fb-rev"):""}<button class="btn" id="b-cont">${last?"Voir mon résultat":"Question suivante"}</button></div>`;
   const c=$("#b-cont");c.onclick=()=>{if(c.disabled)return;G.i++;if(G.i>=G.n)finish();else next()};
   /* Après une erreur, le bouton reste bloqué tant que l'explication n'est pas terminée */
   const LBLC=c.textContent;let unlock=null;
@@ -4532,7 +4566,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261105-235031";
+const APP_VER="20261106-064459";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
