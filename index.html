@@ -1061,6 +1061,8 @@ body.skyin .din.wrong,.din.wrong{border-color:var(--bad)!important;background:va
 .snext .snx-done{margin:0;font-weight:700;font-size:1.1rem}
 .snext .btn{max-width:100%;white-space:normal}
 .sstop{background:none;border:0;color:inherit;opacity:.75;text-decoration:underline;font:inherit;font-size:.9rem;min-height:40px}
+.hiic{font-family:var(--f-display);font-weight:800;font-size:.95rem;color:#FFFFFF}
+.noplan{margin:10px 0 0;font-size:.9rem;opacity:.8}
 </style>
 
 <header class="top">
@@ -2309,7 +2311,7 @@ function answer(v,btn){
   if(ok&&!BRD){const a=S.times[nk]||(S.times[nk]=[]);a.push(Math.round(ms));if(a.length>12)a.shift()}
   const nl=S.nlast[nk]||(S.nlast[nk]=[]);nl.push(ok?1:0);if(nl.length>10)nl.shift();
   if(ok){S.totalOk++;if(S.totalOk%50===0)G.events.push({k:"cent",n:S.totalOk,box:true})}
-  if(!S.ms.mastered[nk]&&n.t>=10&&nl.length>=8&&nl.slice(-8).reduce((x,y)=>x+y,0)>=7){S.ms.mastered[nk]=1;G.events.push({k:"maitrise",notion:q.notion,box:true})}
+  if(!S.ms.mastered[nk]&&n.t>=10&&nl.length>=8&&nl.slice(-8).reduce((x,y)=>x+y,0)>=7&&goodDays(x=>x===nk)>=2){S.ms.mastered[nk]=1;G.events.push({k:"maitrise",notion:q.notion,box:true})}
   save();
   if(q.kind==="choice"){$("#answer").querySelectorAll(".choice").forEach(b=>{b.disabled=true;if(b.dataset.v===q.answer)b.classList.add("right")});if(!ok&&btn)btn.classList.add("wrong")}
   else if(q.kind==="num"){$("#nd").classList.add(ok?"right":"wrong");$("#answer").querySelectorAll(".key").forEach(b=>b.disabled=true)}
@@ -2449,11 +2451,14 @@ const pcard=(title,desc,body,cls)=>`<section class="pcard${cls?" "+cls:""}"><h3>
 /* ======================================================================
    RAPPORTS AU PARENT : une seule règle pour juger une notion, partout.
    Statut = ses 10 dernières réponses sur la notion (au moins 5 pour juger).
-   Solide : 8 sur 10 ou plus · En progrès : 6 ou 7 sur 10 · À travailler : moins de 6 sur 10.
+   Solide : 8 sur 10 ou plus, ET réussie sur 2 jours différents · En progrès : 6 ou 7 sur 10 (ou 8 sur 10 un seul jour : « Presque solide ») · À travailler : moins de 6 sur 10.
    Chaque carte dit sa période : aujourd'hui, 7 derniers jours, semaine d'école, depuis le début.
    ====================================================================== */
 function stOf(r,t){if(!t)return{st:"none",lab:"Pas encore pratiqué"};if(t<5)return{st:"tot",lab:"Trop tôt pour juger"};const p=r/t;return p>=.8?{st:"ok",lab:"Solide"}:p>=.6?{st:"mid",lab:"En progrès"}:{st:"low",lab:"À travailler"}}
-function nAll(){return Object.keys(S.notions||{}).map(k=>{const[isl,notion]=k.split("|"),L=((S.nlast||{})[k]||[]).slice(-10),r=L.reduce((a,b)=>a+b,0);return{k,isl,notion,L,r,n:L.length,p:L.length?r/L.length:0,...stOf(r,L.length)}}).filter(x=>x.n>0&&byId(x.isl))}
+/* Une notion n'est « Solide » que si elle est réussie sur 2 jours différents (au moins 4 réponses et 80 % ce jour-là).
+   Un seul bon jour peut venir de la mémoire à court terme : on attend la confirmation. */
+const goodDays=match=>{let n=0;for(const o of Object.values(S.dlog||{})){let r=0,t=0;for(const [k,x] of Object.entries(o))if(match(k)){r+=x.r;t+=x.t}if(t>=4&&r/t>=.8)n++}return n};
+function nAll(){return Object.keys(S.notions||{}).map(k=>{const[isl,notion]=k.split("|"),L=((S.nlast||{})[k]||[]).slice(-10),r=L.reduce((a,b)=>a+b,0);let st=stOf(r,L.length);if(st.st==="ok"&&goodDays(x=>x===k)<2)st={st:"mid",lab:"Presque solide",conf:1};return{k,isl,notion,L,r,n:L.length,p:L.length?r/L.length:0,...st}}).filter(x=>x.n>0&&byId(x.isl))}
 const SORD={low:0,mid:1,ok:2,tot:3,none:4};
 const pill=x=>`<span class="spill s-${x.st}">${x.lab}</span>`;
 const ldots=L=>`<span class="ldots" role="img" aria-label="${L.filter(Boolean).length} bonnes réponses sur ${L.length}">${L.map(v=>`<i class="${v?"y":"n"}"></i>`).join("")}</span>`;
@@ -2517,7 +2522,7 @@ function renderParent(){
   /* Les notions, regroupées par statut */
   const nrow=x=>`<div class="nrow2"><div><b>${esc(x.notion)}</b><br><small>${byId(x.isl).nom}${TIMED.has(x.isl)&&(S.times[x.k]||[]).length?` · ${secs(median((S.times[x.k]||[]).slice(-5)))} s par bonne réponse`:""}</small></div>${ldots(x.L)}<span class="nrc">${x.r} / ${x.n}</span>${pill(x)}</div>`;
   const grp=(st,title,open)=>{const L=NA.filter(x=>x.st===st);return L.length?pdet(title,`${L.length} notion${L.length>1?"s":""}`,L.map(nrow).join(""),open):""};
-  const notions=pcard("Les notions","Chaque point est une de ses 10 dernières réponses sur la notion (vert : réussie, rouge : ratée). Solide : 8 sur 10 ou plus. En progrès : 6 ou 7 sur 10. À travailler : moins de 6 sur 10. Il faut au moins 5 réponses pour juger.",
+  const notions=pcard("Les notions","Chaque point est une de ses 10 dernières réponses sur la notion (vert : réussie, rouge : ratée). Solide : 8 sur 10 ou plus, réussie sur 2 jours différents. Presque solide : 8 sur 10, mais un seul jour pour l'instant. En progrès : 6 ou 7 sur 10. À travailler : moins de 6 sur 10. Il faut au moins 5 réponses pour juger.",
     NA.length?grp("low","À travailler",true)+grp("mid","En progrès",true)+grp("ok","Solides",false)+grp("tot","Trop tôt pour juger (moins de 5 réponses)",false):`<p>Aucune question répondue pour l'instant.</p>`);
   /* Détails, repliés : pour qui veut creuser */
   const zrows=Object.keys(SUBJ).map(sj=>`<tr><th colspan="5">${SUBJ[sj].nom}</th></tr>`+zones(sj).map(i=>{const z=IS(i.id);return`<tr><td><span class="dot" style="background:var(${i.c})"></span>${i.nom}</td><td>${z.level}</td><td>${z.t}</td><td>${pct(z.r,z.t)}</td><td>${stars(z.stars)}</td></tr>`}).join("")).join("");
@@ -3761,6 +3766,7 @@ function tbParentBind(){const b=$("#p-tbsave");if(!b)return;b.onclick=()=>{const
    ====================================================================== */
 function logAct(key,ok){try{const dn=dayNum(),D=S.dlog||(S.dlog={}),d=D[dn]||(D[dn]={}),x=d[key]||(d[key]={r:0,t:0});x.t++;if(ok)x.r++;
   for(const k of Object.keys(D))if(+k<dn-70)delete D[k]}catch(e){}}
+const DAYGOOD=(r,t)=>r>=8&&r>=.75*t;
 const logSum=(from,to,match)=>{const D=S.dlog||{};let r=0,t=0,days=new Set();for(const [dn,o] of Object.entries(D)){if(+dn<from||+dn>to)continue;for(const [k,x] of Object.entries(o))if(match(k)){r+=x.r;t+=x.t;days.add(+dn)}}return{r,t,days:days.size}};
 
 /* ======================================================================
@@ -4514,15 +4520,26 @@ function progItems(){tbAlign();const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsWi
   if(examActive()){const e=DS().exam,W=examWords(),x=DS().exDay,n=x&&x.d===dn?x.w.length:0,need=Math.min(DN,W.length);
     if(W.length)it.push({id:"exam",nom:`Révision : ${esc(e.label)}`,sous:`${examLeft()===0?"C'est aujourd'hui!":`Dans ${examLeft()} jour${examLeft()>1?"s":""}`} · ${examReady()} mots prêts sur ${W.length}`,done:n>=need,ic:"🎯",c:"--i3",go:startExam,started:n>0,plan:!!P})}
   let hasTab=false;
-  if(P){const ns=P.notions.filter(n=>n.go&&!/^dictee/.test(n.go));
+  /* Les notions de l'école sont réparties sur la semaine : au plus 3 par jour, les moins sûres d'abord.
+     « Faite aujourd'hui » = 8 bonnes réponses (et au moins 3 sur 4). « Acquise » = réussie 2 jours cette semaine. */
+  if(P){const ns=P.notions.filter(n=>n.go&&!/^dictee/.test(n.go)),wd=(new Date().getDay()+6)%7;
+    const info=n=>{const pre=notionKey(n.go),m=k=>k.startsWith(pre),td=logSum(dn,dn,m),w=logSum(P.from,dn,m);let g=0;for(let d=P.from;d<=dn;d++){const x=logSum(d,d,m);if(DAYGOOD(x.r,x.t))g++}return{n,td,w,g,acq:g>=2}};
+    const all=ns.filter(n=>!/^tables/.test(n.go)).map(info);
+    S.pday=S.pday||{};let pd=S.pday;if(pd.d!==dn||pd.from!==P.from){const cand=all.filter(x=>!x.acq).sort((a,b)=>(a.w.t?a.w.r/a.w.t:-1)-(b.w.t?b.w.r/b.w.t:-1));
+      const ids=cand.slice(0,3).map(x=>x.n.go);if(wd===4){const rap=all.filter(x=>x.acq).sort((a,b)=>a.w.t-b.w.t)[0];if(rap)ids.push(rap.n.go)}
+      pd=S.pday={d:dn,from:P.from,ids,rap:wd===4?ids[ids.length-1]:null};save()}
     ns.forEach(n=>{if(/^tables/.test(n.go)){hasTab=true;it.push(tabItem(true));return}
-      const t=L(notionKey(n.go));it.push({id:"n:"+n.go,nom:esc(n.label),sous:q10(t),done:t>=10,ic:planIc(n.go),c:/^conj|^gn|^rep/.test(n.go)||(byId(n.go.split(":")[0])||{}).subj==="francais"?"--i2":"--i1",go:()=>planGo(n.go),started:t>0,plan:true})});
-    PWEEK={ok:ns.filter(n=>wk(notionKey(n.go))>=20).length,n:ns.length}}
+      if(!pd.ids.includes(n.go))return;const x=all.find(y=>y.n===n),t=x.td.t,r=x.td.r,rap=pd.rap===n.go,done=DAYGOOD(r,t)||(x.acq&&!rap)||(rap&&t>=5);
+      it.push({id:"n:"+n.go,nom:esc(n.label)+(rap?" (rappel)":""),sous:done?(DAYGOOD(r,t)?`${r} bonnes réponses aujourd'hui!`:"acquise cette semaine!"):rap?"5 questions pour ne pas l'oublier":t?`${Math.min(r,8)} bonne${r>1?"s":""} réponse${r>1?"s":""} sur 8 · continue!`:"8 bonnes réponses à trouver",done,ic:planIc(n.go),c:/^conj|^gn|^rep/.test(n.go)||(byId(n.go.split(":")[0])||{}).subj==="francais"?"--i2":"--i1",go:()=>planGo(n.go),started:t>0,plan:true})});
+    PWEEK={ok:all.filter(x=>x.acq).length,n:all.length}}
   /* 2. La dictée du jour (mots des listes de l'école, en répétition espacée) */
   if(dWeeks().length){const due=dDue(),t=L("dictee|");if(due||t)it.push({id:"dict",nom:"Ma dictée du jour",sous:due?`<b>${due}</b> mot${due>1?"s":""} de tes listes à réviser`:"tous tes mots du jour sont révisés!",done:!due,ic:PENICON,c:"--i7",go:startDictee,started:t>0})}
   /* 3. Sans plan : les tables et la conjugaison suivent la progression d'Olivia */
   if(!hasTab)it.push(tabItem(false));
   if(!P){const u=cjCur(),t=L("conj|"+u.id);it.push({id:"conj",nom:"Ma conjugaison",sous:esc(u.nom)+" · "+q10(t),done:t>=10,ic:u.ic,c:"--i2",go:()=>startConj(u.id),started:t>0})}
+  /* 4. Un peu d'anglais chaque jour (sauf si l'anglais est déjà dans le plan de l'école) */
+  if(!(P&&P.notions.some(n=>(byId((n.go||"").split(":")[0])||{}).subj==="anglais"))){const z=weekEN().length?"en_week":"en_words",t=L("en_");
+    it.push({id:"en",nom:"Mon anglais du jour",sous:(weekEN().length?"Tes mots d'anglais de la semaine":"Le vocabulaire")+" · "+q10(t),done:t>=10,ic:`<b class="hiic">Hi!</b>`,c:"--i3",go:()=>{CUR="anglais";start(z)},started:t>0})}
   const dd=it.filter(x=>x.done).length;S.prog=S.prog||{};const o=S.prog[dn];if(!o||o.d!==dd||o.t!==it.length){S.prog[dn]={d:dd,t:it.length};for(const k of Object.keys(S.prog))if(+k<dn-40)delete S.prog[k];save()}
   return it}
 let PROG=[];
@@ -4550,7 +4567,7 @@ function homeHTML(){PROG=progItems();const n=PROG.length,dn=PROG.filter(x=>x.don
     <div class="pbar"><i style="width:${n?Math.round(dn/n*100):0}%"></i></div>
     ${dn<n?`<div class="seance"><button class="sgo" id="b-seance">${PLAYI}${SEANCE||PROG.some(x=>x.started)?"Continuer ma séance":"Commencer ma séance"}</button><span>Tes activités l'une après l'autre. Tu peux aussi en choisir une ci-dessous.</span></div>`:""}
     <div class="hplist">${PROG.map((x,i)=>`<div class="pitem${x.done?" done":""}" style="--c:var(${x.c})"><span class="pic">${x.done?CHECKI:x.ic}</span><div class="ptx"><p class="pn">${x.nom}${x.plan?`<span class="ptag">École</span>`:""}</p><p class="ps">${x.done?`<b class="ok">Terminé</b> · `:""}${x.sous}</p></div>${x.done?"":`<button class="pgo" data-prog="${i}">${x.started?"Continuer":"Commencer"}${PLAYI}</button>`}</div>`).join("")}</div>
-    ${g||planActive()?`<div class="pmeta"><span>${PWEEK?`🏫 Cette semaine : <b>${PWEEK.ok} notion${PWEEK.ok>1?"s":""} de l'école sur ${PWEEK.n}</b> bien pratiquée${PWEEK.ok>1?"s":""}`:""}${PWEEK&&g?"<br>":""}${g?`⏱ ${mins(S.day.sec)} min d'étude aujourd'hui · objectif ${g/60} min`:""}</span>${planActive()?`<button class="plink" id="b-semaine">🏫 Ma semaine à l'école</button>`:""}</div>`:""}</section>`;
+    ${planActive()?"":`<p class="noplan">🏫 La semaine d'école n'est pas encore entrée. Papa ou maman peut l'ajouter dans l'espace parent.</p>`}${g||planActive()?`<div class="pmeta"><span>${PWEEK?`🏫 Cette semaine : <b>${PWEEK.ok} notion${PWEEK.ok>1?"s":""} de l'école sur ${PWEEK.n}</b> acquise${PWEEK.ok>1?"s":""} (réussie${PWEEK.ok>1?"s":""} 2 jours)`:""}${PWEEK&&g?"<br>":""}${g?`⏱ ${mins(S.day.sec)} min d'étude aujourd'hui · objectif ${g/60} min`:""}</span>${planActive()?`<button class="plink" id="b-semaine">🏫 Ma semaine à l'école</button>`:""}</div>`:""}</section>`;
   const w=weekInfo(),pc=w.t?Math.round(w.d/w.t*100):0,C=2*Math.PI*42;
   const ring=`<section class="hcard" aria-label="Ma progression"><h2>${BARI}Ma progression</h2><div class="ringw"><div class="ring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="#F1E6CF" stroke-width="12"/><circle cx="50" cy="50" r="42" fill="none" stroke="#16878F" stroke-width="12" stroke-linecap="round"${pc?"":` opacity="0"`} stroke-dasharray="${(C*pc/100).toFixed(1)} ${C.toFixed(1)}"/></svg><b>${pc}%</b></div>
     <p class="rtxt"><strong>${w.d} activité${w.d>1?"s":""}</strong>sur ${w.t} cette semaine</p>${CHEST}</div></section>`;
@@ -4629,7 +4646,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261106-101658";
+const APP_VER="20261106-112321";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
