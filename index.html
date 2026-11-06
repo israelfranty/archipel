@@ -1063,6 +1063,15 @@ body.skyin .din.wrong,.din.wrong{border-color:var(--bad)!important;background:va
 .sstop{background:none;border:0;color:inherit;opacity:.75;text-decoration:underline;font:inherit;font-size:.9rem;min-height:40px}
 .hiic{font-family:var(--f-display);font-weight:800;font-size:.95rem;color:#FFFFFF}
 .noplan{margin:10px 0 0;font-size:.9rem;opacity:.8}
+.pbtext{font-size:1.25rem;line-height:1.55;margin:.4rem 0 .8rem}
+.pbask{margin:.6rem 0;font-size:1.08rem}
+.pbsteps{margin:.3rem 0 .6rem;padding-left:1.4rem;font-size:1.1rem;font-variant-numeric:tabular-nums}
+.pbsteps li{margin:.2rem 0}
+.pbhint{border-radius:12px;padding:.55rem .8rem;background:color-mix(in srgb,var(--c) 14%,transparent);margin:.4rem 0}
+.pbdem{border:2px solid var(--c);border-radius:16px;padding:.6rem 1rem;margin:.4rem 0}
+.pbans{font-size:1.2rem;font-weight:700;margin:.4rem 0}
+.pbans span{display:block;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;opacity:.7}
+.pbcard .numpad{margin-top:.4rem}
 </style>
 
 <header class="top">
@@ -2101,7 +2110,7 @@ function renderCarte(){
     const sec=(t,d,cards)=>`<section class="fsec" aria-label="${t}"><h3 class="xh">${t}</h3><p class="fsd">${d}</p><div class="zgrid">${cards}</div></section>`;
     if(CUR==="maths"){tbUse("mul");const mt=TBS(),md=tbDay(),mT=TB_TABLES[mt.cur],mE=TB_ET[mt.et];tbUse("add");const t=TBS(),d=tbDay();
       mid=sec("Calcul","Calculer vite et bien, de tête et sur papier.",
-        ac("b-tab",IC3.boulier,"Tables d'addition et de soustraction","Retenir les calculs par cœur, avec une astuce pour chaque table",d.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${t.cur+1} : ${TB_TABLES[t.cur].nom.toUpperCase()} · SÉRIE ${d.streak} SUR ${TB_STREAK}`,!d.done)+ac("b-mtab",IC3.n123,"Tables de multiplication","×2, ×10, ×5… puis la division : une astuce pour chaque table",md.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${mt.cur+1} : ${mT.nom.toUpperCase()} · ${mE.nom.toUpperCase()}`,mt.daily&&!md.done)+zc("foret")+zc("volcan"))
+        ac("b-tab",IC3.boulier,"Tables d'addition et de soustraction","Retenir les calculs par cœur, avec une astuce pour chaque table",d.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${t.cur+1} : ${TB_TABLES[t.cur].nom.toUpperCase()} · SÉRIE ${d.streak} SUR ${TB_STREAK}`,!d.done)+ac("b-mtab",IC3.n123,"Tables de multiplication","×2, ×10, ×5… puis la division : une astuce pour chaque table",md.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${mt.cur+1} : ${mT.nom.toUpperCase()} · ${mE.nom.toUpperCase()}`,mt.daily&&!md.done)+zc("foret")+zc("volcan")+ac("b-prob",IC3.loupe,"Problèmes à plusieurs étapes","Trouver ce qu'on cherche, les étapes, puis répondre par une phrase",`NIVEAU ${PBS().lvl} · ${PBS().lvl<3?"GUIDÉ":"SEULE"}`))
        +sec("Nombres","Comprendre, écrire et comparer les nombres et les fractions.",zc("port")+zc("baie"))
        +sec("Mesure et géométrie","Lire l'heure, mesurer et reconnaître les formes.",zc("horloge")+zc("grotte"))
        +sec("Statistique et probabilité","Lire des diagrammes et prévoir le hasard.",zc("phare"))}
@@ -2137,7 +2146,7 @@ function renderCarte(){
   const bnot=$("#b-notions");if(bnot)bnot.onclick=()=>openLessons(CUR,null);
   bindSearch(CUR);
   const bat=$("#b-atelier");if(bat)bat.onclick=renderAtelier;
-  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;const btb=$("#b-tab");if(btb)btb.onclick=()=>startTables("add");const bmt=$("#b-mtab");if(bmt)bmt.onclick=()=>startTables("mul");const bex=$("#b-exam");if(bex)bex.onclick=startExam;const bcj=$("#b-conj");if(bcj)bcj.onclick=renderConj;const bgn=$("#b-gn");if(bgn)bgn.onclick=startGN;planBind(el);
+  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;const btb=$("#b-tab");if(btb)btb.onclick=()=>startTables("add");const bmt=$("#b-mtab");if(bmt)bmt.onclick=()=>startTables("mul");const bpb=$("#b-prob");if(bpb)bpb.onclick=startProb;const bex=$("#b-exam");if(bex)bex.onclick=startExam;const bcj=$("#b-conj");if(bcj)bcj.onclick=renderConj;const bgn=$("#b-gn");if(bgn)bgn.onclick=startGN;planBind(el);
   const bbi=$("#b-biblio");if(bbi)bbi.onclick=renderBiblio;homeBind(el);
   el.querySelectorAll("[data-subj]").forEach(b=>b.onclick=()=>{CUR=b.dataset.subj;tone([[659,.08],[880,.12]]);renderCarte();window.scrollTo(0,0)});
   el.querySelectorAll("[data-isle]").forEach(b=>b.addEventListener("click",()=>b.dataset.isle==="sprint"?startSprint():start(b.dataset.isle)));
@@ -2536,6 +2545,7 @@ function renderParent(){tbUse("add");
     pdet("Dictée, liste par liste",dTot?`${dM} / ${dTot} mots maîtrisés`:"aucune liste",`<p class="pdesc">Un mot revient après 1, 2, 4, 8, 16 puis 35 jours s'il est réussi; un mot raté revient le lendemain. Il est « maîtrisé » après 5 réussites espacées.</p>${dStatsHTML()}`)+
     pdet("Tables d'addition et de soustraction",`table ${tb.cur+1} sur ${TB_TABLES.length}`,`<p class="pdesc">Une table aux 2 semaines environ, dans l'ordre des astuces : unités, puis dizaines, puis centaines.</p>${tbParentHTML()}`)+
     (()=>{tbUse("mul");const t=TBS(),on=t.hist.length||t.daily;const h=on?pdet("Tables de multiplication",`table ${t.cur+1} sur ${TB_TABLES.length}`,`<p class="pdesc">Mêmes règles : une table à la fois, justes et rapides, 2 jours réussis pour avancer. Étape 1 : multiplications; étape 2 : avec la division.</p>${tbParentHTML()}`):"";tbUse("add");return h})()+
+    pdet("Problèmes à plusieurs étapes",`niveau ${PBS().lvl} sur 3`,`<p class="pdesc">5 problèmes à deux calculs par partie. Niveaux 1 et 2 : guidée étape par étape; niveau 3 : elle trouve seule la réponse finale, les étapes restent offertes en aide. Le niveau monte à 4 sur 5 réussis sans aide.</p>${pbParentHTML()}`)+
     pdet("Réponses écrites (lecture)",nRep?`${nRep} réponse${nRep>1?"s":""} à relire`:"aucune",`<p class="pdesc">Le jeu vérifie seulement la forme (reprendre la question, expliquer avec « car »). C'est vous qui jugez le contenu, avec l'exemple sous chaque réponse.</p>${repParentHTML()}`)+
     pdet("Écriture (Atelier)",nTr?`${nTr} caractère${nTr>1?"s":""} pratiqué${nTr>1?"s":""}`:"pas encore pratiqué",`<p class="pdesc">Caractères tracés sans modèle. « À l'envers » : le jeu a reconnu le caractère retourné (un d au lieu d'un b, par exemple).</p>${nTr?`<div class="items tglyphs">${Object.entries(S.trace).sort((a,b)=>b[1].rev-a[1].rev||a[0].localeCompare(b[0])).map(([c,t])=>`<span class="${t.rev?"warnc":""}">${c} · réussi ${t.ok}${t.rev?` · à l'envers ${t.rev}`:""}</span>`).join("")}</div>`:""}`)+
     pdet("Vitesse et jeux","records",vit));
@@ -3797,6 +3807,145 @@ function tbParentBind(){["add","mul"].forEach(k=>{const P=k==="mul"?"p-mt":"p-tb
   const d=$("#p-mtday");if(d)d.onchange=()=>{tbUse("mul");TBS().daily=d.checked;tbUse("add");save()}}
 
 /* ======================================================================
+   PROBLÈMES À PLUSIEURS ÉTAPES — la démarche : je comprends, je planifie, je calcule, je réponds par une phrase
+   Niveaux 1 et 2 : guidé, étape par étape (petits puis plus grands nombres).
+   Niveau 3 : elle trouve seule la réponse finale; les étapes restent offertes en aide.
+   5 problèmes par partie. Le niveau monte à 4 sur 5 sans aide, descend à 1 ou moins.
+   ====================================================================== */
+const PB_NOMS=[["Olivia","f"],["Léo","m"],["Mia","f"],["Noah","m"],["Chloé","f"],["Samuel","m"],["Jade","f"],["Émile","m"],["Rosalie","f"],["Malik","m"],["Zoé","f"],["Nathan","m"]];
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const deX=w=>(/^[aeiouyéèêàâîôûh]/i.test(w)?"d'":"de ")+w;
+const PBS=()=>{if(!S.prob||typeof S.prob!=="object")S.prob={};const p=S.prob;if(!(p.lvl>=1))p.lvl=1;if(!Array.isArray(p.hist))p.hist=[];return p};
+const PB_T=[
+ {id:"gagne",min:1,gen(L){const [n,g]=pick(PB_NOMS),il=g==="f"?"elle":"il",o=pick([["billes","es"],["cartes de hockey","es"],["autocollants","s"]]);
+   const a=L===1?ri(10,30):L===2?ri(25,70):ri(120,450),b=L===1?ri(5,15):L===2?ri(12,40):ri(60,300),c=ri(L===1?3:8,Math.min(a+b-5,L===3?250:40));
+   return{text:`${n} a <b>${a}</b> ${o[0]}. À la récréation, ${il} en gagne <b>${b}</b>. Ensuite, ${il} en donne <b>${c}</b> à son ami. Combien ${deX(o[0])} ${n} a-t-${il} maintenant?`,
+    look:[`Combien ${deX(o[0])} ${il} a à la fin`,`Combien ${deX(o[0])} ${il} a gagné${o[1]}`,`Combien ${deX(o[0])} ${il} a donné${o[1]}`],
+    steps:[{q:`Combien ${deX(o[0])} ${n} a-t-${il} après la récréation?`,a:a+b,expr:`${nf(a)} + ${nf(b)}`,why:`${il==="elle"?"Elle":"Il"} en gagne : le nombre augmente, on additionne.`},
+           {q:`${il==="elle"?"Elle":"Il"} en donne ${c}. Combien lui en reste-t-il?`,a:a+b-c,expr:`${nf(a+b)} − ${nf(c)}`,why:`${il==="elle"?"Elle":"Il"} en donne : le nombre diminue, on soustrait.`}],
+    sentence:`${n} a maintenant ${nf(a+b-c)} ${o[0]}.`}}},
+ {id:"boites",min:1,gen(L){const g=L===1?ri(2,5):ri(3,9),n=L===1?pick([2,5,10]):L===2?pick([2,3,4,5,10]):pick([4,6,7,8,9]),e=L===1?ri(2,9):L===2?ri(5,25):ri(15,60);
+   return{text:`Dans la classe, il y a <b>${g}</b> boîtes de <b>${n}</b> crayons. Il y a aussi <b>${e}</b> crayons sur le bureau de l'enseignante. Combien de crayons y a-t-il en tout?`,
+    look:["Combien de crayons il y a en tout","Combien de crayons il y a dans une boîte","Combien de boîtes il y a"],
+    steps:[{q:`Combien de crayons y a-t-il dans les ${g} boîtes?`,a:g*n,expr:`${g} × ${n}`,why:`${g} boîtes de ${n}, c'est ${g} groupes de ${n} : on multiplie.`},
+           {q:`On ajoute les ${e} crayons du bureau. Combien en tout?`,a:g*n+e,expr:`${g*n} + ${e}`,why:"On met tout ensemble : on additionne."}],
+    sentence:`Il y a ${nf(g*n+e)} crayons en tout.`}}},
+ {id:"achat",min:1,gen(L){const [n,g]=pick(PB_NOMS),il=g==="f"?"Elle":"Il",k=L===1?ri(2,3):ri(2,5),p=L===1?pick([2,5,10]):ri(3,9),q=L===1?ri(1,5):ri(2,12);
+   return{text:`Un cahier coûte <b>${p} $</b> et une gomme coûte <b>${q} $</b>. ${n} achète <b>${k}</b> cahiers et <b>une</b> gomme. Combien ${n} paie-t-${il.toLowerCase()} en tout?`,
+    look:["Combien coûtent les cahiers et la gomme ensemble","Combien coûte un cahier","Combien de cahiers sont achetés"],
+    steps:[{q:`Combien coûtent les ${k} cahiers?`,a:k*p,expr:`${k} × ${p}`,why:`${k} cahiers à ${p} $ chacun : ${k} groupes de ${p}, on multiplie.`},
+           {q:"On ajoute la gomme. Combien paie-t-on en tout?",a:k*p+q,expr:`${k*p} + ${q}`,why:"On paie les cahiers et la gomme : on additionne."}],
+    sentence:`${n} paie ${k*p+q} $ en tout.`}}},
+ {id:"pages",min:1,gen(L){const [n,g]=pick(PB_NOMS),il=g==="f"?"elle":"il",a=L===1?ri(5,20):L===2?ri(15,45):ri(60,250),d=L===1?ri(2,9):L===2?ri(5,25):ri(20,120);
+   return{text:`Lundi, ${n} lit <b>${a}</b> pages. Mardi, ${il} lit <b>${d}</b> pages de plus que lundi. Combien de pages ${n} a-t-${il} lues pendant les deux jours?`,
+    look:["Combien de pages en tout, lundi et mardi","Combien de pages mardi seulement","Combien de pages de plus mardi"],
+    steps:[{q:"Combien de pages a-t-on lues mardi?",a:a+d,expr:`${nf(a)} + ${nf(d)}`,why:`« ${d} pages de plus que lundi » : on ajoute ${d} aux pages de lundi.`},
+           {q:"Combien de pages en tout, lundi et mardi?",a:2*a+d,expr:`${nf(a)} + ${nf(a+d)}`,why:"Pendant les deux jours : on additionne lundi et mardi."}],
+    sentence:`${n} a lu ${nf(2*a+d)} pages pendant les deux jours.`}}},
+ {id:"autobus",min:1,gen(L){const a=L===1?ri(20,40):L===2?ri(40,90):ri(150,500),b=L===1?ri(3,9):L===2?ri(8,25):ri(30,120),c=L===1?ri(2,8):L===2?ri(6,20):ri(25,100);
+   return{text:`Un autobus part avec <b>${a}</b> passagers. Au premier arrêt, <b>${b}</b> passagers descendent. Au deuxième arrêt, <b>${c}</b> passagers descendent. Combien de passagers reste-t-il dans l'autobus?`,
+    look:["Combien de passagers il reste à la fin","Combien de passagers descendent au premier arrêt","Combien de passagers il y avait au départ"],
+    steps:[{q:"Combien reste-t-il de passagers après le premier arrêt?",a:a-b,expr:`${nf(a)} − ${nf(b)}`,why:"Des passagers descendent : le nombre diminue, on soustrait."},
+           {q:"Et après le deuxième arrêt?",a:a-b-c,expr:`${nf(a-b)} − ${nf(c)}`,why:"D'autres passagers descendent : on soustrait encore."}],
+    sentence:`Il reste ${nf(a-b-c)} passagers dans l'autobus.`}}},
+ {id:"monnaie",min:1,gen(L){const [n,g]=pick(PB_NOMS),il=g==="f"?"elle":"il",m=L===1?20:L===2?50:100,p=L===1?ri(3,9):L===2?ri(8,22):ri(15,45),q=L===1?ri(2,8):L===2?ri(5,20):ri(10,40);
+   return{text:`${n} a <b>${m} $</b>. ${il==="elle"?"Elle":"Il"} achète un livre à <b>${p} $</b> et un jeu à <b>${q} $</b>. Combien d'argent lui reste-t-il?`,
+    look:["Combien d'argent il reste","Combien coûte le livre","Combien d'argent il y avait au début"],
+    steps:[{q:"Combien coûtent le livre et le jeu ensemble?",a:p+q,expr:`${p} + ${q}`,why:"On trouve d'abord combien on dépense en tout : on additionne les prix."},
+           {q:`On l'enlève des ${m} $. Combien d'argent reste-t-il?`,a:m-p-q,expr:`${m} − ${p+q}`,why:"L'argent dépensé s'en va : on soustrait."}],
+    sentence:`Il reste ${m-p-q} $ à ${n}.`}}},
+ {id:"ages",min:1,gen(L){const [n,g]=pick(PB_NOMS),a=ri(6,10),d=ri(2,L===1?5:9),e=ri(1,Math.min(a+d-4,L===1?4:9));
+   return{text:`${n} a <b>${a}</b> ans. Son frère a <b>${d}</b> ans de plus que ${g==="f"?"elle":"lui"}. Leur cousine a <b>${e}</b> ans de moins que le frère. Quel âge a la cousine?`,
+    look:["L'âge de la cousine","L'âge du frère","L'âge de "+n],
+    steps:[{q:"Quel âge a le frère?",a:a+d,expr:`${a} + ${d}`,why:`« ${d} ans de plus » : on ajoute.`},
+           {q:"Quel âge a la cousine?",a:a+d-e,expr:`${a+d} − ${e}`,why:`« ${e} ans de moins que le frère » : on enlève à l'âge du frère.`}],
+    sentence:`La cousine a ${a+d-e} ans.`}}},
+ {id:"partage",min:2,gen(L){for(let t=0;t<40;t++){const g=ri(2,6),n=pick(L===2?[2,4,5,6,10]:[4,6,8,9,10]),T=g*n,ks=[2,3,4,5,6].filter(k=>T%k===0&&T/k<=10&&k!==g);if(!ks.length)continue;const k=pick(ks);
+   return{text:`Papa achète <b>${g}</b> paquets de <b>${n}</b> biscuits. Il partage tous les biscuits également entre <b>${k}</b> enfants. Combien de biscuits chaque enfant reçoit-il?`,
+    look:["Combien de biscuits reçoit chaque enfant","Combien de biscuits il y a en tout","Combien de paquets il y a"],
+    steps:[{q:"Combien de biscuits y a-t-il en tout?",a:T,expr:`${g} × ${n}`,why:`${g} paquets de ${n} : ${g} groupes de ${n}, on multiplie.`},
+           {q:`On partage entre ${k} enfants. Combien chacun en reçoit-il?`,a:T/k,expr:`${T} ÷ ${k}`,why:`Partager également, c'est diviser. Pense à ${k} × ${T/k} = ${T}.`}],
+    sentence:`Chaque enfant reçoit ${T/k} biscuits.`}}return null}},
+ {id:"chaises",min:2,gen(L){const r=ri(3,L===2?5:9),c=pick(L===2?[2,5,10]:[4,6,7,8,9]),s=ri(3,r*c-2);
+   return{text:`Dans le gymnase, il y a <b>${r}</b> rangées de <b>${c}</b> chaises. <b>${s}</b> chaises sont occupées. Combien de chaises sont libres?`,
+    look:["Combien de chaises sont libres","Combien de chaises il y a en tout","Combien de rangées il y a"],
+    steps:[{q:"Combien de chaises y a-t-il en tout?",a:r*c,expr:`${r} × ${c}`,why:`${r} rangées de ${c} : on multiplie.`},
+           {q:"Combien de chaises sont libres?",a:r*c-s,expr:`${r*c} − ${s}`,why:"On enlève les chaises occupées : on soustrait."}],
+    sentence:`${r*c-s} chaises sont libres.`}}}];
+let PB=null,PB_KEYH=null;
+function pbGen(L){for(let t=0;t<30;t++){const T=pick(PB_T.filter(x=>x.min<=L)),p=T.gen(L);if(p&&p.steps.every(s=>s.a>=0)&&!(PB&&PB.list.some(q=>q.id===T.id))){p.id=T.id;return p}}return Object.assign(PB_T[0].gen(L),{id:"gagne"})}
+function startProb(){const P=PBS();FORCEV=false;G={mode:"prob",subj:"maths",events:[]};PB={L:P.lvl,list:[],i:0,ok:0,aided:0,val:""};for(let i=0;i<5;i++)PB.list.push(pbGen(P.lvl));pbIntro()}
+function pbBar(){return`<div class="gamebar"><button class="back" id="pb-back">← L'Île aux Nombres</button><span class="gtitle">Problèmes à plusieurs étapes</span>${PB&&PB.started?`<span class="levelchip">${Math.min(PB.i+1,PB.list.length)} / ${PB.list.length}</span>`:`<span class="levelchip">Niveau ${PB?PB.L:1}</span>`}</div>`}
+function pbBack(){const b=$("#pb-back");if(b)b.onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}pbKeys(false);G=null;PB=null;renderCarte();go("carte")}}
+function pbKeys(on){if(PB_KEYH){window.removeEventListener("keydown",PB_KEYH);PB_KEYH=null}if(on){PB_KEYH=e=>{if(!PB||!PB.pad)return;if(/^[0-9]$/.test(e.key))pbKey(e.key);else if(e.key==="Backspace")pbKey("del");else if(e.key==="Enter"){e.preventDefault();pbKey("ok")}};window.addEventListener("keydown",PB_KEYH)}}
+const PB_DEM=["Je lis le problème et je trouve ce qu'on cherche.","Je trouve les étapes : quel calcul d'abord, quel calcul ensuite.","Je calcule chaque étape.","Je réponds par une phrase."];
+function pbIntro(){const el=$("#ecran-jeu"),L=PB.L;el.style.setProperty("--c","var(--i5)");
+  el.innerHTML=pbBar()+`<div class="card pop tbcard" style="--c:var(--i5)"><div class="notion">Niveau ${L} · ${L<3?"guidé, étape par étape":"seule, avec de l'aide au besoin"}</div>
+   <h2 class="tbh">🔎 Résoudre un problème</h2>
+   <div class="tbast"><b>Ma démarche</b>${PB_DEM.map((x,i)=>`<p>${i+1}. ${x}</p>`).join("")}<p class="tbex">Dans ces problèmes, il faut <b>deux calculs</b> pour trouver la réponse.</p></div>
+   <p class="msg">${L<3?"Je vais te guider pour chaque étape. ":"Trouve la réponse finale toute seule. Si tu bloques, touche « Voir les étapes ». "}5 problèmes.</p>
+   <div class="row-btns">${TTS?`<button class="listen" id="pb-say">${SPK}Écouter</button>`:""}<button class="btn" id="pb-go">Commencer</button></div></div>`;
+  pbBack();go("jeu");const sy=$("#pb-say");if(sy)sy.onclick=()=>{FORCEV=true;speakSeq(PB_DEM.map(x=>[x,"fr"]),()=>{FORCEV=false})};
+  $("#pb-go").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}PB.started=true;pbKeys(true);pbLook()}}
+function pbHead(p,extra){return pbBar()+`<div class="dots">${PB.list.map((_,i)=>`<span class="${i<PB.i?(PB.list[i].win?"ok":"ko"):i===PB.i?"now":""}"></span>`).join("")}</div>
+  <div class="card pop pbcard" style="--c:var(--i5)"><div class="cardtop"><div class="notion">Problème ${PB.i+1}</div>${TTS?`<span class="cardbtns"><button class="listen" id="pb-l">${SPK}Réécouter</button></span>`:""}</div>
+  <p class="pbtext">${p.text}</p>${extra}</div>`}
+function pbBindL(p,say){pbBack();go("jeu");const l=$("#pb-l");if(l)l.onclick=()=>speak(p.text.replace(/<[^>]+>/g,""));if(say&&canSpeak())speak(say)}
+/* 1. Je comprends : qu'est-ce qu'on cherche? */
+function pbLook(){const p=PB.list[PB.i],ch=shuffle(p.look);PB.pad=false;p.si=0;p.solved=[];p.tries=0;
+  $("#ecran-jeu").innerHTML=pbHead(p,`<p class="pbask"><b>1. Je comprends.</b> Qu'est-ce qu'on cherche?</p><div class="choices one">${ch.map(c=>`<button class="choice long" data-v="${esc(c)}">${esc(c)}</button>`).join("")}</div><div id="fb"></div>`);
+  pbBindL(p,p.text.replace(/<[^>]+>/g,"")+" Qu'est-ce qu'on cherche?");
+  document.querySelectorAll(".pbcard .choice").forEach(b=>b.onclick=()=>{const ok=b.dataset.v===p.look[0];document.querySelectorAll(".pbcard .choice").forEach(x=>{x.disabled=true;if(x.dataset.v===p.look[0])x.classList.add("right")});if(!ok)b.classList.add("wrong");
+    logAct("prob|comprendre",ok);tone(ok?[[660,.1],[880,.15]]:[[300,.2]]);
+    $("#fb").innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${ok?"Oui!":"Presque!"}</h3><p>${ok?"C'est la question à la fin du problème qui dit ce qu'on cherche.":"Relis la dernière phrase : c'est elle qui dit ce qu'on cherche."}</p><button class="btn" id="pb-next">Continuer</button></div>`;
+    const go2=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}if(PB.L<3)pbStep();else pbFinal()};$("#pb-next").onclick=go2;if(canSpeak())speak(ok?"Oui!":"Relis la dernière phrase : c'est elle qui dit ce qu'on cherche.")})}
+function pbPad(){return`<div class="numpad"><div class="numdisplay" id="pb-nd" aria-live="polite">&nbsp;</div>${keysHTML()}</div>`}
+function pbBindPad(fn){PB.val="";PB.pad=true;PB.onok=fn;document.querySelectorAll(".pbcard .key").forEach(b=>b.onclick=()=>pbKey(b.dataset.k))}
+function pbKey(k){if(!PB||!PB.pad)return;if(k==="del")PB.val=PB.val.slice(0,-1);else if(k==="ok"){if(PB.val)PB.onok(+PB.val);return}else if(PB.val.length<5)PB.val+=k;const d=$("#pb-nd");if(d)d.innerHTML=PB.val?nf(+PB.val):"&nbsp;"}
+const pbDone=p=>p.solved.length?`<ol class="pbsteps">${p.solved.map(s=>`<li>${s.expr} = <b>${nf(s.a)}</b> ✓</li>`).join("")}</ol>`:"";
+/* 2-3. Je planifie et je calcule, une étape à la fois */
+function pbStep(){const p=PB.list[PB.i],s=p.steps[p.si];p.tries=0;
+  $("#ecran-jeu").innerHTML=pbHead(p,`${pbDone(p)}<p class="pbask"><b>Étape ${p.si+1}.</b> ${s.q}</p><div id="pb-hint"></div>${pbPad()}<div id="fb"></div>`);
+  pbBindL(p,s.q);pbBindPad(v=>pbCheckStep(p,s,v))}
+function pbCheckStep(p,s,v){const ok=v===s.a;p.tries++;
+  if(ok||p.tries>=2){PB.pad=false;if(p.tries===1)logAct("prob|"+p.id,ok);if(!ok||p.tries>1)p.help=true;
+    $("#pb-nd").classList.add(ok?"right":"wrong");document.querySelectorAll(".pbcard .key").forEach(b=>b.disabled=true);tone(ok?[[660,.1],[880,.15]]:[[300,.2]]);
+    $("#fb").innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${ok?"Bravo!":"Regarde bien"}</h3><p>${s.expr} = <b>${nf(s.a)}</b>. ${s.why}</p><button class="btn" id="pb-next">${p.si+1<p.steps.length?"Étape suivante":"Je réponds"}</button></div>`;
+    p.solved.push(s);const nx=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}p.si++;if(p.si<p.steps.length)pbStep();else pbEnd(p,!p.help&&!p.aided)};$("#pb-next").onclick=nx;
+    if(canSpeak())speak((ok?"Bravo! ":"")+s.expr.replace(/−/g," moins ").replace(/\+/g," plus ").replace(/×/g," fois ").replace(/÷/g," divisé par ")+" égale "+s.a+". "+s.why)}
+  else{logAct("prob|"+p.id,false);p.help=true;PB.val="";$("#pb-nd").innerHTML="&nbsp;";tone([[300,.2]]);
+    $("#pb-hint").innerHTML=`<p class="pbhint pop">Pas tout à fait. <b>Indice :</b> ${s.why} Le calcul : <b>${s.expr}</b>.</p>`;if(canSpeak())speak("Pas tout à fait. Indice : "+s.why)}}
+/* Niveau 3 : la réponse finale d'abord, toute seule */
+function pbFinal(){const p=PB.list[PB.i];p.tries=0;
+  $("#ecran-jeu").innerHTML=pbHead(p,`<p class="pbask"><b>2. Je planifie et je calcule.</b> Trouve la réponse finale. Tu peux faire tes calculs sur une feuille.</p>${pbPad()}<div class="row-btns"><button class="btn ghost" id="pb-help">Voir les étapes</button></div><div id="fb"></div>`);
+  pbBindL(p,"Trouve la réponse finale. Tu peux faire tes calculs sur une feuille.");
+  $("#pb-help").onclick=()=>{SEQ++;p.aided=true;PB.aided++;pbStep()};
+  pbBindPad(v=>{const A=p.steps[p.steps.length-1].a,ok=v===A;logAct("prob|"+p.id,ok);
+    if(ok){PB.pad=false;p.solved=p.steps.slice();pbEnd(p,true)}
+    else{PB.pad=false;p.aided=true;PB.aided++;tone([[300,.2]]);$("#fb").innerHTML=`<div class="feedback bad pop"><h3>Presque!</h3><p>Ce n'est pas encore la bonne réponse. On le fait ensemble, étape par étape.</p><button class="btn" id="pb-next">Voir les étapes</button></div>`;
+      $("#pb-next").onclick=()=>{SEQ++;pbStep()};if(canSpeak())speak("Presque! On le fait ensemble, étape par étape.")}})}
+/* 4. Je réponds par une phrase, et je regarde ma démarche */
+function pbEnd(p,win){p.win=win;if(win)PB.ok++;
+  $("#ecran-jeu").innerHTML=pbHead(p,`<div class="pbdem"><p class="pbask"><b>Ma démarche</b></p><ol class="pbsteps">${p.steps.map(s=>`<li>${s.expr} = <b>${nf(s.a)}</b></li>`).join("")}</ol>
+    <p class="pbans"><span>Ma réponse</span>${esc(p.sentence)}</p></div><p class="msg"><small>Au tableau ou dans ton cahier, écris toujours ta démarche et ta phrase-réponse.</small></p>
+    <div class="row-btns"><button class="btn" id="pb-next">${PB.i+1<PB.list.length?"Problème suivant":"Terminer"}</button></div>`);
+  pbBindL(p,"Ma réponse : "+p.sentence);tone(win?[[523,.1],[659,.1],[784,.18]]:[[523,.12],[659,.16]]);
+  $("#pb-next").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}PB.i++;if(PB.i<PB.list.length)pbLook();else pbFinish()}}
+function pbFinish(){pbKeys(false);const P=PBS(),n=PB.list.length,ok=PB.ok,L=PB.L;let up="";
+  if(ok>=4&&P.lvl<3){P.lvl++;up=`Tu passes au niveau ${P.lvl}! ${P.lvl===3?"Maintenant, tu trouveras la réponse toute seule.":"Les nombres seront un peu plus grands."}`}
+  else if(ok<=1&&P.lvl>1){P.lvl--;up=`On revient au niveau ${P.lvl} pour bien pratiquer.`}
+  P.hist.unshift({d:dayNum(),L,ok,n,aided:PB.aided});P.hist.length=Math.min(P.hist.length,40);save();
+  const st=ok>=n?3:ok>=4?2:ok>=2?1:0,el=$("#ecran-fin");el.style.setProperty("--c","var(--i5)");
+  el.innerHTML=`<div class="card result pop" style="--c:var(--i5)"><div class="notion">Problèmes à plusieurs étapes · niveau ${L}</div><h2>${ok>=4?"Bravo":"Bien travaillé"}${S.name?", "+esc(S.name):""}!</h2>
+   <div class="score">${ok} / ${n}</div><p class="msg"><small>${L<3?"réussis sans erreur":"trouvés seule, sans aide"}</small></p>${stars(st)}
+   <p class="msg">${ok>=4?"Tu trouves bien les étapes d'un problème.":"Rappelle-toi : je trouve ce qu'on cherche, puis le premier calcul, puis le deuxième."}</p>${up?`<p class="msg"><b>${up}</b></p>`:""}
+   <div class="row-btns"><button class="btn" id="pb-again">Encore</button><button class="btn ghost" id="pb-map">Retour à l'île</button></div></div>`;
+  $("#pb-again").onclick=startProb;$("#pb-map").onclick=()=>{G=null;PB=null;renderCarte();go("carte")};go("fin");
+  speak(`${ok} sur ${n}. ${up}`)}
+function pbParentHTML(){const P=PBS(),H=P.hist.slice(0,6);if(!H.length)return`<p>Pas encore pratiqué. L'activité est sur l'île aux Nombres, section Calcul.</p>`;
+  return`<p>Niveau <b>${P.lvl}</b> sur 3 (${P.lvl<3?"guidé, étape par étape":"elle trouve seule la réponse finale"}).</p><div class="days">${H.map(h=>`<div class="d"><span>${dnFmt(h.d)}<br><span class="dsub">Niveau ${h.L}${h.aided?` · aide ${h.aided} fois`:""}</span></span><span class="meter"><i style="width:${h.n?h.ok/h.n*100:0}%;background:var(--good)"></i></span><span>${h.ok}/${h.n}</span></div>`).join("")}</div>`}
+
+/* ======================================================================
    JOURNAL D'ACTIVITÉ (par jour) — sert aux rapports du parent
    ====================================================================== */
 function logAct(key,ok){try{const dn=dayNum(),D=S.dlog||(S.dlog={}),d=D[dn]||(D[dn]={}),x=d[key]||(d[key]={r:0,t:0});x.t++;if(ok)x.r++;
@@ -3955,10 +4104,10 @@ function savePlan(P,txt){const old=S.plan;if(old&&old.from===P.from)P.tasks.forE
   if(P.exam&&/^dictee:\d+-\d+$/.test(P.exam.go)){const [a,b]=P.exam.go.slice(7).split("-").map(Number);DS().exam={d:P.exam.d,from:a,to:b,label:P.exam.label}}save()}
 /* Ouvre la bonne pratique pour une notion du plan */
 function planGo(g){const [k,arg]=g.split(":");
-  if(k==="tables")return startTables("add");if(k==="mtables")return startTables("mul");if(k==="gn")return startGN();if(k==="rep")return startRep();
+  if(k==="tables")return startTables("add");if(k==="mtables")return startTables("mul");if(k==="prob")return startProb();if(k==="gn")return startGN();if(k==="rep")return startRep();
   if(k==="conj")return startConj(arg);if(k==="dictee")return arg?startExam():startDictee();
   const z=byId(k);if(z){CUR=z.subj;return start(k)}}
-const planIc=g=>/^conj/.test(g)?"🔤":g==="gn"?"🧩":g==="tables"?"🔢":/^mtables/.test(g)?"✖️":/^dictee/.test(g)?"✏️":g==="rep"?"✍️":(byId((g||"").split(":")[0])||{}).subj==="maths"?"➕":"📘";
+const planIc=g=>/^conj/.test(g)?"🔤":g==="gn"?"🧩":g==="tables"?"🔢":/^mtables/.test(g)?"✖️":g==="prob"?"🔎":/^dictee/.test(g)?"✏️":g==="rep"?"✍️":(byId((g||"").split(":")[0])||{}).subj==="maths"?"➕":"📘";
 function planCardHTML(){if(!planActive())return"";const p=S.plan,ex=examActive()?DS().exam:null;
   return`<section class="plancard" aria-label="Ma semaine à l'école"><div class="planh"><h3>🏫 Ma semaine à l'école</h3><small>${planRange(p)}</small></div>
    ${ex?`<button class="planex" data-plan="dictee:x"><span>✏️ <b>${esc(ex.label)}</b><br><small>${examLeft()===0?"C'est aujourd'hui! Bonne chance!":`dans ${examLeft()} jour${examLeft()>1?"s":""}`} · ${examReady()} mots prêts sur ${examWords().length}</small></span><span class="planbtn">Je révise</span></button>`:""}
@@ -3999,10 +4148,10 @@ function planEditHTML(){const p=S.plan;return pcard("Plan de travail de la semai
 function planParentBind(){const b=$("#p-plansave");if(b)b.onclick=()=>{const t=$("#p-plantxt").value,P=parsePlan(t);if(!P){$("#p-planmsg").innerHTML=` <b style="color:var(--bad)">Il manque la ligne « Semaine: AAAA-MM-JJ au AAAA-MM-JJ ».</b>`;return}savePlan(P,t);renderParent()};
   document.querySelectorAll("[data-task]").forEach(c=>c.onchange=()=>{const t=(S.plan.tasks||[]).find(x=>x.id===c.dataset.task);if(t){t.done=c.checked?Date.now():0;save()}})}
 const pct=(r,t)=>t?Math.round(r/t*100)+" %":"—";
-const NOTION_MATCH=g=>{const [k,a]=(g||"").split(":");if(k==="conj")return key=>key==="conj|"+a;if(k==="gn")return key=>key.startsWith("gn|")||key==="grammaire|Accord dans le groupe du nom";if(k==="tables")return key=>key.startsWith("tables|");if(k==="mtables")return key=>key.startsWith("mtables|");if(k==="rep")return key=>key.startsWith("rep|");if(k==="dictee")return key=>key.startsWith("dictee|");return key=>key.startsWith(k+"|")};
+const NOTION_MATCH=g=>{const [k,a]=(g||"").split(":");if(k==="conj")return key=>key==="conj|"+a;if(k==="gn")return key=>key.startsWith("gn|")||key==="grammaire|Accord dans le groupe du nom";if(k==="tables")return key=>key.startsWith("tables|");if(k==="mtables")return key=>key.startsWith("mtables|");if(k==="prob")return key=>key.startsWith("prob|");if(k==="rep")return key=>key.startsWith("rep|");if(k==="dictee")return key=>key.startsWith("dictee|");return key=>key.startsWith(k+"|")};
 function weekMin(from,to){let s=0;const add=(d,sec)=>{const dn=isoDn(d);if(dn!=null&&dn>=from&&dn<=to)s+=sec};(S.hist||[]).forEach(h=>add(h.d,h.sec));if(S.day)add(S.day.d,S.day.sec);return Math.round(s/60)}
 function weekReportHTML(){const p=S.plan;if(!p)return`<p>Aucun plan de la semaine pour l'instant. Ajoutez-le dans l'onglet <b>Matière scolaire</b>.</p>`;
-  const from=p.from,to=Math.max(p.to+2,Math.min(dayNum(),p.to+2)),rows=p.notions.map(n=>{const s=logSum(from,to,NOTION_MATCH(n.go)),x=stOf(s.r,s.t),k=(n.go||"").split(":")[0],src={conj:"Apprendre un verbe à la fois",gn:"Le groupe du nom",tables:"Tables d'addition et de soustraction",mtables:"Tables de multiplication",rep:"Répondre en phrases complètes",dictee:"Dictée du jour"}[k]||(byId(k)?byId(k).nom:"");return`<div class="nrow2 wk"><div><b>${esc(n.label)}</b><br><small>${s.t?`${s.r} bonne${s.r>1?"s":""} réponse${s.r>1?"s":""} sur ${s.t}, en ${s.days} jour${s.days>1?"s":""}${src?`, dans « ${esc(src)} »`:""}`:`pas encore pratiquée cette semaine${src?` (se pratique dans « ${esc(src)} »)`:""}`}</small></div><span class="spill s-${x.st}">${s.t?`${Math.round(s.r/s.t*100)} % cette semaine`:"Pas encore pratiquée"}</span></div>`}).join("");
+  const from=p.from,to=Math.max(p.to+2,Math.min(dayNum(),p.to+2)),rows=p.notions.map(n=>{const s=logSum(from,to,NOTION_MATCH(n.go)),x=stOf(s.r,s.t),k=(n.go||"").split(":")[0],src={conj:"Apprendre un verbe à la fois",gn:"Le groupe du nom",tables:"Tables d'addition et de soustraction",mtables:"Tables de multiplication",prob:"Problèmes à plusieurs étapes",rep:"Répondre en phrases complètes",dictee:"Dictée du jour"}[k]||(byId(k)?byId(k).nom:"");return`<div class="nrow2 wk"><div><b>${esc(n.label)}</b><br><small>${s.t?`${s.r} bonne${s.r>1?"s":""} réponse${s.r>1?"s":""} sur ${s.t}, en ${s.days} jour${s.days>1?"s":""}${src?`, dans « ${esc(src)} »`:""}`:`pas encore pratiquée cette semaine${src?` (se pratique dans « ${esc(src)} »)`:""}`}</small></div><span class="spill s-${x.st}">${s.t?`${Math.round(s.r/s.t*100)} % cette semaine`:"Pas encore pratiquée"}</span></div>`}).join("");
   const ex=p.exam&&DS().exam&&DS().exam.d===p.exam.d?DS().exam:null,done=p.tasks.filter(t=>t.done).length;
   const hard=ex?examWords().filter(w=>((DS().ex||{})[w]||{}).miss>0).sort((a,b)=>DS().ex[b].miss-DS().ex[a].miss).slice(0,10):[];
   return`<p class="pdesc"><b>${weekMin(from,to)} minutes</b> dans le jeu pendant cette semaine.</p>
@@ -4685,7 +4834,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261106-114333";
+const APP_VER="20261106-120950";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
