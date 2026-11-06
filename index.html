@@ -3766,7 +3766,7 @@ function tbParentBind(){const b=$("#p-tbsave");if(!b)return;b.onclick=()=>{const
    ====================================================================== */
 function logAct(key,ok){try{const dn=dayNum(),D=S.dlog||(S.dlog={}),d=D[dn]||(D[dn]={}),x=d[key]||(d[key]={r:0,t:0});x.t++;if(ok)x.r++;
   for(const k of Object.keys(D))if(+k<dn-70)delete D[k]}catch(e){}}
-const DAYGOOD=(r,t)=>r>=8&&r>=.75*t;
+const DAYGOOD=(r,t)=>r>=7&&r>=.75*t;
 const logSum=(from,to,match)=>{const D=S.dlog||{};let r=0,t=0,days=new Set();for(const [dn,o] of Object.entries(D)){if(+dn<from||+dn>to)continue;for(const [k,x] of Object.entries(o))if(match(k)){r+=x.r;t+=x.t;days.add(+dn)}}return{r,t,days:days.size}};
 
 /* ======================================================================
@@ -4521,7 +4521,7 @@ function progItems(){tbAlign();const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsWi
     if(W.length)it.push({id:"exam",nom:`Révision : ${esc(e.label)}`,sous:`${examLeft()===0?"C'est aujourd'hui!":`Dans ${examLeft()} jour${examLeft()>1?"s":""}`} · ${examReady()} mots prêts sur ${W.length}`,done:n>=need,ic:"🎯",c:"--i3",go:startExam,started:n>0,plan:!!P})}
   let hasTab=false;
   /* Les notions de l'école sont réparties sur la semaine : au plus 3 par jour, les moins sûres d'abord.
-     « Faite aujourd'hui » = 8 bonnes réponses (et au moins 3 sur 4). « Acquise » = réussie 2 jours cette semaine. */
+     « Faite aujourd'hui » = 7 bonnes réponses (et au moins 3 sur 4), soit une partie presque parfaite. « Acquise » = réussie 2 jours cette semaine. */
   if(P){const ns=P.notions.filter(n=>n.go&&!/^dictee/.test(n.go)),wd=(new Date().getDay()+6)%7;
     const info=n=>{const pre=notionKey(n.go),m=k=>k.startsWith(pre),td=logSum(dn,dn,m),w=logSum(P.from,dn,m);let g=0;for(let d=P.from;d<=dn;d++){const x=logSum(d,d,m);if(DAYGOOD(x.r,x.t))g++}return{n,td,w,g,acq:g>=2}};
     const all=ns.filter(n=>!/^tables/.test(n.go)).map(info);
@@ -4530,7 +4530,7 @@ function progItems(){tbAlign();const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsWi
       pd=S.pday={d:dn,from:P.from,ids,rap:wd===4?ids[ids.length-1]:null};save()}
     ns.forEach(n=>{if(/^tables/.test(n.go)){hasTab=true;it.push(tabItem(true));return}
       if(!pd.ids.includes(n.go))return;const x=all.find(y=>y.n===n),t=x.td.t,r=x.td.r,rap=pd.rap===n.go,done=DAYGOOD(r,t)||(x.acq&&!rap)||(rap&&t>=5);
-      it.push({id:"n:"+n.go,nom:esc(n.label)+(rap?" (rappel)":""),sous:done?(DAYGOOD(r,t)?`${r} bonnes réponses aujourd'hui!`:"acquise cette semaine!"):rap?"5 questions pour ne pas l'oublier":t?`${Math.min(r,8)} bonne${r>1?"s":""} réponse${r>1?"s":""} sur 8 · continue!`:"8 bonnes réponses à trouver",done,ic:planIc(n.go),c:/^conj|^gn|^rep/.test(n.go)||(byId(n.go.split(":")[0])||{}).subj==="francais"?"--i2":"--i1",go:()=>planGo(n.go),started:t>0,plan:true})});
+      it.push({id:"n:"+n.go,nom:esc(n.label)+(rap?" (rappel)":""),sous:done?(DAYGOOD(r,t)?`${r} bonnes réponses aujourd'hui!`:"acquise cette semaine!"):rap?"5 questions pour ne pas l'oublier":t?`${Math.min(r,7)} bonne${r>1?"s":""} réponse${r>1?"s":""} sur 7 · continue!`:"7 bonnes réponses à trouver",done,ic:planIc(n.go),c:/^conj|^gn|^rep/.test(n.go)||(byId(n.go.split(":")[0])||{}).subj==="francais"?"--i2":"--i1",go:()=>planGo(n.go),started:t>0,plan:true})});
     PWEEK={ok:all.filter(x=>x.acq).length,n:all.length}}
   /* 2. La dictée du jour (mots des listes de l'école, en répétition espacée) */
   if(dWeeks().length){const due=dDue(),t=L("dictee|");if(due||t)it.push({id:"dict",nom:"Ma dictée du jour",sous:due?`<b>${due}</b> mot${due>1?"s":""} de tes listes à réviser`:"tous tes mots du jour sont révisés!",done:!due,ic:PENICON,c:"--i7",go:startDictee,started:t>0})}
@@ -4539,7 +4539,7 @@ function progItems(){tbAlign();const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsWi
   if(!P){const u=cjCur(),t=L("conj|"+u.id);it.push({id:"conj",nom:"Ma conjugaison",sous:esc(u.nom)+" · "+q10(t),done:t>=10,ic:u.ic,c:"--i2",go:()=>startConj(u.id),started:t>0})}
   /* 4. Un peu d'anglais chaque jour (sauf si l'anglais est déjà dans le plan de l'école) */
   if(!(P&&P.notions.some(n=>(byId((n.go||"").split(":")[0])||{}).subj==="anglais"))){const z=weekEN().length?"en_week":"en_words",t=L("en_");
-    it.push({id:"en",nom:"Mon anglais du jour",sous:(weekEN().length?"Tes mots d'anglais de la semaine":"Le vocabulaire")+" · "+q10(t),done:t>=10,ic:`<b class="hiic">Hi!</b>`,c:"--i3",go:()=>{CUR="anglais";start(z)},started:t>0})}
+    it.push({id:"en",nom:"Mon anglais du jour",sous:(weekEN().length?"Tes mots d'anglais de la semaine":"Le vocabulaire")+" · "+(t>=ROUND?"bravo, c'est fait pour aujourd'hui!":t?`${t} sur ${ROUND} questions`:`${ROUND} questions pour pratiquer`),done:t>=ROUND,ic:`<b class="hiic">Hi!</b>`,c:"--i3",go:()=>{CUR="anglais";start(z)},started:t>0})}
   const dd=it.filter(x=>x.done).length;S.prog=S.prog||{};const o=S.prog[dn];if(!o||o.d!==dd||o.t!==it.length){S.prog[dn]={d:dd,t:it.length};for(const k of Object.keys(S.prog))if(+k<dn-40)delete S.prog[k];save()}
   return it}
 let PROG=[];
@@ -4646,7 +4646,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261106-112321";
+const APP_VER="20261106-112828";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
