@@ -1027,6 +1027,11 @@ body.skyin .cg-h{font-family:var(--f-display);font-weight:700;font-size:1.4rem;m
 @media (max-width:600px){.nrow2{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}.nrow2 .ldots{grid-column:1}.nrow2 .nrc{display:none}.prow{grid-template-columns:minmax(0,1fr) auto}.prow .meter{grid-column:1/-1;grid-row:2}.tbars{height:140px;gap:5px}}
 .days .dsub,.d .dsub{display:inline}
 .prow .meter{display:block;width:100%;background:var(--line);overflow:hidden}.prow .meter i{display:block;height:100%;background:var(--good)}
+.dlalign{border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.dlalign.warn{border:2px solid var(--sun);background:color-mix(in srgb,var(--sun) 12%,var(--surface))}
+.dlalign p{margin:0}
+.dlal{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:600}
+.dlal select{border:2px solid var(--line);border-radius:10px;padding:8px;background:var(--surface);color:var(--ink);font:inherit}
 </style>
 
 <header class="top">
@@ -2381,7 +2386,7 @@ function renderParent(){
    <div class="pdalerts">${dWeeks().length?`<button class="pda" data-go="suivi">📝 <b>${dDue()}</b> mot${dDue()>1?"s":""} de dictée à réviser aujourd'hui</button>`:`<button class="pda warn" data-go="matiere">📝 Ajouter les listes de dictée</button>`}
    ${S.gifts.pending.length?`<button class="pda gift" data-go="recompenses">🎁 <b>${S.gifts.pending.length}</b> cadeau${S.gifts.pending.length>1?"x":""} à remettre</button>`:""}
    ${weak?`<button class="pda warn" data-go="suivi">⚠️ À travailler : <b>${esc(weak.notion)}</b> (${weak.r} sur ${weak.n} dernières réponses)</button>`:""}
-   ${dNeedList()?`<button class="pda warn" data-go="matiere">📅 Ajouter la liste de mots de cette semaine</button>`:""}</div></section>`;
+   ${dNeedList()?`<button class="pda warn" data-go="matiere">📅 Ajouter la liste de mots de cette semaine</button>`:""}${(()=>{const c=dCurList(),sw=schoolWeek();return c&&dWeeks().includes(sw)&&c.n!==sw?`<button class="pda warn" data-go="matiere">📅 Dates des listes de dictée décalées (semaine ${c.n} au lieu de ${sw}) : à corriger</button>`:""})()}</div></section>`;
   /* --- onglet Suivi --- */
   /* Résumé de la semaine : ce qui compte, en phrases */
   const dnow=dayNum(),from7=dnow-6,all7=logSum(from7,dnow,()=>true),act7=D7.filter(d=>d.m>0).length,min7=D7.reduce((t,d)=>t+d.m,0),ok7=D7.filter(d=>d.ok).length;
@@ -3889,13 +3894,20 @@ function dRowHTML(l,i,n,cur,dn){const st=l.start>dn?"avenir":cur&&l.id===cur.id?
    <div class="dlwords"><b>${l.w.length} mot${l.w.length>1?"s":""}</b>${rv?` · ${rv} déjà révisé${rv>1?"s":""}`:""} — ${pv}</div>
    <div class="dlacts"><button class="btn ghost" data-dl="ed">Modifier</button><button class="btn ghost" data-dl="sh" aria-expanded="false">Décaler</button><button class="btn ghost" data-dl="up" aria-label="Monter (échanger avec la semaine précédente)" ${i===0?"disabled":""}>▲</button><button class="btn ghost" data-dl="dn" aria-label="Descendre (échanger avec la semaine suivante)" ${i===n-1?"disabled":""}>▼</button><button class="btn ghost dldel" data-dl="del">Supprimer</button></div>
    <div class="dlshift" hidden><span>Déplacer la date :</span><button class="btn ghost" data-sh="-1">− 1 semaine</button><button class="btn ghost" data-sh="1">+ 1 semaine</button><label class="dlcas"><input type="checkbox" checked> Décaler aussi les semaines suivantes</label></div></div>`}
+/* Semaine scolaire selon le calendrier (semaine 1 = celle du 31 août) : sert à repérer des dates de listes décalées */
+function schoolWeek(){const now=new Date(),y=now.getMonth()>=7?now.getFullYear():now.getFullYear()-1;return Math.max(1,Math.floor((Date.now()-new Date(y,7,31).getTime())/(7*864e5))+1)}
+function dAlignHTML(L,cur){const sw=schoolWeek(),ns=[...new Set(L.map(l=>l.n))].sort((a,b)=>a-b),def=ns.includes(sw)?sw:(cur?cur.n:ns[0]),off=cur&&ns.includes(sw)&&cur.n!==sw;
+  return`<div class="dlalign${off?" warn":""}">${off?`<p><b>Les dates semblent décalées.</b> La liste en cours est la <b>semaine ${cur.n}</b>, mais selon le calendrier scolaire, nous sommes à la <b>semaine ${sw}</b>. Les mots des semaines ${cur.n+1} à ${sw} ne sont pas encore dans ses dictées.</p>`:""}
+   <label class="dlal"><span>Cette semaine, à l'école, c'est la liste de la</span><select id="p-dlalign">${ns.map(n=>`<option value="${n}" ${n===def?"selected":""}>semaine ${n}</option>`).join("")}</select></label>
+   <div class="confirm"><button class="btn${off?"":" ghost"}" id="p-dlalgo">Réaligner toutes les dates</button></div>
+   <p class="pdesc">Chaque liste recommence un lundi : la liste choisie commence ce lundi, les autres une semaine avant ou après selon leur numéro. Sa progression est gardée.</p></div>`}
 function dContentHTML(){const L=dSorted(),cur=dCurList(),dn=dayNum();
   const acts=`<div class="confirm"><button class="btn" id="p-dladd">＋ Ajouter une liste de mots</button><button class="btn ghost" id="p-dlbulk">Coller plusieurs semaines d'un coup</button></div>`;
   if(!L.length)return pcard("Listes de dictée","Ajoutez la liste de mots que l'école donne chaque semaine. À la date choisie, le jeu passe tout seul à la nouvelle liste; les mots des listes précédentes reviennent en révision. Les phrases d'exemple et les définitions s'ajoutent automatiquement pour les mots connus.",acts);
   const rows=L.map((l,i)=>dRowHTML(l,i,L.length,cur,dn)),past=L.filter(l=>l.start<=dn&&!(cur&&l.id===cur.id)).length;
   const words=Object.keys(dLists().by).length;
   return pcard("Listes de dictée",`${L.length} liste${L.length>1?"s":""}, ${words} mots. Le jeu passe tout seul à la liste suivante à sa date de début. ▲ ▼ échangent deux listes (les numéros et les dates restent en place).`,
-    acts+(past?`<details class="dlpast"><summary>Semaines passées (${past})</summary><div class="dllist">${rows.slice(0,past).join("")}</div></details>`:"")+`<div class="dllist">${rows.slice(past).join("")}</div>`)}
+    dAlignHTML(L,cur)+acts+(past?`<details class="dlpast"><summary>Semaines passées (${past})</summary><div class="dllist">${rows.slice(0,past).join("")}</div></details>`:"")+`<div class="dllist">${rows.slice(past).join("")}</div>`)}
 function undoToast(msg,undo){const old=$(".utoast");if(old)old.remove();
   const t=document.createElement("div");t.className="utoast";t.setAttribute("role","status");t.innerHTML=`<span>${msg}</span><button class="btn">Annuler</button>`;document.body.appendChild(t);
   const tm=setTimeout(()=>t.remove(),15000);t.querySelector("button").onclick=()=>{clearTimeout(tm);t.remove();undo()}}
@@ -3954,6 +3966,9 @@ function dBulkDialog(){const ls=DLs(),s0=ls.length?dnMonday(Math.max(...ls.map(l
 function dParentBind(){const d=DS();
   const ad=$("#p-dladd");if(ad)ad.onclick=()=>dListDialog();
   const bk=$("#p-dlbulk");if(bk)bk.onclick=dBulkDialog;
+  const al=$("#p-dlalgo");if(al)al.onclick=()=>{const N=+$("#p-dlalign").value,mon=dnMonday(dayNum()),before=DLs().map(l=>({id:l.id,start:l.start}));
+    DLs().forEach(l=>{l.start=mon+(l.n-N)*7});dAfter();
+    undoToast(`Dates réalignées : la semaine ${N} commence ce lundi.`,()=>{const m=new Map(before.map(x=>[x.id,x.start]));DLs().forEach(l=>{if(m.has(l.id))l.start=m.get(l.id)});dAfter()})};
   document.querySelectorAll(".dlrow").forEach(r=>{const id=r.dataset.lid;
     r.querySelectorAll("[data-dl]").forEach(b=>b.onclick=()=>{const a=b.dataset.dl,S2=dSorted(),i=S2.findIndex(l=>l.id===id),raw=DLs();
       if(a==="ed")return dListDialog(id);
@@ -4492,7 +4507,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261105-232821";
+const APP_VER="20261105-233838";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
