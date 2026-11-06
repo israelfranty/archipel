@@ -2122,10 +2122,25 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden){HID=perfor
 
 const headOf=()=>G.id==="defi"?{nom:"Révision mélangée",c:"--sun"}:G.id==="tableau"?{nom:"Défis au tableau",c:"--i2"}:byId(G.id);
 function start(id){G={mode:"q",id,subj:(id==="defi"||id==="tableau")?CUR:byId(id).subj,n:id==="tableau"?4:ROUND,boardAt:id!=="tableau"&&S.boardOn!==false?ROUND-1:-1,i:0,score:0,res:[],recent:[],eclairs:0,totalMs:0,events:[]};tone([[523,.08]]);next()}
+/* ---------- Choix des questions : viser ce qu'elle ne maîtrise pas encore ----------
+   Pour chaque question : environ 55 % du temps, une notion « à travailler » ou « en progrès »
+   (ses 10 dernières réponses, la même règle que dans l'espace parent); 25 % du temps, une notion
+   « solide » qu'elle n'a pas revue depuis 3 jours ou plus (pour ne pas l'oublier); le reste, au hasard,
+   ce qui fait aussi découvrir les notions nouvelles. Une même notion visée revient au plus 3 fois par partie. */
+function lastSeen(k){const D=S.dlog||{};let m=-1;for(const [dn,o] of Object.entries(D))if(o[k]&&+dn>m)m=+dn;return m}
+function targetFor(isls){const tc=(G&&G.tcount)||{},all=nAll().filter(x=>isls.includes(x.isl)&&(tc[x.k]||0)<3);
+  const weak=all.filter(x=>x.st==="low"||x.st==="mid"),dn=dayNum(),due=all.filter(x=>x.st==="ok"&&dn-lastSeen(x.k)>=3);
+  const r=Math.random();let pool=null;if(r<.55&&weak.length)pool=weak;else if(r>=.55&&r<.8&&due.length)pool=due;
+  if(!pool)return null;const srt=pool.slice().sort((a,b)=>a.p-b.p),x=srt[Math.floor(Math.random()*Math.min(3,srt.length))];
+  return{isl:x.isl,k:x.k,want:new Set([x.notion])}}
+function pickQ(isl,L,want){let first=null;for(let n=0;n<16;n++){const q=GEN[isl](L);q.isl=isl;if(G.recent.includes(q.prompt+(q.visual||"")))continue;if(!first)first=q;if(!want||want.has(q.notion))return q}
+  /* La notion visée n'existe peut-être qu'à un autre niveau (elle l'a vue avant un changement de niveau) */
+  if(want)for(const L2 of [1,2,3].filter(x=>x!==L))for(let n=0;n<10;n++){const q=GEN[isl](L2);q.isl=isl;if(want.has(q.notion)&&!G.recent.includes(q.prompt+(q.visual||"")))return q}
+  if(first)return first;const q=GEN[isl](L);q.isl=isl;return q}
 function next(){
   let q,tries=0;
   if(G.id==="tableau"||(G.boardAt===G.i&&!G.noBoard)){const z=G.id==="tableau"||G.id==="defi"?pick(zones(G.subj)).id:G.id;q=boardFor(G.subj,IS(z).level,z)}
-  else do{const isl=G.id==="defi"?pick(zones(G.subj)).id:G.id;q=GEN[isl](IS(isl).level);q.isl=isl;tries++}while(G.recent.includes(q.prompt+(q.visual||""))&&tries<8);
+  else{const zs=G.id==="defi"?zones(G.subj).map(z=>z.id):[G.id],tg=targetFor(zs),isl=tg?tg.isl:pick(zs);q=pickQ(isl,IS(isl).level,tg&&tg.want);if(tg){G.tcount=G.tcount||{};G.tcount[tg.k]=(G.tcount[tg.k]||0)+1}}
   G.recent=[q.prompt+(q.visual||""),...G.recent].slice(0,4);G.q=q;G.input="";G.done=false;G.lock=false;renderQ();
 }
 function renderQ(){
@@ -2422,7 +2437,7 @@ function renderParent(){
   /* --- onglet Réglages --- */
   const tReglages=
    pcard("Objectifs quotidiens","Minutes d'étude visées chaque jour, par matière.",`<div class="goals">${SUBJS.map(k=>`<label for="p-goal-${k}"><b>${LBL[k]}</b><select id="p-goal-${k}" data-goal="${k}">${[0,5,10,15,20,25,30,45].map(m=>`<option value="${m}" ${(S.goals[k]??0)===m?"selected":""}>${m?m+" minutes":"aucun objectif"}</option>`).join("")}</select></label>`).join("")}</div><p class="pdesc">Total : ${SUBJS.reduce((t,k)=>t+(S.goals[k]||0),0)} minutes par jour.</p>`)+
-   pcard("Questions et temps","En calcul (additions, soustractions, multiplications), chaque question a un objectif de temps : 10 % plus rapide que son temps habituel. Une bonne réponse sous l'objectif donne un « éclair ». Ailleurs, pas de chronomètre : elle prend le temps de comprendre.",
+   pcard("Questions et temps","Les questions visent d'abord ses notions à travailler et en progrès. Les notions solides reviennent après quelques jours, pour qu'elle ne les oublie pas. En calcul (additions, soustractions, multiplications), chaque question a un objectif de temps : 10 % plus rapide que son temps habituel. Une bonne réponse sous l'objectif donne un « éclair ». Ailleurs, pas de chronomètre : elle prend le temps de comprendre.",
      `<label class="toggle" for="p-board"><input type="checkbox" id="p-board" ${S.boardOn!==false?"checked":""}><span><b>Un défi au tableau dans chaque partie</b><br><small>La dernière question se fait à la main. Elle peut la passer si elle n'a pas son tableau.</small></span></label>
      <label class="toggle" for="p-strict"><input type="checkbox" id="p-strict" ${S.strict?"checked":""}><span><b>Compte à rebours strict</b><br><small>Le temps écoulé compte comme une erreur. Seulement quand elle réussit bien en mode normal.</small></span></label>`)+
    pcard("Niveaux des îles","Le niveau s'ajuste seul. Changez-le ici seulement pour la faire avancer ou reculer volontairement.",`<div class="lvlgrid">${Object.keys(SUBJ).map(sj=>`<div><b class="lvlh">${SUBJ[sj].court}</b>${zones(sj).map(i=>`<label><span>${i.nom}</span><select data-isle="${i.id}" aria-label="Niveau ${i.nom}">${[1,2,3].map(n=>`<option ${n===IS(i.id).level?"selected":""}>${n}</option>`).join("")}</select></label>`).join("")}</div>`).join("")}</div>`)+
@@ -4475,7 +4490,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261105-122927";
+const APP_VER="20261105-231537";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
