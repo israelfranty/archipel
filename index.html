@@ -2099,9 +2099,9 @@ function renderCarte(){
     const zc=id=>{const i=byId(id);if(!i||i.subj!==CUR||(i.week&&!weekList(CUR).length))return"";const z=IS(id);return`<button class="zc" data-isle="${id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`};
     const ac=(id,ic,nom,sous,meta,today)=>`<button class="zc ac${today?" today":""}" id="${id}"><img src="${ic}" alt="">${today?`<span class="tbadge">Aujourd'hui</span>`:""}<span class="zb"><b>${nom}</b><span class="zs">${sous}</span>${meta?`<span class="zm">${meta}</span>`:""}</span></button>`;
     const sec=(t,d,cards)=>`<section class="fsec" aria-label="${t}"><h3 class="xh">${t}</h3><p class="fsd">${d}</p><div class="zgrid">${cards}</div></section>`;
-    if(CUR==="maths"){const t=TBS(),d=tbDay();
+    if(CUR==="maths"){tbUse("mul");const mt=TBS(),md=tbDay(),mT=TB_TABLES[mt.cur],mE=TB_ET[mt.et];tbUse("add");const t=TBS(),d=tbDay();
       mid=sec("Calcul","Calculer vite et bien, de tête et sur papier.",
-        ac("b-tab",IC3.boulier,"Tables d'addition et de soustraction","Retenir les calculs par cœur, avec une astuce pour chaque table",d.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${t.cur+1} : ${TB_TABLES[t.cur].nom.toUpperCase()} · SÉRIE ${d.streak} SUR ${TB_STREAK}`,!d.done)+zc("foret")+zc("volcan"))
+        ac("b-tab",IC3.boulier,"Tables d'addition et de soustraction","Retenir les calculs par cœur, avec une astuce pour chaque table",d.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${t.cur+1} : ${TB_TABLES[t.cur].nom.toUpperCase()} · SÉRIE ${d.streak} SUR ${TB_STREAK}`,!d.done)+ac("b-mtab",IC3.n123,"Tables de multiplication","×2, ×10, ×5… puis la division : une astuce pour chaque table",md.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${mt.cur+1} : ${mT.nom.toUpperCase()} · ${mE.nom.toUpperCase()}`,mt.daily&&!md.done)+zc("foret")+zc("volcan"))
        +sec("Nombres","Comprendre, écrire et comparer les nombres et les fractions.",zc("port")+zc("baie"))
        +sec("Mesure et géométrie","Lire l'heure, mesurer et reconnaître les formes.",zc("horloge")+zc("grotte"))
        +sec("Statistique et probabilité","Lire des diagrammes et prévoir le hasard.",zc("phare"))}
@@ -2137,7 +2137,7 @@ function renderCarte(){
   const bnot=$("#b-notions");if(bnot)bnot.onclick=()=>openLessons(CUR,null);
   bindSearch(CUR);
   const bat=$("#b-atelier");if(bat)bat.onclick=renderAtelier;
-  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;const btb=$("#b-tab");if(btb)btb.onclick=startTables;const bex=$("#b-exam");if(bex)bex.onclick=startExam;const bcj=$("#b-conj");if(bcj)bcj.onclick=renderConj;const bgn=$("#b-gn");if(bgn)bgn.onclick=startGN;planBind(el);
+  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;const btb=$("#b-tab");if(btb)btb.onclick=()=>startTables("add");const bmt=$("#b-mtab");if(bmt)bmt.onclick=()=>startTables("mul");const bex=$("#b-exam");if(bex)bex.onclick=startExam;const bcj=$("#b-conj");if(bcj)bcj.onclick=renderConj;const bgn=$("#b-gn");if(bgn)bgn.onclick=startGN;planBind(el);
   const bbi=$("#b-biblio");if(bbi)bbi.onclick=renderBiblio;homeBind(el);
   el.querySelectorAll("[data-subj]").forEach(b=>b.onclick=()=>{CUR=b.dataset.subj;tone([[659,.08],[880,.12]]);renderCarte();window.scrollTo(0,0)});
   el.querySelectorAll("[data-isle]").forEach(b=>b.addEventListener("click",()=>b.dataset.isle==="sprint"?startSprint():start(b.dataset.isle)));
@@ -2465,7 +2465,7 @@ const ldots=L=>`<span class="ldots" role="img" aria-label="${L.filter(Boolean).l
 const pdet=(title,sum,body,open)=>`<details class="pdet"${open?" open":""}><summary><span class="pdt">${title}</span><span class="pds">${sum}</span></summary><div class="pdb">${body}</div></details>`;
 function runFromParent(what){PARENT_OK=false;const[k,v]=what.split(":");
   if(k==="zone"){const z=byId(v);if(!z)return;CUR=z.subj;start(v)}else if(k==="dict")startDictee();else if(k==="exam")startExam()}
-function renderParent(){
+function renderParent(){tbUse("add");
   const el=$("#ecran-parent");
   if(!PARENT_OK&&!PW_H&&!(pwGet()||{}).h){el.innerHTML=`<div class="gamebar"><button class="back" id="p-retour">← Carte</button><span class="gtitle">Espace parent</span></div><form class="panel pinbox pwform" id="p-new" autocomplete="off"><h2>Créer le mot de passe parent</h2><p><b>À faire par un adulte.</b> Ce mot de passe protège l'espace parent. Il est gardé sur cet appareil seulement et ne peut pas être récupéré : notez-le.</p>
      <label class="pfield"><span>Mot de passe <small>(au moins 6 caractères)</small></span><input id="p-n1" type="password" maxlength="40" autocapitalize="off" spellcheck="false"></label>
@@ -2535,6 +2535,7 @@ function renderParent(){
     pdet("Zones des îles (depuis le début)",`${zPlayed} zone${zPlayed>1?"s":""} pratiquée${zPlayed>1?"s":""} sur 21`,`<p class="pdesc">Le niveau s'ajuste seul : il monte à 7 bonnes réponses sur 8 et descend à 3 ou moins. La réussite compte toutes ses réponses depuis le début; le statut des notions, plus haut, ne regarde que les plus récentes.</p><div class="tablewrap"><table><thead><tr><th>Zone</th><th>Niveau</th><th>Questions</th><th>Réussite</th><th>Étoiles</th></tr></thead><tbody>${zrows}</tbody></table></div>`)+
     pdet("Dictée, liste par liste",dTot?`${dM} / ${dTot} mots maîtrisés`:"aucune liste",`<p class="pdesc">Un mot revient après 1, 2, 4, 8, 16 puis 35 jours s'il est réussi; un mot raté revient le lendemain. Il est « maîtrisé » après 5 réussites espacées.</p>${dStatsHTML()}`)+
     pdet("Tables d'addition et de soustraction",`table ${tb.cur+1} sur ${TB_TABLES.length}`,`<p class="pdesc">Une table aux 2 semaines environ, dans l'ordre des astuces : unités, puis dizaines, puis centaines.</p>${tbParentHTML()}`)+
+    (()=>{tbUse("mul");const t=TBS(),on=t.hist.length||t.daily;const h=on?pdet("Tables de multiplication",`table ${t.cur+1} sur ${TB_TABLES.length}`,`<p class="pdesc">Mêmes règles : une table à la fois, justes et rapides, 2 jours réussis pour avancer. Étape 1 : multiplications; étape 2 : avec la division.</p>${tbParentHTML()}`):"";tbUse("add");return h})()+
     pdet("Réponses écrites (lecture)",nRep?`${nRep} réponse${nRep>1?"s":""} à relire`:"aucune",`<p class="pdesc">Le jeu vérifie seulement la forme (reprendre la question, expliquer avec « car »). C'est vous qui jugez le contenu, avec l'exemple sous chaque réponse.</p>${repParentHTML()}`)+
     pdet("Écriture (Atelier)",nTr?`${nTr} caractère${nTr>1?"s":""} pratiqué${nTr>1?"s":""}`:"pas encore pratiqué",`<p class="pdesc">Caractères tracés sans modèle. « À l'envers » : le jeu a reconnu le caractère retourné (un d au lieu d'un b, par exemple).</p>${nTr?`<div class="items tglyphs">${Object.entries(S.trace).sort((a,b)=>b[1].rev-a[1].rev||a[0].localeCompare(b[0])).map(([c,t])=>`<span class="${t.rev?"warnc":""}">${c} · réussi ${t.ok}${t.rev?` · à l'envers ${t.rev}`:""}</span>`).join("")}</div>`:""}`)+
     pdet("Vitesse et jeux","records",vit));
@@ -2543,7 +2544,7 @@ function renderParent(){
    pcard(S.plan?`La semaine d'école : ${planRange(S.plan)}`:"La semaine d'école","Les notions du plan de la semaine, d'après ses réponses dans le jeu pendant cette semaine.",weekReportHTML())+
    notions+parcours+details;
   /* --- onglet Matière scolaire --- */
-  const tMatiere=planEditHTML()+tbSettingsHTML()+dContentHTML()+
+  const tMatiere=planEditHTML()+tbSettingsHTML()+(()=>{tbUse("mul");const h=tbSettingsHTML();tbUse("add");return h})()+dContentHTML()+
    pcard("Mots d'anglais de la semaine","La liste d'anglais de l'école : exercices dans « My Words of the Week », dictées au tableau et « Write the word ». Un mot par ligne; la traduction après « = » est facultative.",
      `<textarea id="p-wen" placeholder="apple = pomme&#10;house = maison&#10;friend = ami">${esc(weekEN().map(x=>x.fr?`${x.w} = ${x.fr}`:x.w).join("\n"))}</textarea>
      ${weekEN().length?`<div class="items">${weekEN().map(e=>{const x=S.wstats[e.w];return`<span>${esc(e.w)}${x?` · ${x.r}/${x.t}`:""}</span>`}).join("")}</div>`:""}
@@ -3606,7 +3607,7 @@ function repParentHTML(){const L=RS().log.slice(0,8);if(!L.length)return`<p>Aucu
    Une étape est maîtrisée après 2 jours différents à 9/10 justes ET rapides.
    La soustraction vient avec l'addition (famille de nombres).
    ====================================================================== */
-const TB_TABLES=[
+const TB_ADD=[
  {nom:"+1 et +2",ic:"➕",f:[1,2,3,4,5,6,7,8,9].flatMap(n=>[[n,1],[n,2]]),
   ast:["Pour ajouter 1, je dis le nombre qui vient juste après.","Pour ajouter 2, je fais deux petits sauts : 7, 8, 9.","Pour enlever 1 ou 2, je recule d'un ou de deux petits sauts."],ex:"7 + 2 : 8, 9. Donc 7 + 2 = 9."},
  {nom:"Les amis de 10",ic:"🤝",f:[[1,9],[2,8],[3,7],[4,6],[5,5]],
@@ -3624,14 +3625,47 @@ const TB_TABLES=[
  {nom:"Faire 10",ic:"🧩",f:[[3,5],[3,6],[4,7],[5,7],[4,5],[5,6],[6,7],[3,4]],
   ast:["Quand ça dépasse 10, je complète d'abord jusqu'à 10, puis j'ajoute le reste.","7 + 5 : 7 + 3 = 10, il reste 2 à ajouter : 12.","Quand ça ne dépasse pas 10, je pars du plus grand et je compte le plus petit."],ex:"7 + 5 = 7 + 3 + 2 = 10 + 2 = 12."},
  {nom:"Grande révision",ic:"🏆",f:null,ast:["Toutes les tables ensemble!","Pour chaque calcul, choisis l'astuce la plus rapide : ami de 10, double, presque-double, +10, +9…","Et pour une soustraction, pense à l'addition de la même famille."],ex:"13 − 5 : 5 + 8 = 13, donc 13 − 5 = 8."}];
-const TB_ALL=(()=>{const s=new Map();TB_TABLES.forEach(t=>(t.f||[]).forEach(([a,b])=>s.set(Math.min(a,b)+"+"+Math.max(a,b),[a,b])));return[...s.values()]})();
-TB_TABLES[8].f=TB_ALL;
-const TB_ET=[{nom:"unités",lim:7000},{nom:"dizaines",lim:9000},{nom:"centaines",lim:10000}];
+const TB_ALL=(()=>{const s=new Map();TB_ADD.forEach(t=>(t.f||[]).forEach(([a,b])=>s.set(Math.min(a,b)+"+"+Math.max(a,b),[a,b])));return[...s.values()]})();
+TB_ADD[8].f=TB_ALL;
+const TB_ET_ADD=[{nom:"unités",lim:7000},{nom:"dizaines",lim:9000},{nom:"centaines",lim:10000}];
+/* ---------- Tables de multiplication (même moteur : astuce, vitesse, série, 2 jours) ----------
+   Ordre des astuces : ×2 (double), ×10, ×5 (moitié de ×10), ×1 et ×0, ×4 (double du double), ×3 (double + un groupe),
+   ×9 (×10 moins un groupe), ×6 (×5 plus un groupe), ×7 et ×8, puis grande révision.
+   Étape 1 : les multiplications. Étape 2 : avec la division (la famille). */
+const N2_10=[2,3,4,5,6,7,8,9,10];
+const TB_MUL=[
+ {nom:"×2 : les doubles",ic:"✌️",f:N2_10.map(n=>[n,2]),ast:["Multiplier par 2, c'est faire le double.","7 × 2, c'est 7 + 7 = 14.","On peut tourner une multiplication : 2 × 7 donne la même réponse que 7 × 2."],ex:"6 × 2 = 6 + 6 = 12."},
+ {nom:"×10",ic:"🔟",f:[2,3,4,5,6,7,8,9].map(n=>[n,10]),ast:["Multiplier par 10 : chaque unité devient une dizaine.","4 × 10 = 4 dizaines = 40.","Le chiffre avance d'une place vers la gauche et un 0 prend la place des unités."],ex:"7 × 10 = 7 dizaines = 70."},
+ {nom:"×5",ic:"🖐️",f:N2_10.map(n=>[n,5]),ast:["Une main a 5 doigts : 3 mains, c'est 3 × 5 = 15 doigts.","Les réponses de ×5 finissent toujours par 0 ou par 5.","Truc : 5, c'est la moitié de 10. 6 × 10 = 60, la moitié : 30."],ex:"8 × 5 : 8 × 10 = 80, la moitié = 40."},
+ {nom:"×1 et ×0",ic:"0️⃣",f:[2,3,4,5,6,7,8,9].flatMap(n=>[[n,1],[n,0]]),ast:["Multiplier par 1 ne change rien : 7 × 1 = 7.","Multiplier par 0 donne toujours 0 : 7 groupes de rien, c'est rien.","0 × 9 = 0 et 9 × 0 = 0."],ex:"6 × 1 = 6 et 6 × 0 = 0."},
+ {nom:"×4 : le double du double",ic:"🍀",f:N2_10.map(n=>[n,4]),ast:["Multiplier par 4, c'est faire le double, puis encore le double.","6 × 4 : 6 × 2 = 12, puis 12 × 2 = 24.","Un trèfle a 4 feuilles : 3 trèfles ont 3 × 4 = 12 feuilles."],ex:"7 × 4 : le double, 14, puis encore le double, 28."},
+ {nom:"×3",ic:"🚲",f:N2_10.map(n=>[n,3]),ast:["Multiplier par 3, c'est le double, plus un groupe de plus.","6 × 3 = 6 × 2 + 6 = 12 + 6 = 18.","Un tricycle a 3 roues : 4 tricycles ont 12 roues."],ex:"7 × 3 = 14 + 7 = 21."},
+ {nom:"×9",ic:"9️⃣",f:N2_10.map(n=>[n,9]),ast:["9, c'est presque 10.","Je fais ×10, puis j'enlève un groupe.","6 × 9 = 60 − 6 = 54."],ex:"8 × 9 = 80 − 8 = 72."},
+ {nom:"×6",ic:"🎲",f:N2_10.map(n=>[n,6]),ast:["Multiplier par 6, c'est ×5, plus un groupe de plus.","7 × 6 = 35 + 7 = 42.","Ou bien le double de ×3 : 6 × 6 = 18 + 18 = 36."],ex:"8 × 6 = 40 + 8 = 48."},
+ {nom:"×7 et ×8",ic:"🕷️",f:[[7,7],[7,8],[8,8],[3,7],[4,7],[6,7],[9,7],[3,8],[4,8],[6,8],[9,8]],ast:["Beaucoup de ces calculs sont déjà connus en les tournant : 7 × 5 = 5 × 7.","×8 : le double du double du double. 6 × 8 : 12, 24, 48.","×7 : ×5 plus ×2. 7 × 7 = 35 + 14 = 49."],ex:"8 × 7 = 40 + 16 = 56."},
+ {nom:"Grande révision",ic:"🏆",f:null,ast:["Toutes les tables ensemble!","Pour chaque calcul, choisis l'astuce la plus rapide : double, ×10, moitié de ×10, double du double…","Et pour une division, pense à la multiplication de la même famille."],ex:"56 ÷ 8 : 8 × 7 = 56, donc 56 ÷ 8 = 7."}];
+{const m=new Map();TB_MUL.forEach(t=>(t.f||[]).forEach(([a,b])=>m.set(Math.min(a,b)+"x"+Math.max(a,b),[a,b])));TB_MUL[9].f=[...m.values()]}
+const TB_ET_MUL=[{nom:"multiplications",lim:8000},{nom:"avec la division",lim:10000}];
+let TK="add",TB_TABLES=TB_ADD,TB_ET=TB_ET_ADD;
+function tbUse(k){TK=k==="mul"?"mul":"add";TB_TABLES=TK==="mul"?TB_MUL:TB_ADD;TB_ET=TK==="mul"?TB_ET_MUL:TB_ET_ADD}
+const TBNAME=()=>TK==="mul"?"Tables de multiplication":"Tables d'addition et de soustraction";
+const OPW={"+":"plus","−":"moins","×":"fois","÷":"divisé par"};
+function tbTrickMul(a,b){const s=a*b;for(const k of [0,1,2,10,5,4,3,9,6,8,7]){if(a!==k&&b!==k)continue;const n=a===k?b:a;
+  switch(k){case 0:return`Multiplier par 0 donne toujours 0.`;case 1:return`Multiplier par 1 ne change rien : ${s}.`;
+   case 2:return`${n} × 2 : le double de ${n}, ${n} + ${n} = ${s}.`;case 10:return`${n} × 10 : ${n} dizaines, c'est ${s}.`;
+   case 5:return`${n} × 5 : la moitié de ${n} × 10 = ${n*10}, donc ${s}.`;case 4:return`${n} × 4 : le double, ${2*n}, puis encore le double, ${s}.`;
+   case 3:return`${n} × 3 : le double, ${2*n}, plus un groupe de ${n} : ${s}.`;case 9:return`${n} × 9 : ${n} × 10 = ${10*n}, moins un groupe de ${n} : ${s}.`;
+   case 6:return`${n} × 6 : ${n} × 5 = ${5*n}, plus un groupe de ${n} : ${s}.`;case 8:return`${n} × 8 : le double du double du double : ${2*n}, ${4*n}, ${s}.`;
+   case 7:return`${n} × 7 : ${n} × 5 = ${5*n}, plus ${n} × 2 = ${2*n} : ${s}.`}}return`${a} × ${b} = ${s}.`}
+function tbQuestionMul(a,b,et,div,rev){if(Math.random()<.5)[a,b]=[b,a];const s=a*b,fam=`${a} × ${b} = ${s}, ${b} × ${a} = ${s}`+(a&&b?`, ${s} ÷ ${a} = ${b}, ${s} ÷ ${b} = ${a}`:"");let x,y,ans,op,why;
+  if(et>0&&div){if(b===0)[a,b]=[b,a];x=s;y=b;ans=a;op="÷";why=`Pense à la multiplication de la même famille : ${a} × ${b} = ${s}. Donc ${s} ÷ ${b} = ${a}.`}
+  else{x=a;y=b;ans=s;op="×";why=tbTrickMul(a,b)}
+  return{a:Math.min(a,b),b:Math.max(a,b),x,y,op,ans,why,fam,rev:!!rev,et,say:`${x} ${OPW[op]} ${y}`}}
 const TB_N=10,TB_REV=3,TB_PASS=9,TB_DAYS=2,TB_WEEKS=2,TB_STREAK=4;
 /* La journée : 10/10 (justes et rapides) 4 fois d'affilée; ensuite, pause jusqu'à demain */
 const tbDay=()=>{const t=TBS(),dn=dayNum();if(!t.day||t.day.d!==dn)t.day={d:dn,streak:0,done:false};return t.day};
 const tbDots=n=>`<span class="tbdots" aria-label="${n} sur ${TB_STREAK}">${Array.from({length:TB_STREAK},(_,i)=>`<i class="${i<n?"on":""}"></i>`).join("")}</span>`;
-const TBS=()=>{if(!S.tables||typeof S.tables!=="object")S.tables={};const t=S.tables;if(!(t.cur>=0))t.cur=0;if(!(t.et>=0))t.et=0;if(!t.pass)t.pass={};if(!Array.isArray(t.hist))t.hist=[];if(!t.start)t.start={};if(!t.facts)t.facts={};if(t.start[t.cur]==null)t.start[t.cur]=dayNum();return t};
+const TBS=()=>{const K=TK==="mul"?"mtables":"tables";if(!S[K]||typeof S[K]!=="object")S[K]={};const t=S[K];if(!(t.cur>=0))t.cur=0;if(!(t.et>=0))t.et=0;if(!t.pass)t.pass={};if(!Array.isArray(t.hist))t.hist=[];if(!t.start)t.start={};if(!t.facts)t.facts={};if(t.start[t.cur]==null)t.start[t.cur]=dayNum();return t};
 const tbPK=()=>{const t=TBS();return t.cur+"-"+t.et};
 const tbDays=()=>(TBS().pass[tbPK()]||[]).length;
 /* L'astuce appliquée à un calcul précis */
@@ -3647,7 +3681,7 @@ function tbTrick(a,b){const lo=Math.min(a,b),hi=Math.max(a,b),s=a+b;
   if(s>10)return`Je fais 10 : ${hi} + ${10-hi} = 10, il reste ${lo-(10-hi)} à ajouter : ${s}.`;
   return`Je pars du plus grand, ${hi}, et je compte ${lo} de plus : ${s}.`}
 /* Une question : fait (a,b), étape, addition ou soustraction */
-function tbQuestion(a,b,et,sub,rev){const s=a+b;let x,y,ans,op=sub?"−":"+",why;
+function tbQuestion(a,b,et,sub,rev){if(TK==="mul")return tbQuestionMul(a,b,et,sub,rev);const s=a+b;let x,y,ans,op=sub?"−":"+",why;
   if(Math.random()<.5)[a,b]=[b,a];
   const fam=`${a} + ${b} = ${s}, ${b} + ${a} = ${s}, ${s} − ${a} = ${b}, ${s} − ${b} = ${a}`;
   if(et===0){if(sub){x=s;y=a;ans=b;why=`Pense à l'addition de la même famille : ${a} + ${b} = ${s}. Donc ${s} − ${a} = ${b}. ${tbTrick(a,b)}`}else{x=a;y=b;ans=s;why=tbTrick(a,b)}}
@@ -3664,20 +3698,20 @@ function tbSession(){const t=TBS(),T=TB_TABLES[t.cur],F=T.f,L=[];
   if(done.length)for(let i=0;i<TB_REV;i++){const [a,b]=pick(done);L.push(tbQuestion(a,b,0,Math.random()<.5,true))}
   return shuffle(L)}
 let TB=null;
-function startTables(){tbAlign();if(tbDay().done){tbDone();return}FORCEV=false;G={mode:"tables",subj:"maths",events:[]};TB={list:tbSession(),i:0,ok:0,fast:0,cur:0,res:[]};tbIntro()}
-function tbBar(){return`<div class="gamebar"><button class="back" id="tb-back">← L'Île aux Nombres</button><span class="gtitle">Tables d'addition et de soustraction</span>${TB&&TB.i<TB.list.length&&TB.started?`<span class="levelchip">${TB.i+1} / ${TB.list.length}</span>`:""}</div>`}
+function startTables(k){tbUse(typeof k==="string"?k:"add");if(TK==="add")tbAlign();if(tbDay().done){tbDone();return}FORCEV=false;G={mode:"tables",subj:"maths",events:[]};TB={k:TK,list:tbSession(),i:0,ok:0,fast:0,cur:0,res:[]};tbIntro()}
+function tbBar(){return`<div class="gamebar"><button class="back" id="tb-back">← L'Île aux Nombres</button><span class="gtitle">${TBNAME()}</span>${TB&&TB.i<TB.list.length&&TB.started?`<span class="levelchip">${TB.i+1} / ${TB.list.length}</span>`:""}</div>`}
 function tbBack(){const b=$("#tb-back");if(b)b.onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}tbKeys(false);G=null;TB=null;renderCarte();go("carte")}}
-function tbIntro(){const t=TBS(),T=TB_TABLES[t.cur],E=TB_ET[t.et],el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");
-  el.innerHTML=tbBar()+`<div class="card pop tbcard" style="--c:var(--i5)"><div class="notion">Table ${t.cur+1} sur ${TB_TABLES.length} · étape ${t.et+1} sur 3 : ${E.nom}</div>
+function tbIntro(){tbUse(TB&&TB.k||TK);const t=TBS(),T=TB_TABLES[t.cur],E=TB_ET[t.et],el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");
+  el.innerHTML=tbBar()+`<div class="card pop tbcard" style="--c:var(--i5)"><div class="notion">Table ${t.cur+1} sur ${TB_TABLES.length} · étape ${t.et+1} sur ${TB_ET.length} : ${E.nom}</div>
    <h2 class="tbh">${T.ic} ${T.nom}</h2>
    <div class="tbast"><b>L'astuce</b>${T.ast.map(x=>`<p>${esc(x)}</p>`).join("")}<p class="tbex">Exemple : ${esc(T.ex)}</p></div>
-   ${t.et?`<p class="msg">Maintenant avec des <b>${E.nom}</b> : c'est la même table, avec des nombres plus grands. ${t.et===1?"30 + 50, c'est comme 3 + 5!":"300 + 500, c'est comme 3 + 5!"}</p>`:""}
+   ${t.et?(TK==="mul"?`<p class="msg">Maintenant <b>avec la division</b> : 24 ÷ 6, c'est chercher combien de fois 6 font 24. Pense à la multiplication : 6 × 4 = 24, donc 24 ÷ 6 = 4.</p>`:`<p class="msg">Maintenant avec des <b>${E.nom}</b> : c'est la même table, avec des nombres plus grands. ${t.et===1?"30 + 50, c'est comme 3 + 5!":"300 + 500, c'est comme 3 + 5!"}</p>`):""}
    <p class="msg">Réponds juste <b>et vite</b> : la réponse doit venir sans compter sur tes doigts. Pour réussir ta journée : <b>10 sur 10, ${TB_STREAK} fois</b>. Un 9 sur 10 garde ta série; en dessous, elle recommence.</p><p class="msg">Série d'aujourd'hui : ${tbDots(tbDay().streak)} ${tbDay().streak} sur ${TB_STREAK}</p>
    <div class="row-btns">${TTS?`<button class="listen" id="tb-say">${SPK}Écouter l'astuce</button>`:""}<button class="btn" id="tb-go">Commencer</button></div></div>`;
   tbBack();go("jeu");
   const sy=$("#tb-say");if(sy)sy.onclick=()=>{TB.force=true;speakSeq([[T.nom+".","fr"],300,...T.ast.flatMap(x=>[[x,"fr"],250]),["Exemple : "+T.ex,"fr"]],()=>{if(TB)TB.force=false})};
   $("#tb-go").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}TB.started=true;tbQ()}}
-function tbQ(){const q=TB.list[TB.i],el=$("#ecran-jeu");TB.q=q;TB.val="";TB.t0=0;TB.locked=false;TB.ticking=false;
+function tbQ(){tbUse(TB&&TB.k||TK);const q=TB.list[TB.i],el=$("#ecran-jeu");TB.q=q;TB.val="";TB.t0=0;TB.locked=false;TB.ticking=false;
   el.innerHTML=tbBar()+`<div class="dots">${TB.list.map((_,i)=>`<span class="${i<TB.i?(TB.res[i]?"ok":"ko"):i===TB.i?"now":""}"></span>`).join("")}</div>
    <div class="card pop tbcard" style="--c:var(--i5)"><div class="notion">${q.drill?`On répète · ${q.drill} de 3`:q.rev?"Révision":TB_TABLES[TBS().cur].nom+" · "+TB_ET[q.et].nom}</div>
    <div class="tbexpr">${nf(q.x)} ${q.op} ${nf(q.y)} = <span class="tbans" id="tb-nd">?</span></div>
@@ -3696,10 +3730,10 @@ let TB_KEYH=null;
 function tbKey(k){if(!TB||TB.locked)return;if(!TB.t0){TB.t0=performance.now();if(TB.begin)TB.begin()}
   if(k==="del")TB.val=TB.val.slice(0,-1);else if(k==="ok"){if(TB.val)tbCheck();return}else if(TB.val.length<4)TB.val+=k;
   $("#tb-nd").textContent=TB.val||"?"}
-function tbCheck(){const q=TB.q,ms=performance.now()-TB.t0,ok=+TB.val===q.ans,lim=TB_ET[q.rev?0:q.et].lim,fast=ok&&ms<=lim;TB.locked=true;
+function tbCheck(){tbUse(TB&&TB.k||TK);const q=TB.q,ms=performance.now()-TB.t0,ok=+TB.val===q.ans,lim=TB_ET[q.rev?0:q.et].lim,fast=ok&&ms<=lim;TB.locked=true;
   const nd=$("#tb-nd");nd.classList.add(ok?"right":"wrong");
   TB.res[TB.i]=ok;if(!q.rev&&!q.drill){TB.cur++;if(ok)TB.ok++;if(fast)TB.fast++}
-  if(!q.drill){logAct("tables|"+TBS().cur,fast);const t=TBS(),fk=q.a+"+"+q.b,f=t.facts[fk]||(t.facts[fk]={ok:0,miss:0,slow:0});if(fast)f.ok++;else if(ok)f.slow++;else f.miss++;save();
+  if(!q.drill){logAct((TK==="mul"?"mtables|":"tables|")+TBS().cur,fast);const t=TBS(),fk=q.a+(TK==="mul"?"×":"+")+q.b,f=t.facts[fk]||(t.facts[fk]={ok:0,miss:0,slow:0});if(fast)f.ok++;else if(ok)f.slow++;else f.miss++;save();
     /* trop lent ou faux : le même calcul revient 3 fois, espacé de 1, 2 puis 1 autre calcul; après la 3e fois, si le calcul avait été raté, on le regarde bien pour le retenir */
     if(!fast){let pos=TB.i+1;[1,2,3].forEach((k,j)=>{pos=Math.min(TB.list.length,pos+[1,2,1][j]);TB.list.splice(pos,0,{...q,drill:k,rev:false,miss:!ok});pos++})}}
   $(".numpad").hidden=true;
@@ -3711,23 +3745,23 @@ function tbCheck(){const q=TB.q,ms=performance.now()-TB.t0,ok=+TB.val===q.ans,li
    <button class="btn" id="tb-next">${TB.i+1<TB.list.length?"Question suivante":"Terminer"}</button></div>`;
   tone(ok?[[660,.1],[880,.15]]:[[300,.2]]);
   const nb=$("#tb-next"),cont=()=>{TB.i++;if(TB.i<TB.list.length)tbQ();else tbFinish()},next=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}if(q.drill===3&&q.miss)tbMemo(q,cont);else cont()};nb.onclick=next;
-  if(!ok){nb.disabled=true;const un=()=>{if($("#tb-next")===nb)nb.disabled=false};if(canSpeak())speakSeq([["Presque! La réponse est "+q.ans+".","fr"],[q.why.replace(/−/g," moins ").replace(/\+/g," plus "),"fr"]],un);else setTimeout(un,Math.min(10000,Math.max(3500,q.why.length*55)))}
+  if(!ok){nb.disabled=true;const un=()=>{if($("#tb-next")===nb)nb.disabled=false};if(canSpeak())speakSeq([["Presque! La réponse est "+q.ans+".","fr"],[q.why.replace(/−/g," moins ").replace(/\+/g," plus ").replace(/×/g," fois ").replace(/÷/g," divisé par "),"fr"]],un);else setTimeout(un,Math.min(10000,Math.max(3500,q.why.length*55)))}
   else if(fast){const go2=()=>setTimeout(()=>{if(TB&&TB.q===q&&$("#tb-next")===nb)next()},500);if(canSpeak())speak(pick(["Bravo!","Super!","Oui!"]),go2);else setTimeout(go2,400)}
   else if(canSpeak())speak(q.drill?"Juste!":"Juste! Essaie d'aller plus vite. Ce calcul va revenir 3 fois.");
   fb.scrollIntoView({behavior:"smooth",block:"nearest"})}
-function tbMemo(q,cont){const el=$("#ecran-jeu"),eq=`${nf(q.x)} ${q.op} ${nf(q.y)} = ${nf(q.ans)}`;
+function tbMemo(q,cont){tbUse(TB&&TB.k||TK);const el=$("#ecran-jeu"),eq=`${nf(q.x)} ${q.op} ${nf(q.y)} = ${nf(q.ans)}`;
   el.innerHTML=tbBar()+`<div class="card pop tbcard" style="--c:var(--i5)"><div class="notion">À retenir</div>
    <p class="msg"><b>Regarde bien ce calcul</b> pour t'en souvenir la prochaine fois.</p>
    <div class="tbmemo">${eq}</div>
-   <p class="msg">Ferme les yeux et répète-le dans ta tête : « ${q.x} ${q.op==="+"?"plus":"moins"} ${q.y} égale ${q.ans} ».</p>
+   <p class="msg">Ferme les yeux et répète-le dans ta tête : « ${q.x} ${OPW[q.op]} ${q.y} égale ${q.ans} ».</p>
    <div class="row-btns"><button class="btn" id="tb-memo" disabled>Je m'en souviens</button></div></div>`;
   tbBack();go("jeu");const b=$("#tb-memo");b.onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}cont()};
   const un=()=>setTimeout(()=>{if($("#tb-memo")===b)b.disabled=false},1500);
-  if(canSpeak())speakSeq([["Regarde bien ce calcul pour t'en souvenir la prochaine fois.","fr"],400,[`${q.x} ${q.op==="+"?"plus":"moins"} ${q.y}, égale ${q.ans}.`,"fr"],600,["Ferme les yeux et répète-le dans ta tête.","fr"]],un);else setTimeout(un,2500)}
+  if(canSpeak())speakSeq([["Regarde bien ce calcul pour t'en souvenir la prochaine fois.","fr"],400,[`${q.x} ${OPW[q.op]} ${q.y}, égale ${q.ans}.`,"fr"],600,["Ferme les yeux et répète-le dans ta tête.","fr"]],un);else setTimeout(un,2500)}
 function tbDone(){const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");G={mode:"tables",subj:"maths"};
   el.innerHTML=tbBar()+`<div class="card pop tbcard" style="--c:var(--i5)"><h2 class="tbh">🌟 C'est fini pour aujourd'hui!</h2><p class="msg">Tu as réussi tes tables <b>${TB_STREAK} fois de suite sans faute</b>. Ton cerveau a bien travaillé : prends une pause et reviens demain!</p><div class="row-btns"><button class="btn" id="tb-home">Retour à l'île</button></div></div>`;
   tbBack();$("#tb-home").onclick=()=>{G=null;TB=null;renderCarte();go("carte")};go("jeu")}
-function tbFinish(){tbKeys(false);const t=TBS(),dn=dayNum(),key=tbPK(),T=TB_TABLES[t.cur],E=TB_ET[t.et],day=tbDay(),perfect=TB.cur>0&&TB.fast===TB.cur,near=!perfect&&TB.cur>=10&&TB.fast>=TB.cur-1;day.streak=perfect?day.streak+1:near?day.streak:0;const passed=day.streak>=TB_STREAK;if(passed)day.done=true;let msg,up="";
+function tbFinish(){tbUse(TB&&TB.k||TK);tbKeys(false);const t=TBS(),dn=dayNum(),key=tbPK(),T=TB_TABLES[t.cur],E=TB_ET[t.et],day=tbDay(),perfect=TB.cur>0&&TB.fast===TB.cur,near=!perfect&&TB.cur>=10&&TB.fast>=TB.cur-1;day.streak=perfect?day.streak+1:near?day.streak:0;const passed=day.streak>=TB_STREAK;if(passed)day.done=true;let msg,up="";
   t.hist.unshift({d:dn,t:t.cur,e:t.et,ok:TB.ok,fast:TB.fast,n:TB.cur});t.hist.length=Math.min(t.hist.length,60);
   if(passed){const P=t.pass[key]||(t.pass[key]=[]);if(!P.includes(dn))P.push(dn)}
   const days=(t.pass[key]||[]).length;
@@ -3740,10 +3774,10 @@ function tbFinish(){tbKeys(false);const t=TBS(),dn=dayNum(),key=tbPK(),T=TB_TABL
    :TB.ok===TB.cur?`Tout est juste, mais pas assez rapide (${TB.fast} rapides sur ${TB.cur}). Ta série recommence : il faut ${TB_STREAK} fois 10 sur 10 d'affilée.`
    :`${TB.ok} justes sur ${TB.cur}. Ta série recommence : il faut ${TB_STREAK} fois 10 sur 10 d'affilée. Tu vas y arriver!`;
   save();const el=$("#ecran-fin"),st=perfect||near?3:TB.ok>=TB_PASS?2:TB.ok>=6?1:0;el.style.setProperty("--c","var(--i5)");
-  el.innerHTML=`<div class="card result pop" style="--c:var(--i5)"><div class="notion">Mes tables du jour · ${T.nom} · ${E.nom}</div><h2>${passed?"🌟 Bravo":perfect?"Sans faute":near?"Presque parfait":"Bien travaillé"}${S.name?", "+esc(S.name):""}!</h2>
+  el.innerHTML=`<div class="card result pop" style="--c:var(--i5)"><div class="notion">${TK==="mul"?"Mes tables de multiplication":"Mes tables du jour"} · ${T.nom} · ${E.nom}</div><h2>${passed?"🌟 Bravo":perfect?"Sans faute":near?"Presque parfait":"Bien travaillé"}${S.name?", "+esc(S.name):""}!</h2>
    <div class="score">${TB.fast} / ${TB.cur}</div><p class="msg"><small>justes et rapides</small></p>${stars(st)}<p class="msg">Série : ${tbDots(day.streak)} ${Math.min(day.streak,TB_STREAK)} sur ${TB_STREAK}</p><p class="msg">${msg}</p>
    <div class="row-btns">${passed?"":`<button class="btn" id="tb-again">Encore</button>`}<button class="btn${passed?"":" ghost"}" id="tb-map">Retour à l'île</button></div></div>`;
-  const ag=$("#tb-again");if(ag)ag.onclick=startTables;$("#tb-map").onclick=()=>{G=null;TB=null;renderCarte();go("carte")};
+  const ag=$("#tb-again");if(ag){const k0=TK;ag.onclick=()=>startTables(k0)}$("#tb-map").onclick=()=>{G=null;TB=null;renderCarte();go("carte")};
   tone(passed?[[523,.12],[659,.12],[784,.12],[1047,.25]]:[[523,.15],[659,.2]]);go("fin");
   speak(`${TB.fast} sur ${TB.cur}, justes et rapides. `+msg.replace(/<[^>]+>/g,"").replace(/[🎉🏆]/gu,""))}
 function tbCardHTML(){const t=TBS(),T=TB_TABLES[t.cur],d=tbDay();if(d.done)return`<button class="isle defi tabz tbfini" id="b-tab"><span class="badge">🌟</span><span class="body"><span class="nom">Mes tables du jour : fini!</span><span class="sous">${TB_STREAK} fois 10 sur 10 aujourd'hui. Bravo! Prends une pause, tes tables reviennent demain.</span></span></button>`;return`<button class="isle defi tabz" id="b-tab"><span class="badge">${T.ic}</span><span class="body"><span class="nom">Mes tables du jour</span><span class="sous">Table ${t.cur+1} : <b>${T.nom}</b> · ${TB_ET[t.et].nom} · série du jour : ${d.streak} sur ${TB_STREAK}. Additions et soustractions, avec une astuce pour retenir.</span></span></button>`}
@@ -3751,15 +3785,16 @@ function tbCardHTML(){const t=TBS(),T=TB_TABLES[t.cur],d=tbDay();if(d.done)retur
 function tbParentHTML(){const t=TBS(),T=TB_TABLES[t.cur],wk=Math.floor((dayNum()-t.start[t.cur])/7),H=t.hist.slice(0,6);
   const hard=Object.entries(t.facts).filter(([,f])=>f.miss+f.slow>0).sort((a,b)=>(b[1].miss*2+b[1].slow)-(a[1].miss*2+a[1].slow)).slice(0,10);
   return`<div class="tbprog">${TB_TABLES.map((x,i)=>`<span class="${i<t.cur?"ok":i===t.cur?"now":""}" title="${esc(x.nom)}">${x.ic}</span>`).join("")}</div>
-  <p>Table ${t.cur+1} sur ${TB_TABLES.length} : <b>${T.nom}</b>, étape <b>${TB_ET[t.et].nom}</b> (${t.et+1} sur 3) · ${tbDays()} jour réussi sur ${TB_DAYS}.</p>
+  <p>Table ${t.cur+1} sur ${TB_TABLES.length} : <b>${T.nom}</b>, étape <b>${TB_ET[t.et].nom}</b> (${t.et+1} sur ${TB_ET.length}) · ${tbDays()} jour réussi sur ${TB_DAYS}.</p>
   <p class="pdesc">${wk?`Commencée il y a ${wk} semaine${wk>1?"s":""}`:"Commencée cette semaine"} (rythme visé : une table aux ${TB_WEEKS} semaines; elle n'avance que lorsqu'elle maîtrise). Réussir un jour : 10 sur 10 justes en moins de ${TB_ET[t.et].lim/1000} s chacune, ${TB_STREAK} séances d'affilée; ensuite, l'activité se ferme jusqu'au lendemain. Aujourd'hui : ${tbDay().done?"<b>réussi ✓</b>":`série de ${tbDay().streak} sur ${TB_STREAK}`}.</p>
   ${H.length?`<div class="days">${H.map(h=>`<div class="d"><span>${dnFmt(h.d)}<br><span class="dsub">${TB_TABLES[h.t].nom} · ${TB_ET[h.e].nom}</span></span><span class="meter"><i style="width:${h.n?h.fast/h.n*100:0}%;background:var(--good)"></i></span><span>${h.fast}/${h.n}${h.n&&h.fast===h.n?" ✓":""}</span></div>`).join("")}</div>`:`<p class="pdesc">Pas encore de séance.</p>`}
-  ${hard.length?`<p class="pdesc"><b>Calculs à revoir</b> (erreurs ou trop lents) :</p><div class="redo">${hard.map(([k,f])=>`<span class="rv">${k.replace("+"," + ")}${f.miss?` <small>×${f.miss}</small>`:""}</span>`).join("")}</div>`:""}`}
-function tbSettingsHTML(){const t=TBS();return pcard("Tables d'addition et de soustraction","Une table à la fois, dans l'ordre des astuces. Si elle connaît déjà certaines tables, vous pouvez la placer plus loin.",
-  `<div class="tbsel"><label class="pfield">Table en cours<select id="p-tbt">${TB_TABLES.map((x,i)=>`<option value="${i}" ${i===t.cur?"selected":""}>${i+1}. ${esc(x.nom)}</option>`).join("")}</select></label>
-   <label class="pfield">Étape<select id="p-tbe">${TB_ET.map((x,i)=>`<option value="${i}" ${i===t.et?"selected":""}>${i+1}. ${x.nom}</option>`).join("")}</select></label></div>
-   <div class="confirm"><button class="btn ghost" id="p-tbsave">Placer à cette table</button><span id="p-tbmsg" aria-live="polite"></span></div>`)}
-function tbParentBind(){const b=$("#p-tbsave");if(!b)return;b.onclick=()=>{const t=TBS(),c=+$("#p-tbt").value,e=+$("#p-tbe").value;if(c!==t.cur)t.start[c]=dayNum();t.cur=c;t.et=e;save();$("#p-tbmsg").innerHTML=` <b style="color:var(--good)">C'est fait ✓</b>`}}
+  ${hard.length?`<p class="pdesc"><b>Calculs à revoir</b> (erreurs ou trop lents) :</p><div class="redo">${hard.map(([k,f])=>`<span class="rv">${k.replace("+"," + ").replace("×"," × ")}${f.miss?` <small>×${f.miss}</small>`:""}</span>`).join("")}</div>`:""}`}
+function tbSettingsHTML(){const t=TBS(),P=TK==="mul"?"p-mt":"p-tb",M=TK==="mul";return pcard(TBNAME(),M?"Une table à la fois, dans l'ordre des astuces : ×2, ×10, ×5, ×1 et ×0, ×4, ×3, ×9, ×6, puis ×7 et ×8. Étape 1 : les multiplications; étape 2 : avec la division. Ajoutez-les au programme du jour quand l'école commence la multiplication.":"Une table à la fois, dans l'ordre des astuces. Si elle connaît déjà certaines tables, vous pouvez la placer plus loin.",
+  `${M?`<label class="toggle"><input type="checkbox" id="p-mtday" ${t.daily?"checked":""}><span>Ajouter les tables de multiplication à son programme du jour</span></label>`:""}<div class="tbsel"><label class="pfield">Table en cours<select id="${P}t">${TB_TABLES.map((x,i)=>`<option value="${i}" ${i===t.cur?"selected":""}>${i+1}. ${esc(x.nom)}</option>`).join("")}</select></label>
+   <label class="pfield">Étape<select id="${P}e">${TB_ET.map((x,i)=>`<option value="${i}" ${i===t.et?"selected":""}>${i+1}. ${x.nom}</option>`).join("")}</select></label></div>
+   <div class="confirm"><button class="btn ghost" id="${P}save">Placer à cette table</button><span id="${P}msg" aria-live="polite"></span></div>`)}
+function tbParentBind(){["add","mul"].forEach(k=>{const P=k==="mul"?"p-mt":"p-tb",b=$("#"+P+"save");if(!b)return;b.onclick=()=>{tbUse(k);const t=TBS(),c=+$("#"+P+"t").value,e=+$("#"+P+"e").value;if(c!==t.cur)t.start[c]=dayNum();t.cur=c;t.et=e;save();$("#"+P+"msg").innerHTML=` <b style="color:var(--good)">C'est fait ✓</b>`;tbUse("add")}});
+  const d=$("#p-mtday");if(d)d.onchange=()=>{tbUse("mul");TBS().daily=d.checked;tbUse("add");save()}}
 
 /* ======================================================================
    JOURNAL D'ACTIVITÉ (par jour) — sert aux rapports du parent
@@ -3920,10 +3955,10 @@ function savePlan(P,txt){const old=S.plan;if(old&&old.from===P.from)P.tasks.forE
   if(P.exam&&/^dictee:\d+-\d+$/.test(P.exam.go)){const [a,b]=P.exam.go.slice(7).split("-").map(Number);DS().exam={d:P.exam.d,from:a,to:b,label:P.exam.label}}save()}
 /* Ouvre la bonne pratique pour une notion du plan */
 function planGo(g){const [k,arg]=g.split(":");
-  if(k==="tables")return startTables();if(k==="gn")return startGN();if(k==="rep")return startRep();
+  if(k==="tables")return startTables("add");if(k==="mtables")return startTables("mul");if(k==="gn")return startGN();if(k==="rep")return startRep();
   if(k==="conj")return startConj(arg);if(k==="dictee")return arg?startExam():startDictee();
   const z=byId(k);if(z){CUR=z.subj;return start(k)}}
-const planIc=g=>/^conj/.test(g)?"🔤":g==="gn"?"🧩":g==="tables"?"🔢":/^dictee/.test(g)?"✏️":g==="rep"?"✍️":(byId((g||"").split(":")[0])||{}).subj==="maths"?"➕":"📘";
+const planIc=g=>/^conj/.test(g)?"🔤":g==="gn"?"🧩":g==="tables"?"🔢":/^mtables/.test(g)?"✖️":/^dictee/.test(g)?"✏️":g==="rep"?"✍️":(byId((g||"").split(":")[0])||{}).subj==="maths"?"➕":"📘";
 function planCardHTML(){if(!planActive())return"";const p=S.plan,ex=examActive()?DS().exam:null;
   return`<section class="plancard" aria-label="Ma semaine à l'école"><div class="planh"><h3>🏫 Ma semaine à l'école</h3><small>${planRange(p)}</small></div>
    ${ex?`<button class="planex" data-plan="dictee:x"><span>✏️ <b>${esc(ex.label)}</b><br><small>${examLeft()===0?"C'est aujourd'hui! Bonne chance!":`dans ${examLeft()} jour${examLeft()>1?"s":""}`} · ${examReady()} mots prêts sur ${examWords().length}</small></span><span class="planbtn">Je révise</span></button>`:""}
@@ -3964,10 +3999,10 @@ function planEditHTML(){const p=S.plan;return pcard("Plan de travail de la semai
 function planParentBind(){const b=$("#p-plansave");if(b)b.onclick=()=>{const t=$("#p-plantxt").value,P=parsePlan(t);if(!P){$("#p-planmsg").innerHTML=` <b style="color:var(--bad)">Il manque la ligne « Semaine: AAAA-MM-JJ au AAAA-MM-JJ ».</b>`;return}savePlan(P,t);renderParent()};
   document.querySelectorAll("[data-task]").forEach(c=>c.onchange=()=>{const t=(S.plan.tasks||[]).find(x=>x.id===c.dataset.task);if(t){t.done=c.checked?Date.now():0;save()}})}
 const pct=(r,t)=>t?Math.round(r/t*100)+" %":"—";
-const NOTION_MATCH=g=>{const [k,a]=(g||"").split(":");if(k==="conj")return key=>key==="conj|"+a;if(k==="gn")return key=>key.startsWith("gn|")||key==="grammaire|Accord dans le groupe du nom";if(k==="tables")return key=>key.startsWith("tables|");if(k==="rep")return key=>key.startsWith("rep|");if(k==="dictee")return key=>key.startsWith("dictee|");return key=>key.startsWith(k+"|")};
+const NOTION_MATCH=g=>{const [k,a]=(g||"").split(":");if(k==="conj")return key=>key==="conj|"+a;if(k==="gn")return key=>key.startsWith("gn|")||key==="grammaire|Accord dans le groupe du nom";if(k==="tables")return key=>key.startsWith("tables|");if(k==="mtables")return key=>key.startsWith("mtables|");if(k==="rep")return key=>key.startsWith("rep|");if(k==="dictee")return key=>key.startsWith("dictee|");return key=>key.startsWith(k+"|")};
 function weekMin(from,to){let s=0;const add=(d,sec)=>{const dn=isoDn(d);if(dn!=null&&dn>=from&&dn<=to)s+=sec};(S.hist||[]).forEach(h=>add(h.d,h.sec));if(S.day)add(S.day.d,S.day.sec);return Math.round(s/60)}
 function weekReportHTML(){const p=S.plan;if(!p)return`<p>Aucun plan de la semaine pour l'instant. Ajoutez-le dans l'onglet <b>Matière scolaire</b>.</p>`;
-  const from=p.from,to=Math.max(p.to+2,Math.min(dayNum(),p.to+2)),rows=p.notions.map(n=>{const s=logSum(from,to,NOTION_MATCH(n.go)),x=stOf(s.r,s.t),k=(n.go||"").split(":")[0],src={conj:"Apprendre un verbe à la fois",gn:"Le groupe du nom",tables:"Tables d'addition et de soustraction",rep:"Répondre en phrases complètes",dictee:"Dictée du jour"}[k]||(byId(k)?byId(k).nom:"");return`<div class="nrow2 wk"><div><b>${esc(n.label)}</b><br><small>${s.t?`${s.r} bonne${s.r>1?"s":""} réponse${s.r>1?"s":""} sur ${s.t}, en ${s.days} jour${s.days>1?"s":""}${src?`, dans « ${esc(src)} »`:""}`:`pas encore pratiquée cette semaine${src?` (se pratique dans « ${esc(src)} »)`:""}`}</small></div><span class="spill s-${x.st}">${s.t?`${Math.round(s.r/s.t*100)} % cette semaine`:"Pas encore pratiquée"}</span></div>`}).join("");
+  const from=p.from,to=Math.max(p.to+2,Math.min(dayNum(),p.to+2)),rows=p.notions.map(n=>{const s=logSum(from,to,NOTION_MATCH(n.go)),x=stOf(s.r,s.t),k=(n.go||"").split(":")[0],src={conj:"Apprendre un verbe à la fois",gn:"Le groupe du nom",tables:"Tables d'addition et de soustraction",mtables:"Tables de multiplication",rep:"Répondre en phrases complètes",dictee:"Dictée du jour"}[k]||(byId(k)?byId(k).nom:"");return`<div class="nrow2 wk"><div><b>${esc(n.label)}</b><br><small>${s.t?`${s.r} bonne${s.r>1?"s":""} réponse${s.r>1?"s":""} sur ${s.t}, en ${s.days} jour${s.days>1?"s":""}${src?`, dans « ${esc(src)} »`:""}`:`pas encore pratiquée cette semaine${src?` (se pratique dans « ${esc(src)} »)`:""}`}</small></div><span class="spill s-${x.st}">${s.t?`${Math.round(s.r/s.t*100)} % cette semaine`:"Pas encore pratiquée"}</span></div>`}).join("");
   const ex=p.exam&&DS().exam&&DS().exam.d===p.exam.d?DS().exam:null,done=p.tasks.filter(t=>t.done).length;
   const hard=ex?examWords().filter(w=>((DS().ex||{})[w]||{}).miss>0).sort((a,b)=>DS().ex[b].miss-DS().ex[a].miss).slice(0,10):[];
   return`<p class="pdesc"><b>${weekMin(from,to)} minutes</b> dans le jeu pendant cette semaine.</p>
@@ -4511,24 +4546,27 @@ function tbAlign(){const t=TBS(),pt=planTb();t.etBy=t.etBy||{};
   if(pt!=null){if(t.planFrom!==S.plan.from){if(t.cur!==pt){t.etBy[t.cur]=t.et;if(t.back==null)t.back=t.cur;t.cur=pt;t.et=t.etBy[pt]||0;if(t.start[pt]==null)t.start[pt]=dayNum()}t.planFrom=S.plan.from;save()}}
   else if(t.back!=null){t.etBy[t.cur]=t.et;const b=t.back;t.back=null;t.planFrom=null;t.cur=b;t.et=t.etBy[b]||0;save()}}
 let PWEEK=null;
-function progItems(){tbAlign();const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsWith(p)).t,it=[],P=planActive()?S.plan:null;
+function progItems(){const k0=TK;tbUse("add");try{return progItems0()}finally{tbUse(k0)}}
+function progItems0(){tbAlign();const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsWith(p)).t,it=[],P=planActive()?S.plan:null;
   const wk=p=>logSum(Math.max(P.from,dn-6),dn,k=>k.startsWith(p)).t;
   const q10=(t)=>t>=10?"bravo, c'est fait pour aujourd'hui!":t?`${t} sur 10 questions`:"10 questions pour pratiquer";
+  const mtabItem=plan=>{tbUse("mul");const t=TBS(),T=TB_TABLES[t.cur],E=TB_ET[t.et],d=tbDay(),o={id:"mtab",nom:"Mes tables de multiplication",sous:d.done?`${T.nom} : ${TB_STREAK} fois 10 sur 10!`:`Table ${t.cur+1} : ${T.nom} · ${E.nom} · série ${d.streak} sur ${TB_STREAK}`,done:!!d.done,ic:"✖️",c:"--i5",go:()=>startTables("mul"),started:d.streak>0||L("mtables|")>0,plan};tbUse("add");return o};
   const tabItem=plan=>{const t=TBS(),T=TB_TABLES[t.cur],d=tbDay();return{id:"tab",nom:"Mes tables du jour",sous:d.done?`${T.nom} : ${TB_STREAK} fois 10 sur 10!`:`Table ${t.cur+1} : ${T.nom} · série ${d.streak} sur ${TB_STREAK}`,done:!!d.done,ic:T.ic,c:"--i5",go:startTables,started:d.streak>0||L("tables|")>0,plan}};
   PWEEK=null;
   /* 1. Le plan de la semaine d'abord : la grande dictée, puis chaque notion, dans l'ordre de l'école */
   if(examActive()){const e=DS().exam,W=examWords(),x=DS().exDay,n=x&&x.d===dn?x.w.length:0,need=Math.min(DN,W.length);
     if(W.length)it.push({id:"exam",nom:`Révision : ${esc(e.label)}`,sous:`${examLeft()===0?"C'est aujourd'hui!":`Dans ${examLeft()} jour${examLeft()>1?"s":""}`} · ${examReady()} mots prêts sur ${W.length}`,done:n>=need,ic:"🎯",c:"--i3",go:startExam,started:n>0,plan:!!P})}
-  let hasTab=false;
+  let hasTab=false,hasMul=false;
   /* Les notions de l'école sont réparties sur la semaine : au plus 3 par jour, les moins sûres d'abord.
      « Faite aujourd'hui » = 7 bonnes réponses (et au moins 3 sur 4), soit une partie presque parfaite. « Acquise » = réussie 2 jours cette semaine. */
   if(P){const ns=P.notions.filter(n=>n.go&&!/^dictee/.test(n.go)),wd=(new Date().getDay()+6)%7;
     const info=n=>{const pre=notionKey(n.go),m=k=>k.startsWith(pre),td=logSum(dn,dn,m),w=logSum(P.from,dn,m);let g=0;for(let d=P.from;d<=dn;d++){const x=logSum(d,d,m);if(DAYGOOD(x.r,x.t))g++}return{n,td,w,g,acq:g>=2}};
-    const all=ns.filter(n=>!/^tables/.test(n.go)).map(info);
+    const all=ns.filter(n=>!/^m?tables/.test(n.go)).map(info);
     S.pday=S.pday||{};let pd=S.pday;if(pd.d!==dn||pd.from!==P.from){const cand=all.filter(x=>!x.acq).sort((a,b)=>(a.w.t?a.w.r/a.w.t:-1)-(b.w.t?b.w.r/b.w.t:-1));
       const ids=cand.slice(0,3).map(x=>x.n.go);if(wd===4){const rap=all.filter(x=>x.acq).sort((a,b)=>a.w.t-b.w.t)[0];if(rap)ids.push(rap.n.go)}
       pd=S.pday={d:dn,from:P.from,ids,rap:wd===4?ids[ids.length-1]:null};save()}
     ns.forEach(n=>{if(/^tables/.test(n.go)){hasTab=true;it.push(tabItem(true));return}
+      if(/^mtables/.test(n.go)){hasMul=true;it.push(mtabItem(true));return}
       if(!pd.ids.includes(n.go))return;const x=all.find(y=>y.n===n),t=x.td.t,r=x.td.r,rap=pd.rap===n.go,done=DAYGOOD(r,t)||(x.acq&&!rap)||(rap&&t>=5);
       it.push({id:"n:"+n.go,nom:esc(n.label)+(rap?" (rappel)":""),sous:done?(DAYGOOD(r,t)?`${r} bonnes réponses aujourd'hui!`:"acquise cette semaine!"):rap?"5 questions pour ne pas l'oublier":t?`${Math.min(r,7)} bonne${r>1?"s":""} réponse${r>1?"s":""} sur 7 · continue!`:"7 bonnes réponses à trouver",done,ic:planIc(n.go),c:/^conj|^gn|^rep/.test(n.go)||(byId(n.go.split(":")[0])||{}).subj==="francais"?"--i2":"--i1",go:()=>planGo(n.go),started:t>0,plan:true})});
     PWEEK={ok:all.filter(x=>x.acq).length,n:all.length}}
@@ -4536,6 +4574,7 @@ function progItems(){tbAlign();const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsWi
   if(dWeeks().length){const due=dDue(),t=L("dictee|");if(due||t)it.push({id:"dict",nom:"Ma dictée du jour",sous:due?`<b>${due}</b> mot${due>1?"s":""} de tes listes à réviser`:"tous tes mots du jour sont révisés!",done:!due,ic:PENICON,c:"--i7",go:startDictee,started:t>0})}
   /* 3. Sans plan : les tables et la conjugaison suivent la progression d'Olivia */
   if(!hasTab)it.push(tabItem(false));
+  if(!hasMul){tbUse("mul");const on=TBS().daily;tbUse("add");if(on)it.push(mtabItem(false))}
   if(!P){const u=cjCur(),t=L("conj|"+u.id);it.push({id:"conj",nom:"Ma conjugaison",sous:esc(u.nom)+" · "+q10(t),done:t>=10,ic:u.ic,c:"--i2",go:()=>startConj(u.id),started:t>0})}
   /* 4. Un peu d'anglais chaque jour (sauf si l'anglais est déjà dans le plan de l'école) */
   if(!(P&&P.notions.some(n=>(byId((n.go||"").split(":")[0])||{}).subj==="anglais"))){const z=weekEN().length?"en_week":"en_words",t=L("en_");
@@ -4646,7 +4685,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261106-112828";
+const APP_VER="20261106-114333";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
