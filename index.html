@@ -1139,6 +1139,11 @@ body.skyin .din.wrong,.din.wrong{border-color:var(--bad)!important;background:va
 body.pskin .ptabs{position:static}
 .skyin #ecran-parent select{min-height:44px;border-radius:12px;border:2px solid var(--cream-line);background:var(--chbg);color:var(--ink);padding:0 10px;font:inherit;font-size:1rem}
 .gfig{display:block;margin:6px auto;max-width:100%;height:auto;color:var(--ink)}
+.rdeframes{display:grid;gap:10px;margin:.4rem 0 .8rem}
+.rdef{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0;font-size:1.25rem}
+.rdef .rdei{flex:1 1 160px;min-width:120px;font-size:1.2rem;padding:8px 12px;text-align:left}
+.rdefx{flex-direction:column;align-items:stretch}.rdefx .rdei{width:100%;box-sizing:border-box;min-height:52px;height:52px}
+.rdei.wrong{outline:3px solid var(--bad)}
 </style>
 
 <header class="top">
@@ -2284,11 +2289,12 @@ function renderCarte(){
         ac("b-conj",IC3.cahier,"Apprendre un verbe à la fois","Avoir, être, les verbes en -er, aller, les verbes en -ir, faire, puis le passé composé",`ÉTAPE ${CJ_UNITS.indexOf(u)+1} SUR ${CJ_UNITS.length} : ${esc(u.nom).toUpperCase()}`)+zc("conjugaison"))
        +sec("Lecture","Lire, comprendre et répondre.",
         zc("lecture")+ac("b-rep",IC3.conte,"Répondre en phrases complètes","Reprendre la question, expliquer avec « car », justifier avec le texte","UNE QUESTION À LA FOIS")+ac("b-oral",IC3.micro,"Lire à voix haute","Je m'enregistre, je me réécoute et je mesure ma vitesse de lecture","MOTS PAR MINUTE"))
-       +sec("Écriture","Planifier, écrire un court texte et se relire.",ac("b-redac",XIC.crayon,"J'écris un court texte","Je planifie, j'écris au moins "+rdTarget()+" phrases, puis je me relis",RDS().list.some(y=>y.note&&!y.noteSeen)?"💬 UN MOT POUR TOI":RDS().draft?"TEXTE EN COURS":(RDS().list.length?RDS().list.length+" TEXTE"+(RDS().list.length>1?"S":"")+" ÉCRIT"+(RDS().list.length>1?"S":""):"8 SUJETS AU CHOIX")))}
+       +sec("Écriture","Planifier, écrire un court texte et se relire.",ac("b-redac",XIC.crayon,"J'écris un court texte","Je planifie, j'écris au moins "+rdTarget()+" phrases, puis je me relis",RDS().list.some(y=>y.lang!=="en"&&y.note&&!y.noteSeen)?"💬 UN MOT POUR TOI":RDS().draft?"TEXTE EN COURS":(RDS().list.length?RDS().list.length+" TEXTE"+(RDS().list.length>1?"S":"")+" ÉCRIT"+(RDS().list.length>1?"S":""):"8 SUJETS AU CHOIX")))}
     if(CUR==="anglais")mid=`<div class="tipc"><img src="${C3D[S.comp.type]||C3D.tortue}" alt=""><p><b>Le conseil de ${esc(BN())}</b>Touche le haut-parleur pour écouter chaque mot en anglais avant de répondre.</p></div>`
       +sec("Les mots","Apprendre les mots en anglais et bien les écrire.",zc("en_week")+zc("en_words")+zc("en_spell"))
       +sec("Écouter et parler","Comprendre ce qu'on entend et répondre.",zc("en_listen")+zc("en_talk"))
       +sec("Les phrases","Placer les mots dans le bon ordre et choisir le bon verbe.",zc("en_build")+zc("en_verbs"))
+      +sec("Écriture","Écrire de courtes phrases en anglais.",ac("b-redacen",XIC.crayon,"J'écris en anglais","Des phrases modèles à compléter avec une banque de mots, puis je m'écoute",RDS().list.some(y=>y.lang==="en"&&y.note&&!y.noteSeen)?"💬 UN MOT POUR TOI":"6 SUJETS AU CHOIX"))
       +sec("Lecture","Lire en anglais et comprendre.",zc("en_read")+ac("b-oralen",IC3.micro,"Lire à voix haute en anglais","Écouter le modèle, m'enregistrer, me réécouter","READ ALOUD"));
     const spr=(CUR==="maths"?"Le plus de calculs en 60 secondes":CUR==="francais"?"Homophones et conjugaison en 60 secondes":"Le plus de mots en 60 secondes")+(SPR(CUR).best?` · record : ${SPR(CUR).best}`:"");
     h=skyHead("Explorer","b-home")+`<div class="xpage">`
@@ -2306,7 +2312,7 @@ function renderCarte(){
   const bnot=$("#b-notions");if(bnot)bnot.onclick=()=>openLessons(CUR,null);
   bindSearch(CUR);
   const bat=$("#b-atelier");if(bat)bat.onclick=renderAtelier;
-  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;const brd=$("#b-redac");if(brd)brd.onclick=startRedac;const bor=$("#b-oral");if(bor)bor.onclick=()=>startOral("fr");const bore=$("#b-oralen");if(bore)bore.onclick=()=>startOral("en");const btb=$("#b-tab");if(btb)btb.onclick=()=>startTables("add");const bmt=$("#b-mtab");if(bmt)bmt.onclick=()=>startTables("mul");const bpb=$("#b-prob");if(bpb)bpb.onclick=startProb;const bex=$("#b-exam");if(bex)bex.onclick=startExam;const bcj=$("#b-conj");if(bcj)bcj.onclick=renderConj;const bgn=$("#b-gn");if(bgn)bgn.onclick=startGN;planBind(el);
+  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;const brd=$("#b-redac");if(brd)brd.onclick=startRedac;const brde=$("#b-redacen");if(brde)brde.onclick=startRedacEn;const bor=$("#b-oral");if(bor)bor.onclick=()=>startOral("fr");const bore=$("#b-oralen");if(bore)bore.onclick=()=>startOral("en");const btb=$("#b-tab");if(btb)btb.onclick=()=>startTables("add");const bmt=$("#b-mtab");if(bmt)bmt.onclick=()=>startTables("mul");const bpb=$("#b-prob");if(bpb)bpb.onclick=startProb;const bex=$("#b-exam");if(bex)bex.onclick=startExam;const bcj=$("#b-conj");if(bcj)bcj.onclick=renderConj;const bgn=$("#b-gn");if(bgn)bgn.onclick=startGN;planBind(el);
   const bbi=$("#b-biblio");if(bbi)bbi.onclick=renderBiblio;homeBind(el);
   el.querySelectorAll("[data-subj]").forEach(b=>b.onclick=()=>{CUR=b.dataset.subj;tone([[659,.08],[880,.12]]);renderCarte();window.scrollTo(0,0)});
   el.querySelectorAll("[data-isle]").forEach(b=>b.addEventListener("click",()=>b.dataset.isle==="sprint"?startSprint():start(b.dataset.isle)));
@@ -4197,7 +4203,7 @@ const RD_SUJ=[
  {id:"repas",ic:"🍝",t:"Mon repas préféré",g:"Décris",d:"Décris ton repas préféré.",plan:["Quel est ce repas?","Qui le prépare?","Quel goût a-t-il?","Quand le manges-tu?"],bank:["délicieux","sucré","salé","mon père","ma mère","le souper","j'adore","chaud"]},
  {id:"ete",ic:"☀️",t:"Mon plus beau souvenir d'été",g:"Raconte",d:"Raconte ton plus beau souvenir de l'été.",plan:["Où étais-tu?","Avec qui?","Qu'est-il arrivé?","Pourquoi est-ce un beau souvenir?"],bank:["vacances","plage","camping","se baigner","soleil","ensuite","enfin","heureuse"]}];
 const RDS=()=>{if(!S.redac||typeof S.redac!=="object")S.redac={};const r=S.redac;if(!Array.isArray(r.list))r.list=[];return r};
-const rdTarget=()=>{const n=RDS().list.length;return n<3?3:n<6?4:5};
+const rdTarget=()=>{const n=RDS().list.filter(x=>x.lang!=="en").length;return n<3?3:n<6?4:5};
 let RD=null;
 function startRedac(){FORCEV=false;G={mode:"redac",subj:"francais",events:[]};RD={};const dr=RDS().draft;if(dr&&RD_SUJ.find(x=>x.id===dr.id))return rdWrite(RD_SUJ.find(x=>x.id===dr.id),dr.plan||[],dr.txt||"");rdPick()}
 function rdBar(){return`<div class="gamebar"><button class="back" id="rd-back">← L'Île aux Mots</button><span class="gtitle">J'écris un court texte</span></div>`}
@@ -4205,7 +4211,7 @@ function rdBackB(){const b=$("#rd-back");if(b)b.onclick=()=>{SEQ++;if(TTS)try{TT
 function rdPick(){const el=$("#ecran-jeu"),L=RDS().list;el.style.setProperty("--c","var(--i2)");
   el.innerHTML=rdBar()+`<div class="card pop tbcard" style="--c:var(--i2)"><h2 class="tbh">✏️ J'écris un court texte</h2>
    <div class="tbast"><b>Comme en classe</b><p>1. Je planifie : je note mes idées.</p><p>2. J'écris au moins <b>${rdTarget()} phrases</b>.</p><p>3. Je me relis : majuscules, points, accords, orthographe.</p></div>
-   ${(()=>{const x=L.find(y=>y.note&&!y.noteSeen);if(!x)return"";x.noteSeen=true;save();return`<div class="rdnote"><b>💬 Un mot pour toi sur « ${esc(x.t)} »</b><p>${esc(x.note)}</p></div>`})()}<p class="pbask"><b>Choisis un sujet</b></p><div class="orlist">${RD_SUJ.map(s=>{const n=L.filter(x=>x.id===s.id).length;return`<button class="orpick" data-s="${s.id}"><b>${s.ic} ${esc(s.t)}</b><small>${s.g}${n?` · déjà écrit ${n} fois`:""}</small></button>`}).join("")}</div></div>`;
+   ${(()=>{const x=L.find(y=>y.lang!=="en"&&y.note&&!y.noteSeen);if(!x)return"";x.noteSeen=true;save();return`<div class="rdnote"><b>💬 Un mot pour toi sur « ${esc(x.t)} »</b><p>${esc(x.note)}</p></div>`})()}<p class="pbask"><b>Choisis un sujet</b></p><div class="orlist">${RD_SUJ.map(s=>{const n=L.filter(x=>x.id===s.id).length;return`<button class="orpick" data-s="${s.id}"><b>${s.ic} ${esc(s.t)}</b><small>${s.g}${n?` · déjà écrit ${n} fois`:""}</small></button>`}).join("")}</div></div>`;
   rdBackB();go("jeu");el.querySelectorAll(".orpick").forEach(b=>b.onclick=()=>rdPlan(RD_SUJ.find(s=>s.id===b.dataset.s)))}
 function rdPlan(s){const el=$("#ecran-jeu");RD.s=s;
   el.innerHTML=rdBar()+`<div class="card pop" style="--c:var(--i2)"><div class="cardtop"><div class="notion">1. Je planifie · ${esc(s.t)}</div>${TTS?`<span class="cardbtns"><button class="listen" id="rd-l">${SPK}Écouter</button></span>`:""}</div>
@@ -4267,6 +4273,62 @@ function rdSave(s,plan,txt,c,self){const R=RDS(),T=rdTarget(),pass=[c.n>=T,!c.no
    <div class="row-btns"><button class="btn" id="rd-again">Écrire un autre texte</button><button class="btn ghost" id="rd-map">Retour à l'île</button></div></div>`;
   $("#rd-again").onclick=()=>{G={mode:"redac",subj:"francais",events:[]};RD={};rdPick()};$("#rd-map").onclick=()=>{G=null;RD=null;renderCarte();go("carte")};go("fin");
   tone([[523,.12],[659,.12],[784,.2]]);speak("Bravo! Ton texte est enregistré.")}
+/* ---------- J'écris en anglais : phrases modèles à compléter (écriture guidée, 2e cycle) ---------- */
+const RDE_SUJ=[
+ {id:"me",ic:"🙋",t:"All about me",fr:"Tout sur moi",f:[["My name is","."],["I am"," years old."],["I like","."],["My favourite colour is","."],["I have","."]],bank:["eight","nine","pizza","soccer","blue","purple","a cat","a brother"]},
+ {id:"family",ic:"👪",t:"My family",fr:"Ma famille",f:[["In my family, there are"," people."],["I have a","."],["My mom likes","."],["My dad likes","."],["I love my","!"]],bank:["three","four","five","sister","brother","music","books","family"]},
+ {id:"pet",ic:"🐶",t:"My pet",fr:"Mon animal (vrai ou rêvé)",f:[["My pet is a","."],["It is","."],["It likes","."],["It can","."],["I love my","!"]],bank:["dog","cat","rabbit","black","brown","small","carrots","run","jump"]},
+ {id:"food",ic:"🍕",t:"My favourite food",fr:"Mon repas préféré",f:[["My favourite food is","."],["It is","."],["I eat it with my","."],["I don't like","."],["For dessert, I like","."]],bank:["pizza","pasta","yummy","hot","family","mom","carrots","cake","ice cream"]},
+ {id:"winter",ic:"❄️",t:"Winter",fr:"L'hiver",f:[["In winter, it is","."],["I wear a","."],["I like to","."],["I make a","."],["Winter is","!"]],bank:["cold","snowy","hat","coat","skate","ski","snowman","fun"]},
+ {id:"school",ic:"🏫",t:"My day at school",fr:"Ma journée à l'école",f:[["I go to school by","."],["My teacher is","."],["At recess, I play","."],["My favourite subject is","."],["After school, I","."]],bank:["bus","car","nice","tag","soccer","art","math","play","read"]}];
+const rdeTarget=()=>{const n=RDS().list.filter(x=>x.lang==="en").length;return n<3?3:n<6?4:5};
+function startRedacEn(){FORCEV=false;G={mode:"redac",subj:"anglais",events:[]};RD={lang:"en"};rdePick()}
+function rdeBar(){return`<div class="gamebar"><button class="back" id="rd-back">← ${SUBJ.anglais.nom}</button><span class="gtitle">J'écris en anglais</span></div>`}
+function rdePick(){const el=$("#ecran-jeu"),L=RDS().list;el.style.setProperty("--c","var(--i3)");
+  const nt=L.find(y=>y.lang==="en"&&y.note&&!y.noteSeen);if(nt){nt.noteSeen=true;save()}
+  el.innerHTML=rdeBar()+`<div class="card pop tbcard" style="--c:var(--i3)"><h2 class="tbh">✏️ J'écris en anglais</h2>
+   <div class="tbast"><b>Comment ça marche</b><p>1. Choisis un sujet.</p><p>2. Complète <b>${rdeTarget()} phrases</b> en anglais. La banque de mots t'aide.</p><p>3. Écoute ton texte, puis relis-le.</p></div>
+   ${nt?`<div class="rdnote"><b>💬 Un mot pour toi sur « ${esc(nt.t)} »</b><p>${esc(nt.note)}</p></div>`:""}
+   <p class="pbask"><b>Choisis un sujet</b></p><div class="orlist">${RDE_SUJ.map(s=>{const n=L.filter(x=>x.id==="en-"+s.id).length;return`<button class="orpick" data-s="${s.id}"><b lang="en">${s.ic} ${esc(s.t)}</b><small>${esc(s.fr)}${n?` · déjà écrit ${n} fois`:""}</small></button>`}).join("")}</div></div>`;
+  rdBackB();go("jeu");el.querySelectorAll(".orpick").forEach(b=>b.onclick=()=>rdeWrite(RDE_SUJ.find(s=>s.id===b.dataset.s)))}
+function rdeWrite(s){const el=$("#ecran-jeu"),T=rdeTarget(),F=s.f.slice(0,T);RD.s=s;
+  el.innerHTML=rdeBar()+`<div class="card pop" style="--c:var(--i3)"><div class="cardtop"><div class="notion">${esc(s.t)} · ${esc(s.fr)}</div></div>
+   <p class="pbask">Complète chaque phrase avec tes mots.</p>
+   <div class="rdbank" lang="en"><span>Word bank :</span>${s.bank.map(w=>`<button class="rdw" data-w="${esc(w)}">${esc(w)}</button>`).join("")}</div>
+   <div class="rdeframes" lang="en">${F.map(([a,b],i)=>`<p class="rdef"><span>${esc(a)}</span><input class="din rdei" data-i="${i}" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" aria-label="${esc(a)} …"><span>${esc(b)}</span></p>`).join("")}
+    <p class="rdef rdefx"><small>Une phrase de plus, si tu veux :</small><input class="din rdei" data-i="x" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" aria-label="Une phrase de plus"></p></div>
+   <div class="row-btns">${TTS?`<button class="listen" id="rd-read">${SPK}Écouter mon texte</button>`:""}<button class="btn" id="rd-rev">Je me relis →</button></div></div>`;
+  rdBackB();go("jeu");let last=el.querySelector(".rdei");el.querySelectorAll(".rdei").forEach(x=>x.addEventListener("focus",()=>{last=x}));
+  el.querySelectorAll(".rdw").forEach(b=>b.onpointerdown=ev=>{ev.preventDefault();const v=last.value.trim();last.value=(v?v+" ":"")+b.dataset.w;last.focus()});
+  const txt=()=>{const ins=[...el.querySelectorAll(".rdei")],parts=F.map(([a,b],i)=>{const v=ins[i].value.trim();return v?`${a} ${v}${b}`:""}).filter(Boolean),x=el.querySelector('.rdei[data-i="x"]').value.trim();return{parts,x,full:parts.join(" ")+(x?" "+x:"")}};
+  const rr=$("#rd-read");if(rr)rr.onclick=()=>{FORCEV=true;speak(txt().full||"Your text is empty.",()=>{FORCEV=false},"en",Math.min(.8,S.rate||.7))};
+  $("#rd-rev").onclick=()=>{const t=txt(),empty=[...el.querySelectorAll(".rdei")].filter(x=>x.dataset.i!=="x"&&!x.value.trim());if(empty.length){empty[0].focus();empty.forEach(x=>x.classList.add("wrong"));setTimeout(()=>empty.forEach(x=>x.classList.remove("wrong")),1200);return}rdeRevise(s,t,F)}}
+function rdeRevise(s,t,F){const el=$("#ecran-jeu"),K=new Set();VOC.forEach(v=>K.add(v[0].toLowerCase()));s.bank.forEach(w=>w.split(" ").forEach(x=>K.add(x.toLowerCase())));weekEN().forEach(x=>K.add(String(x.w).toLowerCase()));
+  const words=(t.full.toLowerCase().match(/[a-z']+/g)||[]),frame=new Set(F.flatMap(([a,b])=>(a+" "+b).toLowerCase().match(/[a-z']+/g)||[])),sugg=[];
+  new Set(words).forEach(w=>{if(w.length<3||K.has(w)||frame.has(w))return;for(const k of K){if(k.length<3||w.startsWith(k)||k.startsWith(w))continue;if(rdLev(w,k)===1){sugg.push([w,k]);break}}});
+  const bank=s.bank.filter(w=>t.full.toLowerCase().includes(w.toLowerCase())).length,extra=!!t.x,xok=!t.x||(/^[A-Z]/.test(t.x)&&/[.!?]$/.test(t.x));
+  const it=(ok,l,d)=>`<li class="${ok?"ok":"ko"}"><span>${ok?"✓":"!"}</span><div><b>${l}</b>${d?`<br><small>${d}</small>`:""}</div></li>`;
+  el.innerHTML=rdeBar()+`<div class="card pop" style="--c:var(--i3)"><div class="cardtop"><div class="notion">Je me relis · ${esc(s.t)}</div>${TTS?`<span class="cardbtns"><button class="listen" id="rd-read">${SPK}Écouter mon texte</button></span>`:""}</div>
+   <div class="rdshow" lang="en">${esc(t.full)}</div>
+   <p class="pbask"><b>Ce que l'app a vérifié</b></p><ul class="rdchk">
+    ${it(true,`${F.length} phrases complétées`,"")}
+    ${it(bank>=2,`${bank} mot${bank>1?"s":""} de la banque utilisé${bank>1?"s":""}`,bank>=2?"":"Les mots de la banque sont bien écrits : utilise-les!")}
+    ${sugg.length?it(false,"Des mots à vérifier",sugg.map(([a,b])=>`« ${esc(a)} » : est-ce « ${esc(b)} »?`).join("<br>")):it(true,"Pas de mot presque bien écrit trouvé","")}
+    ${extra?it(xok,"Ta phrase de plus",xok?"Majuscule et point : bravo!":"Commence par une majuscule et termine par un point."):""}
+   </ul>
+   <p class="msg"><small>Écoute ton texte : est-ce que ça ressemble à ce que tu voulais dire?</small></p>
+   <div class="row-btns"><button class="btn ghost" id="rd-fix">← Corriger</button><button class="btn" id="rd-done">J'ai fini</button></div></div>`;
+  rdBackB();go("jeu");const rr=$("#rd-read");if(rr)rr.onclick=()=>{FORCEV=true;speak(t.full,()=>{FORCEV=false},"en",Math.min(.8,S.rate||.7))};
+  $("#rd-fix").onclick=()=>{rdeWrite(s);const ins=[...document.querySelectorAll(".rdei")];F.forEach(([a,b],i)=>{const p=t.parts.find(x=>x.startsWith(a+" "));if(p&&ins[i])ins[i].value=p.slice(a.length+1,p.length-b.length)});const xi=document.querySelector('.rdei[data-i="x"]');if(xi)xi.value=t.x};
+  $("#rd-done").onclick=()=>{const R=RDS();R.list.unshift({id:"en-"+s.id,lang:"en",t:s.t+" (anglais)",d:dayNum(),txt:t.full,plan:[],n:F.length+(t.x?1:0),T:F.length,cap:true,pt:true,bank,sugg,self:[],words:words.length});R.list.length=Math.min(R.list.length,30);
+    logAct("redac|en",bank>=2&&!sugg.length);save();
+    const f=$("#ecran-fin");f.style.setProperty("--c","var(--i3)");
+    f.innerHTML=`<div class="card result pop" style="--c:var(--i3)"><div class="notion">J'écris en anglais · ${esc(s.t)}</div><h2>Great job${S.name?", "+esc(S.name):""}!</h2><div class="score">${words.length}</div><p class="msg"><small>mots en anglais</small></p>${stars(sugg.length?1:bank>=2?3:2)}
+     <div class="rdshow" lang="en">${esc(t.full)}</div><p class="msg">Ton texte est enregistré. Papa ou maman pourra le lire.</p>
+     <div class="row-btns"><button class="btn" id="rd-again">Un autre sujet</button><button class="btn ghost" id="rd-map">Retour à l'île</button></div></div>`;
+    $("#rd-again").onclick=()=>startRedacEn();$("#rd-map").onclick=()=>{G=null;RD=null;renderCarte();go("carte")};go("fin");tone([[523,.12],[659,.12],[784,.2]]);
+    if(canSpeak())speak("Great job!",null,"en")}}
+
 function rdParentHTML(){const L=RDS().list;if(!L.length)return`<p>Pas encore de texte. L'activité « J'écris un court texte » est sur l'île du français, section Écriture.</p>`;
   return`<div class="rplog">${L.slice(0,10).map(x=>`<details class="rpl"><summary><span><b>${esc(x.t)}</b> · ${dnFmt(x.d)}<br><span class="dsub">${x.n} phrase${x.n>1?"s":""} (objectif ${x.T}) · ${x.words} mots</span></span><span class="rpls ${x.cap&&x.pt&&x.n>=x.T?"ok":""}">${[x.n>=x.T,x.cap,x.pt,x.bank>=2].filter(Boolean).length}/4</span></summary>
    <p class="rpla">${esc(x.txt).replace(/\n/g,"<br>")}</p>
@@ -4277,7 +4339,7 @@ function rdParentHTML(){const L=RDS().list;if(!L.length)return`<p>Pas encore de 
 /* ======================================================================
    ESPACE PARENT — ONGLET PROGRÈS : tendances, carte du programme de 3e année, grille des textes
    ====================================================================== */
-function keySubj(k){const p=k.split("|")[0];if(/^(conj|gn|rep|dictee|redac)$/.test(p))return"francais";if(/^(tables|mtables|prob)$/.test(p))return"maths";if(p==="oral")return k.endsWith("|en")?"anglais":"francais";const z=byId(p);return z?z.subj:null}
+function keySubj(k){const p=k.split("|")[0];if(k==="redac|en")return"anglais";if(/^(conj|gn|rep|dictee|redac)$/.test(p))return"francais";if(/^(tables|mtables|prob)$/.test(p))return"maths";if(p==="oral")return k.endsWith("|en")?"anglais":"francais";const z=byId(p);return z?z.subj:null}
 function weekBounds(i){const dn=dayNum(),mon=dn-((new Date().getDay()+6)%7)-7*i;return[mon,mon+6]}
 function trendHTML(){const W=[5,4,3,2,1,0],D=S.dlog||{},all=[...S.hist,{d:S.day.d,subj:S.day.subj}];
   const minsOf=(sj,[a,b])=>Math.round(all.filter(h=>{const n=Math.floor(Date.parse(h.d+"T12:00:00")/864e5);return n>=a&&n<=b}).reduce((t,h)=>t+((h.subj||{})[sj]||0),0)/60);
@@ -4307,7 +4369,7 @@ const PFEQ_MAP={francais:[
  anglais:[
   ["Interagir oralement",[["Comprendre et répondre à l'oral",["en_listen","en_talk"],"Écouter et comprendre · Petites conversations"],["Lire à voix haute",["oral|en"],"Lire à voix haute en anglais"]]],
   ["Réinvestir sa compréhension",[["Comprendre une courte histoire",["en_read"],"Lire une histoire"],["Vocabulaire",["en_words","en_verbs","en_week"],"Le vocabulaire · Les verbes · Mes mots"]]],
-  ["Écrire",[["Écrire des mots et des phrases",["en_spell","en_build"],"Épeler · Construire une phrase"],["Écrire un court texte",null,"pas encore dans l'app"]]]]};
+  ["Écrire",[["Écrire des mots et des phrases",["en_spell","en_build"],"Épeler · Construire une phrase"],["Écrire un court texte",["redac|en"],"J'écris en anglais"]]]]};
 function pfeqStat(src){const dn=dayNum(),m=k=>src.some(p=>p.includes("|")?k===p:k.split("|")[0]===p),s=logSum(dn-29,dn,m);if(!s.t)return{c:"none",l:"Pas pratiqué (30 j)"};
   if(s.t<5)return{c:"tot",l:`${s.t} réponse${s.t>1?"s":""}`};const p=s.r/s.t,g=goodDays(m);
   return p>=.8&&g>=2?{c:"ok",l:`Solide · ${Math.round(100*p)} %`}:p>=.6?{c:"mid",l:`En progrès · ${Math.round(100*p)} %`}:{c:"low",l:`À travailler · ${Math.round(100*p)} %`}}
@@ -4529,7 +4591,7 @@ function savePlan(P,txt){const old=S.plan;if(old&&old.from===P.from)P.tasks.forE
   if(P.exam&&/^dictee:\d+-\d+$/.test(P.exam.go)){const [a,b]=P.exam.go.slice(7).split("-").map(Number);DS().exam={d:P.exam.d,from:a,to:b,label:P.exam.label}}save()}
 /* Ouvre la bonne pratique pour une notion du plan */
 function planGo(g){const [k,arg]=g.split(":");
-  if(k==="tables")return startTables("add");if(k==="mtables")return startTables("mul");if(k==="prob")return startProb();if(k==="redac")return startRedac();if(k==="gn")return startGN();if(k==="rep")return startRep();
+  if(k==="tables")return startTables("add");if(k==="mtables")return startTables("mul");if(k==="prob")return startProb();if(k==="redac")return startRedac();if(k==="redacen")return startRedacEn();if(k==="gn")return startGN();if(k==="rep")return startRep();
   if(k==="conj")return startConj(arg);if(k==="dictee")return arg?startExam():startDictee();
   const z=byId(k);if(z){CUR=z.subj;return start(k)}}
 const planIc=g=>/^conj/.test(g)?"🔤":g==="gn"?"🧩":g==="tables"?"🔢":/^mtables/.test(g)?"✖️":g==="prob"?"🔎":g==="redac"?"✏️":/^dictee/.test(g)?"✏️":g==="rep"?"✍️":(byId((g||"").split(":")[0])||{}).subj==="maths"?"➕":"📘";
@@ -4573,7 +4635,7 @@ function planEditHTML(){const p=S.plan;return pcard("Plan de travail de la semai
 function planParentBind(){const b=$("#p-plansave");if(b)b.onclick=()=>{const t=$("#p-plantxt").value,P=parsePlan(t);if(!P){$("#p-planmsg").innerHTML=` <b style="color:var(--bad)">Il manque la ligne « Semaine: AAAA-MM-JJ au AAAA-MM-JJ ».</b>`;return}savePlan(P,t);renderParent()};
   document.querySelectorAll("[data-task]").forEach(c=>c.onchange=()=>{const t=(S.plan.tasks||[]).find(x=>x.id===c.dataset.task);if(t){t.done=c.checked?Date.now():0;save()}})}
 const pct=(r,t)=>t?Math.round(r/t*100)+" %":"—";
-const NOTION_MATCH=g=>{const [k,a]=(g||"").split(":");if(k==="conj")return key=>key==="conj|"+a;if(k==="gn")return key=>key.startsWith("gn|")||key==="grammaire|Accord dans le groupe du nom";if(k==="tables")return key=>key.startsWith("tables|");if(k==="mtables")return key=>key.startsWith("mtables|");if(k==="prob")return key=>key.startsWith("prob|");if(k==="redac")return key=>key.startsWith("redac|");if(k==="rep")return key=>key.startsWith("rep|");if(k==="dictee")return key=>key.startsWith("dictee|");return key=>key.startsWith(k+"|")};
+const NOTION_MATCH=g=>{const [k,a]=(g||"").split(":");if(k==="conj")return key=>key==="conj|"+a;if(k==="gn")return key=>key.startsWith("gn|")||key==="grammaire|Accord dans le groupe du nom";if(k==="tables")return key=>key.startsWith("tables|");if(k==="mtables")return key=>key.startsWith("mtables|");if(k==="prob")return key=>key.startsWith("prob|");if(k==="redac")return key=>key.startsWith("redac|");if(k==="redacen")return key=>key==="redac|en";if(k==="rep")return key=>key.startsWith("rep|");if(k==="dictee")return key=>key.startsWith("dictee|");return key=>key.startsWith(k+"|")};
 function weekMin(from,to){let s=0;const add=(d,sec)=>{const dn=isoDn(d);if(dn!=null&&dn>=from&&dn<=to)s+=sec};(S.hist||[]).forEach(h=>add(h.d,h.sec));if(S.day)add(S.day.d,S.day.sec);return Math.round(s/60)}
 function weekReportHTML(){const p=S.plan;if(!p)return`<p>Aucun plan de la semaine pour l'instant. Ajoutez-le dans l'onglet <b>Matière scolaire</b>.</p>`;
   const from=p.from,to=Math.max(p.to+2,Math.min(dayNum(),p.to+2)),rows=p.notions.map(n=>{const s=logSum(from,to,NOTION_MATCH(n.go)),x=stOf(s.r,s.t),k=(n.go||"").split(":")[0],src={conj:"Apprendre un verbe à la fois",gn:"Le groupe du nom",tables:"Tables d'addition et de soustraction",mtables:"Tables de multiplication",prob:"Problèmes à plusieurs étapes",redac:"J'écris un court texte",rep:"Répondre en phrases complètes",dictee:"Dictée du jour"}[k]||(byId(k)?byId(k).nom:"");return`<div class="nrow2 wk"><div><b>${esc(n.label)}</b><br><small>${s.t?`${s.r} bonne${s.r>1?"s":""} réponse${s.r>1?"s":""} sur ${s.t}, en ${s.days} jour${s.days>1?"s":""}${src?`, dans « ${esc(src)} »`:""}`:`pas encore pratiquée cette semaine${src?` (se pratique dans « ${esc(src)} »)`:""}`}</small></div><span class="spill s-${x.st}">${s.t?`${Math.round(s.r/s.t*100)} % cette semaine`:"Pas encore pratiquée"}</span></div>`}).join("");
@@ -5259,7 +5321,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261107-014823";
+const APP_VER="20261107-070858";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
