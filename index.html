@@ -1122,6 +1122,22 @@ body.skyin .din.wrong,.din.wrong{border-color:var(--bad)!important;background:va
 .gavg .d{display:grid;grid-template-columns:1.4fr 1fr auto;gap:8px;align-items:center;padding:4px 0}
 .rdnote{border:2px solid var(--c);border-radius:14px;padding:.6rem .9rem;margin:.4rem 0 .8rem;background:color-mix(in srgb,var(--c) 10%,transparent);text-align:left}.rdnote p{margin:.3rem 0 0;font-size:1.1rem}
 @media (max-width:560px){.ptabs{grid-template-columns:repeat(3,minmax(0,1fr))}.tc b{font-size:.66rem;white-space:nowrap}}
+/* Espace parent : même thème que les pages intérieures (ciel, cartes crème arrondies) */
+.skyin #ecran-parent{--surface:var(--cream);--line:var(--cream-line)}
+.skyin #ecran-parent .pcard,.skyin #ecran-parent .pdash,.skyin #ecran-parent .panel{background:var(--cream);border:1px solid var(--cream-line);border-radius:28px;box-shadow:0 10px 24px rgba(10,60,80,.12);padding:20px 22px}
+.skyin #ecran-parent .pdash{gap:14px}
+.skyin #ecran-parent .pcard>h3,.skyin #ecran-parent .pdash h2{font-family:var(--f-display);font-size:1.25rem;margin:0}
+.skyin #ecran-parent .pdi{background:var(--chbg);border:1px solid var(--cream-line);border-radius:18px}
+.skyin #ecran-parent .pdet{background:var(--chbg);border:1px solid var(--cream-line);border-radius:18px}
+.skyin #ecran-parent .pdet>summary{padding:12px 14px}
+.skyin #ecran-parent .ptabs{background:transparent;padding:8px 0;gap:8px}
+.skyin #ecran-parent .ptab-b{background:var(--cream);border:1px solid var(--cream-line);border-radius:18px;box-shadow:0 4px 12px rgba(10,60,80,.12);min-height:62px;justify-content:center}
+.skyin #ecran-parent .ptab-b.on{background:var(--sea);border-color:var(--sea);color:var(--sea-ink)}
+.skyin #ecran-parent .pda{border-radius:999px;box-shadow:0 2px 6px rgba(10,60,80,.08)}
+.skyin #ecran-parent .pinbox{max-width:520px;margin:12px auto}
+.skyin #ecran-parent .pfm li,.skyin #ecran-parent .rdchk li{background:var(--chbg);border-color:var(--cream-line)}
+body.pskin .ptabs{position:static}
+.skyin #ecran-parent select{min-height:44px;border-radius:12px;border:2px solid var(--cream-line);background:var(--chbg);color:var(--ink);padding:0 10px;font:inherit;font-size:1rem}
 </style>
 
 <header class="top">
@@ -2162,7 +2178,7 @@ function bye(){BYE=true;PAUSED=false;G=null;save();if(MUS)MUS.pause();if(TTS)try
   $("#b-reopen").onclick=()=>{BYE=false;renderCarte();go("carte");musicSync()}}
 
 /* ---------- Écrans ---------- */
-function go(id){if(id==="fin")setTimeout(()=>{if(!$("#ecran-fin").hidden)seanceEnd()},0);if(!(G&&G.mode==="dict"))FORCEV=false;const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||id==="carte"||BYE;document.body.classList.toggle("has-nav",id==="carte"&&!!S.name&&!!S.comp.type);if(id!=="carte")document.body.classList.remove("homew");SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);const gs=!G?null:G.mode==="trace"?null:["biblio","donjon","bat"].includes(G.mode)?"jeux":G.subj;if(id==="jeu")LSUB=gs;skyIn((id==="jeu"||id==="fin")&&SKYSUB.includes(id==="jeu"?gs:LSUB));window.scrollTo(0,0)}
+function go(id){if(id==="fin")setTimeout(()=>{if(!$("#ecran-fin").hidden)seanceEnd()},0);if(!(G&&G.mode==="dict"))FORCEV=false;const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||id==="carte"||BYE;document.body.classList.toggle("has-nav",id==="carte"&&!!S.name&&!!S.comp.type);if(id!=="carte")document.body.classList.remove("homew");SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);const gs=!G?null:G.mode==="trace"?null:["biblio","donjon","bat"].includes(G.mode)?"jeux":G.subj;if(id==="jeu")LSUB=gs;skyIn(((id==="jeu"||id==="fin")&&SKYSUB.includes(id==="jeu"?gs:LSUB))||id==="parent");document.body.classList.toggle("pskin",id==="parent");window.scrollTo(0,0)}
 /* Pages intérieures au thème « ciel et crème » : activées île par île (SKYSUB). */
 const SKYSUB=["francais","maths","anglais","jeux"];let LSUB=null;
 function skyDeco(id){const gt=document.querySelector(`#ecran-${id} .gtitle`);if(!gt||gt.querySelector(".gic"))return;const t=gt.textContent;
@@ -5190,7 +5206,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261107-010323";
+const APP_VER="20261107-010940";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
