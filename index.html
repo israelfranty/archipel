@@ -1672,6 +1672,7 @@ accords(L){
     explain:`« ${w} » est ${g==="m"?"masculin":"féminin"} ${plur?"pluriel":"singulier"}. L'adjectif prend les mêmes marques : ${g==="f"?"un e pour le féminin":"pas de e au masculin"}${plur?", un s pour le pluriel":""}. On écrit « ${before?`${det} ${ans} ${w}`:`${det} ${w} ${ans}`} ».`}
 },
 conjugaison(L){
+  if(L>1&&Math.random()<(L===2?.2:.3)){const q=pcQ();return{notion:q.notion,prompt:q.prompt,say:q.say,kind:"choice",choices:q.choices,answer:q.answer,explain:q.explain.replace(/<[^>]+>/g,"")}}
   const verbs=L===1?["avoir","être","aller",...ER]:L===2?["avoir","être","aller","faire","finir",...ER]:Object.keys(IRR).concat(ER);
   const tenses=L===1?["p"]:L===2?["p","p","f"]:["p","f","i","i"];
   let v=pick(verbs),t=pick(tenses);
@@ -1734,7 +1735,7 @@ lecture(L){
 const ISL_FR=[
  {id:"grammaire",a:"dans les classes de mots",nom:"Les classes de mots",sous:"Nom, déterminant, adjectif, verbe, pronom; genre et nombre",glyph:"Aa",c:"--i1"},
  {id:"accords",a:"dans les accords",nom:"Les accords",sous:"Accorder dans le groupe du nom, et le verbe avec son sujet",glyph:"s·e",c:"--i2"},
- {id:"conjugaison",a:"dans les temps des verbes",nom:"Les temps des verbes",sous:"Reconnaître et conjuguer le présent, le futur simple et l'imparfait",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 2h12M6 22h12M7 2c0 6 10 6 10 10S7 16 7 22M17 2c0 6-10 6-10 10s10 4 10 10"/></svg>`,c:"--i3"},
+ {id:"conjugaison",a:"dans les temps des verbes",nom:"Les temps des verbes",sous:"Reconnaître et conjuguer le présent, le futur simple, l'imparfait et le passé composé",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 2h12M6 22h12M7 2c0 6 10 6 10 10S7 16 7 22M17 2c0 6-10 6-10 10s10 4 10 10"/></svg>`,c:"--i3"},
  {id:"orthographe",a:"en pluriel et féminin",nom:"Pluriel et féminin",sous:"Le pluriel des noms, le féminin des noms et des adjectifs",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></svg>`,c:"--i4"},
  {id:"homophones",a:"dans les homophones",nom:"Les homophones",sous:"Choisir entre a/à, et/est, son/sont… qui se prononcent pareil",glyph:"a/à",c:"--i5"},
  {id:"phrase",a:"pour la phrase",nom:"La phrase",sous:"Majuscule et point, ponctuation, types de phrases, sujet",glyph:"?!.",c:"--i6"},
@@ -2267,7 +2268,7 @@ function renderCarte(){
        +sec("Grammaire","Reconnaître les mots de la phrase et bien les accorder.",
         zc("grammaire")+ac("b-gn",IC3.casse,"Le groupe du nom","Trouver le nom et ce qui l'accompagne : déterminant, adjectif","10 QUESTIONS")+zc("accords")+zc("phrase"))
        +sec("Conjugaison","Conjuguer les verbes au bon temps.",
-        ac("b-conj",IC3.cahier,"Apprendre un verbe à la fois","Avoir, être, les verbes en -er, aller, les verbes en -ir, faire",`ÉTAPE ${CJ_UNITS.indexOf(u)+1} SUR ${CJ_UNITS.length} : ${esc(u.nom).toUpperCase()}`)+zc("conjugaison"))
+        ac("b-conj",IC3.cahier,"Apprendre un verbe à la fois","Avoir, être, les verbes en -er, aller, les verbes en -ir, faire, puis le passé composé",`ÉTAPE ${CJ_UNITS.indexOf(u)+1} SUR ${CJ_UNITS.length} : ${esc(u.nom).toUpperCase()}`)+zc("conjugaison"))
        +sec("Lecture","Lire, comprendre et répondre.",
         zc("lecture")+ac("b-rep",IC3.conte,"Répondre en phrases complètes","Reprendre la question, expliquer avec « car », justifier avec le texte","UNE QUESTION À LA FOIS")+ac("b-oral",IC3.micro,"Lire à voix haute","Je m'enregistre, je me réécoute et je mesure ma vitesse de lecture","MOTS PAR MINUTE"))
        +sec("Écriture","Planifier, écrire un court texte et se relire.",ac("b-redac",XIC.crayon,"J'écris un court texte","Je planifie, j'écris au moins "+rdTarget()+" phrases, puis je me relis",RDS().list.some(y=>y.note&&!y.noteSeen)?"💬 UN MOT POUR TOI":RDS().draft?"TEXTE EN COURS":(RDS().list.length?RDS().list.length+" TEXTE"+(RDS().list.length>1?"S":"")+" ÉCRIT"+(RDS().list.length>1?"S":""):"8 SUJETS AU CHOIX")))}
@@ -4283,7 +4284,7 @@ function trendHTML(){const W=[5,4,3,2,1,0],D=S.dlog||{},all=[...S.hist,{d:S.day.
 const PFEQ_MAP={francais:[
   ["Lire",[["Comprendre des textes variés (repérer, inférer, idée principale)",["lecture"],"Lire et comprendre"],["Répondre à des questions par écrit",["rep"],"Répondre en phrases complètes"],["Lire avec fluidité",["oral|fr"],"Lire à voix haute"]]],
   ["Écrire",[["Rédiger de courts textes",["redac"],"J'écris un court texte"],["Orthographe d'usage (mots de la liste)",["dictee"],"Dictée du jour"],["Pluriel et féminin",["orthographe"],"Pluriel et féminin"],["Homophones",["homophones"],"Les homophones"]]],
-  ["Grammaire et conjugaison",[["Accords dans le groupe du nom",["accords","gn"],"Les accords · Le groupe du nom"],["Accord du verbe avec le sujet",["accords"],"Les accords"],["Classes de mots",["grammaire"],"Les classes de mots"],["La phrase (types, ponctuation, sujet)",["phrase"],"La phrase"],["Conjugaison : présent, imparfait, futur simple",["conjugaison","conj"],"Les temps des verbes · Un verbe à la fois"],["Passé composé",null,"pas encore dans l'app"]]],
+  ["Grammaire et conjugaison",[["Accords dans le groupe du nom",["accords","gn"],"Les accords · Le groupe du nom"],["Accord du verbe avec le sujet",["accords"],"Les accords"],["Classes de mots",["grammaire"],"Les classes de mots"],["La phrase (types, ponctuation, sujet)",["phrase"],"La phrase"],["Conjugaison : présent, imparfait, futur simple",["conjugaison","conj"],"Les temps des verbes · Un verbe à la fois"],["Passé composé",["conj|pc","conjugaison|Conjuguer au passé composé","conjugaison|Le passé composé : avoir ou être?","conjugaison|Le participe passé","conjugaison|Reconnaître le passé composé"],"Un verbe à la fois · Les temps des verbes"]]],
   ["Communiquer oralement",[["Raconter, expliquer, discuter",null,"pas dans l'app : à pratiquer en famille (raconter sa journée, expliquer un jeu)"]]]],
  maths:[
   ["Arithmétique",[["Nombres naturels (valeur de position, comparer)",["port"],"Lire et comparer les nombres"],["Fractions",["baie"],"Les fractions"],["Addition et soustraction (faits et calcul)",["foret","tables"],"Additions et soustractions · Tables"],["Multiplication et division (sens et tables)",["volcan","mtables"],"Multiplications et divisions · Tables ×"],["Nombres décimaux (dixièmes, centièmes)",null,"pas encore dans l'app (souvent en 4e année)"]]],
@@ -4366,6 +4367,35 @@ function drFinish(){const c=DR.cfg,r=c.onEnd?c.onEnd(DR):{msg:"",up:""},el=$("#e
 const CJ_PR=["je","tu","il","nous","vous","ils"],CJ_PRN=["je","tu","il / elle / on","nous","vous","ils / elles"];
 const cjReg=(inf,end,c)=>{const st=inf.slice(0,-2);return{inf,f:end.map(e=>st+e),c}};
 const CJ_ER=["e","es","e","ons","ez","ent"],CJ_IR=["is","is","it","issons","issez","issent"];
+/* ---------- Le passé composé (2e cycle) ----------
+   Auxiliaire avoir ou être + participe passé. Avec être, seulement « il » ou un nom masculin singulier :
+   l'accord du participe avec être vient au 3e cycle. Truc classique : -é ou -er? Remplace par « mordu » ou « mordre ». */
+const PC_AUX=["ai","as","a","avons","avez","ont"];
+const PC_AV=[["manger","mangé",["une pomme","tout son dîner"]],["jouer","joué",["au ballon","aux cartes"]],["dessiner","dessiné",["un dragon","une maison"]],["regarder","regardé",["un film","les étoiles"]],["chanter","chanté",["une chanson","très fort"]],["finir","fini",["son casse-tête","ses devoirs"]],["choisir","choisi",["un livre","la couleur bleue"]],["faire","fait",["un gâteau","du vélo"]],["lire","lu",["une histoire","un poème"]],["écrire","écrit",["une lettre","un message"]],["prendre","pris",["l'autobus","une photo"]],["voir","vu",["un chevreuil","un arc-en-ciel"]]];
+const PC_ET=[["aller","allé",["au parc","à l'école"]],["arriver","arrivé",["en retard","à la maison"]],["partir","parti",["en vacances","tôt ce matin"]],["tomber","tombé",["dans la neige","de son vélo"]],["venir","venu",["chez nous","à la fête"]],["rester","resté",["à la maison","au lit"]],["entrer","entré",["dans la classe","dans la cabane"]]];
+const PC_PPX={finir:["finit","finis","finir"],choisir:["choisit","choisis","choisir"],faire:["fais","faire","faisé"],lire:["lit","lire","lisé"],écrire:["écris","écrire","écrivé"],prendre:["prend","prendre","prendu"],voir:["voit","voir","voyé"],aller:["aller","allez","va"],partir:["partit","partir","partis"],venir:["venir","vient","venis"]};
+const PC_SUBJ=[["J'","j'"],["Tu","tu"],[null,"il"],["Nous","nous"],["Vous","vous"],[null,"ils"]];
+const PC_TRUC="Truc : remplace le verbe par « mordu » (j'ai mordu) : si ça marche, on écrit -é. Si c'est « mordre » qui marche, on écrit -er.";
+function pcQ(rev){const kind=pick(["form","form","aux","pp","recog"]);
+  if(kind==="aux"){const et=Math.random()<.5,[inf,pp,cs]=pick(et?PC_ET:PC_AV),s=pick(["Hier, Léo","Ce matin, mon frère","Samedi, Félix","Hier, mon cousin"]),c=pick(cs);
+    return{notion:"Le passé composé : avoir ou être?",key:"conj|pc",rev,prompt:`Avoir ou être?<br><span class="cjbig">${s} ___ ${pp} ${esc(c)}.</span>`,say:`Avoir ou être? ${s}, blanc, ${pp}, ${c}.`,choices:["a","est"],answer:et?"est":"a",
+      explain:et?`Le verbe ${inf} se conjugue avec <b>être</b> au passé composé : il est ${pp}. C'est le cas des verbes de mouvement comme aller, venir, arriver, partir, entrer, tomber et rester.`:`Le verbe ${inf} se conjugue avec <b>avoir</b> au passé composé : il a ${pp}. La plupart des verbes vont avec avoir.`}}
+  if(kind==="pp"){const et=Math.random()<.3,[inf,pp]=pick(et?PC_ET:PC_AV),wr=PC_PPX[inf]||[inf,inf.slice(0,-2)+"ez",inf.slice(0,-2)+"ait"];
+    return{notion:"Le participe passé",key:"conj|pc",rev,prompt:`Complète au passé composé avec le verbe <b>${inf}</b> :<br><span class="cjbig">Hier, il ${et?"est":"a"} ___.</span>`,say:`Complète au passé composé avec le verbe ${inf}. Hier, il ${et?"est":"a"}, blanc.`,choices:shuffle([pp,...wr.slice(0,3)]),answer:pp,
+      explain:`Le participe passé de ${inf}, c'est « ${pp} » : il ${et?"est":"a"} ${pp}. ${/er$/.test(inf)?PC_TRUC:"Pour les verbes en -ir comme finir, le participe finit souvent par -i : fini, choisi."}`}}
+  if(kind==="recog"){const v=pick(["jouer","dessiner","regarder","chanter","danser"]),st=v.slice(0,-2),c=pick(["au parc","dans le salon","avec Léa"]);
+    const A=`J'ai ${st}é ${c}.`,o=[`Je ${st}e ${c}.`,`Je ${st}erai ${c}.`,`Je ${st}ais ${c}.`];
+    return{notion:"Reconnaître le passé composé",key:"conj|pc",rev,prompt:"Quelle phrase est au <b>passé composé</b>?",say:"Quelle phrase est au passé composé?",choices:shuffle([A,...o]),answer:A,
+      explain:`« J'ai ${st}é » est au passé composé : le verbe a <b>deux mots</b>, l'auxiliaire (ai) et le participe passé (${st}é). Les autres phrases sont au présent, au futur simple et à l'imparfait.`}}
+  /* form : auxiliaire + participe passé */
+  const et=Math.random()<.3,[inf,pp,cs]=pick(et?PC_ET:PC_AV),c=pick(cs),k=et?2:Math.floor(Math.random()*6);
+  const sj=k===2?pick(et?["Léo","il","mon frère","Félix"]:["il","elle","Léo","Rosalie"]):k===5?pick(["ils","elles","mes amis"]):["j'","tu","il","nous","vous","ils"][k];
+  const aux=et?"est":PC_AUX[k],ans=`${aux} ${pp}`,wrongAux=et?"a":(k===2?"est":["suis","es","est","sommes","êtes","sont"][k]);
+  const bad=[`${aux} ${/er$/.test(inf)?inf:(PC_PPX[inf]||[inf])[0]}`,`${wrongAux} ${pp}`,`${et?"a":PC_AUX[(k+2)%6]} ${pp}`].filter(x=>x!==ans);
+  const blank=k===0?"Hier, j'___":`Hier, ${sj} ___`;
+  return{notion:"Conjuguer au passé composé",key:"conj|pc",rev,prompt:`Conjugue le verbe <b>${inf}</b> au passé composé :<br><span class="cjbig">${blank} ${esc(c)}.</span>`,say:`Conjugue le verbe ${inf} au passé composé. ${blank.replace("j'___","je, blanc,").replace(" ___",", blanc,")} ${c}.`,choices:shuffle([ans,...[...new Set(bad)].slice(0,3)]),answer:ans,
+    explain:`Au passé composé, il faut deux mots : l'auxiliaire <b>${et?"être":"avoir"}</b> au présent (${aux}) et le participe passé (${pp}). ${/er$/.test(inf)?PC_TRUC:""}`.trim()}}
+const PC_TABLE=`<table class="cjtab"><tr><td>j'</td><td><b>ai joué</b></td></tr><tr><td>tu</td><td><b>as joué</b></td></tr><tr><td>il / elle</td><td><b>a joué</b></td></tr><tr><td>nous</td><td><b>avons joué</b></td></tr><tr><td>vous</td><td><b>avez joué</b></td></tr><tr><td>ils / elles</td><td><b>ont joué</b></td></tr><tr class="hi"><td>il</td><td><b>est allé</b></td></tr></table>`;
 const CJ_UNITS=[
  {id:"avoir",nom:"Le verbe avoir",ic:"🎒",verbs:[{inf:"avoir",f:["ai","as","a","avons","avez","ont"],c:["un chat","faim","un vélo rouge","une bonne idée","un nouveau livre"]}],err:v=>["avont"],
   ast:["Avoir, c'est posséder quelque chose : j'ai un chat.","J'ai, tu as, il a, nous avons, vous avez, ils ont.","Truc : « ils ont » finit comme « ils sont » et « ils font »."]},
@@ -4378,14 +4408,16 @@ const CJ_UNITS=[
  {id:"ir",nom:"Les verbes en -ir (comme finir)",ic:"🏁",verbs:[cjReg("finir",CJ_IR,["le casse-tête","le dessert"]),cjReg("choisir",CJ_IR,["un livre","la couleur bleue"]),cjReg("réussir",CJ_IR,["la dictée","le saut"]),cjReg("remplir",CJ_IR,["le verre d'eau","la boîte"]),cjReg("grandir",CJ_IR,["très vite","chaque année"]),cjReg("applaudir",CJ_IR,["les musiciens","très fort"])],err:v=>[v.inf.slice(0,-2)+"isons",v.inf.slice(0,-2)+"issez"].filter(x=>!v.f.includes(x)),
   ast:["Les verbes comme finir, choisir, grandir, réussir.","Je finis, tu finis, il finit : -is, -is, -it.","Avec nous, vous, ils, on ajoute -iss- : nous finissons, vous finissez, ils finissent."]},
  {id:"faire",nom:"Le verbe faire",ic:"🧁",verbs:[{inf:"faire",f:["fais","fais","fait","faisons","faites","font"],c:["un gâteau","du vélo","un dessin","de la natation"]}],err:v=>["faisez"],
-  ast:["Je fais, tu fais, il fait, nous faisons, vous faites, ils font.","Attention : on dit « vous faites », jamais « vous faisez ».","Et « ils font », comme « ils ont » et « ils sont »."]}];
+  ast:["Je fais, tu fais, il fait, nous faisons, vous faites, ils font.","Attention : on dit « vous faites », jamais « vous faisez ».","Et « ils font », comme « ils ont » et « ils sont »."]},
+ {id:"pc",nom:"Le passé composé",ic:"⏪",verbs:[{inf:"jouer",f:["ai joué","as joué","a joué","avons joué","avez joué","ont joué"],c:[]}],gen:pcQ,table:PC_TABLE,
+  ast:["Le passé composé raconte une action finie : hier, j'ai joué.","Il a deux mots : l'auxiliaire avoir (ou être) au présent, puis le participe passé.","Les verbes de mouvement (aller, venir, arriver, partir, tomber…) prennent être : il est allé.",PC_TRUC]}];
 const cjU=id=>CJ_UNITS.find(u=>u.id===id);
 const CJS=()=>{if(!S.conj||typeof S.conj!=="object")S.conj={};const c=S.conj;if(!c.pass)c.pass={};return c};
 const cjMastered=id=>((CJS().pass[id])||[]).length>=2;
 const cjCur=()=>{const u=CJ_UNITS.find(u=>!cjMastered(u.id));return u||CJ_UNITS[CJ_UNITS.length-1]};
 const cjVowel=s=>/^[aeéèêiouyh]/i.test(s);
 function cjTable(v,hi){return`<table class="cjtab">${v.f.map((f,i)=>{const p=i===0&&cjVowel(f)?"j'":CJ_PRN[i]+" ";return`<tr class="${i===hi?"hi":""}"><td>${p}</td><td><b>${f}</b></td></tr>`}).join("")}</table>`}
-function cjQ(u,rev){const v=pick(u.verbs),kind=Math.random()<.3?"pron":"form";
+function cjQ(u,rev){if(u.gen)return u.gen(rev);const v=pick(u.verbs),kind=Math.random()<.3?"pron":"form";
   if(kind==="pron"){const uniq=v.f.map((f,i)=>i).filter(i=>v.f.filter(x=>x===v.f[i]).length===1&&i!==0);const p=pick(uniq),form=v.f[p];
     const ch=shuffle([CJ_PR[p],...shuffle(CJ_PR.filter((x,i)=>i!==p&&v.f[i]!==form)).slice(0,3)]);
     return{notion:u.nom,key:"conj|"+u.id,rev,prompt:`Quel pronom va avec le verbe ?<br><span class="cjbig">___ ${form}</span>`,say:`Quel pronom va avec ${form} ?`,choices:ch,answer:CJ_PR[p],
@@ -4400,18 +4432,18 @@ function cjQ(u,rev){const v=pick(u.verbs),kind=Math.random()<.3?"pron":"form";
     explain:`${p===2&&!/^(Il|Elle|On)$/.test(subj)?`« ${subj} », c'est comme « il » ou « elle ». `:p===5&&!/^(Ils|Elles)$/.test(subj)?`« ${subj} », c'est comme « ils ». `:""}Avec ${CJ_PR[p]}, le verbe ${v.inf} s'écrit « ${form} » : ${p===0&&cjVowel(form)?"j'":CJ_PR[p]+" "}${form}.`,table:cjTable(v,p)}}
 function renderConj(){const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i3)");G={mode:"conjmenu",subj:"francais"};const cur=cjCur();
   el.innerHTML=`<div class="gamebar"><button class="back" id="cj-back">← L'Île aux Mots</button><span class="gtitle">Apprendre un verbe à la fois</span></div>
-   <div class="card pop tbcard" style="--c:var(--i3)"><p class="msg">Le présent, un verbe à la fois. Une étape est réussie avec <b>9 sur 10, deux jours différents</b>.</p>
+   <div class="card pop tbcard" style="--c:var(--i3)"><p class="msg">Le présent, un verbe à la fois, puis le passé composé. Une étape est réussie avec <b>9 sur 10, deux jours différents</b>.</p>
    <div class="cjpath">${CJ_UNITS.map((u,i)=>{const m=cjMastered(u.id),isCur=u===cur,days=(CJS().pass[u.id]||[]).length,open=m||isCur||planConj().has(u.id);return`<button class="cjstep${m?" ok":isCur?" now":""}" data-u="${u.id}" ${open?"":"disabled"}><span class="cjic">${m?"✓":u.ic}</span><span><b>${i+1}. ${u.nom}</b><br><small>${m?"Maîtrisé":isCur?`En cours · ${days} jour${days>1?"s":""} réussi${days>1?"s":""} sur 2`:open?"Demandé par l'école cette semaine":"À venir"}</small></span></button>`}).join("")}</div></div>`;
   $("#cj-back").onclick=()=>{G=null;renderCarte();go("carte")};el.querySelectorAll(".cjstep").forEach(b=>b.onclick=()=>startConj(b.dataset.u));go("jeu")}
 function startConj(id){const u=cjU(id)||cjCur(),done=CJ_UNITS.filter(x=>x!==u&&cjMastered(x.id));DR_BACK=renderConj;
   const v0=u.verbs[0];
   runDrill({title:""+u.nom,color:"var(--i3)",back:"← Les verbes",n:10,gen:()=>cjQ(u),extra:done.length?[0,1].map(()=>cjQ(pick(done),true)):[],
-    intro:`<div class="notion">${cjMastered(u.id)?"Révision":"Étape "+(CJ_UNITS.indexOf(u)+1)+" sur "+CJ_UNITS.length}</div><h2 class="tbh">${u.ic} ${u.nom}</h2><div class="tbast"><b>À retenir</b>${u.ast.map(x=>`<p>${esc(x)}</p>`).join("")}</div>${cjTable(v0,-1)}`,
+    intro:`<div class="notion">${cjMastered(u.id)?"Révision":"Étape "+(CJ_UNITS.indexOf(u)+1)+" sur "+CJ_UNITS.length}</div><h2 class="tbh">${u.ic} ${u.nom}</h2><div class="tbast"><b>À retenir</b>${u.ast.map(x=>`<p>${esc(x)}</p>`).join("")}</div>${u.table||cjTable(v0,-1)}`,
     introSay:[u.nom+".",...u.ast],again:()=>startConj(u.id),
     onEnd:R=>{const c=CJS(),dn=dayNum();let msg;if(R.cur&&R.ok>=9){const P=c.pass[u.id]||(c.pass[u.id]=[]);if(!P.includes(dn))P.push(dn);
         msg=cjMastered(u.id)?(CJ_UNITS.indexOf(u)<CJ_UNITS.length-1&&cjCur()!==u?`Étape réussie! 🎉 Prochaine étape : <b>${cjCur().nom}</b>.`:"Étape réussie! 🎉"):"Journée réussie! Réussis encore un autre jour pour maîtriser cette étape."}
       else msg=`${R.ok} sur ${R.cur}. Il faut 9 sur 10 pour réussir la journée. Relis le tableau du verbe et réessaie!`;return{msg}}})}
-function cjCardHTML(){const u=cjCur(),m=CJ_UNITS.filter(x=>cjMastered(x.id)).length;return`<button class="isle defi cjz" id="b-conj"><span class="badge">${u.ic}</span><span class="body"><span class="nom">Ma conjugaison</span><span class="sous">Étape ${CJ_UNITS.indexOf(u)+1} : <b>${u.nom}</b> · ${m} étape${m>1?"s":""} maîtrisée${m>1?"s":""} sur ${CJ_UNITS.length}. Avoir, être, -er, aller, -ir, faire.</span></span></button>`}
+function cjCardHTML(){const u=cjCur(),m=CJ_UNITS.filter(x=>cjMastered(x.id)).length;return`<button class="isle defi cjz" id="b-conj"><span class="badge">${u.ic}</span><span class="body"><span class="nom">Ma conjugaison</span><span class="sous">Étape ${CJ_UNITS.indexOf(u)+1} : <b>${u.nom}</b> · ${m} étape${m>1?"s":""} maîtrisée${m>1?"s":""} sur ${CJ_UNITS.length}. Avoir, être, -er, aller, -ir, faire, puis le passé composé.</span></span></button>`}
 
 /* ======================================================================
    LES CONSTRUCTIONS DU GROUPE DU NOM
@@ -5206,7 +5238,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261107-010940";
+const APP_VER="20261107-014234";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
