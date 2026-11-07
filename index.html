@@ -2750,7 +2750,9 @@ function renderParent(){tbUse("add");
      <button class="btn ghost" id="p-wsave">Enregistrer la liste d'anglais</button>${S.week.updated?`<p class="pdesc">Dernière mise à jour : ${new Date(S.week.updated).toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"})}.</p>`:""}`);
   /* --- onglet Réglages --- */
   const tReglages=
-   pcard("Objectifs quotidiens","Minutes d'étude visées chaque jour, par matière.",`<div class="goals">${SUBJS.map(k=>`<label for="p-goal-${k}"><b>${LBL[k]}</b><select id="p-goal-${k}" data-goal="${k}">${[0,5,10,15,20,25,30,45].map(m=>`<option value="${m}" ${(S.goals[k]??0)===m?"selected":""}>${m?m+" minutes":"aucun objectif"}</option>`).join("")}</select></label>`).join("")}</div><p class="pdesc">Total : ${SUBJS.reduce((t,k)=>t+(S.goals[k]||0),0)} minutes par jour.</p>`)+
+   pcard("Objectifs quotidiens","Minutes d'étude visées chaque jour, par matière.",`<div class="goals">${SUBJS.map(k=>`<label for="p-goal-${k}"><b>${LBL[k]}</b><select id="p-goal-${k}" data-goal="${k}">${[0,5,10,15,20,25,30,45].map(m=>`<option value="${m}" ${(S.goals[k]??0)===m?"selected":""}>${m?m+" minutes":"aucun objectif"}</option>`).join("")}</select></label>`).join("")}</div><p class="pdesc">Total : ${SUBJS.reduce((t,k)=>t+(S.goals[k]||0),0)} minutes par jour.</p>
+   <label class="pfield">Pendant « Ma séance », quand le temps du jour est atteint<select id="p-scap">${[["continuer","Continuer jusqu'au bout du programme"],["proposer","Lui proposer d'arrêter ou de continuer"],["arreter","Terminer la séance"]].map(([v,l])=>`<option value="${v}" ${(S.scap||"continuer")===v?"selected":""}>${l}</option>`).join("")}</select></label>
+   <p class="pdesc">Le temps compte toutes les matières. Elle peut toujours continuer une activité en dehors de la séance.</p>`)+
    pcard("Questions et temps","Les questions visent d'abord ses notions à travailler et en progrès. Les notions solides reviennent après quelques jours, pour qu'elle ne les oublie pas. Aux niveaux 2 et 3, elle écrit elle-même certaines réponses (homophones, verbes, accords, mots en anglais) au lieu de les choisir. En calcul (additions, soustractions, multiplications), chaque question a un objectif de temps : 10 % plus rapide que son temps habituel. Une bonne réponse sous l'objectif donne un « éclair ». Ailleurs, pas de chronomètre : elle prend le temps de comprendre.",
      `<label class="toggle" for="p-board"><input type="checkbox" id="p-board" ${S.boardOn!==false?"checked":""}><span><b>Un défi au tableau dans chaque partie</b><br><small>La dernière question se fait à la main. Elle peut la passer si elle n'a pas son tableau.</small></span></label>
      <label class="toggle" for="p-strict"><input type="checkbox" id="p-strict" ${S.strict?"checked":""}><span><b>Compte à rebours strict</b><br><small>Le temps écoulé compte comme une erreur. Seulement quand elle réussit bien en mode normal.</small></span></label>`)+
@@ -2802,6 +2804,7 @@ function renderParent(){tbUse("add");
   $("#p-retour").onclick=()=>{PARENT_OK=false;renderCarte();go("carte")};G=null;
   const pg=$("#p-pwgo");if(pg)pg.onclick=()=>{showTab("reglages");const f=$("#p-pwf");if(f){f.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>$("#p-pw0").focus({preventScroll:true}),400)}};
   dParentBind();tbParentBind();planParentBind();orParentBind();gridBind();reportBind();
+  const scp=$("#p-scap");if(scp)scp.onchange=()=>{S.scap=scp.value;save()};
   const pu=$("#p-upd");if(pu)pu.onclick=async()=>{const m=$("#p-updmsg");m.textContent=" Vérification…";
     try{const v=(await (await fetch("version.txt?t="+Date.now(),{cache:"no-store"})).text()).trim();
       if(!v)throw 0;if(v===APP_VER){m.innerHTML=" <b style=\"color:var(--good)\">Le jeu est à jour ✓</b>"}
@@ -5442,6 +5445,13 @@ let SEANCE=null;
 function seanceGo(x){SEANCE={d:today(),cur:x.id};tone([[659,.08],[880,.12]]);x.go()}
 function seanceStart(){const it=progItems(),x=it.find(y=>!y.done);if(x)seanceGo(x)}
 function seanceEnd(){if(!SEANCE||SEANCE.d!==today()){SEANCE=null;return}const el=$("#ecran-fin");if(!el||el.querySelector(".snext"))return;
+  const cap=S.scap||"continuer",met=SUBJS.some(k=>goalOf(k)>0)&&allDone();
+  if(cap!=="continuer"&&met&&!SEANCE.capAsked){const card0=el.querySelector(".card")||el,row0=card0.querySelector(".row-btns"),bx=document.createElement("div");bx.className="snext";
+    if(cap==="arreter"){bx.innerHTML=`<p class="snx-l">Ma séance</p><p class="snx-done">🎉 Ton temps d'étude d'aujourd'hui est atteint. Bravo! La séance est terminée.</p><button class="btn" id="b-shome">Retour à l'accueil</button>`;SEANCE=null}
+    else bx.innerHTML=`<p class="snx-l">Ma séance</p><p class="snx-done">🎉 Ton temps d'étude d'aujourd'hui est atteint!</p><button class="btn" id="b-shome">J'arrête pour aujourd'hui</button><button class="sstop" id="b-smore">Je continue mon programme</button>`;
+    if(row0)row0.before(bx);else card0.appendChild(bx);
+    bx.querySelector("#b-shome").onclick=()=>{SEANCE=null;G=null;HTAB="home";CUR=null;renderCarte();go("carte")};
+    const mo=bx.querySelector("#b-smore");if(mo)mo.onclick=()=>{if(SEANCE)SEANCE.capAsked=true;bx.remove();seanceEnd()};return}
   const it=progItems(),left=it.filter(y=>!y.done),ci=it.findIndex(y=>y.id===SEANCE.cur),nx=(ci<0?it:it.slice(ci+1).concat(it.slice(0,ci))).find(y=>!y.done)||left[0],dn=it.length-left.length;
   const card=el.querySelector(".card")||el,row=card.querySelector(".row-btns");
   const box=document.createElement("div");box.className="snext";
@@ -5491,7 +5501,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261107-142227";
+const APP_VER="20261107-152848";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
