@@ -1152,6 +1152,18 @@ body.pskin .ptabs{position:static}
 .rpday.on{background:var(--sea);border-color:var(--sea);color:var(--sea-ink);font-weight:700}
 .rptxt{white-space:pre-wrap;font-family:inherit;font-size:1rem;line-height:1.55;background:var(--chbg,var(--bg));border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:.6rem 0}
 .pda.ok{border-color:var(--good)}
+.cgrid{display:grid;grid-template-columns:repeat(calc(var(--n) + 1),minmax(44px,58px));justify-content:center;gap:2px 6px;margin:.6rem auto 1rem;font-family:var(--f-display);font-variant-numeric:tabular-nums}
+.cg{min-height:52px;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:600;border-radius:10px;position:relative}
+.cg.cur{background:color-mix(in srgb,var(--c) 16%,transparent)}
+.cg.cgh{min-height:24px;font-size:.8rem;opacity:.7}.cg.cgh.cur{opacity:1;font-weight:800}
+.cg.cgcar{min-height:30px;font-size:1.1rem}.cgc{color:var(--bad);font-weight:800}
+.cgop{font-size:2rem}.cgline{grid-column:1/-1;height:4px;background:currentColor;border-radius:2px;margin:2px 0}
+.cgres b{color:var(--c)}
+.cgx{text-decoration:line-through;opacity:.5;font-size:1.5rem}.cgn{position:absolute;top:-6px;right:2px;font-size:1rem;color:var(--bad);font-weight:800}
+.cgr,.cgk{width:100%;height:52px;border-radius:10px;border:2px dashed var(--c);background:var(--surface);color:var(--ink);font:inherit;font-size:1.8rem;font-weight:700}
+.cgk{height:32px;font-size:1rem;border-style:dotted;color:var(--bad)}
+.cgr.sel,.cgk.sel{border-style:solid;border-width:3px;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 30%,transparent)}
+.cgr.bad{border-color:var(--bad);color:var(--bad)}
 </style>
 
 <header class="top">
@@ -2282,7 +2294,7 @@ function renderCarte(){
     const sec=(t,d,cards)=>`<section class="fsec" aria-label="${t}"><h3 class="xh">${t}</h3><p class="fsd">${d}</p><div class="zgrid">${cards}</div></section>`;
     if(CUR==="maths"){tbUse("mul");const mt=TBS(),md=tbDay(),mT=TB_TABLES[mt.cur],mE=TB_ET[mt.et];tbUse("add");const t=TBS(),d=tbDay();
       mid=sec("Calcul","Calculer vite et bien, de tête et sur papier.",
-        ac("b-tab",IC3.boulier,"Tables d'addition et de soustraction","Retenir les calculs par cœur, avec une astuce pour chaque table",d.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${t.cur+1} : ${TB_TABLES[t.cur].nom.toUpperCase()} · SÉRIE ${d.streak} SUR ${TB_STREAK}`,!d.done)+ac("b-mtab",IC3.n123,"Tables de multiplication","×2, ×10, ×5… puis la division : une astuce pour chaque table",md.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${mt.cur+1} : ${mT.nom.toUpperCase()} · ${mE.nom.toUpperCase()}`,mt.daily&&!md.done)+zc("foret")+zc("volcan")+ac("b-prob",IC3.loupe,"Problèmes à plusieurs étapes","Trouver ce qu'on cherche, les étapes, puis répondre par une phrase",`NIVEAU ${PBS().lvl} · ${PBS().lvl<3?"GUIDÉ":"SEULE"}`))
+        ac("b-tab",IC3.boulier,"Tables d'addition et de soustraction","Retenir les calculs par cœur, avec une astuce pour chaque table",d.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${t.cur+1} : ${TB_TABLES[t.cur].nom.toUpperCase()} · SÉRIE ${d.streak} SUR ${TB_STREAK}`,!d.done)+ac("b-mtab",IC3.n123,"Tables de multiplication","×2, ×10, ×5… puis la division : une astuce pour chaque table",md.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${mt.cur+1} : ${mT.nom.toUpperCase()} · ${mE.nom.toUpperCase()}`,mt.daily&&!md.done)+zc("foret")+ac("b-col",IC3.n123,"Calcul en colonnes","Additions avec retenue, soustractions avec emprunt, comme sur papier",`NIVEAU ${CLS_().lvl} · ${CLS_().lvl===1?"2 CHIFFRES":CLS_().lvl===2?"3 CHIFFRES":"4 CHIFFRES"}`)+zc("volcan")+ac("b-prob",IC3.loupe,"Problèmes à plusieurs étapes","Trouver ce qu'on cherche, les étapes, puis répondre par une phrase",`NIVEAU ${PBS().lvl} · ${PBS().lvl<3?"GUIDÉ":"SEULE"}`))
        +sec("Nombres","Comprendre, écrire et comparer les nombres et les fractions.",zc("port")+zc("baie"))
        +sec("Mesure et géométrie","Lire l'heure, mesurer et reconnaître les formes.",zc("horloge")+zc("grotte"))
        +sec("Statistique et probabilité","Lire des diagrammes et prévoir le hasard.",zc("phare"))}
@@ -2320,7 +2332,7 @@ function renderCarte(){
   const bnot=$("#b-notions");if(bnot)bnot.onclick=()=>openLessons(CUR,null);
   bindSearch(CUR);
   const bat=$("#b-atelier");if(bat)bat.onclick=renderAtelier;
-  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;const brd=$("#b-redac");if(brd)brd.onclick=startRedac;const brde=$("#b-redacen");if(brde)brde.onclick=startRedacEn;const bor=$("#b-oral");if(bor)bor.onclick=()=>startOral("fr");const bore=$("#b-oralen");if(bore)bore.onclick=()=>startOral("en");const btb=$("#b-tab");if(btb)btb.onclick=()=>startTables("add");const bmt=$("#b-mtab");if(bmt)bmt.onclick=()=>startTables("mul");const bpb=$("#b-prob");if(bpb)bpb.onclick=startProb;const bex=$("#b-exam");if(bex)bex.onclick=startExam;const bcj=$("#b-conj");if(bcj)bcj.onclick=renderConj;const bgn=$("#b-gn");if(bgn)bgn.onclick=startGN;planBind(el);
+  const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;const brd=$("#b-redac");if(brd)brd.onclick=startRedac;const brde=$("#b-redacen");if(brde)brde.onclick=startRedacEn;const bor=$("#b-oral");if(bor)bor.onclick=()=>startOral("fr");const bore=$("#b-oralen");if(bore)bore.onclick=()=>startOral("en");const btb=$("#b-tab");if(btb)btb.onclick=()=>startTables("add");const bmt=$("#b-mtab");if(bmt)bmt.onclick=()=>startTables("mul");const bpb=$("#b-prob");if(bpb)bpb.onclick=startProb;const bcl=$("#b-col");if(bcl)bcl.onclick=startCol;const bex=$("#b-exam");if(bex)bex.onclick=startExam;const bcj=$("#b-conj");if(bcj)bcj.onclick=renderConj;const bgn=$("#b-gn");if(bgn)bgn.onclick=startGN;planBind(el);
   const bbi=$("#b-biblio");if(bbi)bbi.onclick=renderBiblio;homeBind(el);
   el.querySelectorAll("[data-subj]").forEach(b=>b.onclick=()=>{CUR=b.dataset.subj;tone([[659,.08],[880,.12]]);renderCarte();window.scrollTo(0,0)});
   el.querySelectorAll("[data-isle]").forEach(b=>b.addEventListener("click",()=>b.dataset.isle==="sprint"?startSprint():start(b.dataset.isle)));
@@ -2719,6 +2731,7 @@ function renderParent(){tbUse("add");
     pdet("Dictée, liste par liste",dTot?`${dM} / ${dTot} mots maîtrisés`:"aucune liste",`<p class="pdesc">Un mot revient après 1, 2, 4, 8, 16 puis 35 jours s'il est réussi; un mot raté revient le lendemain. Il est « maîtrisé » après 5 réussites espacées.</p>${dStatsHTML()}`)+
     pdet("Tables d'addition et de soustraction",`table ${tb.cur+1} sur ${TB_TABLES.length}`,`<p class="pdesc">Une table aux 2 semaines environ, dans l'ordre des astuces : unités, puis dizaines, puis centaines.</p>${tbParentHTML()}`)+
     (()=>{tbUse("mul");const t=TBS(),on=t.hist.length||t.daily;const h=on?pdet("Tables de multiplication",`table ${t.cur+1} sur ${TB_TABLES.length}`,`<p class="pdesc">Mêmes règles : une table à la fois, justes et rapides, 2 jours réussis pour avancer. Étape 1 : multiplications; étape 2 : avec la division.</p>${tbParentHTML()}`):"";tbUse("add");return h})()+
+    pdet("Calcul en colonnes",`niveau ${CLS_().lvl} sur 3`,`<p class="pdesc">6 calculs par partie. Niveau 1 : guidée colonne par colonne (2 chiffres); niveau 2 : elle décide elle-même du chiffre à écrire et des emprunts (3 chiffres); niveau 3 : seule, 4 chiffres. Le niveau monte à 5 sur 6 réussis du premier coup.</p>${colParentHTML()}`)+
     pdet("Problèmes à plusieurs étapes",`niveau ${PBS().lvl} sur 3`,`<p class="pdesc">5 problèmes à deux calculs par partie. Niveaux 1 et 2 : guidée étape par étape; niveau 3 : elle trouve seule la réponse finale, les étapes restent offertes en aide. Le niveau monte à 4 sur 5 réussis sans aide.</p>${pbParentHTML()}`)+
     pdet("Rédaction (courts textes)",RDS().list.length?`${RDS().list.length} texte${RDS().list.length>1?"s":""}`:"pas encore",`<p class="pdesc">Elle planifie, écrit, puis se relit. L'app vérifie seulement ce qu'une machine peut vérifier sans se tromper : nombre de phrases, majuscules, point final, mots de la banque, et les mots presque bien écrits qui ressemblent à un mot de ses listes. Le sens et les accords : c'est à vous de lire.</p>${rdParentHTML()}`)+
     pdet("Lecture à voix haute",ORS().list.length?`${ORS().list.length} lecture${ORS().list.length>1?"s":""} · dernière : ${ORS().list[0].wpm} mots/min`:"pas encore",`<p class="pdesc">Elle lit un texte à voix haute; l'app mesure les mots lus par minute et l'enregistre. Rien n'est noté automatiquement : écoutez-la pour juger la justesse et l'intonation. Les enregistrements restent sur cet appareil (les 20 derniers).</p>${orParentHTML()}`)+
@@ -4348,7 +4361,7 @@ function rdParentHTML(){const L=RDS().list;if(!L.length)return`<p>Pas encore de 
 /* ======================================================================
    ESPACE PARENT — ONGLET PROGRÈS : tendances, carte du programme de 3e année, grille des textes
    ====================================================================== */
-function keySubj(k){const p=k.split("|")[0];if(k==="redac|en")return"anglais";if(/^(conj|gn|rep|dictee|redac)$/.test(p))return"francais";if(/^(tables|mtables|prob)$/.test(p))return"maths";if(p==="oral")return k.endsWith("|en")?"anglais":"francais";const z=byId(p);return z?z.subj:null}
+function keySubj(k){const p=k.split("|")[0];if(k==="redac|en")return"anglais";if(/^(conj|gn|rep|dictee|redac)$/.test(p))return"francais";if(/^(tables|mtables|prob|col)$/.test(p))return"maths";if(p==="oral")return k.endsWith("|en")?"anglais":"francais";const z=byId(p);return z?z.subj:null}
 function weekBounds(i){const dn=dayNum(),mon=dn-((new Date().getDay()+6)%7)-7*i;return[mon,mon+6]}
 function trendHTML(){const W=[5,4,3,2,1,0],D=S.dlog||{},all=[...S.hist,{d:S.day.d,subj:S.day.subj}];
   const minsOf=(sj,[a,b])=>Math.round(all.filter(h=>{const n=Math.floor(Date.parse(h.d+"T12:00:00")/864e5);return n>=a&&n<=b}).reduce((t,h)=>t+((h.subj||{})[sj]||0),0)/60);
@@ -4371,7 +4384,7 @@ const PFEQ_MAP={francais:[
   ["Grammaire et conjugaison",[["Accords dans le groupe du nom",["accords","gn"],"Les accords · Le groupe du nom"],["Accord du verbe avec le sujet",["accords"],"Les accords"],["Classes de mots",["grammaire"],"Les classes de mots"],["La phrase (types, ponctuation, sujet)",["phrase"],"La phrase"],["Conjugaison : présent, imparfait, futur simple",["conjugaison","conj"],"Les temps des verbes · Un verbe à la fois"],["Passé composé",["conj|pc","conjugaison|Conjuguer au passé composé","conjugaison|Le passé composé : avoir ou être?","conjugaison|Le participe passé","conjugaison|Reconnaître le passé composé"],"Un verbe à la fois · Les temps des verbes"]]],
   ["Communiquer oralement",[["Raconter, expliquer, discuter",null,"pas dans l'app : à pratiquer en famille (raconter sa journée, expliquer un jeu)"]]]],
  maths:[
-  ["Arithmétique",[["Nombres naturels (valeur de position, comparer)",["port"],"Lire et comparer les nombres"],["Fractions",["baie"],"Les fractions"],["Addition et soustraction (faits et calcul)",["foret","tables"],"Additions et soustractions · Tables"],["Multiplication et division (sens et tables)",["volcan","mtables"],"Multiplications et divisions · Tables ×"],["Nombres décimaux (dixièmes, centièmes)",null,"pas encore dans l'app (souvent en 4e année)"]]],
+  ["Arithmétique",[["Nombres naturels (valeur de position, comparer)",["port"],"Lire et comparer les nombres"],["Fractions",["baie"],"Les fractions"],["Addition et soustraction (faits et calcul)",["foret","tables"],"Additions et soustractions · Tables"],["Calcul écrit en colonnes (retenue, emprunt)",["col"],"Calcul en colonnes"],["Multiplication et division (sens et tables)",["volcan","mtables"],"Multiplications et divisions · Tables ×"],["Nombres décimaux (dixièmes, centièmes)",null,"pas encore dans l'app (souvent en 4e année)"]]],
   ["Résoudre une situation-problème",[["Problèmes à plusieurs étapes",["prob"],"Problèmes à plusieurs étapes"]]],
   ["Géométrie et mesure",[["Figures, quadrilatères, solides",["grotte"],"Les figures et les solides"],["Temps et longueur",["horloge"],"L'heure et les mesures"],["Périmètre et aire",["horloge|Le périmètre","horloge|L'aire","horloge|Périmètre ou aire?"],"L'heure et les mesures"],["Capacité et masse",null,"pas encore dans l'app"]]],
   ["Statistique et probabilité",[["Diagrammes, certain / possible / impossible",["phare"],"Diagrammes et probabilités"]]]],
@@ -4406,7 +4419,7 @@ function gridBind(){document.querySelectorAll(".g4").forEach(b=>b.onclick=()=>{c
    RAPPORT DU JOUR — un par jour, prêt dès que la journée est complétée (objectifs atteints).
    Calculé à partir des données de la journée; le parent le lit ici et peut le partager.
    ====================================================================== */
-const RP_LBL={tables:"Tables d'addition",mtables:"Tables de multiplication",prob:"Problèmes",dictee:"Dictée",conj:"Conjugaison",rep:"Réponses en phrases",gn:"Groupe du nom",redac:"Rédaction",oral:"Lecture à voix haute"};
+const RP_LBL={tables:"Tables d'addition",col:"Calcul en colonnes",mtables:"Tables de multiplication",prob:"Problèmes",dictee:"Dictée",conj:"Conjugaison",rep:"Réponses en phrases",gn:"Groupe du nom",redac:"Rédaction",oral:"Lecture à voix haute"};
 function dayReport(dn){const iso=new Date(dn*864e5+12*36e5).toISOString().slice(0,10),isToday=dn===dayNum(),h=isToday?{d:S.day.d,sec:S.day.sec,subj:S.day.subj||{},goals:S.goals}:(S.hist||[]).find(x=>x.d===iso);
   const D=(S.dlog||{})[dn]||{};if(!h&&!Object.keys(D).length)return null;
   const subj=(h&&h.subj)||{},goals=(h&&h.goals)||S.goals,sec=(h&&h.sec)||0,gm=SUBJS.reduce((t,k)=>t+(goals[k]||0),0);
@@ -4436,6 +4449,103 @@ function reportBind(){const box=$("#p-rp");if(!box)return;
   box.querySelectorAll(".rpday").forEach(b=>b.onclick=()=>{box.innerHTML=reportHTML(+b.dataset.rpd);reportBind()});
   const sh=$("#p-rpshare");if(sh)sh.onclick=async()=>{const r=dayReport(+sh.dataset.dn);if(!r)return;const t=reportText(r),m=$("#p-rpmsg");
     try{if(navigator.share){await navigator.share({title:"Rapport du jour",text:t});m.textContent=""}else{await navigator.clipboard.writeText(t);m.innerHTML=` <b style="color:var(--good)">Rapport copié ✓ Collez-le dans un message.</b>`}}catch(e){try{await navigator.clipboard.writeText(t);m.innerHTML=` <b style="color:var(--good)">Rapport copié ✓</b>`}catch(e2){m.textContent=" Impossible de partager sur cet appareil."}}}}
+/* ======================================================================
+   CALCUL EN COLONNES — additions avec retenue, soustractions avec emprunt (calcul écrit, 2e cycle)
+   Niveau 1 : guidé, elle calcule chaque colonne (2 chiffres). Niveau 2 : guidé, elle décide elle-même
+   (quel chiffre écrire, faut-il emprunter?), 3 chiffres. Niveau 3 : seule, 4 chiffres, retenues au besoin.
+   6 calculs par partie; le niveau monte à 5 sur 6 du premier coup, descend à 2 ou moins.
+   ====================================================================== */
+const COLN=["Unités","Dizaines","Centaines","Milliers","Dizaines de mille"],COLL=["U","D","C","M","DM"];
+const CLS_=()=>{if(!S.col||typeof S.col!=="object")S.col={};const c=S.col;if(!(c.lvl>=1))c.lvl=1;if(!Array.isArray(c.hist))c.hist=[];return c};
+const dg=n=>String(n).split("").reverse().map(Number);
+function colGen(L,op){for(let t=0;t<200;t++){const nd=L===1?2:L===2?3:4,lo=10**(nd-1),hi=10**nd-1;let a=ri(lo,hi),b=ri(L===3&&Math.random()<.4?10**(nd-2):lo,hi);
+    if(op==="−"){if(a<b)[a,b]=[b,a];const r=a-b,A=dg(a),B=dg(b);if(String(r).length!==String(a).length)continue;let br=0,ok=true,c=0;
+      for(let i=0;i<A.length;i++){const top=A[i]-c,bot=B[i]||0;if(top<bot){if(A[i+1]===0||(A[i+1]-0)<1){ok=false;break}br++;c=1}else c=0;if(top<0){ok=false;break}}
+      if(!ok)continue;const need=L===1?[1,1]:L===2?[1,2]:[1,3];if(br<need[0]||br>need[1])continue;return{a,b,op,r}}
+    else{const A=dg(a),B=dg(b);let c=0,k=0;for(let i=0;i<A.length;i++){const s=A[i]+(B[i]||0)+c;c=s>=10?1:0;k+=c}const need=L===1?[1,1]:L===2?[1,2]:[1,3];if(k<need[0]||k>need[1]||(L<3&&a+b>=10**nd))continue;return{a,b,op,r:a+b}}}
+  return{a:47,b:28,op:"+",r:75}}
+/* Les étapes, colonne par colonne */
+function colSteps(P){const A=dg(P.a),B=dg(P.b),R=dg(P.r),st=[];
+  if(P.op==="+"){let c=0;for(let i=0;i<R.length;i++){if(i>=A.length&&i>=(B.length)){st.push({i,auto:true,dig:c,txt:"La dernière retenue descend : on l'écrit devant."});break}
+      const a=A[i]||0,b=B[i]||0,s=a+b+c,pre=c?"1 (retenue) + ":"";st.push({i,cin:c,sum:s,dig:s%10,cout:s>=10?1:0,q:`${COLN[i]} : ${pre}${a}${i<B.length?` + ${b}`:""} = ?`,expr:`${pre}${a}${i<B.length?` + ${b}`:""} = ${s}`});c=s>=10?1:0}}
+  else{const T=A.slice();for(let i=0;i<A.length;i++){const b=B[i]||0;let br=false;if(T[i]<b){br=true;T[i+1]-=1;T[i]+=10}
+      st.push({i,top:T[i],orig:A[i],b,br,dig:T[i]-b,has:i<B.length,q:`${COLN[i]} : ${T[i]}${i<B.length?` − ${b}`:""} = ?`,expr:`${T[i]}${i<B.length?` − ${b}`:""} = ${T[i]-b}`})}}
+  return st}
+function colGrid(P,S2){const A=dg(P.a),B=dg(P.b),R=dg(P.r),n=Math.max(A.length,R.length),cols=[...Array(n).keys()].reverse(),cur=S2.cur;
+  const cell=(i,html,cls="")=>`<div class="cg${i===cur?" cur":""} ${cls}">${html}</div>`;
+  const top=cols.map(i=>{const o=A[i];if(o==null)return cell(i,"");const bw=S2.borrow&&S2.borrow[i];return cell(i,bw?`<span class="cgx">${o}</span><span class="cgn">${bw.v}</span>`:String(o),"cgd")}).join("");
+  const car=cols.map(i=>S2.edit&&P.op==="+"&&i>0&&i<n?`<div class="cg${i===cur?" cur":""}"><button class="cgk${S2.sel==="k"+i?" sel":""}" data-k="${i}">${S2.k&&S2.k[i]!=null?S2.k[i]:""}</button></div>`:cell(i,S2.carry&&S2.carry[i]?`<span class="cgc">${S2.carry[i]}</span>`:"","cgcar")).join("");
+  const bot=cols.map(i=>cell(i,B[i]!=null?String(B[i]):"","cgd")).join("");
+  const res=cols.map(i=>S2.edit?`<div class="cg${i===cur?" cur":""}"><button class="cgr${S2.sel==="r"+i?" sel":""}${S2.bad&&S2.bad[i]?" bad":""}" data-r="${i}">${S2.v&&S2.v[i]!=null?S2.v[i]:""}</button></div>`:cell(i,S2.res&&S2.res[i]!=null?`<b>${S2.res[i]}</b>`:"","cgd cgres")).join("");
+  const head=cols.map(i=>cell(i,`<small>${COLL[i]}</small>`,"cgh")).join("");
+  return`<div class="cgrid" style="--n:${n}"><div class="cg"></div>${head}<div class="cg"></div>${car}<div class="cg"></div>${top}<div class="cg cgop">${P.op}</div>${bot}<div class="cgline"></div><div class="cg"></div>${res}</div>`}
+let CL=null,CL_KEYH=null;
+function startCol(){const C=CLS_();FORCEV=false;G={mode:"col",subj:"maths",events:[]};CL={L:C.lvl,list:[],i:0,ok:0};for(let i=0;i<6;i++)CL.list.push(colGen(C.lvl,i%2?"−":"+"));CL.list=shuffle(CL.list);colIntro()}
+function colBar(){return`<div class="gamebar"><button class="back" id="cl-back">← L'Île aux Nombres</button><span class="gtitle">Calcul en colonnes</span>${CL&&CL.started?`<span class="levelchip">${Math.min(CL.i+1,CL.list.length)} / ${CL.list.length}</span>`:`<span class="levelchip">Niveau ${CL?CL.L:1}</span>`}</div>`}
+function colBack(){const b=$("#cl-back");if(b)b.onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}colKeys(false);G=null;CL=null;renderCarte();go("carte")}}
+function colKeys(on){if(CL_KEYH){window.removeEventListener("keydown",CL_KEYH);CL_KEYH=null}if(on){CL_KEYH=e=>{if(!CL||!CL.key)return;if(/^[0-9]$/.test(e.key))CL.key(e.key);else if(e.key==="Backspace")CL.key("del");else if(e.key==="Enter"){e.preventDefault();CL.key("ok")}};window.addEventListener("keydown",CL_KEYH)}}
+const COL_AST=["J'aligne les chiffres : unités sous les unités, dizaines sous les dizaines.","Je commence toujours par la colonne des unités, à droite.","Addition : si une colonne fait 10 ou plus, j'écris les unités et je retiens 1 dans la colonne suivante.","Soustraction : si le chiffre du haut est plus petit, j'emprunte 1 dizaine à la colonne de gauche."];
+function colIntro(){const el=$("#ecran-jeu"),L=CL.L;el.style.setProperty("--c","var(--i5)");
+  el.innerHTML=colBar()+`<div class="card pop tbcard" style="--c:var(--i5)"><div class="notion">Niveau ${L} · ${L===1?"guidé, 2 chiffres":L===2?"guidé, 3 chiffres":"seule, 4 chiffres"}</div><h2 class="tbh">🧮 Calcul en colonnes</h2>
+   <div class="tbast"><b>À retenir</b>${COL_AST.map(x=>`<p>${esc(x)}</p>`).join("")}</div>${colGrid({a:47,b:28,op:"+",r:75},{res:{0:5,1:7},carry:{1:1},cur:-1})}
+   <div class="row-btns">${TTS?`<button class="listen" id="cl-say">${SPK}Écouter</button>`:""}<button class="btn" id="cl-go">Commencer</button></div></div>`;
+  colBack();go("jeu");const sy=$("#cl-say");if(sy)sy.onclick=()=>{FORCEV=true;speakSeq(COL_AST.map(x=>[x,"fr"]),()=>{FORCEV=false})};
+  $("#cl-go").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}CL.started=true;colKeys(true);colNext()}}
+function colHead(P,body){return colBar()+`<div class="dots">${CL.list.map((_,i)=>`<span class="${i<CL.i?(CL.list[i].win?"ok":"ko"):i===CL.i?"now":""}"></span>`).join("")}</div>
+  <div class="card pop" style="--c:var(--i5)"><div class="notion">${P.op==="+"?"Addition":"Soustraction"} en colonnes</div><p class="prompt">Calcule en colonnes : <b>${nf(P.a)} ${P.op} ${nf(P.b)}</b></p>${body}</div>`}
+function colNext(){const P=CL.list[CL.i];P.steps=colSteps(P);P.si=0;P.st={res:{},carry:{},borrow:{},cur:0};P.err=0;if(CL.L>=3&&!P.guided)colFree(P);else colStep(P)}
+function colPad(){return`<div class="numpad"><div class="numdisplay" id="cl-nd" aria-live="polite">&nbsp;</div>${keysHTML()}</div>`}
+function colStep(P){const s=P.steps[P.si];P.st.cur=s.i;
+  if(s.auto){P.st.res[s.i]=s.dig;P.si++;return colAfter(P,`${s.txt}`)}
+  const L=CL.L,el=$("#ecran-jeu");
+  /* Niveau 2, soustraction : décider s'il faut emprunter */
+  if(P.op==="−"&&L>=2&&s.has&&s.decided==null){el.innerHTML=colHead(P,colGrid(P,P.st)+`<p class="pbask"><b>${COLN[s.i]} :</b> ${s.orig-(P.st.borrow[s.i]?1:0)} − ${s.b}. Faut-il emprunter?</p><div class="choices"><button class="choice" data-v="1">Oui, j'emprunte</button><button class="choice" data-v="0">Non</button></div><div id="fb"></div>`);
+    colBack();go("jeu");el.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{const ok=(b.dataset.v==="1")===s.br;s.decided=true;logAct("col|emprunt",ok);if(!ok)P.err++;tone(ok?[[660,.1],[880,.15]]:[[300,.2]]);
+      el.querySelectorAll(".choice").forEach(x=>{x.disabled=true;if((x.dataset.v==="1")===s.br)x.classList.add("right")});if(!ok)b.classList.add("wrong");
+      $("#fb").innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><p>${s.br?`${s.orig-(P.st.borrow[s.i]?1:0)} est plus petit que ${s.b} : on emprunte 1 dizaine à la colonne de gauche.`:`${s.orig-(P.st.borrow[s.i]?1:0)} est assez grand : pas besoin d'emprunter.`}</p><button class="btn" id="cl-c">Continuer</button></div>`;$("#cl-c").onclick=()=>colStep(P)});return}
+  if(P.op==="−"&&s.br){P.st.borrow[s.i]={v:s.top};P.st.borrow[s.i+1]={v:(P.st.borrow[s.i+1]?P.st.borrow[s.i+1].v:dg(P.a)[s.i+1])-1}}
+  const ask=L>=2&&P.op==="+"?`${s.q.replace(" = ?","")} = ${s.sum}. <b>Quel chiffre écris-tu en bas?</b>`:s.q.replace("?","<b>?</b>");
+  const bw=P.op==="−"&&s.br?`<p class="pbhint">On a emprunté : ${dg(P.a)[s.i+1]} devient <b>${P.st.borrow[s.i+1].v}</b>, et ${s.orig} devient <b>${s.top}</b>.</p>`:"";
+  el.innerHTML=colHead(P,colGrid(P,P.st)+bw+`<p class="pbask">${ask}</p>${colPad()}<div id="fb"></div>`);colBack();go("jeu");
+  const want=L>=2&&P.op==="+"?s.dig:(P.op==="+"?s.sum:s.dig);let val="",tries=0;
+  CL.key=k=>{if(k==="del")val=val.slice(0,-1);else if(k==="ok"){if(!val)return;const ok=+val===want;tries++;
+      if(ok||tries>=2){CL.key=null;if(tries===1)logAct("col|"+(P.op==="+"?"add":"sub"),ok);if(!ok||tries>1)P.err++;
+        P.st.res[s.i]=s.dig;if(P.op==="+"&&s.cout)P.st.carry[s.i+1]=1;P.si++;
+        const why=P.op==="+"?(s.cout?`${s.expr}. On écrit <b>${s.dig}</b> et on retient <b>1</b> dans la colonne des ${COLN[s.i+1].toLowerCase()}.`:`${s.expr}. On écrit <b>${s.dig}</b>.`):`${s.expr}. On écrit <b>${s.dig}</b>.`;
+        tone(ok?[[660,.1],[880,.15]]:[[300,.2]]);return colAfter(P,(ok?"":"Regarde bien : ")+why,ok)}
+      else{val="";$("#cl-nd").innerHTML="&nbsp;";tone([[300,.2]]);$("#fb").innerHTML=`<p class="pbhint pop">Pas tout à fait. ${P.op==="+"?(L>=2?`La colonne fait ${s.sum} : on écrit seulement le chiffre des unités.`:`Additionne les chiffres de la colonne${s.cin?", sans oublier la retenue":""}.`):`Fais ${s.q.replace(`${COLN[s.i]} : `,"").replace(" = ?","")}.`} Réessaie.</p>`;return}}
+    else if(val.length<2)val+=k;$("#cl-nd").innerHTML=val||"&nbsp;"};
+  el.querySelectorAll(".key").forEach(b=>b.onclick=()=>CL.key&&CL.key(b.dataset.k));if(canSpeak())speak(s.q.replace("?","combien").replace(/−/g,"moins").replace(/\+/g,"plus"))}
+function colAfter(P,msg,ok=true){const el=$("#ecran-jeu"),done=P.si>=P.steps.length;P.st.cur=done?-1:P.steps[P.si].i;
+  el.innerHTML=colHead(P,colGrid(P,P.st)+`<div class="feedback ${ok?"good":"bad"} pop"><p>${msg}</p>${done?`<p><b>Résultat : ${nf(P.a)} ${P.op} ${nf(P.b)} = ${nf(P.r)}</b></p>`:""}<button class="btn" id="cl-c">${done?(CL.i+1<CL.list.length?"Calcul suivant":"Terminer"):"Colonne suivante"}</button></div>`);colBack();go("jeu");
+  if(canSpeak())speak(msg.replace(/<[^>]+>/g,"").replace(/−/g," moins ").replace(/\+/g," plus "));
+  const c=$("#cl-c");CL.key=k=>{if(k==="ok")c.click()};c.onclick=()=>{SEQ++;CL.key=null;if(!done)return colStep(P);if(!P.guided)P.win=P.err===0;if(P.win)CL.ok++;CL.i++;CL.i<CL.list.length?colNext():colFinish()};c.focus({preventScroll:true})}
+/* Niveau 3 : seule. Elle remplit la réponse (et les retenues si elle veut), de droite à gauche. */
+function colFree(P){const el=$("#ecran-jeu"),R=dg(P.r);P.st={edit:true,v:{},k:{},sel:"r0",cur:0};
+  const draw=()=>{el.innerHTML=colHead(P,colGrid(P,P.st)+`<p class="pbask">Touche une case, puis écris le chiffre. ${P.op==="+"?"Tu peux écrire tes retenues dans les petites cases du haut.":"Fais tes emprunts dans ta tête ou sur une feuille."}</p><div class="numpad">${keysHTML()}</div><div id="fb"></div>`);colBack();go("jeu");
+    el.querySelectorAll(".cgr").forEach(b=>b.onclick=()=>{P.st.sel="r"+b.dataset.r;P.st.cur=+b.dataset.r;draw()});el.querySelectorAll(".cgk").forEach(b=>b.onclick=()=>{P.st.sel="k"+b.dataset.k;P.st.cur=+b.dataset.k;draw()});
+    el.querySelectorAll(".key").forEach(b=>b.onclick=()=>CL.key&&CL.key(b.dataset.k))};
+  CL.key=k=>{const sel=P.st.sel,isR=sel&&sel[0]==="r",i=sel?+sel.slice(1):0;
+    if(k==="del"){if(isR)delete P.st.v[i];else delete P.st.k[i];return draw()}
+    if(k==="ok"){const n=R.length,guess=+[...Array(n).keys()].reverse().map(j=>P.st.v[j]??"").join("");if([...Array(n).keys()].some(j=>P.st.v[j]==null))return;
+      const ok=guess===P.r;logAct("col|"+(P.op==="+"?"add":"sub"),ok);CL.key=null;P.win=ok;
+      if(ok){tone([[660,.1],[880,.15]]);P.st.edit=false;P.st.res=Object.fromEntries(R.map((d,j)=>[j,d]));P.st.cur=-1;el.innerHTML=colHead(P,colGrid(P,P.st)+`<div class="feedback good pop"><h3>Bravo!</h3><p>${nf(P.a)} ${P.op} ${nf(P.b)} = <b>${nf(P.r)}</b></p><button class="btn" id="cl-c">${CL.i+1<CL.list.length?"Calcul suivant":"Terminer"}</button></div>`);colBack();go("jeu");
+        const c=$("#cl-c");CL.key=k2=>{if(k2==="ok")c.click()};c.onclick=()=>{CL.key=null;CL.ok++;CL.i++;CL.i<CL.list.length?colNext():colFinish()};return}
+      tone([[300,.2]]);P.st.bad=Object.fromEntries(R.map((d,j)=>[j,P.st.v[j]!==d]));const dgn=diagnose({kind:"num",answer:String(P.r),visual:`${P.a}${P.op}${P.b}=?`},String(guess));
+      draw();$("#fb").innerHTML=`<div class="feedback bad pop"><h3>Presque!</h3><p>Tu as trouvé ${nf(guess)}, la bonne réponse est <b>${nf(P.r)}</b>.</p>${dgn?`<p class="diag">${dgn}</p>`:""}<p>Les cases en rouge sont à revoir. On le refait ensemble, colonne par colonne.</p><button class="btn" id="cl-c">Le refaire ensemble</button></div>`;
+      $("#cl-c").onclick=()=>{P.guided=true;P.steps=colSteps(P);P.si=0;P.st={res:{},carry:{},borrow:{},cur:0};P.err=1;colStep(P)};return}
+    if(isR){P.st.v[i]=+k;const nx=i+1<R.length?i+1:i;P.st.sel="r"+nx;P.st.cur=nx}else{P.st.k[i]=+k}draw()};
+  draw()}
+function colFinish(){colKeys(false);const C=CLS_(),n=CL.list.length,ok=CL.ok,L=CL.L;let up="";
+  if(ok>=5&&C.lvl<3){C.lvl++;up=`Tu passes au niveau ${C.lvl}! ${C.lvl===3?"Maintenant, tu calcules toute seule.":"Les nombres auront 3 chiffres et c'est toi qui décides."}`}else if(ok<=2&&C.lvl>1){C.lvl--;up=`On revient au niveau ${C.lvl} pour bien pratiquer.`}
+  C.hist.unshift({d:dayNum(),L,ok,n});C.hist.length=Math.min(C.hist.length,40);save();
+  const el=$("#ecran-fin");el.style.setProperty("--c","var(--i5)");el.innerHTML=`<div class="card result pop" style="--c:var(--i5)"><div class="notion">Calcul en colonnes · niveau ${L}</div><h2>${ok>=5?"Bravo":"Bien travaillé"}${S.name?", "+esc(S.name):""}!</h2><div class="score">${ok} / ${n}</div><p class="msg"><small>réussis du premier coup</small></p>${stars(ok>=6?3:ok>=5?2:ok>=3?1:0)}
+   <p class="msg">${ok>=5?"Tes colonnes sont bien alignées et tes retenues bien placées!":"Rappelle-toi : on commence par les unités, et on n'oublie pas les retenues et les emprunts."}</p>${up?`<p class="msg"><b>${up}</b></p>`:""}
+   <div class="row-btns"><button class="btn" id="cl-again">Encore</button><button class="btn ghost" id="cl-map">Retour à l'île</button></div></div>`;
+  $("#cl-again").onclick=startCol;$("#cl-map").onclick=()=>{G=null;CL=null;renderCarte();go("carte")};go("fin");speak(`${ok} sur ${n}. ${up}`)}
+function colParentHTML(){const C=CLS_(),H=C.hist.slice(0,6);if(!H.length)return`<p>Pas encore pratiqué. L'activité est sur l'île aux Nombres, section Calcul.</p>`;
+  return`<p>Niveau <b>${C.lvl}</b> sur 3 (${C.lvl===1?"guidé, 2 chiffres":C.lvl===2?"guidé, 3 chiffres":"seule, 4 chiffres"}).</p><div class="days">${H.map(h=>`<div class="d"><span>${dnFmt(h.d)}<br><span class="dsub">Niveau ${h.L}</span></span><span class="meter"><i style="width:${h.ok/h.n*100}%;background:var(--good)"></i></span><span>${h.ok}/${h.n}</span></div>`).join("")}</div>`}
+
 /* ======================================================================
    JOURNAL D'ACTIVITÉ (par jour) — sert aux rapports du parent
    ====================================================================== */
@@ -4634,10 +4744,10 @@ function savePlan(P,txt){const old=S.plan;if(old&&old.from===P.from)P.tasks.forE
   if(P.exam&&/^dictee:\d+-\d+$/.test(P.exam.go)){const [a,b]=P.exam.go.slice(7).split("-").map(Number);DS().exam={d:P.exam.d,from:a,to:b,label:P.exam.label}}save()}
 /* Ouvre la bonne pratique pour une notion du plan */
 function planGo(g){const [k,arg]=g.split(":");
-  if(k==="tables")return startTables("add");if(k==="mtables")return startTables("mul");if(k==="prob")return startProb();if(k==="redac")return startRedac();if(k==="redacen")return startRedacEn();if(k==="gn")return startGN();if(k==="rep")return startRep();
+  if(k==="tables")return startTables("add");if(k==="mtables")return startTables("mul");if(k==="prob")return startProb();if(k==="col")return startCol();if(k==="redac")return startRedac();if(k==="redacen")return startRedacEn();if(k==="gn")return startGN();if(k==="rep")return startRep();
   if(k==="conj")return startConj(arg);if(k==="dictee")return arg?startExam():startDictee();
   const z=byId(k);if(z){CUR=z.subj;return start(k)}}
-const planIc=g=>/^conj/.test(g)?"🔤":g==="gn"?"🧩":g==="tables"?"🔢":/^mtables/.test(g)?"✖️":g==="prob"?"🔎":g==="redac"?"✏️":/^dictee/.test(g)?"✏️":g==="rep"?"✍️":(byId((g||"").split(":")[0])||{}).subj==="maths"?"➕":"📘";
+const planIc=g=>/^conj/.test(g)?"🔤":g==="gn"?"🧩":g==="tables"?"🔢":/^mtables/.test(g)?"✖️":g==="prob"?"🔎":g==="col"?"🧮":g==="redac"?"✏️":/^dictee/.test(g)?"✏️":g==="rep"?"✍️":(byId((g||"").split(":")[0])||{}).subj==="maths"?"➕":"📘";
 function planCardHTML(){if(!planActive())return"";const p=S.plan,ex=examActive()?DS().exam:null;
   return`<section class="plancard" aria-label="Ma semaine à l'école"><div class="planh"><h3>🏫 Ma semaine à l'école</h3><small>${planRange(p)}</small></div>
    ${ex?`<button class="planex" data-plan="dictee:x"><span>✏️ <b>${esc(ex.label)}</b><br><small>${examLeft()===0?"C'est aujourd'hui! Bonne chance!":`dans ${examLeft()} jour${examLeft()>1?"s":""}`} · ${examReady()} mots prêts sur ${examWords().length}</small></span><span class="planbtn">Je révise</span></button>`:""}
@@ -4678,10 +4788,10 @@ function planEditHTML(){const p=S.plan;return pcard("Plan de travail de la semai
 function planParentBind(){const b=$("#p-plansave");if(b)b.onclick=()=>{const t=$("#p-plantxt").value,P=parsePlan(t);if(!P){$("#p-planmsg").innerHTML=` <b style="color:var(--bad)">Il manque la ligne « Semaine: AAAA-MM-JJ au AAAA-MM-JJ ».</b>`;return}savePlan(P,t);renderParent()};
   document.querySelectorAll("[data-task]").forEach(c=>c.onchange=()=>{const t=(S.plan.tasks||[]).find(x=>x.id===c.dataset.task);if(t){t.done=c.checked?Date.now():0;save()}})}
 const pct=(r,t)=>t?Math.round(r/t*100)+" %":"—";
-const NOTION_MATCH=g=>{const [k,a]=(g||"").split(":");if(k==="conj")return key=>key==="conj|"+a;if(k==="gn")return key=>key.startsWith("gn|")||key==="grammaire|Accord dans le groupe du nom";if(k==="tables")return key=>key.startsWith("tables|");if(k==="mtables")return key=>key.startsWith("mtables|");if(k==="prob")return key=>key.startsWith("prob|");if(k==="redac")return key=>key.startsWith("redac|");if(k==="redacen")return key=>key==="redac|en";if(k==="rep")return key=>key.startsWith("rep|");if(k==="dictee")return key=>key.startsWith("dictee|");return key=>key.startsWith(k+"|")};
+const NOTION_MATCH=g=>{const [k,a]=(g||"").split(":");if(k==="conj")return key=>key==="conj|"+a;if(k==="gn")return key=>key.startsWith("gn|")||key==="grammaire|Accord dans le groupe du nom";if(k==="tables")return key=>key.startsWith("tables|");if(k==="mtables")return key=>key.startsWith("mtables|");if(k==="prob")return key=>key.startsWith("prob|");if(k==="col")return key=>key.startsWith("col|");if(k==="redac")return key=>key.startsWith("redac|");if(k==="redacen")return key=>key==="redac|en";if(k==="rep")return key=>key.startsWith("rep|");if(k==="dictee")return key=>key.startsWith("dictee|");return key=>key.startsWith(k+"|")};
 function weekMin(from,to){let s=0;const add=(d,sec)=>{const dn=isoDn(d);if(dn!=null&&dn>=from&&dn<=to)s+=sec};(S.hist||[]).forEach(h=>add(h.d,h.sec));if(S.day)add(S.day.d,S.day.sec);return Math.round(s/60)}
 function weekReportHTML(){const p=S.plan;if(!p)return`<p>Aucun plan de la semaine pour l'instant. Ajoutez-le dans l'onglet <b>Matière scolaire</b>.</p>`;
-  const from=p.from,to=Math.max(p.to+2,Math.min(dayNum(),p.to+2)),rows=p.notions.map(n=>{const s=logSum(from,to,NOTION_MATCH(n.go)),x=stOf(s.r,s.t),k=(n.go||"").split(":")[0],src={conj:"Apprendre un verbe à la fois",gn:"Le groupe du nom",tables:"Tables d'addition et de soustraction",mtables:"Tables de multiplication",prob:"Problèmes à plusieurs étapes",redac:"J'écris un court texte",rep:"Répondre en phrases complètes",dictee:"Dictée du jour"}[k]||(byId(k)?byId(k).nom:"");return`<div class="nrow2 wk"><div><b>${esc(n.label)}</b><br><small>${s.t?`${s.r} bonne${s.r>1?"s":""} réponse${s.r>1?"s":""} sur ${s.t}, en ${s.days} jour${s.days>1?"s":""}${src?`, dans « ${esc(src)} »`:""}`:`pas encore pratiquée cette semaine${src?` (se pratique dans « ${esc(src)} »)`:""}`}</small></div><span class="spill s-${x.st}">${s.t?`${Math.round(s.r/s.t*100)} % cette semaine`:"Pas encore pratiquée"}</span></div>`}).join("");
+  const from=p.from,to=Math.max(p.to+2,Math.min(dayNum(),p.to+2)),rows=p.notions.map(n=>{const s=logSum(from,to,NOTION_MATCH(n.go)),x=stOf(s.r,s.t),k=(n.go||"").split(":")[0],src={conj:"Apprendre un verbe à la fois",gn:"Le groupe du nom",tables:"Tables d'addition et de soustraction",mtables:"Tables de multiplication",prob:"Problèmes à plusieurs étapes",col:"Calcul en colonnes",redac:"J'écris un court texte",rep:"Répondre en phrases complètes",dictee:"Dictée du jour"}[k]||(byId(k)?byId(k).nom:"");return`<div class="nrow2 wk"><div><b>${esc(n.label)}</b><br><small>${s.t?`${s.r} bonne${s.r>1?"s":""} réponse${s.r>1?"s":""} sur ${s.t}, en ${s.days} jour${s.days>1?"s":""}${src?`, dans « ${esc(src)} »`:""}`:`pas encore pratiquée cette semaine${src?` (se pratique dans « ${esc(src)} »)`:""}`}</small></div><span class="spill s-${x.st}">${s.t?`${Math.round(s.r/s.t*100)} % cette semaine`:"Pas encore pratiquée"}</span></div>`}).join("");
   const ex=p.exam&&DS().exam&&DS().exam.d===p.exam.d?DS().exam:null,done=p.tasks.filter(t=>t.done).length;
   const hard=ex?examWords().filter(w=>((DS().ex||{})[w]||{}).miss>0).sort((a,b)=>DS().ex[b].miss-DS().ex[a].miss).slice(0,10):[];
   return`<p class="pdesc"><b>${weekMin(from,to)} minutes</b> dans le jeu pendant cette semaine.</p>
@@ -5381,7 +5491,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261107-140606";
+const APP_VER="20261107-142227";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
