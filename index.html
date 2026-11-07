@@ -1144,6 +1144,9 @@ body.pskin .ptabs{position:static}
 .rdef .rdei{flex:1 1 160px;min-width:120px;font-size:1.2rem;padding:8px 12px;text-align:left}
 .rdefx{flex-direction:column;align-items:stretch}.rdefx .rdei{width:100%;box-sizing:border-box;min-height:52px;height:52px}
 .rdei.wrong{outline:3px solid var(--bad)}
+.dbplan li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.dbplan .dbg{min-height:36px;padding:0 12px;font-size:.85rem;flex:none}
+.dbplan .dbgap{justify-content:flex-start;opacity:.8;font-style:italic}
 </style>
 
 <header class="top">
@@ -4683,7 +4686,7 @@ function dAlignHTML(L,cur){const sw=schoolWeek(),ns=[...new Set(L.map(l=>l.n))].
    <div class="confirm"><button class="btn${off?"":" ghost"}" id="p-dlalgo">Réaligner toutes les dates</button></div>
    <p class="pdesc">Chaque liste recommence un lundi : la liste choisie commence ce lundi, les autres une semaine avant ou après selon leur numéro. Sa progression est gardée.</p></div>`}
 function dContentHTML(){const L=dSorted(),cur=dCurList(),dn=dayNum();
-  const acts=`<div class="confirm"><button class="btn" id="p-dladd">＋ Ajouter une liste de mots</button><button class="btn ghost" id="p-dlbulk">Coller plusieurs semaines d'un coup</button></div>`;
+  const acts=`<div class="confirm"><button class="btn" id="p-dladd">＋ Ajouter une liste de mots</button><button class="btn ghost" id="p-dlbulk">Coller plusieurs listes à partir d'une date</button></div>`;
   if(!L.length)return pcard("Listes de dictée","Ajoutez la liste de mots que l'école donne chaque semaine. À la date choisie, le jeu passe tout seul à la nouvelle liste; les mots des listes précédentes reviennent en révision. Les phrases d'exemple et les définitions s'ajoutent automatiquement pour les mots connus.",acts);
   const rows=L.map((l,i)=>dRowHTML(l,i,L.length,cur,dn)),past=L.filter(l=>l.start<=dn&&!(cur&&l.id===cur.id)).length;
   const words=Object.keys(dLists().by).length;
@@ -4724,26 +4727,43 @@ function dListDialog(id){const ls=DLs(),ed=id?ls.find(l=>l.id===id):null;
     close();dAfter();if(next)dListDialog()};
   o.querySelector("#dl-ok").onclick=()=>doSave(false);const nx=o.querySelector("#dl-next");if(nx)nx.onclick=()=>doSave(true);
   (ed?ta:o.querySelector("#dl-w")).focus({preventScroll:true})}
-/* Fenêtre « Plusieurs semaines d'un coup » */
-function dBulkDialog(){const ls=DLs(),s0=ls.length?dnMonday(Math.max(...ls.map(l=>l.start)))+7:dnMonday(dayNum());
-  const o=ovl(`<h2 class="ovl-title">Plusieurs semaines d'un coup</h2>
-   <p class="pdesc">Chaque semaine commence par une ligne « Semaine 5 », suivie de ses mots. Les semaines se suivent de lundi en lundi à partir de la date choisie.</p>
-   <label class="pfield">La première semaine commence le<input type="date" id="db-d" value="${dnToInput(s0)}"></label>
+/* Fenêtre « Plusieurs semaines d'un coup » : 1) la date de départ, 2) coller, 3) vérifier l'étalement.
+   Les listes sont placées une par semaine, dans l'ordre, à partir de la date choisie. On peut ajouter une semaine de congé
+   avant une liste. Les listes déjà enregistrées qui suivent peuvent être décalées pour garder une liste par semaine. */
+function parseBulk2(txt){const B=parseBulk(txt);if(B.length)return B;const ls=DLs();let n=(ls.length?Math.max(...ls.map(l=>l.n)):1)+1;
+  return String(txt||"").split(/\n\s*\n/).map(b=>listEntries(b)).filter(E=>E.length).map(E=>({n:n++,title:"",txt:E.map(entryTxt).join("\n"),count:E.length,auto:true}))}
+function dBulkDialog(){const ls=DLs(),s0=dnMonday(dayNum())+(new Date().getDay()===1?0:7);const gaps=new Set();
+  const o=ovl(`<h2 class="ovl-title">Coller plusieurs listes</h2>
+   <label class="pfield"><span><b>1.</b> La première liste commence le</span><input type="date" id="db-d" value="${dnToInput(s0)}"></label><p class="pdesc" id="db-dd"></p>
+   <p class="pdesc"><b>2.</b> Collez les listes. Chaque liste commence par une ligne « Semaine 5 » suivie de ses mots, ou est séparée de la suivante par une ligne vide.</p>
    <div class="confirm"><button class="btn ghost" id="db-paste">Coller</button><small>ou appuyez longuement dans la zone et choisissez « Coller ».</small></div>
-   <textarea id="db-t" rows="8" placeholder="Semaine 5&#10;maison, bateau, chapeau&#10;&#10;Semaine 6&#10;soleil&#10;oreille"></textarea>
+   <textarea id="db-t" rows="7" placeholder="Semaine 5&#10;maison, bateau, chapeau&#10;&#10;Semaine 6&#10;soleil&#10;oreille"></textarea>
    <div id="db-pv" class="dbpv" aria-live="polite"></div>
    <div class="confirm dlbtns"><button class="btn" id="db-ok" disabled>Enregistrer</button><button class="btn ghost" id="db-x">Annuler</button></div>`);
   o.firstElementChild.classList.add("form");
-  const ta=o.querySelector("#db-t"),pv=o.querySelector("#db-pv"),ok=o.querySelector("#db-ok"),di=o.querySelector("#db-d");
-  const plan=()=>{const B=parseBulk(ta.value),base=dnFromInput(di.value);if(!B.length||base==null)return[];const nw=B.filter(b=>!DLs().some(l=>l.n===b.n)),n0=nw.length?Math.min(...nw.map(b=>b.n)):0;
-    return B.sort((a,b)=>a.n-b.n).map(b=>{const ex=DLs().find(l=>l.n===b.n);return{...b,ex,start:ex?ex.start:base+(b.n-n0)*7}})};
-  const draw=()=>{const P=plan();ok.disabled=!P.length;ok.textContent=P.length?`Enregistrer ${P.length} semaine${P.length>1?"s":""}`:"Enregistrer";
-    pv.innerHTML=P.length?`<ul class="plist">${P.map(p=>`<li><b>Semaine ${p.n}</b>${p.title?` — ${esc(p.title)}`:""} · ${dnFmt(p.start)} · ${p.count} mot${p.count>1?"s":""}${p.ex?" <small>(remplace la liste existante)</small>":""}</li>`).join("")}</ul>`:ta.value.trim()?`<p class="help">Aucune semaine trouvée. Commencez chaque semaine par une ligne « Semaine 5 ».</p>`:""};
-  ta.oninput=draw;di.onchange=draw;
+  const ta=o.querySelector("#db-t"),pv=o.querySelector("#db-pv"),ok=o.querySelector("#db-ok"),di=o.querySelector("#db-d");let shiftOn=true;
+  const plan=()=>{const B=parseBulk2(ta.value).sort((a,b)=>a.n-b.n);let base=dnFromInput(di.value);if(!B.length||base==null)return null;base=dnMonday(base);let k=0;
+    const P=B.map((b,i)=>{if(gaps.has(b.n))k++;const start=base+7*(i+k),ex=DLs().find(l=>l.n===b.n);return{...b,ex,start,gap:gaps.has(b.n)}});
+    const newIds=new Set(P.filter(p=>p.ex).map(p=>p.ex.id)),last=P[P.length-1].start,maxN=Math.max(...P.map(p=>p.n));
+    const after=DLs().filter(l=>!newIds.has(l.id)&&l.n>maxN).sort((a,b)=>a.n-b.n);
+    const clash=DLs().filter(l=>!newIds.has(l.id)&&!(shiftOn&&l.n>maxN)&&P.some(p=>dnMonday(p.start)===dnMonday(l.start)));
+    return{P,after,last,clash}};
+  const draw=()=>{const d=dnFromInput(di.value);o.querySelector("#db-dd").innerHTML=d==null?"":`Les listes changeront chaque <b>lundi</b>, à partir du <b>${dnFmt(dnMonday(d),{weekday:"long",day:"numeric",month:"long"})}</b>.`;
+    const R=plan();ok.disabled=!R;ok.textContent=R?`Enregistrer ${R.P.length} liste${R.P.length>1?"s":""}`:"Enregistrer";
+    if(!R){pv.innerHTML=ta.value.trim()?`<p class="help">Aucune liste trouvée.</p>`:"";return}
+    pv.innerHTML=`<p class="pdesc"><b>3.</b> Vérifiez l'étalement. Touchez « Congé avant » s'il n'y a pas de liste une semaine (relâche, congé).</p><ul class="plist dbplan">${R.P.map(p=>`${p.gap?`<li class="dbgap">🏖️ Semaine de congé · ${dnFmt(p.start-7)}</li>`:""}<li><span><b>Semaine ${p.n}</b>${p.title?` — ${esc(p.title)}`:""} · <b>${dnFmt(p.start)}</b> · ${p.count} mot${p.count>1?"s":""}${p.ex?` <small>(remplace la liste existante)</small>`:""}</span>${p===R.P[0]?"":`<button class="btn ghost dbg" data-n="${p.n}">${p.gap?"Retirer le congé":"Congé avant"}</button>`}</li>`).join("")}</ul>
+     ${R.after.length?`<label class="toggle"><input type="checkbox" id="db-shift" ${shiftOn?"checked":""}><span>Décaler aussi ${R.after.length===1?`la semaine ${R.after[0].n}, déjà enregistrée,`:`les semaines ${R.after[0].n} à ${R.after[R.after.length-1].n}, déjà enregistrées,`} pour qu'elle${R.after.length>1?"s":""} continue${R.after.length>1?"nt":""} à partir du ${dnFmt(R.last+7)}</span></label>`:""}
+     ${R.clash.length?`<p class="help">⚠️ ${R.clash.map(l=>`La semaine ${l.n} commence aussi le ${dnFmt(l.start)}`).join(". ")}. Deux listes la même semaine : vérifiez les numéros.</p>`:""}`;
+    pv.querySelectorAll(".dbg").forEach(b=>b.onclick=()=>{const n=+b.dataset.n;gaps.has(n)?gaps.delete(n):gaps.add(n);draw()});
+    const sh=pv.querySelector("#db-shift");if(sh)sh.onchange=()=>{shiftOn=sh.checked;draw()}};
+  ta.oninput=draw;di.onchange=draw;di.oninput=draw;draw();
   o.querySelector("#db-paste").onclick=async()=>{let t="";try{t=await navigator.clipboard.readText()}catch(e){}if(t){ta.value=t;draw()}else{ta.focus();pv.innerHTML=`<p class="help">Appuyez longuement dans la zone ci-dessus et choisissez « Coller ».</p>`}};
   o.querySelector("#db-x").onclick=()=>o.remove();
-  ok.onclick=()=>{const P=plan();if(!P.length)return;P.forEach(p=>{if(p.ex)Object.assign(p.ex,{title:p.title||p.ex.title,txt:p.txt});else DLs().push({id:newLid(),n:p.n,start:p.start,title:p.title,txt:p.txt})});o.remove();dAfter()};
-  ta.focus({preventScroll:true})}
+  ok.onclick=()=>{const R=plan();if(!R)return;const before=JSON.parse(JSON.stringify(DLs()));
+    R.P.forEach(p=>{if(p.ex)Object.assign(p.ex,{title:p.title||p.ex.title,txt:p.txt,start:p.start});else DLs().push({id:newLid(),n:p.n,start:p.start,title:p.title,txt:p.txt})});
+    if(shiftOn)R.after.forEach((l,i)=>{l.start=R.last+7*(i+1)});
+    o.remove();dAfter();undoToast(`${R.P.length} liste${R.P.length>1?"s":""} enregistrée${R.P.length>1?"s":""}, du ${dnFmt(R.P[0].start)} au ${dnFmt(R.last)}.`,()=>{const d=DS();d.lists=before;dAfter()})};
+  di.focus({preventScroll:true})}
 function dParentBind(){const d=DS();
   const ad=$("#p-dladd");if(ad)ad.onclick=()=>dListDialog();
   const bk=$("#p-dlbulk");if(bk)bk.onclick=dBulkDialog;
@@ -5321,7 +5341,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261107-070858";
+const APP_VER="20261107-073801";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
