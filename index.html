@@ -1138,6 +1138,7 @@ body.skyin .din.wrong,.din.wrong{border-color:var(--bad)!important;background:va
 .skyin #ecran-parent .pfm li,.skyin #ecran-parent .rdchk li{background:var(--chbg);border-color:var(--cream-line)}
 body.pskin .ptabs{position:static}
 .skyin #ecran-parent select{min-height:44px;border-radius:12px;border:2px solid var(--cream-line);background:var(--chbg);color:var(--ink);padding:0 10px;font:inherit;font-size:1rem}
+.gfig{display:block;margin:6px auto;max-width:100%;height:auto;color:var(--ink)}
 </style>
 
 <header class="top">
@@ -1381,7 +1382,19 @@ baie(L){
   return{notion:"Nommer une fraction",prompt:"Quelle fraction de la bande est coloriée?",visual:bar(d,k)+`<div class="fraclegend">La bande est partagée en ${d} parts égales.</div>`,kind:"choice",choices:choices(`${k}/${d}`,dist(k,d)),answer:`${k}/${d}`,explain:`On compte les parts égales : il y en a ${d} (le nombre du bas). ${k} sont coloriées (le nombre du haut). C'est ${k}/${d}, on lit « ${words(k,d)} ».`}
 },
 horloge(L){
-  const type=pick(L===1?["heure","heure","unite"]:L===2?["heure","heure","conv","unite"]:["heure","duree","conv","conv"]);
+  const type=pick(L===1?["heure","heure","unite","aire"]:L===2?["heure","heure","conv","unite","aire","peri","pa"]:["heure","duree","conv","conv","aire","peri","peri","pa"]);
+  if(type==="aire"){const w=L===1?R(2,4):R(3,6),h=L===1?R(2,3):R(2,5),cut=L>1&&Math.random()<.5?[R(1,w-1),R(1,h-1)]:null,A=w*h-(cut?cut[0]*cut[1]:0);
+    return{notion:"L'aire",prompt:"Combien de carrés couvrent cette figure? C'est son <b>aire</b>.",say:"Combien de carrés couvrent cette figure? C'est son aire.",visual:gridFig(w,h,cut),kind:"num",answer:String(A),
+      explain:cut?`On compte les carrés à l'intérieur de la figure : ${A} carrés. Truc : le grand rectangle aurait ${w} × ${h} = ${w*h} carrés, moins les ${cut[0]*cut[1]} du coin enlevé : ${A}.`:`L'aire, c'est la surface couverte. Il y a ${h} rangées de ${w} carrés : ${h} × ${w} = ${A} carrés.`}}
+  if(type==="peri"){const lab=L===3||Math.random()<.4,w=lab?R(3,12):R(2,6),h=lab?R(2,9):R(2,4);
+    if(L===3&&Math.random()<.3){const c=R(3,9);return{notion:"Le périmètre",prompt:`Un carré a un périmètre de <b>${4*c} cm</b>. Combien mesure un côté?`,say:`Un carré a un périmètre de ${4*c} centimètres. Combien mesure un côté?`,kind:"num",answer:String(c),explain:`Un carré a 4 côtés pareils. ${4*c} ÷ 4 = ${c} cm, car 4 × ${c} = ${4*c}.`}}
+    return{notion:"Le périmètre",prompt:lab?"Quel est le <b>périmètre</b> de ce rectangle, en cm?":"Quel est le <b>périmètre</b> de ce rectangle? Compte les côtés des carrés tout autour.",say:lab?`Quel est le périmètre de ce rectangle? Il mesure ${w} centimètres sur ${h} centimètres.`:"Quel est le périmètre de ce rectangle? Compte les côtés des carrés tout autour.",
+      visual:gridFig(lab?Math.min(w,8):w,lab?Math.min(h,5):h,null,lab?[`${w} cm`,`${h} cm`]:null),kind:"num",answer:String(2*(w+h)),
+      explain:`Le périmètre, c'est la longueur du tour de la figure. On additionne les 4 côtés : ${w} + ${h} + ${w} + ${h} = ${2*(w+h)}${lab?" cm":""}. Truc : (${w} + ${h}) × 2.`}}
+  if(type==="pa"){const it=pick([["mettre une clôture autour du jardin","peri"],["couvrir le plancher avec un tapis","aire"],["poser un ruban autour d'un cadre","peri"],["peindre tout le mur","aire"],["faire le tour du parc en courant","peri"],["couvrir la table avec une nappe","aire"],["coller une bordure autour d'une affiche","peri"],["recouvrir le jardin de gazon","aire"]]);
+    return{notion:"Périmètre ou aire?",prompt:`Pour <b>${it[0]}</b>, on a besoin…`,say:`Pour ${it[0]}, on a besoin du périmètre ou de l'aire?`,kind:"choice",choices:["du périmètre","de l'aire"],answer:it[1]==="peri"?"du périmètre":"de l'aire",
+      explain:it[1]==="peri"?"Le périmètre, c'est le tour de la figure : une clôture, un ruban ou une bordure vont tout autour.":"L'aire, c'est la surface à couvrir : un tapis, une nappe, de la peinture ou du gazon couvrent tout l'intérieur."}}
+
   if(type==="heure"){const h=R(1,12),m=L===1?pick([0,30]):L===2?pick([0,15,30,45]):5*R(0,11),nh=h%12+1,ph=h===1?12:h-1;
     const d=[tfmt(nh,m),tfmt(h,(m+30)%60),tfmt(h,(m+15)%60),tfmt(ph,m)];if(m)d.unshift(tfmt(m/5,(h%12)*5));
     const extra=m===30?" (et demie)":m===15?" (et quart)":m===45?` (ou ${nh} h moins quart)`:"";
@@ -1441,7 +1454,7 @@ const ISL_M=[
  {id:"foret",a:"en additions et soustractions",nom:"Additions et soustractions",sous:"Calculer, trouver le nombre manquant, résoudre des problèmes écrits",glyph:"+ −",c:"--i2"},
  {id:"volcan",a:"en multiplications et divisions",nom:"Multiplications et divisions",sous:"Groupes égaux, tables de multiplication, partages",glyph:"× ÷",c:"--i3"},
  {id:"baie",a:"dans les fractions",nom:"Les fractions",sous:"Nommer, lire et comparer des parties d'un tout",glyph:"½",c:"--i4"},
- {id:"horloge",a:"dans l'heure et les mesures",nom:"L'heure et les mesures",sous:"Lire l'heure, calculer une durée, mesurer des longueurs",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2"/></svg>`,c:"--i5"},
+ {id:"horloge",a:"dans l'heure et les mesures",nom:"L'heure et les mesures",sous:"Lire l'heure, calculer une durée, mesurer des longueurs, le périmètre et l'aire",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2"/></svg>`,c:"--i5"},
  {id:"grotte",a:"en géométrie",nom:"Les figures et les solides",sous:"Figures planes, quadrilatères, côtés et faces des solides",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2.5 21 20H3z"/><path d="M12 2.5 15 20" stroke-dasharray="2.5 2.5"/></svg>`,c:"--i6"},
  {id:"phare",a:"en diagrammes et probabilités",nom:"Diagrammes et probabilités",sous:"Lire un diagramme; dire si c'est certain, possible ou impossible",glyph:`<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="5" width="4" height="16" rx="1"/><rect x="17" y="9" width="4" height="12" rx="1"/></svg>`,c:"--i7"}
 ];
@@ -4289,7 +4302,7 @@ const PFEQ_MAP={francais:[
  maths:[
   ["Arithmétique",[["Nombres naturels (valeur de position, comparer)",["port"],"Lire et comparer les nombres"],["Fractions",["baie"],"Les fractions"],["Addition et soustraction (faits et calcul)",["foret","tables"],"Additions et soustractions · Tables"],["Multiplication et division (sens et tables)",["volcan","mtables"],"Multiplications et divisions · Tables ×"],["Nombres décimaux (dixièmes, centièmes)",null,"pas encore dans l'app (souvent en 4e année)"]]],
   ["Résoudre une situation-problème",[["Problèmes à plusieurs étapes",["prob"],"Problèmes à plusieurs étapes"]]],
-  ["Géométrie et mesure",[["Figures, quadrilatères, solides",["grotte"],"Les figures et les solides"],["Temps et longueur",["horloge"],"L'heure et les mesures"],["Périmètre, aire, capacité, masse",null,"pas encore dans l'app"]]],
+  ["Géométrie et mesure",[["Figures, quadrilatères, solides",["grotte"],"Les figures et les solides"],["Temps et longueur",["horloge"],"L'heure et les mesures"],["Périmètre et aire",["horloge|Le périmètre","horloge|L'aire","horloge|Périmètre ou aire?"],"L'heure et les mesures"],["Capacité et masse",null,"pas encore dans l'app"]]],
   ["Statistique et probabilité",[["Diagrammes, certain / possible / impossible",["phare"],"Diagrammes et probabilités"]]]],
  anglais:[
   ["Interagir oralement",[["Comprendre et répondre à l'oral",["en_listen","en_talk"],"Écouter et comprendre · Petites conversations"],["Lire à voix haute",["oral|en"],"Lire à voix haute en anglais"]]],
@@ -4370,6 +4383,14 @@ const CJ_ER=["e","es","e","ons","ez","ent"],CJ_IR=["is","is","it","issons","isse
 /* ---------- Le passé composé (2e cycle) ----------
    Auxiliaire avoir ou être + participe passé. Avec être, seulement « il » ou un nom masculin singulier :
    l'accord du participe avec être vient au 3e cycle. Truc classique : -é ou -er? Remplace par « mordu » ou « mordre ». */
+/* Figure sur quadrillage pour le périmètre et l'aire : rectangle, ou forme en L (un coin enlevé) */
+function gridFig(w,h,cut,lab){const u=30,W=w*u,H=h*u,pad=lab?34:8,cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++){if(cut&&x>=w-cut[0]&&y<cut[1])continue;cells.push([x,y])}
+  const sq=cells.map(([x,y])=>`<rect x="${pad+x*u}" y="${pad+y*u}" width="${u}" height="${u}" fill="var(--c)" fill-opacity=".28" stroke="var(--c)" stroke-width="1.2"/>`).join("");
+  const grid=lab?"":Array.from({length:w+3},(_,i)=>`<line x1="${pad-u+i*u}" y1="0" x2="${pad-u+i*u}" y2="${H+2*pad}" stroke="currentColor" stroke-opacity=".12"/>`).join("")+Array.from({length:h+3},(_,i)=>`<line x1="0" y1="${pad-u+i*u}" x2="${W+2*pad}" y2="${pad-u+i*u}" stroke="currentColor" stroke-opacity=".12"/>`).join("");
+  const pts=cut?[[0,0],[w-cut[0],0],[w-cut[0],cut[1]],[w,cut[1]],[w,h],[0,h]]:[[0,0],[w,0],[w,h],[0,h]];
+  const out=`<polygon points="${pts.map(([x,y])=>`${pad+x*u},${pad+y*u}`).join(" ")}" fill="none" stroke="var(--c)" stroke-width="3.5" stroke-linejoin="round"/>`;
+  const L=lab?`<text x="${pad+W/2}" y="${pad-10}" text-anchor="middle" font-size="16" font-weight="700" fill="currentColor">${lab[0]}</text><text x="${pad+W+8}" y="${pad+H/2+5}" font-size="16" font-weight="700" fill="currentColor">${lab[1]}</text>`:"";
+  return`<svg class="gfig" viewBox="0 0 ${W+2*pad+(lab?40:0)} ${H+2*pad}" width="${Math.min(460,Math.round((W+2*pad+(lab?40:0))*1.6))}" role="img" aria-label="Figure">${grid}${lab?`<rect x="${pad}" y="${pad}" width="${W}" height="${H}" fill="var(--c)" fill-opacity=".18"/>`:sq}${out}${L}</svg>`}
 const PC_AUX=["ai","as","a","avons","avez","ont"];
 const PC_AV=[["manger","mangé",["une pomme","tout son dîner"]],["jouer","joué",["au ballon","aux cartes"]],["dessiner","dessiné",["un dragon","une maison"]],["regarder","regardé",["un film","les étoiles"]],["chanter","chanté",["une chanson","très fort"]],["finir","fini",["son casse-tête","ses devoirs"]],["choisir","choisi",["un livre","la couleur bleue"]],["faire","fait",["un gâteau","du vélo"]],["lire","lu",["une histoire","un poème"]],["écrire","écrit",["une lettre","un message"]],["prendre","pris",["l'autobus","une photo"]],["voir","vu",["un chevreuil","un arc-en-ciel"]]];
 const PC_ET=[["aller","allé",["au parc","à l'école"]],["arriver","arrivé",["en retard","à la maison"]],["partir","parti",["en vacances","tôt ce matin"]],["tomber","tombé",["dans la neige","de son vélo"]],["venir","venu",["chez nous","à la fête"]],["rester","resté",["à la maison","au lit"]],["entrer","entré",["dans la classe","dans la cabane"]]];
@@ -5238,7 +5259,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261107-014234";
+const APP_VER="20261107-014823";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
