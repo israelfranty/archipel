@@ -1147,6 +1147,11 @@ body.pskin .ptabs{position:static}
 .dbplan li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
 .dbplan .dbg{min-height:36px;padding:0 12px;font-size:.85rem;flex:none}
 .dbplan .dbgap{justify-content:flex-start;opacity:.8;font-style:italic}
+.rpdays{display:flex;flex-wrap:wrap;gap:6px}
+.rpday{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-size:.85rem;min-height:38px}
+.rpday.on{background:var(--sea);border-color:var(--sea);color:var(--sea-ink);font-weight:700}
+.rptxt{white-space:pre-wrap;font-family:inherit;font-size:1rem;line-height:1.55;background:var(--chbg,var(--bg));border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:.6rem 0}
+.pda.ok{border-color:var(--good)}
 </style>
 
 <header class="top">
@@ -2671,7 +2676,7 @@ function renderParent(){tbUse("add");
   const dash=`<section class="pdash" aria-label="Aujourd'hui"><div class="pdh"><h2>Aujourd'hui</h2><span>${new Date().toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"})}</span></div>
    <div class="pdgrid">${SUBJS.filter(k=>goalOf(k)>0).map(k=>{const s=subjSec(k),gl=goalOf(k),ok=s>=gl;return`<div class="pdi${ok?" ok":""}"><small>${LBL[k]}</small><b>${mins(s)} / ${gl/60} min${ok?" ✓":""}</b><span class="meter"><i style="width:${Math.min(100,s/gl*100)}%"></i></span></div>`}).join("")}</div>
    <div class="pdalerts">${dWeeks().length?`<button class="pda" data-go="suivi">📝 <b>${dDue()}</b> mot${dDue()>1?"s":""} de dictée à réviser aujourd'hui</button>`:`<button class="pda warn" data-go="matiere">📝 Ajouter les listes de dictée</button>`}
-   ${S.gifts.pending.length?`<button class="pda gift" data-go="recompenses">🎁 <b>${S.gifts.pending.length}</b> cadeau${S.gifts.pending.length>1?"x":""} à remettre</button>`:""}
+   ${(()=>{const r=dayReport(dayNum());return r&&r.complete?`<button class="pda ok" data-go="suivi">📩 Journée complétée : le rapport d'aujourd'hui est prêt</button>`:""})()}${S.gifts.pending.length?`<button class="pda gift" data-go="recompenses">🎁 <b>${S.gifts.pending.length}</b> cadeau${S.gifts.pending.length>1?"x":""} à remettre</button>`:""}
    ${weak?`<button class="pda warn" data-go="suivi">⚠️ À travailler : <b>${esc(weak.notion)}</b> (${weak.r} sur ${weak.n} dernières réponses)</button>`:""}
    ${dNeedList()?`<button class="pda warn" data-go="matiere">📅 Ajouter la liste de mots de cette semaine</button>`:""}${(()=>{const c=dCurList(),sw=schoolWeek();return c&&dWeeks().includes(sw)&&c.n!==sw?`<button class="pda warn" data-go="matiere">📅 Dates des listes de dictée décalées (semaine ${c.n} au lieu de ${sw}) : à corriger</button>`:""})()}</div></section>`;
   /* --- onglet Suivi --- */
@@ -2720,7 +2725,7 @@ function renderParent(){tbUse("add");
     pdet("Réponses écrites (lecture)",nRep?`${nRep} réponse${nRep>1?"s":""} à relire`:"aucune",`<p class="pdesc">Le jeu vérifie seulement la forme (reprendre la question, expliquer avec « car »). C'est vous qui jugez le contenu, avec l'exemple sous chaque réponse.</p>${repParentHTML()}`)+
     pdet("Écriture (Atelier)",nTr?`${nTr} caractère${nTr>1?"s":""} pratiqué${nTr>1?"s":""}`:"pas encore pratiqué",`<p class="pdesc">Caractères tracés sans modèle. « À l'envers » : le jeu a reconnu le caractère retourné (un d au lieu d'un b, par exemple).</p>${nTr?`<div class="items tglyphs">${Object.entries(S.trace).sort((a,b)=>b[1].rev-a[1].rev||a[0].localeCompare(b[0])).map(([c,t])=>`<span class="${t.rev?"warnc":""}">${c} · réussi ${t.ok}${t.rev?` · à l'envers ${t.rev}`:""}</span>`).join("")}</div>`:""}`)+
     pdet("Vitesse et jeux","records",vit));
-  const tSuivi=brief+
+  const tSuivi=pcard("Le rapport du jour","Un rapport par jour, prêt dès qu'elle complète sa journée (objectifs de temps atteints).",`<div id="p-rp">${reportHTML()}</div>`)+brief+
    pcard("Temps d'étude : les 7 derniers jours","Le temps compte seulement pendant les activités, application ouverte et sans pause.",days)+
    pcard(S.plan?`La semaine d'école : ${planRange(S.plan)}`:"La semaine d'école","Les notions du plan de la semaine, d'après ses réponses dans le jeu pendant cette semaine.",weekReportHTML())+
    notions+parcours+details;
@@ -2774,7 +2779,7 @@ function renderParent(){tbUse("add");
     pcard("La carte du programme de 3e année","Les contenus du Programme de formation (2e cycle) et ce que l'app couvre. Statut d'après ses réponses des 30 derniers jours; « Solide » demande 80 % et 2 jours réussis. La répartition exacte entre 3e et 4e année varie : à valider avec l'enseignante.",pfeqHTML())+
     pcard("Ses textes : la grille d'évaluation","Lisez ses textes et évaluez-les avec les mêmes critères qu'à l'école. Le mot que vous laissez s'affiche pour elle quand elle retourne écrire.",gridHTML());
   const T={progres:tProgres,suivi:tSuivi,matiere:tMatiere,reglages:tReglages,recompenses:tRecomp,donnees:tDonnees};
-  el.innerHTML=`<div class="gamebar"><button class="back" id="p-retour">← Carte</button><span class="gtitle">Espace parent</span></div>${dash}
+  el.innerHTML=`<div class="gamebar"><button class="back" id="p-retour">← Carte</button><span class="gtitle">Espace parent</span><button class="back" id="p-pwgo" style="margin-left:auto">🔒 Mot de passe</button></div>${dash}
   <nav class="ptabs" role="tablist" aria-label="Sections de l'espace parent">${PTABS.map(([k,ic,l])=>`<button role="tab" class="ptab-b${k===tab?" on":""}" data-tab="${k}" aria-selected="${k===tab}"><span class="emo">${ic}</span><span>${l}</span></button>`).join("")}</nav>
   ${PTABS.map(([k])=>`<div class="ptab" role="tabpanel" data-panel="${k}" ${k===tab?"":"hidden"}>${T[k]}</div>`).join("")}`;
   const showTab=k=>{S.ptab=k;save();el.querySelectorAll(".ptab-b").forEach(x=>{const on=x.dataset.tab===k;x.classList.toggle("on",on);x.setAttribute("aria-selected",on)});el.querySelectorAll(".ptab").forEach(p=>p.hidden=p.dataset.panel!==k)};
@@ -2782,7 +2787,8 @@ function renderParent(){tbUse("add");
   el.querySelectorAll("[data-go]").forEach(x=>x.onclick=()=>{showTab(x.dataset.go);$(".ptabs").scrollIntoView({behavior:"smooth",block:"start"})});
   el.querySelectorAll("[data-run]").forEach(x=>x.onclick=()=>runFromParent(x.dataset.run));
   $("#p-retour").onclick=()=>{PARENT_OK=false;renderCarte();go("carte")};G=null;
-  dParentBind();tbParentBind();planParentBind();orParentBind();gridBind();
+  const pg=$("#p-pwgo");if(pg)pg.onclick=()=>{showTab("reglages");const f=$("#p-pwf");if(f){f.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>$("#p-pw0").focus({preventScroll:true}),400)}};
+  dParentBind();tbParentBind();planParentBind();orParentBind();gridBind();reportBind();
   const pu=$("#p-upd");if(pu)pu.onclick=async()=>{const m=$("#p-updmsg");m.textContent=" Vérification…";
     try{const v=(await (await fetch("version.txt?t="+Date.now(),{cache:"no-store"})).text()).trim();
       if(!v)throw 0;if(v===APP_VER){m.innerHTML=" <b style=\"color:var(--good)\">Le jeu est à jour ✓</b>"}
@@ -4397,6 +4403,40 @@ function gridBind(){document.querySelectorAll(".g4").forEach(b=>b.onclick=()=>{c
     document.querySelector(`.gmsg[data-t="${j}"]`).innerHTML=` <b style="color:var(--good)">${x.note?"Enregistré ✓ Elle le verra la prochaine fois qu'elle écrit.":"Mot effacé."}</b>`})}
 
 /* ======================================================================
+   RAPPORT DU JOUR — un par jour, prêt dès que la journée est complétée (objectifs atteints).
+   Calculé à partir des données de la journée; le parent le lit ici et peut le partager.
+   ====================================================================== */
+const RP_LBL={tables:"Tables d'addition",mtables:"Tables de multiplication",prob:"Problèmes",dictee:"Dictée",conj:"Conjugaison",rep:"Réponses en phrases",gn:"Groupe du nom",redac:"Rédaction",oral:"Lecture à voix haute"};
+function dayReport(dn){const iso=new Date(dn*864e5+12*36e5).toISOString().slice(0,10),isToday=dn===dayNum(),h=isToday?{d:S.day.d,sec:S.day.sec,subj:S.day.subj||{},goals:S.goals}:(S.hist||[]).find(x=>x.d===iso);
+  const D=(S.dlog||{})[dn]||{};if(!h&&!Object.keys(D).length)return null;
+  const subj=(h&&h.subj)||{},goals=(h&&h.goals)||S.goals,sec=(h&&h.sec)||0,gm=SUBJS.reduce((t,k)=>t+(goals[k]||0),0);
+  const complete=gm>0&&SUBJS.every(k=>(subj[k]||0)>=(goals[k]||0)*60);
+  const by={};Object.entries(D).forEach(([k,x])=>{const sj=keySubj(k)||"autre",p=k.split("|")[0],lab=byId(p)?k.split("|")[1]:(RP_LBL[p]||p);const b=by[lab]||(by[lab]={lab,sj,r:0,t:0});b.r+=x.r;b.t+=x.t});
+  const items=Object.values(by),T=items.reduce((a,b)=>a+b.t,0),R=items.reduce((a,b)=>a+b.r,0);
+  const good=items.filter(x=>x.t>=5&&x.r/x.t>=.8).sort((a,b)=>b.t-a.t).slice(0,3),weak=items.filter(x=>x.t>=4&&x.r/x.t<.6).sort((a,b)=>a.r/a.t-b.r/b.t).slice(0,3);
+  const pr=(S.prog||{})[dn],texts=RDS().list.filter(x=>x.d===dn),orals=ORS().list.filter(x=>x.d===dn);
+  return{dn,complete,sec,subj,goals,T,R,good,weak,pr,texts,orals}}
+function reportText(r){const nm=S.name||"Votre enfant",day=dnFmt(r.dn,{weekday:"long",day:"numeric",month:"long"}),L=[];
+  L.push(`📚 ${nm} — rapport du ${day}`);L.push(r.complete?`✅ Journée complétée : ${mins(r.sec)} min d'étude`:`⏳ ${mins(r.sec)} min d'étude (objectif : ${SUBJS.reduce((t,k)=>t+(r.goals[k]||0),0)} min)`);
+  L.push(SUBJS.map(k=>`${LBL[k]} ${mins(r.subj[k]||0)} min`).join(" · "));
+  if(r.T)L.push(`Réponses : ${r.T}, dont ${r.R} bonnes (${Math.round(100*r.R/r.T)} %)`);
+  if(r.pr)L.push(`Programme du jour : ${r.pr.d} activité${r.pr.d>1?"s":""} sur ${r.pr.t}`);
+  if(r.good.length)L.push(`👍 Bien réussi : ${r.good.map(x=>`${x.lab} (${x.r}/${x.t})`).join(", ")}`);
+  if(r.weak.length)L.push(`⚠️ À revoir : ${r.weak.map(x=>`${x.lab} (${x.r}/${x.t})`).join(", ")}`);
+  r.texts.forEach(t=>L.push(`✏️ Texte écrit : « ${t.t} » (${t.n} phrases)`));
+  if(r.orals.length)L.push(`🎙️ Lecture à voix haute : ${r.orals.map(o=>`${o.title}, ${o.wpm} mots/min`).join("; ")}`);
+  return L.join("\n")}
+function reportHTML(sel){const dn=dayNum(),days=[];for(let i=0;i<7;i++){const r=dayReport(dn-i);if(r)days.push(r)}
+  if(!days.length)return`<p>Pas encore de journée enregistrée.</p>`;const r=days.find(x=>x.dn===sel)||days[0];
+  return`<div class="rpdays">${days.map(x=>`<button class="rpday${x.dn===r.dn?" on":""}" data-rpd="${x.dn}">${x.dn===dn?"Aujourd'hui":dnFmt(x.dn,{weekday:"short",day:"numeric"})}${x.complete?" ✓":""}</button>`).join("")}</div>
+   <pre class="rptxt">${esc(reportText(r))}</pre>
+   <div class="confirm"><button class="btn" id="p-rpshare" data-dn="${r.dn}">Partager ce rapport</button><span id="p-rpmsg" aria-live="polite"></span></div>
+   <p class="pdesc">« Partager » ouvre l'envoi de la tablette (texto, courriel…) ou copie le rapport.${r.complete?"":" La journée n'est pas encore complétée : le rapport se met à jour pendant qu'elle travaille."}</p>`}
+function reportBind(){const box=$("#p-rp");if(!box)return;
+  box.querySelectorAll(".rpday").forEach(b=>b.onclick=()=>{box.innerHTML=reportHTML(+b.dataset.rpd);reportBind()});
+  const sh=$("#p-rpshare");if(sh)sh.onclick=async()=>{const r=dayReport(+sh.dataset.dn);if(!r)return;const t=reportText(r),m=$("#p-rpmsg");
+    try{if(navigator.share){await navigator.share({title:"Rapport du jour",text:t});m.textContent=""}else{await navigator.clipboard.writeText(t);m.innerHTML=` <b style="color:var(--good)">Rapport copié ✓ Collez-le dans un message.</b>`}}catch(e){try{await navigator.clipboard.writeText(t);m.innerHTML=` <b style="color:var(--good)">Rapport copié ✓</b>`}catch(e2){m.textContent=" Impossible de partager sur cet appareil."}}}}
+/* ======================================================================
    JOURNAL D'ACTIVITÉ (par jour) — sert aux rapports du parent
    ====================================================================== */
 function logAct(key,ok){try{const dn=dayNum(),D=S.dlog||(S.dlog={}),d=D[dn]||(D[dn]={}),x=d[key]||(d[key]={r:0,t:0});x.t++;if(ok)x.r++;
@@ -5341,7 +5381,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261107-073801";
+const APP_VER="20261107-094922";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
