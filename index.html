@@ -5393,7 +5393,7 @@ function renderBiblio(){if(S.gamesOn===false){stopDonjon();G=null;renderCarte();
   const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");
   const sub={donjon:"Passe par la bonne porte",batisseurs:"Construis les nombres du village"};
   const grp=k=>!GAMES.some(x=>x.sous===k&&x.ready)?"":`<h3 class="xh">${k}</h3><div class="ggrid">${GAMES.filter(x=>x.sous===k&&x.ready).map(x=>`<button class="gc${x.ready?"":" locked"}" data-game="${x.id}" ${x.ready?"":"aria-disabled=\"true\""}>${x.ready?"":`<span class="soon">Bientôt</span>`}<img src="${XIC[GIC[x.id]]||IC3[GIC[x.id]]}" alt=""><span class="gb"><b>${x.nom}</b><small>${x.ready?(sub[x.id]||x.sous):x.sous}</small></span></button>`).join("")}</div>`;
-  el.innerHTML=skyHead("Explorer","bb-home",`<span class="skychip">🏦 ${bkFmt(BKS().bal)}</span>`)+`<div class="xpage">`+tCard(XIC.chateau,"La Bibliothèque de jeux","Chaque jeu fait pratiquer les notions de l'école en s'amusant.")+`<button class="vlentry" id="b-village"><img src="${VIMG.map}" alt=""><span><b>Le village de ${esc(BN())}</b><small>Fais les courses de ${esc(BN())} à l'épicerie avec l'argent de ta banque.</small></span></button>`+bankCard()+grp("Mathématiques")+grp("Français")+`</div>`;
+  el.innerHTML=skyHead("Explorer","bb-home",`<span class="skychip">🏦 ${bkFmt(BKS().bal)}</span>`)+`<div class="xpage">`+tCard(XIC.chateau,"La Bibliothèque de jeux","Chaque jeu fait pratiquer les notions de l'école en s'amusant.")+`<button class="vlentry" id="b-village"><img src="${VIMG.map}" alt=""><span><b>Le village de ${esc(BN())}</b><small>Fais les courses de ${esc(BN())} à l'épicerie avec l'argent de ta banque.</small></span></button>`+grp("Mathématiques")+grp("Français")+`</div>`;
   $("#bb-home").onclick=()=>{G=null;HTAB="explore";renderCarte();go("carte")};const bv=$("#b-village");if(bv)bv.onclick=villageMap;
   el.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>{const nx={donjon:donjonMenu,batisseurs:batMenu}[b.dataset.game];if(nx)(heroOf()?nx():pickHero(nx));else{tone([[300,.1]]);b.classList.add("shake1");setTimeout(()=>b.classList.remove("shake1"),400)}});
   go("jeu");skyOn("biblio")}
@@ -5868,7 +5868,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261109-134851";
+const APP_VER="20261109-145330";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
