@@ -1207,7 +1207,7 @@ body.pskin .ptabs{position:static}
 .rpday.on{background:var(--sea);border-color:var(--sea);color:var(--sea-ink);font-weight:700}
 .rptxt{white-space:pre-wrap;font-family:inherit;font-size:1rem;line-height:1.55;background:var(--chbg,var(--bg));border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:.6rem 0}
 .pda.ok{border-color:var(--good)}
-.cgrid{display:grid;grid-template-columns:repeat(calc(var(--n) + 1),minmax(44px,58px));justify-content:center;gap:2px 6px;margin:.6rem auto 1rem;font-family:var(--f-display);font-variant-numeric:tabular-nums}
+.colgrid{display:grid;grid-template-columns:repeat(calc(var(--n) + 1),minmax(44px,58px));justify-content:center;gap:2px 6px;margin:.6rem auto 1rem;font-family:var(--f-display);font-variant-numeric:tabular-nums}
 .cg{min-height:52px;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:600;border-radius:10px;position:relative}
 .cg.cur{background:color-mix(in srgb,var(--c) 16%,transparent)}
 .cg.cgh{min-height:24px;font-size:.8rem;opacity:.7}.cg.cgh.cur{opacity:1;font-weight:800}
@@ -4612,7 +4612,7 @@ function colGrid(P,S2){const A=dg(P.a),B=dg(P.b),R=dg(P.r),n=Math.max(A.length,R
   const bot=cols.map(i=>cell(i,B[i]!=null?String(B[i]):"","cgd")).join("");
   const res=cols.map(i=>S2.edit?`<div class="cg${i===cur?" cur":""}"><button class="cgr${S2.sel==="r"+i?" sel":""}${S2.bad&&S2.bad[i]?" bad":""}" data-r="${i}">${S2.v&&S2.v[i]!=null?S2.v[i]:""}</button></div>`:cell(i,S2.res&&S2.res[i]!=null?`<b>${S2.res[i]}</b>`:"","cgd cgres")).join("");
   const head=cols.map(i=>cell(i,`<small>${COLL[i]}</small>`,"cgh")).join("");
-  return`<div class="cgrid" style="--n:${n}"><div class="cg"></div>${head}<div class="cg"></div>${car}<div class="cg"></div>${top}<div class="cg cgop">${P.op}</div>${bot}<div class="cgline"></div><div class="cg"></div>${res}</div>`}
+  return`<div class="colgrid" style="--n:${n}"><div class="cg"></div>${head}<div class="cg"></div>${car}<div class="cg"></div>${top}<div class="cg cgop">${P.op}</div>${bot}<div class="cgline"></div><div class="cg"></div>${res}</div>`}
 let CL=null,CL_KEYH=null;
 function startCol(){const C=CLS_();FORCEV=false;G={mode:"col",subj:"maths",events:[]};CL={L:C.lvl,list:[],i:0,ok:0};for(let i=0;i<6;i++)CL.list.push(colGen(C.lvl,i%2?"−":"+"));CL.list=shuffle(CL.list);colIntro()}
 function colBar(){return`<div class="gamebar"><button class="back" id="cl-back">← L'Île aux Nombres</button><span class="gtitle">Calcul en colonnes</span>${CL&&CL.started?`<span class="levelchip">${Math.min(CL.i+1,CL.list.length)} / ${CL.list.length}</span>`:`<span class="levelchip">Niveau ${CL?CL.L:1}</span>`}</div>`}
@@ -5910,7 +5910,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261109-154037";
+const APP_VER="20261109-181312";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
