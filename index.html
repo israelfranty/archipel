@@ -3773,7 +3773,7 @@ const dDefBtn=()=>`<button class="dhint" id="d-def" type="button">${BOOKICON}Que
 function bindDef(e){const b=$("#d-def");if(!b)return;b.onclick=()=>{b.outerHTML=`<p class="ddef"><b>${esc(e.w.charAt(0).toUpperCase()+e.w.slice(1))}</b> : ${esc(e.d)}.</p>`;speakSeq([[e.w+".","fr",dRateW()],400,["Ça veut dire : "+e.d+".","fr",dRate()]])}}
 function bindCont(){bindDef(DC.cur.e);const c=$("#b-cont");if(!c)return;c.onclick=()=>{DC.i++;if(DC.i>=DC.list.length)dFinish();else dWord()};c.focus({preventScroll:true})}
 function dFinish(){const words=Object.keys(DC.first),ok=DC.ok,N=words.length,miss=words.filter(w=>!DC.first[w]);const st=ok>=N?3:ok>=N*.8?2:ok>=N*.5?1:0;
-  const tom=Object.entries(DS().bank).filter(([w,x])=>dLists().by[w]&&x.b>=1&&x.due===dayNum()+1).length,left=dDue(),mast=dMastered(),tot=Object.keys(dLists().by).filter(w=>DS().bank[w]).length;
+  const tom=Object.entries(DS().bank).filter(([w,x])=>dLists().by[w]&&x.b>=1&&x.due===dayNum()+1).length,left=dDue(),mast=dMastered(),road=Object.entries(DS().bank).filter(([w,x])=>dLists().by[w]&&x.b>=1&&x.b<DMAST).length,tot=Object.keys(dLists().by).filter(w=>DS().bank[w]).length;
   const el=$("#ecran-fin");el.style.setProperty("--c","var(--i7)");
   if(DC.exam){const r=examReady(),n=examWords().length,e=DS().exam;save();el.innerHTML=`<div class="card result pop" style="--c:var(--i7)"><div class="notion">Révision · ${esc(e.label)}</div><h2>Bien révisé${S.name?", "+esc(S.name):""}!</h2><div class="score">${ok} / ${N}</div>${stars(st)}
      <p class="msg">Mots prêts pour la grande dictée : <b>${r} sur ${n}</b>.<br><small>Un mot est prêt quand tu le réussis deux jours différents.</small></p>${miss.length?`<p class="msg"><b>Mots à revoir :</b></p><div class="redo">${miss.map(w=>`<span class="rv">${esc(w)}</span>`).join("")}</div>`:""}
@@ -3783,7 +3783,7 @@ function dFinish(){const words=Object.keys(DC.first),ok=DC.ok,N=words.length,mis
   const msg=ok===N?"Tous les mots sont bien écrits du premier coup!":ok>=N*.8?"Très bonne dictée! Les mots ratés reviendront demain.":"Les mots difficiles vont revenir souvent jusqu'à ce que ta mémoire les garde. C'est normal!";
   el.innerHTML=`<div class="card result pop" style="--c:var(--i7)"><div class="notion">Ma dictée du jour</div><h2>Dictée terminée${S.name?", "+esc(S.name):""}!</h2><div class="score">${ok} / ${N}</div>${stars(st)}<p class="msg">${msg}</p>
   ${miss.length?`<p class="msg"><b>Mots à revoir demain :</b></p><div class="redo">${miss.map(w=>`<span class="rv">${esc(w)}</span>`).join("")}</div>`:""}
-  <p class="msg">Mots bien rangés dans ta mémoire : <b>${mast}</b> sur ${tot}.<br>${left?`Il reste <b>${left} mot${left>1?"s":""}</b> à réviser aujourd'hui.`:"Tout est révisé pour aujourd'hui!"}${tom?` Demain : ${tom} mot${tom>1?"s":""}.`:""}</p>
+  <p class="msg">Mots bien rangés dans ta mémoire : <b>${mast}</b> sur ${tot}.${road?` En chemin : <b>${road}</b> mot${road>1?"s":""}.`:""}<br><small>Un mot est bien rangé après 5 révisions réussies, sur plusieurs jours.</small><br>${left?`Il reste <b>${left} mot${left>1?"s":""}</b> à réviser aujourd'hui.`:"Tout est révisé pour aujourd'hui!"}${tom?` Demain : ${tom} mot${tom>1?"s":""}.`:""}</p>
   <div class="row-btns">${left?`<button class="btn" id="d-again">Encore ${Math.min(DN,left)} mots</button>`:`<button class="btn" id="d-again">M'entraîner encore</button>`}<button class="btn ghost" id="d-map">Retour à l'île</button></div></div>`;
   $("#d-again").onclick=startDictee;$("#d-map").onclick=()=>{G=null;DC=null;renderCarte();go("carte")};
   tone(st>=2?[[523,.12],[659,.12],[784,.12],[1047,.25]]:[[523,.15],[659,.2]]);go("fin");
@@ -5786,7 +5786,7 @@ function progItems0(){tbAlign();const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsW
       if(/^mtables/.test(n.go)){hasMul=true;it.push(mtabItem(true));return}
       if(!pd.ids.includes(n.go))return;const x=all.find(y=>y.n===n),t=x.td.t,r=x.td.r,rap=pd.rap===n.go,done=DAYGOOD(r,t)||(x.acq&&!rap)||(rap&&t>=5);
       it.push({id:"n:"+n.go,nom:esc(n.label)+(rap?" (rappel)":""),sous:done?(DAYGOOD(r,t)?`${r} bonnes réponses aujourd'hui!`:"acquise cette semaine!"):rap?"5 questions pour ne pas l'oublier":t?`${Math.min(r,7)} bonne${r>1?"s":""} réponse${r>1?"s":""} sur 7 · continue!`:"7 bonnes réponses à trouver",done,ic:planIc(n.go),c:/^conj|^gn|^rep/.test(n.go)||(byId(n.go.split(":")[0])||{}).subj==="francais"?"--i2":"--i1",go:()=>planGo(n.go),started:t>0,plan:true})});
-    PWEEK={ok:all.filter(x=>x.acq).length,n:all.length}}
+    PWEEK={ok:all.filter(x=>x.acq).length,half:all.filter(x=>x.g===1).length,n:all.length}}
   /* 2. La dictée du jour (mots des listes de l'école, en répétition espacée) */
   if(dWeeks().length){const due=dDue(),t=L("dictee|");if(due||t)it.push({id:"dict",nom:"Ma dictée du jour",sous:due?`<b>${due}</b> mot${due>1?"s":""} de tes listes à réviser`:"tous tes mots du jour sont révisés!",done:!due,ic:PENICON,c:"--i7",go:startDictee,started:t>0})}
   /* 3. Sans plan : les tables et la conjugaison suivent la progression d'Olivia */
@@ -5823,7 +5823,7 @@ function homeHTML(){PROG=progItems();const n=PROG.length,dn=PROG.filter(x=>x.don
     <div class="pbar"><i style="width:${n?Math.round(dn/n*100):0}%"></i></div>
     ${dn<n?`<div class="seance"><button class="sgo" id="b-seance">${PLAYI}${SEANCE||PROG.some(x=>x.started)?"Continuer ma séance":"Commencer ma séance"}</button><span>Tes activités l'une après l'autre. Tu peux aussi en choisir une ci-dessous.</span></div>`:""}
     <div class="hplist">${PROG.map((x,i)=>`<div class="pitem${x.done?" done":""}" style="--c:var(${x.c})"><span class="pic">${x.done?CHECKI:x.ic}</span><div class="ptx"><p class="pn">${x.nom}${x.plan?`<span class="ptag">École</span>`:""}</p><p class="ps">${x.done?`<b class="ok">Terminé</b> · `:""}${x.sous}</p></div>${x.done?"":`<button class="pgo" data-prog="${i}">${x.started?"Continuer":"Commencer"}${PLAYI}</button>`}</div>`).join("")}</div>
-    ${planActive()?"":`<p class="noplan">🏫 La semaine d'école n'est pas encore entrée. Papa ou maman peut l'ajouter dans l'espace parent.</p>`}${g||planActive()?`<div class="pmeta"><span>${PWEEK?`🏫 Cette semaine : <b>${PWEEK.ok} notion${PWEEK.ok>1?"s":""} de l'école sur ${PWEEK.n}</b> acquise${PWEEK.ok>1?"s":""} (réussie${PWEEK.ok>1?"s":""} 2 jours)`:""}${PWEEK&&g?"<br>":""}${g?`⏱ ${mins(S.day.sec)} min d'étude aujourd'hui · objectif ${g/60} min`:""}</span>${planActive()?`<button class="plink" id="b-semaine">🏫 Ma semaine à l'école</button>`:""}</div>`:""}</section>`;
+    ${planActive()?"":`<p class="noplan">🏫 La semaine d'école n'est pas encore entrée. Papa ou maman peut l'ajouter dans l'espace parent.</p>`}${g||planActive()?`<div class="pmeta"><span>${PWEEK?`🏫 Notions de l'école cette semaine : <b>${PWEEK.ok} acquise${PWEEK.ok>1?"s":""} sur ${PWEEK.n}</b>${PWEEK.half?` · ${PWEEK.half} réussie${PWEEK.half>1?"s":""} 1 jour sur 2`:""}<br><small>Une notion est acquise quand tu la réussis 2 jours différents.</small>`:""}${PWEEK&&g?"<br>":""}${g?`⏱ ${mins(S.day.sec)} min d'étude aujourd'hui · objectif ${g/60} min`:""}</span>${planActive()?`<button class="plink" id="b-semaine">🏫 Ma semaine à l'école</button>`:""}</div>`:""}</section>`;
   const w=weekInfo(),pc=w.t?Math.round(w.d/w.t*100):0,C=2*Math.PI*42;
   const ring=`<section class="hcard" aria-label="Ma progression"><h2>${BARI}Ma progression</h2><div class="ringw"><div class="ring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="#F1E6CF" stroke-width="12"/><circle cx="50" cy="50" r="42" fill="none" stroke="#16878F" stroke-width="12" stroke-linecap="round"${pc?"":` opacity="0"`} stroke-dasharray="${(C*pc/100).toFixed(1)} ${C.toFixed(1)}"/></svg><b>${pc}%</b></div>
     <p class="rtxt"><strong>${w.d} activité${w.d>1?"s":""}</strong>sur ${w.t} cette semaine</p>${CHEST}</div></section>`;
@@ -5910,7 +5910,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261109-152941";
+const APP_VER="20261109-154037";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
