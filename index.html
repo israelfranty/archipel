@@ -822,7 +822,8 @@ body.homew #studybar{display:none}
 .skychip{display:inline-flex;align-items:center;gap:6px;min-height:42px;border-radius:999px;background:#F6C945;color:#12343B;padding:0 16px;font-family:var(--f-display);font-weight:700;font-size:1.05rem;box-shadow:0 3px 10px rgba(10,60,80,.18)}
 .bkbanner{display:flex;align-items:center;gap:14px;justify-content:space-between;background:var(--cream);border:2px solid var(--sun);border-radius:20px;padding:10px 16px;margin:6px auto;max-width:420px;width:100%;text-align:left;color:var(--ink)}
 .bkb-t{display:flex;flex-direction:column;gap:2px;min-width:0}.bkb-t>b{font-family:var(--f-display);font-size:1.8rem;line-height:1;color:var(--sea)}.bkb-t span{font-weight:600}.bkb-t small{color:var(--muted)}
-.bkicon{width:74px;height:auto;flex:none}.bkmsg{color:var(--muted);font-size:.95rem;margin:6px auto;max-width:420px}
+.bkicon{width:74px;height:auto;flex:none}.bkplus{position:fixed;z-index:210;font-family:var(--f-display);font-weight:700;font-size:1.15rem;color:#14596A;background:#FFF9EE;border:2px solid #E9A800;border-radius:999px;padding:2px 10px;pointer-events:none;white-space:nowrap;box-shadow:0 4px 10px rgba(10,30,40,.2)}
+.bkov{display:flex;flex-direction:column;gap:12px;text-align:left}.bkov .bkcard{margin-top:0;box-shadow:none}.bkmsg{color:var(--muted);font-size:.95rem;margin:6px auto;max-width:420px}
 .bkfly{position:fixed;left:0;top:0;width:110px;pointer-events:none;z-index:200;will-change:transform}.bkfly.coin{width:44px}.bkfly svg{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 8px rgba(10,30,40,.3))}
 .bkcard{display:flex;gap:16px;align-items:flex-start;background:var(--cream);border:1px solid var(--cream-line);border-radius:28px;padding:16px 20px;box-shadow:0 10px 24px rgba(10,60,80,.12);color:var(--ink);margin-top:14px}
 .bkcard .bkicon{width:96px}.bkc-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}.bkc-b h3{margin:0;font-family:var(--f-display)}.bkc-bal{font-family:var(--f-display);font-weight:700;font-size:2rem;color:var(--sea);font-variant-numeric:tabular-nums}
@@ -1179,6 +1180,7 @@ body.pskin .ptabs{position:static}
   <div class="wrap">
     <div class="brand"><svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="110" fill="#FFF8E7"/><circle cx="404" cy="110" r="46" fill="#F2B21B"/><path d="M256 70 L380 330 L318 330 L294 276 L218 276 L194 330 L132 330 Z" fill="#17707F"/><path d="M232 234 L280 234 L256 180 Z" fill="#FFF8E7"/><path d="M104 346 L408 346 L372 398 L140 398 Z" fill="#D2502F"/><path d="M0 420 Q64 396 128 420 T256 420 T384 420 T512 420 L512 512 L0 512 Z" fill="#17707F"/></svg><div class="btxt"><h1>L'Archipel des Savoirs</h1></div></div>
     <div class="top-btns">
+      <button class="ibtn" id="i-bank" aria-label="Ma banque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 4l9 5.5z"/><path d="M5 10v7M9.5 10v7M14.5 10v7M19 10v7"/><path d="M3 20h18"/><circle cx="12" cy="7.4" r=".9" fill="currentColor"/></svg></button>
       <button class="ibtn tog" id="i-voix" aria-label="Voix" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
       <button class="ibtn tog" id="i-mus" aria-label="Musique" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></button>
       <div class="tmenu"><button class="ibtn" id="i-menu" aria-label="Réglages et espace parent" aria-expanded="false" aria-controls="tmenu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
@@ -5149,10 +5151,14 @@ function bankCheck(){const el=$("#ecran-fin");if(!G||G.bkDone||!el||el.hidden||!
   const show=()=>{if(!sc.isConnected)return;if(document.querySelector(".ovl")){setTimeout(show,300);return}bkFly(sc,amt,why,B)};const evWait=(G.events&&G.events.length)||PEND.length;setTimeout(show,evWait&&S.comp.type?1500:0)}
 function bkFly(sc,amt,why,B){
   const bills=amt===20?[20]:amt===15?[10,5]:amt>=10?[10]:amt>=5?[5]:[];
-  sc.insertAdjacentHTML("afterend",`<div class="bkbanner" id="bk-ban"><div class="bkb-t"><b>+${amt} $</b><span>${why} ! Déposé à la banque.</span><small>Solde : <b id="bk-bal">${bkFmt(B.bal-amt)}</b></small></div>${BK_ICON}</div>`);
-  const ban=$("#bk-ban"),ic=ban.querySelector(".bkicon"),from=sc.getBoundingClientRect(),to=ic.getBoundingClientRect();
+  const top=$("#i-bank"),tr=top&&top.getBoundingClientRect(),useTop=!!(tr&&tr.width>0&&tr.bottom>0);
+  sc.insertAdjacentHTML("afterend",`<div class="bkbanner" id="bk-ban"><div class="bkb-t"><b>+${amt}&nbsp;$</b><span>${why} ! Déposé à la banque.</span><small>Solde : <b id="bk-bal">${bkFmt(B.bal-amt)}</b></small></div>${useTop?"":BK_ICON}</div>`);
+  const ban=$("#bk-ban"),ic=useTop?top:ban.querySelector(".bkicon"),from=sc.getBoundingClientRect(),to=ic.getBoundingClientRect();
   const done=()=>{const b=$("#bk-bal");if(b){const t0=performance.now(),a0=B.bal-amt;const st=t=>{const k=Math.min(1,(t-t0)/600);if(b.isConnected)b.textContent=bkFmt(Math.round(a0+amt*k));if(k<1)requestAnimationFrame(st)};requestAnimationFrame(st)}
-    try{ic.animate([{transform:"scale(1)"},{transform:"scale(1.12,.92)"},{transform:"scale(.96,1.05)"},{transform:"scale(1)"}],{duration:420,easing:"ease-out"})}catch(e){}tone([[784,.08],[988,.08],[1319,.18]])};
+    try{ic.animate([{transform:"translate(0,0) rotate(0)"},{transform:"translate(-3px,1px) rotate(-9deg) scale(1.12)"},{transform:"translate(3px,-1px) rotate(8deg) scale(1.12)"},{transform:"translate(-2px,0) rotate(-6deg)"},{transform:"translate(2px,0) rotate(5deg)"},{transform:"translate(0,0) rotate(0)"}],{duration:520,easing:"ease-out"})}catch(e){}
+    if(ic.id==="i-bank"){const r=ic.getBoundingClientRect(),pl=document.createElement("div");pl.className="bkplus";pl.textContent=`+${amt} $`;pl.style.left=(r.left+r.width/2)+"px";pl.style.top=(r.bottom+4)+"px";document.body.appendChild(pl);
+      try{pl.animate([{transform:"translate(-50%,0)",opacity:0},{transform:"translate(-50%,6px)",opacity:1,offset:.2},{transform:"translate(-50%,18px)",opacity:0}],{duration:1400,easing:"ease-out",fill:"forwards"}).onfinish=()=>pl.remove()}catch(e){setTimeout(()=>pl.remove(),1400)}}
+    tone([[784,.08],[988,.08],[1319,.18]])};
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches,items=bills.length?bills.map(v=>bkNote(v)):[bkCoin()];
   if(reduce||!Element.prototype.animate){done();return}
   const sx=from.left+from.width/2,sy=from.top+from.height/2,ex=to.left+to.width/2,ey=to.top+to.height*.6;
@@ -5624,6 +5630,7 @@ function homeBind(el){
 document.querySelectorAll("#bnav [data-nav]").forEach(b=>b.onclick=()=>{const v=b.dataset.nav;
   if(v==="parent")return renderParent();if(v==="biblio")return renderBiblio();
   HTAB=v;CUR=null;tone([[659,.06]]);renderCarte();go("carte")});
+(function(){const b=$("#i-bank");if(b)b.onclick=()=>{const o=ovl(`<div class="bkov">${bankCard()}<button class="btn" id="bk-close">Fermer</button></div>`);o.setAttribute("aria-label","Ma banque");const c=o.querySelector("#bk-close");c.focus({preventScroll:true});c.onclick=()=>o.remove();o.onclick=e=>{if(e.target===o)o.remove()}}})();
 (function(){const m=$("#tmenu"),mb=$("#i-menu");const close=()=>{m.hidden=true;mb.setAttribute("aria-expanded","false")};
   mb.onclick=e=>{e.stopPropagation();m.hidden=!m.hidden;mb.setAttribute("aria-expanded",String(!m.hidden))};
   m.addEventListener("click",e=>{if(e.target.closest("#btn-parent"))close()});
@@ -5655,7 +5662,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261109-005043";
+const APP_VER="20261109-100901";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
