@@ -1102,8 +1102,8 @@ body.skyin .din.wrong,.din.wrong{border-color:var(--bad)!important;background:va
 .trow.thead{border:0;padding:0}.trn{display:flex;flex-direction:column;gap:2px}.trn small{font-size:.78rem;font-weight:700}.trn small.up{color:var(--good)}.trn small.down{color:var(--bad)}
 .tcells{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
 .tc{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;font-variant-numeric:tabular-nums}.tc b{font-size:.85rem}.tc small{font-size:.7rem;opacity:.75;line-height:1.1}
-.tcb{width:70%;height:54px;background:var(--line);border-radius:6px;display:flex;align-items:flex-end;overflow:hidden}.tcb i{display:block;width:100%;background:var(--sea);border-radius:6px 6px 0 0}
-.tc.now .tcb i{background:var(--good)}
+.tcbar{width:70%;height:54px;background:var(--line);border-radius:6px;display:flex;align-items:flex-end;overflow:hidden}.tcbar i{display:block;width:100%;background:var(--sea);border-radius:6px 6px 0 0}
+.tc.now .tcbar i{background:var(--good)}
 .tmoves{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}.tmoves h4{margin:.3rem 0}.tmoves ul{margin:0;padding-left:1.1rem}
 @media (max-width:560px){.tmoves{grid-template-columns:1fr}.trow{grid-template-columns:70px 1fr}}
 .pfm{list-style:none;padding:0;margin:.2rem 0 .8rem;display:grid;gap:6px}
@@ -4431,7 +4431,7 @@ function trendHTML(){const W=[5,4,3,2,1,0],D=S.dlog||{},all=[...S.hist,{d:S.day.
   const minsOf=(sj,[a,b])=>Math.round(all.filter(h=>{const n=Math.floor(Date.parse(h.d+"T12:00:00")/864e5);return n>=a&&n<=b}).reduce((t,h)=>t+((h.subj||{})[sj]||0),0)/60);
   const rows=SUBJS.map(sj=>{const cells=W.map(i=>{const B=weekBounds(i),s=logSum(B[0],B[1],k=>keySubj(k)===sj);return{i,B,t:s.t,p:s.t?Math.round(100*s.r/s.t):null,m:minsOf(sj,B)}});
     const a=cells[4],b=cells[3],tr=a.p!=null&&b.p!=null&&a.t>=10&&b.t>=10?(a.p-b.p>=5?"↗ en hausse":b.p-a.p>=5?"↘ en baisse":"→ stable"):"";
-    return`<div class="trow"><div class="trn"><b>${LBL[sj]}</b>${tr?`<small class="${/hausse/.test(tr)?"up":/baisse/.test(tr)?"down":""}">${tr}</small>`:""}</div><div class="tcells">${cells.map(c=>`<div class="tc${c.i===0?" now":""}" title="Semaine du ${dnFmt(c.B[0],{day:"numeric",month:"short"})}"><span class="tcb"><i style="height:${c.p==null?0:Math.max(4,c.p)}%"></i></span><b>${c.p==null?"—":c.p+" %"}</b><small>${c.m} min</small></div>`).join("")}</div></div>`}).join("");
+    return`<div class="trow"><div class="trn"><b>${LBL[sj]}</b>${tr?`<small class="${/hausse/.test(tr)?"up":/baisse/.test(tr)?"down":""}">${tr}</small>`:""}</div><div class="tcells">${cells.map(c=>`<div class="tc${c.i===0?" now":""}" title="Semaine du ${dnFmt(c.B[0],{day:"numeric",month:"short"})}"><span class="tcbar"><i style="height:${c.p==null?0:Math.max(4,c.p)}%"></i></span><b>${c.p==null?"—":c.p+" %"}</b><small>${c.m} min</small></div>`).join("")}</div></div>`}).join("");
   const lbl=`<div class="trow thead"><div class="trn"></div><div class="tcells">${W.map(i=>`<div class="tc"><small>${i===0?"cette sem.":i===1?"sem. passée":"il y a "+i+" sem."}</small></div>`).join("")}</div></div>`;
   /* notions qui bougent : 14 derniers jours contre les 4 semaines d'avant */
   const dn=dayNum(),keys=new Set();Object.values(D).forEach(o=>Object.keys(o).forEach(k=>{if(k.includes("|")&&byId(k.split("|")[0]))keys.add(k)}));
@@ -5587,7 +5587,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261108-220938";
+const APP_VER="20261108-221519";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
