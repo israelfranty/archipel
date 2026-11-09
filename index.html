@@ -5016,27 +5016,49 @@ const heroOf=()=>HEROS[(S.games&&S.games.hero)]||null;
 function GS(){if(!S.games||typeof S.games!=="object")S.games={};const g=S.games;if(!g.donjon)g.donjon={};if(!g.coins)g.coins=0;if(!g.gems)g.gems=0;return g}
 
 /* Portrait de face (SVG) pour le choix du héros */
-function heroSVG(id){const h=HEROS[id];const sk=h.skin,hr=h.hair;
-  const backHair={puffs:`<circle cx="30" cy="38" r="17" fill="${hr}"/><circle cx="90" cy="38" r="17" fill="${hr}"/><circle cx="60" cy="52" r="34" fill="${hr}"/>`,
-    curly:`<circle cx="60" cy="48" r="35" fill="${hr}"/>`,long:`<path d="M24 54c0-26 16-40 36-40s36 14 36 40v52c-8 6-20 6-24 0H48c-4 6-16 6-24 0z" fill="${hr}"/>`,
-    short:`<circle cx="60" cy="50" r="33" fill="${hr}"/>`,straight:`<path d="M25 54c0-26 15-40 35-40s35 14 35 40v50H25z" fill="${hr}"/>`,buzz:`<circle cx="60" cy="52" r="32" fill="${hr}"/>`}[h.style];
-  const front={puffs:`<path d="M30 50c4-16 18-24 30-24s26 8 30 24c-10-8-20-10-30-10s-20 2-30 10z" fill="${hr}"/>`,
-    curly:`${[34,44,54,64,74,84].map((x,i)=>`<circle cx="${x+2}" cy="${30+(i%2)*4}" r="9" fill="${hr}"/>`).join("")}`,
-    long:`<path d="M28 52c2-18 16-28 32-28 18 0 30 10 32 28-12-10-22-6-32-14-8 8-20 8-32 14z" fill="${hr}"/>`,
-    short:`<path d="M28 50c0-18 14-28 32-28s32 10 32 26c-6-6-14-8-22-8 4 4 2 8 2 8-10-8-30-8-44 2z" fill="${hr}"/>`,
-    straight:`<path d="M27 56c0-20 14-32 33-32s33 12 33 32c-6-12-14-14-20-14H47c-8 0-14 4-20 14z" fill="${hr}"/>`,
-    buzz:`<path d="M30 48c2-14 14-22 30-22s28 8 30 22c-8-6-18-8-30-8s-22 2-30 8z" fill="${hr}"/>`}[h.style];
-  return`<svg class="hero-svg" viewBox="0 0 120 150" role="img" aria-label="${h.nom}">${backHair}
-  <path d="M30 150v-26c0-14 12-24 30-24s30 10 30 24v26z" fill="${h.top}"/>${h.top2!==h.top?`<path d="M30 132h60v18H30z" fill="${h.top2}" opacity=".9"/>`:""}
-  <path d="M38 104l-6 46M82 104l6 46" stroke="${h.bag}" stroke-width="7" stroke-linecap="round"/>
-  <rect x="53" y="88" width="14" height="16" rx="6" fill="${sk}"/>
-  <circle cx="27" cy="62" r="7" fill="${sk}"/><circle cx="93" cy="62" r="7" fill="${sk}"/>
-  <ellipse cx="60" cy="60" rx="32" ry="33" fill="${sk}"/>${front}
-  <ellipse cx="47" cy="64" rx="5.5" ry="7" fill="#1B1B1B"/><ellipse cx="73" cy="64" rx="5.5" ry="7" fill="#1B1B1B"/>
-  <circle cx="49" cy="61" r="2" fill="#fff"/><circle cx="75" cy="61" r="2" fill="#fff"/>
-  ${h.glasses?`<g fill="none" stroke="#1B1B1B" stroke-width="2.6"><circle cx="47" cy="64" r="10"/><circle cx="73" cy="64" r="10"/><path d="M57 64h6"/></g>`:""}
-  <ellipse cx="40" cy="76" rx="6" ry="3.5" fill="#E8607A" opacity=".35"/><ellipse cx="80" cy="76" rx="6" ry="3.5" fill="#E8607A" opacity=".35"/>
-  <path d="M50 79q10 9 20 0" fill="none" stroke="#5A2A1E" stroke-width="3" stroke-linecap="round"/></svg>`}
+/* Teintes pour l'effet 3D (lumière en haut à gauche, comme les icônes de l'accueil) */
+function hexMix(hex,amt){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const t=amt<0?0:255,a=Math.abs(amt);
+  r=Math.round(r+(t-r)*a);g=Math.round(g+(t-g)*a);b=Math.round(b+(t-b)*a);return"#"+((1<<24)|(r<<16)|(g<<8)|b).toString(16).slice(1)}
+const sh3=(id,hex,cx,cy,l,d)=>`<radialGradient id="${id}" cx="${cx||.36}" cy="${cy||.3}" r=".78"><stop offset="0" stop-color="${hexMix(hex,l||.32)}"/><stop offset=".55" stop-color="${hex}"/><stop offset="1" stop-color="${hexMix(hex,-(d||.38))}"/></radialGradient>`;
+let HSVGN=0;
+/* Portrait de face, rendu « 3D » : volumes ombrés, reflets brillants, ombre au sol */
+function heroSVG(id){const h=HEROS[id],sk=h.skin,hr=h.hair,u="h"+id+(++HSVGN),F=x=>`url(#${u}${x})`;
+  const backHair={puffs:`<circle cx="28" cy="36" r="18" fill="${F("hr")}"/><circle cx="92" cy="36" r="18" fill="${F("hr")}"/><circle cx="60" cy="54" r="35" fill="${F("hr")}"/>`,
+    curly:`<circle cx="60" cy="50" r="36" fill="${F("hr")}"/>`,long:`<path d="M23 56c0-27 16-42 37-42s37 15 37 42v50c-8 7-20 7-25 0H48c-5 7-17 7-25 0z" fill="${F("hr")}"/>`,
+    short:`<circle cx="60" cy="52" r="34" fill="${F("hr")}"/>`,straight:`<path d="M24 56c0-27 15-42 36-42s36 15 36 42v50H24z" fill="${F("hr")}"/>`,buzz:`<circle cx="60" cy="54" r="33" fill="${F("hr")}"/>`}[h.style];
+  const front={puffs:`<path d="M28 52c4-17 18-26 32-26s28 9 32 26c-10-8-21-11-32-11s-22 3-32 11z" fill="${F("hr")}"/>`,
+    curly:`${[33,43,53,63,73,83].map((x,i)=>`<circle cx="${x+2}" cy="${31+(i%2)*4}" r="10" fill="${F("hr")}"/>`).join("")}`,
+    long:`<path d="M27 54c2-19 16-30 33-30 19 0 31 11 33 30-12-11-23-7-33-15-8 8-21 9-33 15z" fill="${F("hr")}"/>`,
+    short:`<path d="M27 52c0-19 14-30 33-30s33 11 33 28c-6-7-15-9-23-9 4 4 2 9 2 9-10-9-31-9-45 2z" fill="${F("hr")}"/>`,
+    straight:`<path d="M26 58c0-21 14-34 34-34s34 13 34 34c-6-13-15-15-21-15H47c-8 0-15 4-21 15z" fill="${F("hr")}"/>`,
+    buzz:`<path d="M29 50c2-15 14-24 31-24s29 9 31 24c-8-7-19-9-31-9s-23 2-31 9z" fill="${F("hr")}"/>`}[h.style];
+  const shine={puffs:`<ellipse cx="22" cy="28" rx="7" ry="4" transform="rotate(-30 22 28)"/><ellipse cx="44" cy="34" rx="11" ry="3.5" transform="rotate(-18 44 34)"/>`,
+    curly:`<circle cx="38" cy="28" r="3.5"/><circle cx="50" cy="26" r="3"/>`,long:`<path d="M34 34q12-10 26-10" stroke-width="5"/>`,short:`<path d="M36 32q10-8 24-8" stroke-width="5"/>`,
+    straight:`<path d="M34 36q12-11 26-11" stroke-width="5"/>`,buzz:`<path d="M38 33q10-6 22-6" stroke-width="4"/>`}[h.style];
+  const eye=x=>`<ellipse cx="${x}" cy="66" rx="6.6" ry="8.2" fill="${F("ey")}"/><circle cx="${x+2.2}" cy="62.6" r="2.6" fill="#fff"/><circle cx="${x-2}" cy="69.4" r="1.2" fill="#fff" opacity=".85"/>`;
+  return`<svg class="hero-svg" viewBox="0 0 120 156" role="img" aria-label="${h.nom}"><defs>
+  ${sh3(u+"sk",sk,.4,.3,.22,.3)}${sh3(u+"hr",hr,.34,.22,hr==="#FFFFFF"?0:.38,.45)}${sh3(u+"tp",h.top,.32,.2,.3,.32)}${sh3(u+"tp2",h.top2,.4,.2,.25,.32)}${sh3(u+"bg",h.bag,.35,.2,.35,.35)}
+  <radialGradient id="${u}ey" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#4A3426"/><stop offset="1" stop-color="#0E0A08"/></radialGradient>
+  <radialGradient id="${u}ck" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#F06A86" stop-opacity=".55"/><stop offset="1" stop-color="#F06A86" stop-opacity="0"/></radialGradient>
+  <radialGradient id="${u}gr" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".28"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  <filter id="${u}ds" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2.5" stdDeviation="2.2" flood-color="#1B2A3A" flood-opacity=".28"/></filter>
+  <filter id="${u}bl"><feGaussianBlur stdDeviation="1.1"/></filter></defs>
+  <ellipse cx="60" cy="151" rx="38" ry="5" fill="${F("gr")}"/>
+  <g filter="${F("ds")}">${backHair}
+  <path d="M28 156v-28c0-16 13-27 32-27s32 11 32 27v28z" fill="${F("tp")}"/>${h.top2!==h.top?`<path d="M28.4 136h63.2v20H28.4z" fill="${F("tp2")}"/>`:""}
+  <path d="M46 104q14 9 28 0" fill="none" stroke="${hexMix(h.top,-.25)}" stroke-width="3" stroke-linecap="round"/>
+  <path d="M38 106l-6 50M82 106l6 50" stroke="${F("bg")}" stroke-width="8" stroke-linecap="round"/><path d="M37 110l-4 30M83 110l4 30" stroke="#fff" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
+  <path d="M52 88h16v16q-8 5-16 0z" fill="${hexMix(sk,-.22)}"/>
+  <circle cx="26" cy="64" r="7.5" fill="${F("sk")}"/><circle cx="94" cy="64" r="7.5" fill="${F("sk")}"/>
+  <ellipse cx="60" cy="62" rx="33" ry="34" fill="${F("sk")}"/>${front}</g>
+  <g fill="#fff" stroke="#fff" fill-opacity=".38" stroke-opacity=".38" stroke-linecap="round" filter="${F("bl")}">${shine}</g>
+  <path d="M41 53q6-4 12-1M67 52q6-3 12 1" fill="none" stroke="${hexMix(hr,-.1)}" stroke-width="2.6" stroke-linecap="round" opacity=".85"/>
+  ${eye(47)}${eye(73)}
+  ${h.glasses?`<g fill="#fff" fill-opacity=".12" stroke="#1B1B1B" stroke-width="2.8"><circle cx="47" cy="66" r="11"/><circle cx="73" cy="66" r="11"/><path d="M58 66h4" fill="none"/></g><path d="M40 60q4-4 9-3M66 60q4-4 9-3" stroke="#fff" stroke-opacity=".7" stroke-width="1.6" fill="none" stroke-linecap="round"/>`:""}
+  <ellipse cx="60" cy="74.5" rx="3.6" ry="2.6" fill="${hexMix(sk,-.28)}" opacity=".55"/><ellipse cx="59" cy="73.6" rx="1.4" ry=".9" fill="#fff" opacity=".45"/>
+  <ellipse cx="38" cy="78" rx="8" ry="5" fill="${F("ck")}"/><ellipse cx="82" cy="78" rx="8" ry="5" fill="${F("ck")}"/>
+  <path d="M50 81q10 10 20 0q-10 3.5-20 0z" fill="#8E2F2A"/><path d="M53.5 83.5q6.5 4 13 0" fill="none" stroke="#E86A6A" stroke-width="2" stroke-linecap="round"/>
+  <ellipse cx="44" cy="44" rx="10" ry="5" fill="#fff" opacity=".18" transform="rotate(-25 44 44)" filter="${F("bl")}"/></svg>`}
 
 /* ---------- Défis mathématiques (un seul bon choix sur 3 portes) ---------- */
 const DTHEMES={
@@ -5245,24 +5267,27 @@ function djCoin(c,o,P,cx,LW){const p=P(o.d);if(p.y<0||o.d<-.5)return;const x=cx+
   c.fillStyle="#B8860B";c.beginPath();c.ellipse(x,y,r*sq+1,r,0,0,7);c.fill();c.fillStyle="#F5C542";c.beginPath();c.ellipse(x,y,r*sq*.8+1,r*.8,0,0,7);c.fill()}
 /* Héros vu de dos, qui court */
 function djHero(c,x,y,k,D){const h=D.hero,t=D.t*(D.phase==="fail"?0:D.boost?17:11),sw=Math.sin(t),bob=Math.abs(Math.cos(t))*6*k;
+  const RG=(cx,cy,r,col)=>{const g=c.createRadialGradient(cx-r*.4,cy-r*.45,r*.1,cx,cy,r*1.15);g.addColorStop(0,hexMix(col,.35));g.addColorStop(.55,col);g.addColorStop(1,hexMix(col,-.4));return g},
+    LG=(x0,y0,x1,y1,col)=>{const g=c.createLinearGradient(x0,y0,x1,y1);g.addColorStop(0,hexMix(col,.25));g.addColorStop(1,hexMix(col,-.35));return g};
   c.save();c.translate(x,y-bob);c.scale(k,k);
   c.fillStyle="rgba(0,0,0,.35)";c.beginPath();c.ellipse(0,bob/k+2,22,6,0,0,7);c.fill();
   /* jambes */
-  for(const s of[-1,1]){const a=s*sw*.5;c.save();c.translate(s*7,-30);c.rotate(a);c.fillStyle=h.skirt?h.skin:h.bottom;c.fillRect(-5,0,10,26);c.fillStyle=h.shoe;c.beginPath();c.ellipse(0,28,7,5,0,0,7);c.fill();c.restore()}
+  for(const s of[-1,1]){const a=s*sw*.5;c.save();c.translate(s*7,-30);c.rotate(a);c.fillStyle=LG(-5,0,5,0,h.skirt?h.skin:h.bottom);c.fillRect(-5,0,10,26);c.fillStyle=RG(0,28,7,h.shoe);c.beginPath();c.ellipse(0,28,7,5,0,0,7);c.fill();c.restore()}
   /* corps */
-  c.fillStyle=h.top;c.beginPath();c.roundRect?c.roundRect(-16,-66,32,38,9):c.rect(-16,-66,32,38);c.fill();
-  if(h.skirt){c.fillStyle=h.bottom;c.beginPath();c.moveTo(-17,-34);c.lineTo(17,-34);c.lineTo(22,-20);c.lineTo(-22,-20);c.closePath();c.fill()}
-  else{c.fillStyle=h.bottom;c.fillRect(-15,-34,30,8)}
+  c.fillStyle=LG(-16,-66,16,-28,h.top);c.beginPath();c.roundRect?c.roundRect(-16,-66,32,38,9):c.rect(-16,-66,32,38);c.fill();
+  if(h.skirt){c.fillStyle=LG(-20,-34,20,-20,h.bottom);c.beginPath();c.moveTo(-17,-34);c.lineTo(17,-34);c.lineTo(22,-20);c.lineTo(-22,-20);c.closePath();c.fill()}
+  else{c.fillStyle=LG(-15,-34,15,-26,h.bottom);c.fillRect(-15,-34,30,8)}
   /* bras */
-  for(const s of[-1,1]){c.save();c.translate(s*17,-62);c.rotate(-s*sw*.6+s*.15);c.fillStyle=h.top;c.fillRect(-4,0,8,22);c.fillStyle=h.skin;c.beginPath();c.arc(0,25,5,0,7);c.fill();c.restore()}
+  for(const s of[-1,1]){c.save();c.translate(s*17,-62);c.rotate(-s*sw*.6+s*.15);c.fillStyle=LG(-4,0,4,0,h.top);c.fillRect(-4,0,8,22);c.fillStyle=RG(0,25,5,h.skin);c.beginPath();c.arc(0,25,5,0,7);c.fill();c.restore()}
   /* sac à dos */
-  c.fillStyle=h.bag;c.beginPath();c.roundRect?c.roundRect(-13,-64,26,30,7):c.rect(-13,-64,26,30);c.fill();c.fillStyle="rgba(255,255,255,.25)";c.fillRect(-9,-50,18,7);
+  c.fillStyle=RG(0,-49,19,h.bag);c.beginPath();c.roundRect?c.roundRect(-13,-64,26,30,7):c.rect(-13,-64,26,30);c.fill();c.fillStyle=LG(-9,-50,9,-43,hexMix(h.bag,.3));c.beginPath();c.roundRect?c.roundRect(-9,-50,18,8,3):c.rect(-9,-50,18,8);c.fill();c.fillStyle="rgba(255,255,255,.35)";c.beginPath();c.ellipse(-6,-59,4,2,-.4,0,7);c.fill();
   /* tête (de dos : surtout des cheveux) */
-  c.fillStyle=h.skin;c.beginPath();c.arc(-17,-84,4,0,7);c.arc(17,-84,4,0,7);c.fill();
-  c.fillStyle=h.hair;c.beginPath();c.arc(0,-86,17,0,7);c.fill();
+  c.fillStyle=RG(0,-84,18,h.skin);c.beginPath();c.arc(-17,-84,4,0,7);c.arc(17,-84,4,0,7);c.fill();
+  c.fillStyle=RG(0,-92,24,h.hair);c.beginPath();c.arc(0,-86,17,0,7);c.fill();
   if(h.style==="puffs"){c.beginPath();c.arc(-15,-100,10,0,7);c.arc(15,-100,10,0,7);c.fill()}
   if(h.style==="curly"){for(let i=0;i<7;i++){c.beginPath();c.arc(Math.cos(i)*14,-88+Math.sin(i*2)*12,7,0,7);c.fill()}}
   if(h.style==="long"||h.style==="straight"){c.beginPath();c.moveTo(-16,-88);c.lineTo(-15,-56+Math.sin(t)*2);c.lineTo(15,-56-Math.sin(t)*2);c.lineTo(16,-88);c.closePath();c.fill()}
+  c.fillStyle="rgba(255,255,255,.22)";c.beginPath();c.ellipse(-6,-95,7,3.5,-.5,0,7);c.fill();
   c.restore()}
 
 /* ======================================================================
@@ -5562,7 +5587,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261108-213438";
+const APP_VER="20261108-220938";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
