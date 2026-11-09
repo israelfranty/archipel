@@ -391,7 +391,7 @@ b.en{color:var(--sea)}
 .row3{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .egrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px;width:100%}
 .egrid>div{text-align:center;border:2px solid var(--line);border-radius:12px;padding:6px;display:flex;flex-direction:column;align-items:center;gap:2px}
-[data-w].said{opacity:1!important;animation:none!important}[data-w].say{outline:3px solid var(--c);outline-offset:2px;transform:scale(1.06);transition:transform .2s}.nwfr p{margin:4px 0}.egrid .emo{font-size:2rem}.egrid .num{font-family:var(--f-display);font-size:1.4rem}.egrid .dots-svg{height:30px}
+[data-w].said{opacity:1!important;animation:none!important}[data-w].say{outline:3px solid var(--c);outline-offset:2px;transform:scale(1.06);transition:transform .2s}.nwfr p{margin:4px 0}.lblanks{display:flex;gap:8px;justify-content:center;margin-top:10px}.lblanks i{display:block;width:22px;border-bottom:3px solid var(--ink)}.lblanks i.sp{border:0;width:10px}#sp-fix{margin-top:6px}.egrid .emo{font-size:2rem}.egrid .num{font-family:var(--f-display);font-size:1.4rem}.egrid .dots-svg{height:30px}
 .sfig{margin:0;width:110px;text-align:center}.sfig figcaption{font-family:var(--f-display);font-weight:600;font-size:.95rem}
 .wherefig{margin:0;text-align:center}.wherefig .where{font-size:2.6rem}.wherefig figcaption{font-weight:700}
 .trace-card{gap:10px;scroll-margin-top:8px}
@@ -1883,6 +1883,21 @@ const envPool=()=>{const on=envS().on;return VOC.filter(v=>on.includes(v[0]))};
 function envGrow(){const o=envS(),left=o.on.filter(w=>!envKnown(w)).length;
   if(left<=2&&o.on.length<VOC.length){ENV_ORD.filter(v=>!o.on.includes(v[0])).slice(0,ENV_ADD).forEach(v=>o.on.push(v[0]));save()}
   return envPool().filter(v=>!o.seen[v[0]])}
+/* Orthographe anglaise : elle connaît le mot à l'oral, elle doit l'écrire lettre par lettre.
+   Image (ou sens en français) + voix, puis elle tape le mot. Tirets = nombre de lettres aux niveaux 1 et 2. */
+const spTrick=w=>{const d=(w.match(/(.)\1/g)||[]).map(x=>x[0]);const t=[];if(d.length)t.push(`Attention : ${d.map(c=>"deux "+c).join(", ")}.`);
+  if(/ee|ea/.test(w))t.push(`Le son « i » s'écrit ici ${w.includes("ee")?"ee":"ea"}.`);if(/oo/.test(w)&&!d.includes("o"))t.push("Deux o.");if(/igh/.test(w))t.push("Le gh ne se prononce pas.");if(/^wh/.test(w))t.push("Le h ne s'entend pas : wh.");if(/e$/.test(w)&&w.length>3)t.push("Le e à la fin ne s'entend pas, mais il s'écrit.");return t.join(" ")};
+const spBlanks=w=>`<div class="lblanks" aria-hidden="true">${w.split("").map(c=>c===" "?'<i class="sp"></i>':"<i></i>").join("")}</div>`;
+function enWrite(L,only){const max=L===1?5:L===2?7:20,seen=new Set(),items=[];
+  const add=o=>{if(!seen.has(o.w)&&o.w.length<=max){seen.add(o.w);items.push(o)}};
+  (only||envPool()).forEach(v=>add({w:v[0],fr:v[2],vis:`<div class="bigemo">${EMO(v[1])}</div>`}));
+  if(!only){COLS.slice(0,L===1?6:10).forEach(c=>add({w:c[0],fr:c[1],vis:dot(c[2],1)}));
+    for(let n=1;n<=(L===1?10:20);n++)add({w:NUMS[n],fr:String(n),vis:`<div class="bigexpr">${n}</div>`});
+    if(L>=2)SPELL.forEach(x=>add({w:x[0],fr:x[1],vis:`<p class="prompt sp-fr">« ${x[1]} »</p>`}))}
+  if(!items.length)return null;
+  const it=pickWord(items,x=>"sp:"+x.w),w=it.w,tr=spTrick(w);
+  return{kind:"text",lang:"en",spell:true,word:"sp:"+w,choices:[],notion:"Écrire les mots",prompt:"Écoute le mot et écris-le en anglais.",say:w,fr:`Écris en anglais : ${it.fr}`,
+    visual:it.vis+(L<3?spBlanks(w):""),answer:w,rep:w,explain:`On écrit « ${w} » : ${w.toUpperCase().split("").join("-")}.${tr?" "+tr:""}`}}
 const GEN_EN={
 en_words(L,force){
   const type=force||pick(L===1?["find","name","colour","number"]:L===2?["find","name","colour","number","name"]:["name","find","number","name"]);
@@ -1891,6 +1906,7 @@ en_words(L,force){
   if(type==="number"){let n,w;if(L<3){n=L===1?R(1,10):R(11,20);w=NUMS[n]}else{n=pick(Object.keys(TENS).map(Number));w=TENS[n]}
     const near=L<3?[n-1,n+1,n+2,n-2].filter(x=>x>0&&x<=20).map(x=>NUMS[x]):Object.values(TENS);
     return enq({notion:"Les nombres",prompt:"What number is it?",say:"What number is it?",fr:"Quel est ce nombre?",visual:`<div class="bigexpr">${n}</div>`,choices:choices(w,near),answer:w,rep:w,explain:`${n} se dit « ${w} » en anglais.${n>=13&&n<=19?" Les nombres de 13 à 19 finissent par -teen.":""}`})}
+  if(!force&&Math.random()<.25){const kn=envPool().filter(v=>envKnown(v[0]));if(kn.length){const q=enWrite(L,kn);if(q)return q}}
   const pool=envPool(),[w,e,fr,th]=pickWord(pool,v=>"en:"+v[0]);
   const same=pool.filter(v=>v[0]!==w&&(L===3?v[3]===th:true));const others=shuffle(same.length>=3?same:pool.filter(v=>v[0]!==w)).slice(0,3);
   if(type==="find"){const disp={};[[w,e,fr],...others].forEach(v=>disp[v[0]]=EMO(v[1]));
@@ -1935,7 +1951,8 @@ en_build(L){
   return enq({notion:"La place de l'adjectif",prompt:`How do you say « ${nfr} ${cfrA} »?`,say:`How do you say it in English?`,fr:`Comment dit-on « ${nfr} ${cfrA} » en anglais?`,choices:shuffle([`${ar} ${cw} ${nw}`,`${ar2} ${nw} ${cw}`,`${ar} ${cw}s ${nw}`]),answer:`${ar} ${cw} ${nw}`,rep:`${ar} ${cw} ${nw}`,explain:`En anglais, la couleur se place AVANT le nom : ${ar} ${cw} ${nw}. Et l'adjectif ne prend jamais de s.${ar==="an"?" On dit « an » parce que « "+cw+" » commence par une voyelle.":""}`})
 },
 en_spell(L){
-  if(canSpeak()&&Math.random()<(L===1?.4:.3)){const g=pick(LGROUPES),l=pick(g),info=LETTRES.find(x=>x[0]===l);
+  const rr=Math.random();if(rr<.65){const q=enWrite(L);if(q)return q}
+  if(canSpeak()&&rr<.8){const g=pick(LGROUPES),l=pick(g),info=LETTRES.find(x=>x[0]===l);
     return enq({notion:"L'alphabet anglais",prompt:"Listen and touch the letter.",say:`The letter ${l}.`,fr:"Écoute et touche la bonne lettre.",visual:`<button class="listen bigl" type="button" data-say="The letter ${l}.">${SPK}Écouter la lettre</button>`,choices:shuffle(g),answer:l,rep:l,explain:`En anglais, la lettre ${l} se prononce ${info[1]}. ${LETTRES.filter(x=>g.includes(x[0])&&x[0]!==l).map(x=>`${x[0]} se dit ${x[1]}`).join(", ")}.`})}
   const pool=SPELL.slice(0,L===1?12:SPELL.length),[w,fr,bad]=pick(pool);
   return enq({notion:"Écrire les mots",prompt:`How do you spell « ${fr} » in English?`,say:`How do you spell ${w}?`,fr:`Comment écrit-on « ${fr} » en anglais?`,choices:choices(w,bad),answer:w,rep:w,explain:`On écrit « ${w} » : ${w.toUpperCase().split("").join("-")}. Épelle-le à voix haute avec papa ou maman.`})
@@ -2447,7 +2464,14 @@ function renderQ(){
     ${EN?"":`<div class="acc">${DACC.map(a=>`<button type="button" class="acck" data-a="${a}">${a}</button>`).join("")}</div>`}<button class="btn" type="submit">Valider</button></form>`;
     const inp=$("#tin");A.querySelectorAll(".acck").forEach(b=>b.onpointerdown=ev=>{ev.preventDefault();const s0=inp.selectionStart??inp.value.length,en=inp.selectionEnd??s0;inp.value=inp.value.slice(0,s0)+b.dataset.a+inp.value.slice(en);inp.focus();inp.setSelectionRange(s0+1,s0+1)});
     $("#t-form").addEventListener("submit",ev=>{ev.preventDefault();const v=inp.value;if(!v.trim()){inp.focus();return}const A0=tnorm(q.answer),A1=A0.replace(PRORX,""),V=tnorm(v),good=V===A0||(A1!==A0&&V===A1),near=!good&&(tbare(v)===tbare(q.answer)||tbare(v)===tbare(A1));
-      answer(good?q.answer:v);if(near){const f=$("#fb .feedback");if(f)f.insertAdjacentHTML("afterbegin",`<p class="accnote"><b>${EN?"So close!":"Presque!"}</b> ${EN?"Only the spelling marks are different.":"Seuls les accents sont différents : regarde-les bien."}</p>`)}});
+      if(q.spell&&!good&&!q.tried){q.tried=1;tone([[440,.1],[392,.14]]);$("#fb").innerHTML=`<div class="feedback warnfb pop" role="status"><h3>Oups! Petite erreur.</h3><p>Regarde bien chaque lettre et corrige ton mot. Tu as encore une chance.</p></div>`;
+        speak("Oups! Regarde bien chaque lettre et corrige ton mot.");inp.focus({preventScroll:true});return}
+      answer(good?q.answer:v);
+      if(q.spell&&!good){const c=$("#b-cont"),fb=$("#fb .feedback");if(c&&fb){c.style.display="none";
+        c.insertAdjacentHTML("beforebegin",`<form id="sp-fix" class="dform" autocomplete="off"><label for="sp-in"><b>Recopie le mot pour bien le retenir :</b></label><input id="sp-in" class="din" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" lang="en"><button class="btn" type="submit">Vérifier</button><p id="sp-msg" aria-live="polite"></p></form>`);
+        const fi=$("#sp-in");setTimeout(()=>fi.focus({preventScroll:true}),400);
+        $("#sp-fix").addEventListener("submit",ev=>{ev.preventDefault();if(tnorm(fi.value)===A0){fi.readOnly=true;fi.classList.add("right");$("#sp-fix .btn").disabled=true;$("#sp-msg").innerHTML="";tone([[660,.1],[880,.12]]);c.style.display="";c.focus({preventScroll:true})}
+          else{$("#sp-msg").innerHTML=`<b style="color:var(--bad)">Pas tout à fait. Regarde le mot lettre par lettre.</b>`;fi.select()}})}}if(near){const f=$("#fb .feedback");if(f)f.insertAdjacentHTML("afterbegin",`<p class="accnote"><b>${EN?"So close!":"Presque!"}</b> ${EN?"Only the spelling marks are different.":"Seuls les accents sont différents : regarde-les bien."}</p>`)}});
     setTimeout(()=>{if(G&&G.q===q&&!G.done)inp.focus({preventScroll:true})},300)}
   else if(q.kind==="choice"){const lg=!q.disp&&q.choices.some(x=>String(x).length>12);A.innerHTML=`<div class="choices${q.choices.length===3?" three":""}${!q.disp&&q.choices.some(c=>String(c).length>24)?" one":""}${q.emo?" emo":""}"${q.lang==="en"?' lang="en"':""}>${q.choices.map(c=>`<button class="choice${lg?" long":""}" data-v="${esc(c)}">${q.disp?q.disp[c]:show(c)}</button>`).join("")}</div>`;
     A.querySelectorAll(".choice").forEach(b=>b.onclick=()=>answer(b.dataset.v,b))}
@@ -2484,7 +2508,7 @@ function key(k){
 }
 document.addEventListener("keydown",e=>{
   if($("#ecran-jeu").hidden||!G)return;
-  if(G.done){if(e.key==="Enter"&&G.mode==="q"){e.preventDefault();const c=$("#b-cont");c&&c.click()}return}
+  if(G.done){if(e.key==="Enter"&&G.mode==="q"){const c=$("#b-cont");if(e.target&&e.target.id==="sp-in"||(c&&c.style.display==="none"))return;e.preventDefault();c&&c.click()}return}
   if(!((G.mode==="sprint"&&G.pad)||(G.mode==="q"&&G.q&&G.q.kind==="num")))return;
   if(/^\d$/.test(e.key))key(e.key);else if(e.key==="Backspace")key("del");else if(e.key==="Enter"){e.preventDefault();key("ok")}
 });
@@ -5538,7 +5562,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261108-212455";
+const APP_VER="20261108-213438";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
