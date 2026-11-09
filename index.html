@@ -820,6 +820,15 @@ body.homew #studybar{display:none}
 .skyback{display:inline-flex;align-items:center;gap:8px;min-height:46px;border:0;border-radius:999px;background:#FFFFFF;color:#12465A;padding:0 20px 0 14px;font-family:var(--f-display);font-weight:600;font-size:1.1rem;box-shadow:0 3px 10px rgba(10,60,80,.18)}
 .skyback svg{width:20px;height:20px}
 .skychip{display:inline-flex;align-items:center;gap:6px;min-height:42px;border-radius:999px;background:#F6C945;color:#12343B;padding:0 16px;font-family:var(--f-display);font-weight:700;font-size:1.05rem;box-shadow:0 3px 10px rgba(10,60,80,.18)}
+.bkbanner{display:flex;align-items:center;gap:14px;justify-content:space-between;background:var(--cream);border:2px solid var(--sun);border-radius:20px;padding:10px 16px;margin:6px auto;max-width:420px;width:100%;text-align:left;color:var(--ink)}
+.bkb-t{display:flex;flex-direction:column;gap:2px;min-width:0}.bkb-t>b{font-family:var(--f-display);font-size:1.8rem;line-height:1;color:var(--sea)}.bkb-t span{font-weight:600}.bkb-t small{color:var(--muted)}
+.bkicon{width:74px;height:auto;flex:none}.bkmsg{color:var(--muted);font-size:.95rem;margin:6px auto;max-width:420px}
+.bkfly{position:fixed;left:0;top:0;width:110px;pointer-events:none;z-index:200;will-change:transform}.bkfly.coin{width:44px}.bkfly svg{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 8px rgba(10,30,40,.3))}
+.bkcard{display:flex;gap:16px;align-items:flex-start;background:var(--cream);border:1px solid var(--cream-line);border-radius:28px;padding:16px 20px;box-shadow:0 10px 24px rgba(10,60,80,.12);color:var(--ink);margin-top:14px}
+.bkcard .bkicon{width:96px}.bkc-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}.bkc-b h3{margin:0;font-family:var(--f-display)}.bkc-bal{font-family:var(--f-display);font-weight:700;font-size:2rem;color:var(--sea);font-variant-numeric:tabular-nums}
+.bkc-b p{margin:0;color:var(--muted)}.bklog{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}.bklog li{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--cream-line);padding-top:4px}.bklog li b{color:var(--good);white-space:nowrap}
+.bksoon{font-weight:600;color:var(--sea)!important}@media (max-width:480px){.bkcard{flex-direction:column}.bkcard .bkicon{width:72px}}
+@media (prefers-reduced-motion:reduce){.bkfly{display:none}}
 .tcard{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--cream);border:1px solid var(--cream-line);border-radius:28px;box-shadow:0 10px 24px rgba(10,60,80,.12);color:var(--ink)}
 .tcard .tci{width:118px;height:104px;object-fit:contain;flex:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.18))}
 .tcard .tcb{flex:1;min-width:0}
@@ -2244,7 +2253,7 @@ function bye(){BYE=true;PAUSED=false;G=null;save();if(MUS)MUS.pause();if(TTS)try
   $("#b-reopen").onclick=()=>{BYE=false;renderCarte();go("carte");musicSync()}}
 
 /* ---------- Écrans ---------- */
-function go(id){if(id==="fin")setTimeout(()=>{if(!$("#ecran-fin").hidden)seanceEnd()},0);if(!(G&&G.mode==="dict"))FORCEV=false;const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||id==="carte"||BYE;document.body.classList.toggle("has-nav",id==="carte"&&!!S.name&&!!S.comp.type);if(id!=="carte")document.body.classList.remove("homew");SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);const gs=!G?null:G.mode==="trace"?null:["biblio","donjon","bat"].includes(G.mode)?"jeux":G.subj;if(id==="jeu")LSUB=gs;skyIn(((id==="jeu"||id==="fin")&&SKYSUB.includes(id==="jeu"?gs:LSUB))||id==="parent");document.body.classList.toggle("pskin",id==="parent");window.scrollTo(0,0)}
+function go(id){if(id==="fin"){setTimeout(()=>{if(!$("#ecran-fin").hidden)seanceEnd()},0);setTimeout(()=>{try{bankCheck()}catch(e){}},80)}if(!(G&&G.mode==="dict"))FORCEV=false;const sb=$("#studybar");if(sb)sb.hidden=id==="parent"||id==="carte"||BYE;document.body.classList.toggle("has-nav",id==="carte"&&!!S.name&&!!S.comp.type);if(id!=="carte")document.body.classList.remove("homew");SEQ++;if(TTS)try{TTS.cancel()}catch(e){}["carte","jeu","fin","parent"].forEach(s=>$("#ecran-"+s).hidden=s!==id);const gs=!G?null:G.mode==="trace"?null:["biblio","donjon","bat"].includes(G.mode)?"jeux":G.subj;if(id==="jeu")LSUB=gs;skyIn(((id==="jeu"||id==="fin")&&SKYSUB.includes(id==="jeu"?gs:LSUB))||id==="parent");document.body.classList.toggle("pskin",id==="parent");window.scrollTo(0,0)}
 /* Pages intérieures au thème « ciel et crème » : activées île par île (SKYSUB). */
 const SKYSUB=["francais","maths","anglais","jeux"];let LSUB=null;
 function skyDeco(id){const gt=document.querySelector(`#ecran-${id} .gtitle`);if(!gt||gt.querySelector(".gic"))return;const t=gt.textContent;
@@ -5100,6 +5109,63 @@ function dChallenge(theme,L){
       explain:`Le plus ${big?"grand":"petit"} est ${nf(tgt)}. On compare d'abord les chiffres de gauche : ${tgt>=100?"les centaines, puis les dizaines":"les dizaines, puis les unités"}.`}}
   return Object.assign({theme,isl:T.isl,notion:T.notion},c)}
 
+
+/* ======================================================================
+   LA BANQUE DE L'ARCHIPEL — seul le travail scolaire rapporte de l'argent.
+   Règle : score parfait = 20 $; à 1 point du maximum (9/10, 7/8, 4/5…) = 15 $;
+   petit progrès (au moins la moitié et mieux que la dernière fois) = 2 $.
+   Maximum 3 récompenses par exercice et 100 $ par jour. Billets : style « Lagon ».
+   ====================================================================== */
+const BK_CAP=100,BK_PER=3;
+function BKS(){const b=S.bank||(S.bank={bal:0,log:[],last:{},day:{}});if(!b.log)b.log=[];if(!b.last)b.last={};if(!b.day)b.day={};return b}
+const NOTE_C={5:["#2A73B0","CINQ"],10:["#7B52B8","DIX"],20:["#2F8A50","VINGT"],50:["#D2502F","CINQUANTE"],100:["#A86A10","CENT"]};
+const BK_LOGO=(x,y,sz)=>`<g transform="translate(${x} ${y}) scale(${sz/512})"><rect width="512" height="512" rx="110" fill="#FFF8E7"/><circle cx="404" cy="110" r="46" fill="#F2B21B"/><path d="M256 70 L380 330 L318 330 L294 276 L218 276 L194 330 L132 330 Z" fill="#17707F"/><path d="M232 234 L280 234 L256 180 Z" fill="#FFF8E7"/><path d="M104 346 L408 346 L372 398 L140 398 Z" fill="#D2502F"/><path d="M0 420 Q64 396 128 420 T256 420 T384 420 T512 420 L512 512 L0 512 Z" fill="#17707F"/></g>`;
+let BKN=0;
+function bkNote(v){const [c,word]=NOTE_C[v],u="bk"+(++BKN),Tx=(x,y,t,sz,f,w,a,ls)=>`<text x="${x}" y="${y}" text-anchor="${a||"middle"}" font-family="Fredoka,'Trebuchet MS',sans-serif" font-weight="${w||700}" font-size="${sz}" fill="${f}"${ls?` letter-spacing="${ls}"`:""}>${t}</text>`;
+  let wv="";for(let i=0;i<20;i++){const y=7+i*7;let d=`M0 ${y}`;for(let x=0;x<=122;x+=8)d+=` L${x} ${(y+Math.sin((x+i*9)/11)*2.2).toFixed(1)}`;wv+=`<path d="${d}" stroke="#fff" stroke-width=".6" fill="none" opacity=".18"/>`}
+  return`<svg class="bknote" viewBox="0 0 320 148" role="img" aria-label="Billet de ${v} dollars"><defs><linearGradient id="${u}p" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFBF2"/><stop offset="1" stop-color="#F3E8D2"/></linearGradient><clipPath id="${u}c"><rect width="320" height="148" rx="10"/></clipPath>
+  <linearGradient id="${u}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${hexMix(c,.82)}"/><stop offset="1" stop-color="#FFF8E7"/></linearGradient></defs>
+  <g clip-path="url(#${u}c)"><rect width="320" height="148" fill="url(#${u}p)"/><rect x="122" width="198" height="148" fill="url(#${u}s)"/><circle cx="286" cy="62" r="13" fill="#F2B21B" opacity=".9"/>
+  <path d="M150 112 L205 52 L232 76 L252 62 L300 112 Z" fill="${hexMix(c,.35)}"/><path d="M205 52 L218 66 L198 70 Z" fill="#fff" opacity=".7"/>
+  <rect x="262" y="78" width="8" height="30" fill="#FFF9EE"/><rect x="262" y="86" width="8" height="5" fill="#D2502F"/><rect x="262" y="97" width="8" height="5" fill="#D2502F"/><path d="M260 78 h12 l-6 -8 Z" fill="#D2502F"/>
+  <path d="M122 110 Q145 104 168 110 T214 110 T260 110 T306 110 T340 110 V148 H122 Z" fill="${c}" opacity=".85"/><path d="M122 120 Q145 114 168 120 T214 120 T260 120 T306 120 T340 120 V148 H122 Z" fill="${hexMix(c,-.25)}"/>
+  <rect width="122" height="148" fill="${c}"/>${wv}${Tx(61,96,v,v>=100?50:62,"#fff")}${Tx(61,122,"DOLLARS",11,"#fff",600,"middle",2)}
+  ${BK_LOGO(134,10,26)}${Tx(166,22,"BANQUE DE",7.5,"#15303D",600,"start",1.2)}${Tx(166,32,"L'ARCHIPEL DES SAVOIRS",7.5,"#15303D",700,"start",.4)}
+  ${Tx(312,140,word+" DOLLARS",8,"#fff",700,"end",1.5)}${Tx(306,24,v,14,c,700,"end")}</g><rect x=".5" y=".5" width="319" height="147" rx="10" fill="none" stroke="${hexMix(c,-.3)}" stroke-opacity=".5"/></svg>`}
+const bkCoin=()=>`<svg class="bkcoin" viewBox="0 0 100 100" role="img" aria-label="Pièce de 2 dollars"><defs><radialGradient id="bkcs" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#C9D3D6"/><stop offset="1" stop-color="#7F8E93"/></radialGradient><radialGradient id="bkcg" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFE9A3"/><stop offset=".55" stop-color="#E3B23C"/><stop offset="1" stop-color="#A97A12"/></radialGradient></defs><circle cx="50" cy="50" r="48" fill="url(#bkcs)" stroke="#6E7B80" stroke-width="1.5"/><circle cx="50" cy="50" r="31" fill="url(#bkcg)" stroke="#8A6410"/>${BK_LOGO(36,28,28)}<text x="50" y="74" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="10" fill="#5A3E00">2 $</text></svg>`;
+const BK_ICON=`<svg class="bkicon" viewBox="0 0 200 170" aria-hidden="true"><path d="M14 62 L100 14 L186 62 Z" fill="#17707F"/><circle cx="100" cy="44" r="12" fill="#F2B21B"/><text x="100" y="49" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="14" fill="#5A3E00">$</text><rect x="20" y="62" width="160" height="12" rx="3" fill="#14596A"/><rect x="26" y="74" width="148" height="76" fill="#FFF9EE"/><g fill="#F4ECDA" stroke="#D9CBAA" stroke-width="1.2"><rect x="36" y="78" width="14" height="68" rx="3"/><rect x="66" y="78" width="14" height="68" rx="3"/><rect x="120" y="78" width="14" height="68" rx="3"/><rect x="150" y="78" width="14" height="68" rx="3"/></g><path d="M88 150 V112 a12 12 0 0 1 24 0 V150 Z" fill="#D2502F"/><rect x="14" y="148" width="172" height="10" rx="3" fill="#14596A"/></svg>`;
+const BK_PAY_MODES=new Set(["q","dict","rep","tables","prob","col","drill"]);
+const bkFmt=n=>n.toLocaleString("fr-CA")+"\u00a0$";
+function bankCheck(){const el=$("#ecran-fin");if(!G||G.bkDone||!el||el.hidden||!BK_PAY_MODES.has(G.mode)||G.id==="tableau")return;G.bkDone=true;
+  const sc=el.querySelector(".score");if(!sc)return;const m=/(\d+)\s*\/\s*(\d+)/.exec(sc.textContent);if(!m)return;const ok=+m[1],N=+m[2];if(!N)return;
+  const lbl=((el.querySelector(".notion")||{}).textContent||"Exercice").trim(),key=G.mode+"|"+(G.id||lbl),B=BKS(),dn=dayNum();
+  if(B.day.dn!==dn)B.day={dn,sum:0,n:{}};const prev=B.last[key];B.last[key]=ok/N;
+  let amt=0,why="";if(ok>=N){amt=20;why="Score parfait"}else if(N>=4&&ok===N-1){amt=15;why="À 1 point du maximum"}else if(ok>=N/2&&prev!=null&&ok/N>prev){amt=2;why="Tu progresses"}
+  let note="";if(amt&&(B.day.n[key]||0)>=BK_PER){note=`Tu as déjà gagné ${BK_PER} fois avec cet exercice aujourd'hui. Essaie une autre activité pour gagner encore.`;amt=0}
+  if(amt&&B.day.sum+amt>BK_CAP){amt=Math.max(0,BK_CAP-B.day.sum);if(!amt)note=`Ta banque a reçu le maximum de ${BK_CAP} $ aujourd'hui. Reviens demain!`}
+  if(!amt){save();if(note)sc.insertAdjacentHTML("afterend",`<p class="bkmsg">${note}</p>`);else if(ok<N&&N>=4)sc.insertAdjacentHTML("afterend",`<p class="bkmsg">Fais ${N-1} sur ${N} ou plus pour gagner de l'argent pour ${esc(S.comp&&S.comp.name||"ton compagnon")}.</p>`);return}
+  B.bal+=amt;B.day.sum+=amt;B.day.n[key]=(B.day.n[key]||0)+1;B.log.unshift({d:dn,a:amt,l:`${lbl} : ${ok}/${N}`});B.log.length=Math.min(B.log.length,60);save();
+  /* On attend qu'une fenêtre de félicitations (s'il y en a une) soit fermée pour que l'enfant voie l'argent s'envoler */
+  const show=()=>{if(!sc.isConnected)return;if(document.querySelector(".ovl")){setTimeout(show,300);return}bkFly(sc,amt,why,B)};const evWait=(G.events&&G.events.length)||PEND.length;setTimeout(show,evWait&&S.comp.type?1500:0)}
+function bkFly(sc,amt,why,B){
+  const bills=amt===20?[20]:amt===15?[10,5]:amt>=10?[10]:amt>=5?[5]:[];
+  sc.insertAdjacentHTML("afterend",`<div class="bkbanner" id="bk-ban"><div class="bkb-t"><b>+${amt} $</b><span>${why} ! Déposé à la banque.</span><small>Solde : <b id="bk-bal">${bkFmt(B.bal-amt)}</b></small></div>${BK_ICON}</div>`);
+  const ban=$("#bk-ban"),ic=ban.querySelector(".bkicon"),from=sc.getBoundingClientRect(),to=ic.getBoundingClientRect();
+  const done=()=>{const b=$("#bk-bal");if(b){const t0=performance.now(),a0=B.bal-amt;const st=t=>{const k=Math.min(1,(t-t0)/600);if(b.isConnected)b.textContent=bkFmt(Math.round(a0+amt*k));if(k<1)requestAnimationFrame(st)};requestAnimationFrame(st)}
+    try{ic.animate([{transform:"scale(1)"},{transform:"scale(1.12,.92)"},{transform:"scale(.96,1.05)"},{transform:"scale(1)"}],{duration:420,easing:"ease-out"})}catch(e){}tone([[784,.08],[988,.08],[1319,.18]])};
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches,items=bills.length?bills.map(v=>bkNote(v)):[bkCoin()];
+  if(reduce||!Element.prototype.animate){done();return}
+  const sx=from.left+from.width/2,sy=from.top+from.height/2,ex=to.left+to.width/2,ey=to.top+to.height*.6;
+  items.forEach((h,i)=>{const w=document.createElement("div");w.className="bkfly"+(bills.length?"":" coin");w.innerHTML=h;document.body.appendChild(w);const W2=bills.length?55:22,H2=bills.length?25:22;
+    const cx=(sx+ex)/2+(i?50:-40),cy=Math.min(sy,ey)-140-i*30,kf=[];
+    for(let k=0;k<=40;k++){const t=k/40,x=(1-t)*(1-t)*sx+2*(1-t)*t*cx+t*t*ex,y=(1-t)*(1-t)*sy+2*(1-t)*t*cy+t*t*ey,s2=t<.15?.4+t*4:1-(t-.15)*.75;
+      kf.push({transform:`translate(${(x-W2).toFixed(1)}px,${(y-H2).toFixed(1)}px) rotate(${(Math.sin(t*6.3+i)*18-8).toFixed(1)}deg) scale(${s2.toFixed(3)})`,opacity:t>.92?(1-t)*12:1})}
+    const a=w.animate(kf,{duration:1150,delay:300+i*220,easing:"cubic-bezier(.35,.05,.4,1)",fill:"forwards"});a.onfinish=()=>{w.remove();if(i===items.length-1)done()}})}
+function bankCard(){const B=BKS(),L=B.log.slice(0,5),nm=esc(S.comp&&S.comp.name||"ton compagnon");
+  return`<div class="bkcard">${BK_ICON}<div class="bkc-b"><h3>Ma banque</h3><div class="bkc-bal">${bkFmt(B.bal)}</div><p>Gagne de l'argent en réussissant tes exercices : 20&nbsp;$ pour un score parfait, 15&nbsp;$ à 1 point du maximum.</p>
+  ${L.length?`<ul class="bklog">${L.map(x=>`<li><span>${esc(x.l)}</span><b>+${x.a} $</b></li>`).join("")}</ul>`:`<p class="bkempty">Ton premier dépôt arrivera avec ton prochain exercice réussi.</p>`}
+  <p class="bksoon">Bientôt : l'épicerie, pour faire les courses de ${nm}.</p></div></div>`}
+
 /* ---------- Écrans : bibliothèque, choix du héros, choix du thème ---------- */
 const GAMES=[
   {id:"donjon",nom:"Le Donjon des nombres",sous:"Mathématiques",ready:true,c:"#3B2A6B",art:"🏰"},
@@ -5115,7 +5181,7 @@ function renderBiblio(){if(S.gamesOn===false){stopDonjon();G=null;renderCarte();
   const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");
   const sub={donjon:"Passe par la bonne porte",batisseurs:"Construis les nombres du village"};
   const grp=k=>!GAMES.some(x=>x.sous===k&&x.ready)?"":`<h3 class="xh">${k}</h3><div class="ggrid">${GAMES.filter(x=>x.sous===k&&x.ready).map(x=>`<button class="gc${x.ready?"":" locked"}" data-game="${x.id}" ${x.ready?"":"aria-disabled=\"true\""}>${x.ready?"":`<span class="soon">Bientôt</span>`}<img src="${XIC[GIC[x.id]]||IC3[GIC[x.id]]}" alt=""><span class="gb"><b>${x.nom}</b><small>${x.ready?(sub[x.id]||x.sous):x.sous}</small></span></button>`).join("")}</div>`;
-  el.innerHTML=skyHead("Explorer","bb-home",`<span class="skychip">🪙 ${g.coins} pièce${g.coins>1?"s":""}</span>`)+`<div class="xpage">`+tCard(XIC.chateau,"La Bibliothèque de jeux","Chaque jeu fait pratiquer les notions de l'école en s'amusant.")+grp("Mathématiques")+grp("Français")+`</div>`;
+  el.innerHTML=skyHead("Explorer","bb-home",`<span class="skychip">🏦 ${bkFmt(BKS().bal)}</span>`)+`<div class="xpage">`+tCard(XIC.chateau,"La Bibliothèque de jeux","Chaque jeu fait pratiquer les notions de l'école en s'amusant.")+bankCard()+grp("Mathématiques")+grp("Français")+`</div>`;
   $("#bb-home").onclick=()=>{G=null;HTAB="explore";renderCarte();go("carte")};
   el.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>{const nx={donjon:donjonMenu,batisseurs:batMenu}[b.dataset.game];if(nx)(heroOf()?nx():pickHero(nx));else{tone([[300,.1]]);b.classList.add("shake1");setTimeout(()=>b.classList.remove("shake1"),400)}});
   go("jeu");skyOn("biblio")}
@@ -5589,7 +5655,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261108-224352";
+const APP_VER="20261109-005043";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
