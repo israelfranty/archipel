@@ -830,6 +830,14 @@ body.homew #studybar{display:none}
 .bkc-b p{margin:0;color:var(--muted)}.bklog{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}.bklog li{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--cream-line);padding-top:4px}.bklog li b{color:var(--good);white-space:nowrap}
 .bksoon{font-weight:600;color:var(--sea)!important}@media (max-width:480px){.bkcard{flex-direction:column}.bkcard .bkicon{width:72px}}
 @media (prefers-reduced-motion:reduce){.bkfly{display:none}}
+.vlhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.vltuto{display:flex;gap:14px;align-items:flex-start;background:var(--cream);border:2px solid var(--sun);border-radius:24px;padding:14px 16px;margin-top:12px;color:var(--ink);box-shadow:0 10px 24px rgba(10,60,80,.14)}
+.vltuto img{width:84px;height:auto;flex:none}.vltb{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}.vltb p{margin:0;font-size:1.1rem;line-height:1.45}
+.vltstep{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sea)}.vltbtn{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.vtskip{border:0;background:none;color:var(--muted);text-decoration:underline;font:inherit;cursor:pointer;padding:6px}
+.vlspot.vlhl{animation:vlpulse 1.1s ease-in-out infinite;background:#E9A800;color:#2A1E00;border-color:#FFF9EE}@keyframes vlpulse{50%{box-shadow:0 0 0 10px rgba(233,168,0,.35),0 6px 14px rgba(0,0,0,.28);transform:translate(-50%,-50%) scale(1.1)}}
+@media (max-width:480px){.vltuto{flex-direction:column;align-items:center;text-align:center}.vltbtn{justify-content:center}}
+@media (prefers-reduced-motion:reduce){.vlspot.vlhl{animation:none}}
 .vlhead h2{margin:0;font-family:var(--f-display);font-size:1.6rem}.vlhead p{margin:4px 0 0;color:var(--muted)}
 .vlmap{position:relative;border-radius:24px;overflow:hidden;box-shadow:0 10px 24px rgba(10,60,80,.18);margin-top:12px}.vlimg{display:block;width:100%;height:auto}
 .vlspot{position:absolute;transform:translate(-50%,-50%);font-family:var(--f-display);font-weight:600;font-size:clamp(.78rem,1.9vw,1.05rem);background:#FFF9EE;color:#14596A;border:2px solid #E9A800;border-radius:999px;padding:5px 14px;box-shadow:0 6px 14px rgba(0,0,0,.28);white-space:nowrap;cursor:pointer}
@@ -5261,14 +5269,33 @@ function vParse(txt){const raw=vTok(txt),T=raw.map(vDeacc),out=[],used=new Set()
 const VSPOT={maison:{x:33,y:62,lbl:"La maison",stand:[44,76]},banque:{x:45,y:36,lbl:"La banque",stand:[56,48]},epicerie:{x:69,y:55,lbl:"L'épicerie",stand:[60,70]},place:{stand:[56,84]}};
 function villageMap(){G={mode:"village",subj:null};const v=VLS(),B=BKS(),el=$("#ecran-jeu");const st=VSPOT[v.pos]&&VSPOT[v.pos].stand||VSPOT.place.stand;
   el.innerHTML=skyHead("Bibliothèque","vl-back",`<span class="skychip">🏦 ${bkFmt(B.bal)}</span>`)+`<div class="xpage">
-  <div class="vlhead"><h2>Le village de ${esc(BN())}</h2><p>Touche un lieu pour y aller avec ${esc(BN())}.</p></div>
+  <div class="vlhead"><div><h2>Le village de ${esc(BN())}</h2><p>Touche un lieu pour y aller avec ${esc(BN())}.</p></div><button class="listen" id="vl-tuto-btn" type="button">${SPK}Comment ça marche ?</button></div>
   <div class="vlmap"><img class="vlimg" src="${VIMG.map}" alt="Le village : une maison, la banque et l'épicerie sur une île">
    ${["maison","banque","epicerie"].map(k=>`<button class="vlspot" data-spot="${k}" style="left:${VSPOT[k].x}%;top:${VSPOT[k].y}%">${VSPOT[k].lbl}</button>`).join("")}
    <img class="vlbuddy" id="vl-buddy" src="${C3D[S.comp.type]||C3D.tortue}" alt="${esc(BN())}" style="left:${st[0]}%;top:${st[1]}%"></div>
-  <p class="vlwish" id="vl-wish">${vlWishTxt()}</p></div>`;
-  $("#vl-back").onclick=()=>{G=null;renderBiblio()};
-  el.querySelectorAll("[data-spot]").forEach(b=>b.onclick=()=>vlGo(b.dataset.spot));
-  go("jeu");skyOn("biblio")}
+  <div id="vl-tuto"></div><p class="vlwish" id="vl-wish">${vlWishTxt()}</p></div>`;
+  $("#vl-back").onclick=()=>{vlTutoEnd(true);G=null;renderBiblio()};$("#vl-tuto-btn").onclick=()=>vlTuto(0);
+  el.querySelectorAll("[data-spot]").forEach(b=>b.onclick=()=>{vlTutoEnd(true);vlGo(b.dataset.spot)});
+  go("jeu");skyOn("biblio");if(!v.tuto)setTimeout(()=>{if(G&&G.mode==="village"&&$("#vl-tuto"))vlTuto(0)},500)}
+/* Tutoriel audio : le compagnon présente son village, lieu par lieu, avec la voix */
+function vlTutoSteps(){const n=BN(),B=BKS();return[
+ {spot:null,txt:`Bienvenue dans mon village ! Ici, l'argent que tu gagnes en travaillant bien à l'école sert à prendre soin de moi.`},
+ {spot:"banque",txt:`Voici la banque. Quand tu réussis un exercice presque parfaitement, l'argent arrive ici : 20 dollars pour un score parfait, et 15 dollars quand il ne manque qu'un seul point. Pour voir ton argent, touche la petite banque en haut de l'écran.`},
+ {spot:"epicerie",txt:`Voici l'épicerie. Je vais te demander poliment de m'acheter des choses. Tu écriras ta commande à la vendeuse, sans oublier bonjour et s'il vous plaît. Ensuite, tu calculeras la facture, tu paieras avec tes billets et tu vérifieras la monnaie.`},
+ {spot:"maison",txt:`Et voici ma maison. Tout ce que tu m'achètes va dans mon garde-manger. Plus tard, on pourra aussi acheter des meubles.`},
+ {spot:null,txt:`${S.vgate!==false?"L'épicerie ouvre quand ton travail de la journée est terminé. ":""}${B.bal<5?"Pour l'instant, ta banque est presque vide : réussis quelques exercices d'abord. ":""}Quand tu es prête, touche un endroit du village pour y aller avec moi. Merci de prendre soin de moi !`}]}
+let VTU=null;
+function vlTuto(i){const box=$("#vl-tuto");if(!box)return;const st=vlTutoSteps(),c=st[i];if(!c){vlTutoEnd();return}
+  VTU={i};FORCEV=true;const v=VLS(),last=i===st.length-1;
+  document.querySelectorAll(".vlspot").forEach(b=>b.classList.toggle("vlhl",b.dataset.spot===c.spot));
+  const bud=$("#vl-buddy");if(bud&&c.spot){const p=VSPOT[c.spot].stand;bud.classList.add("walk");bud.style.left=p[0]+"%";bud.style.top=p[1]+"%";setTimeout(()=>bud.classList.remove("walk"),1150)}
+  box.innerHTML=`<div class="vltuto pop2" role="region" aria-label="Visite guidée du village"><img src="${C3D[S.comp.type]||C3D.tortue}" alt=""><div class="vltb"><span class="vltstep">Visite guidée · ${i+1} sur ${st.length}</span><p>${esc(c.txt)}</p>
+   <div class="vltbtn"><button class="listen" id="vt-say" type="button">${SPK}Réécouter</button>${i>0?`<button class="btn ghost" id="vt-prev" type="button">← Précédent</button>`:""}<button class="btn" id="vt-next" type="button">${last?"C'est parti !":"Suivant →"}</button>${last?"":`<button class="vtskip" id="vt-skip" type="button">Passer la visite</button>`}</div></div></div>`;
+  $("#vt-say").onclick=()=>speak(c.txt);$("#vt-next").onclick=()=>vlTuto(i+1);const pv=$("#vt-prev");if(pv)pv.onclick=()=>vlTuto(i-1);const sk=$("#vt-skip");if(sk)sk.onclick=()=>vlTutoEnd();
+  $("#vt-next").focus({preventScroll:true});box.scrollIntoView({behavior:"smooth",block:"nearest"});speak(c.txt)}
+function vlTutoEnd(silent){if(!VTU)return;VTU=null;FORCEV=false;const v=VLS();v.tuto=1;save();if(!silent){SEQ++;if(TTS)try{TTS.cancel()}catch(e){}}
+  document.querySelectorAll(".vlspot").forEach(b=>b.classList.remove("vlhl"));const box=$("#vl-tuto");if(box)box.innerHTML="";
+  const bud=$("#vl-buddy");if(bud&&!silent){const p=(VSPOT[v.pos]||VSPOT.place).stand||VSPOT.place.stand;bud.style.left=p[0]+"%";bud.style.top=p[1]+"%"}}
 function vlWishTxt(){const v=VLS(),n=Object.values(v.pantry).reduce((a,b)=>a+b,0);
   return v.missions?`${esc(BN())} a fait ${v.missions} mission${v.missions>1?"s":""} avec toi. ${n?`Son garde-manger contient ${n} produit${n>1?"s":""}.`:""}`:`${esc(BN())} : « J'aimerais te montrer mon village. Pourrais-tu m'accompagner à l'épicerie, s'il te plaît ? »`}
 function vlGo(k){const b=$("#vl-buddy"),v=VLS();if(!b)return;const st=VSPOT[k].stand;tone([[523,.06],[659,.08]]);
@@ -5868,7 +5895,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261109-145330";
+const APP_VER="20261109-145907";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
