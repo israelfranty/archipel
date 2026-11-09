@@ -169,6 +169,7 @@ main{padding-block:18px 40px}
 /* Fin */
 .result{text-align:center;align-items:center}
 .result h2{font-family:var(--f-display);font-weight:700;font-size:2rem;margin:0}
+.bdstep{display:flex;flex-direction:column;align-items:center;gap:6px;margin:6px 0}.boardcard .row-btns .btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;min-height:48px;padding:10px 20px;width:auto;height:auto}.boardcard .row-btns .btn svg{width:20px;height:20px;flex:none}.bdnum{font-family:var(--f-display);font-weight:700;font-size:1.3rem}.bddots{display:flex;gap:8px}.bddots i{width:14px;height:14px;border-radius:50%;border:2px solid currentColor;opacity:.5}.bddots i.ok{background:currentColor;opacity:.8}.bddots i.now{opacity:1;background:var(--sun);border-color:var(--sun)}
 .result .score{font-family:var(--f-display);font-size:3.4rem;font-weight:700;color:var(--c);line-height:1;font-variant-numeric:tabular-nums}
 .result .stars svg{width:52px;height:52px}
 .result .msg{margin:0;max-width:44ch;color:var(--muted)}
@@ -2133,9 +2134,9 @@ const WEEK_ISL=[
  {id:"en_week",subj:"anglais",week:true,a:"dans tes mots de la semaine",nom:"Mes mots de la semaine",sous:"La liste d'anglais de l'école",glyph:"Wk",c:"--i3"}];
 {const b1=BOARD.francais,b2=BOARD.anglais;
  BOARD.francais=(L,zone)=>{const ws=weekFR();if(ws.length&&(zone==="fr_week"||(zone==="orthographe"&&Math.random()<.5))){const pk=shuffle(ws).slice(0,Math.min(ws.length,L===1?3:4));
-   return{isl:zone==="orthographe"?"orthographe":"fr_week",notion:zone==="orthographe"?"Dictée de mots":"Mots de la semaine",words:pk,prompt:`Dictée de ta liste : écris les ${pk.length} mots que tu entends.`,say:pk.join(". … ")+".",dictee:pk.join(", "),reveal:`<div class="phrase">${pk.join("<br>")}</div>`,answer:"ok",explain:"Pour chaque mot mal écrit, recopie-le trois fois au tableau."}}return b1(L,zone==="fr_week"?"orthographe":zone)};
+   return{isl:zone==="orthographe"?"orthographe":"fr_week",notion:zone==="orthographe"?"Dictée de mots":"Mots de la semaine",words:pk,prompt:`Dictée de ta liste au tableau : écris les ${pk.length} mots que tu entends, un à la fois.`,say:pk.join(". … ")+".",dictee:pk.join(", "),reveal:`<div class="phrase">${pk.join("<br>")}</div>`,answer:"ok",explain:"Pour chaque mot mal écrit, recopie-le trois fois au tableau."}}return b1(L,zone==="fr_week"?"orthographe":zone)};
  BOARD.anglais=(L,zone)=>{const ws=weekEN();if(ws.length&&(zone==="en_week"||(zone==="en_spell"&&Math.random()<.5))){const pk=shuffle(ws).slice(0,Math.min(ws.length,3));
-   return{isl:zone==="en_spell"?"en_spell":"en_week",lang:"en",notion:zone==="en_spell"?"Write the word":"Words of the week",words:pk.map(x=>x.w),prompt:`Écris en anglais les ${pk.length} mots que tu entends.`,say:pk.map(x=>x.w).join(". … ")+".",dictee:pk.map(x=>x.w+(x.fr?` (${x.fr})`:"")).join(", "),reveal:`<div class="phrase" lang="en">${pk.map(x=>x.w).join("<br>")}</div>`,rep:pk.map(x=>x.w).join(", "),answer:"ok",explain:"Pour chaque mot mal écrit, recopie-le trois fois au tableau."}}return b2(L,zone==="en_week"?"en_spell":zone)};}
+   return{isl:zone==="en_spell"?"en_spell":"en_week",lang:"en",notion:zone==="en_spell"?"Write the word":"Words of the week",words:pk.map(x=>x.w),prompt:`Au tableau : écris en anglais les ${pk.length} mots que tu entends, un à la fois.`,say:pk.map(x=>x.w).join(". … ")+".",dictee:pk.map(x=>x.w+(x.fr?` (${x.fr})`:"")).join(", "),reveal:`<div class="phrase" lang="en">${pk.map(x=>x.w).join("<br>")}</div>`,rep:pk.map(x=>x.w).join(", "),answer:"ok",explain:"Pour chaque mot mal écrit, recopie-le trois fois au tableau."}}return b2(L,zone==="en_week"?"en_spell":zone)};}
 ISL.unshift(...WEEK_ISL);
 
 /* ---------- Compagnon ---------- */
@@ -2530,6 +2531,20 @@ function renderQ(){
     setTimeout(()=>{if(G&&G.q===q&&!G.done)inp.focus({preventScroll:true})},300)}
   else if(q.kind==="choice"){const lg=!q.disp&&q.choices.some(x=>String(x).length>12);A.innerHTML=`<div class="choices${q.choices.length===3?" three":""}${!q.disp&&q.choices.some(c=>String(c).length>24)?" one":""}${q.emo?" emo":""}"${q.lang==="en"?' lang="en"':""}>${q.choices.map(c=>`<button class="choice${lg?" long":""}" data-v="${esc(c)}">${q.disp?q.disp[c]:show(c)}</button>`).join("")}</div>`;
     A.querySelectorAll(".choice").forEach(b=>b.onclick=()=>answer(b.dataset.v,b))}
+  else if(q.kind==="board"&&q.words&&q.words.length&&canSpeak()){q.steps=1;q.wi=0;const N=q.words.length;
+    A.innerHTML=`<div class="boardcard"><div class="board-h">Moment de pratique au tableau</div><p class="board-tip">Écris chaque mot à ton tableau. Quand tu as fini de l'écrire, touche «&nbsp;Mot suivant&nbsp;».</p>
+     <div class="bdstep" id="bd-step" aria-live="polite"></div><div class="row-btns"><button class="btn ghost" id="bd-again" type="button">${SPK}Réécouter le mot</button><button class="btn chalk" id="bd-next" type="button">Mot suivant →</button></div>
+     ${G.id!=="tableau"?`<button class="btn ghost" id="b-skip">Je n'ai pas de tableau : passer</button>`:""}</div>`;
+    const bsk=$("#b-skip");if(bsk)bsk.onclick=()=>{SEQ++;G.noBoard=true;next()};
+    const sayW=(intro)=>{const i=q.wi,w=q.words[i],ord=["Premier","Deuxième","Troisième","Quatrième","Cinquième","Sixième"][i]||`Mot ${i+1}`;
+      $("#bd-step").innerHTML=`<span class="bdnum">Mot ${i+1} sur ${N}</span><span class="bddots">${q.words.map((_,j)=>`<i class="${j<i?"ok":j===i?"now":""}"></i>`).join("")}</span>`;
+      $("#bd-next").textContent=i===N-1?"J'ai fini, on vérifie !":"Mot suivant →";
+      speakSeq([...(intro?[["Moment de pratique sur ton tableau à la maison. Écris les mots suivants, un à la fois.","fr"],500]:[]),[`${ord} mot :`,"fr"],300,[w,q.lang==="en"?"en":"fr",q.lang==="en"?.72:dRateW()],900,[w,q.lang==="en"?"en":"fr",q.lang==="en"?.72:dRateW()]],begin)};
+    q.sayW=sayW;
+    $("#bd-again").onclick=()=>sayW(false);
+    $("#bd-next").onclick=()=>{if(q.wi<N-1){q.wi++;sayW(false);return}
+      SEQ++;if(TTS)try{TTS.cancel()}catch(e){}$("#bd-next").parentElement.remove();A.insertAdjacentHTML("beforeend",`<div class="reveal pop"><p class="reveal-h">Compare avec ce que tu as écrit :</p>${q.reveal}<div class="row-btns"><button class="btn good" id="b-ok">C'est bon ✓</button><button class="btn ghost" id="b-ko">À reprendre</button></div></div>`);
+      $("#b-ok").onclick=()=>answer("ok");$("#b-ko").onclick=()=>answer("ko");$(".reveal").scrollIntoView({behavior:"smooth",block:"nearest"});speak("Compare avec ce que tu as écrit.")}}
   else if(q.kind==="board"){A.innerHTML=`<div class="boardcard"><div class="board-h">Va à ton tableau!</div><p class="board-tip">${q.dictee?(canSpeak()?"Écoute bien. Touche « Réécouter » pour entendre encore.":"Demande à papa ou maman de te dicter."):"Écris ou dessine au tableau ou sur une feuille."}</p>${q.dictee&&!canSpeak()?`<button class="btn ghost" id="b-dict">Papa ou maman : voir la dictée</button><p class="board-dict" id="dict" hidden>${q.dictee}</p>`:""}<button class="btn chalk" id="b-done">J'ai fini, on vérifie!</button>${G.id!=="tableau"?`<button class="btn ghost" id="b-skip">Je n'ai pas de tableau : passer</button>`:""}</div>`;
     const bsk=$("#b-skip");if(bsk)bsk.onclick=()=>{G.noBoard=true;next()};
     const bd=$("#b-dict");if(bd)bd.onclick=()=>{$("#dict").hidden=!$("#dict").hidden};
@@ -2540,10 +2555,10 @@ function renderQ(){
   go("jeu");
   G.target=targetMs(q);G.over=false;G.t0=0;G.timed=TIMED.has(q.isl)&&q.kind!=="board";if(G.timed)G.anyT=true;if(!G.timed)$("#trow").hidden=true;
   const begin=()=>{if(!G||G.q!==q||G.done||G.t0)return;G.t0=performance.now();requestAnimationFrame(tick)};
-  const bl=$("#b-listen");if(bl)bl.onclick=()=>speak(qSay(q),begin,q.lang);
+  const bl=$("#b-listen");if(bl)bl.onclick=()=>q.steps?q.sayW(false):speak(qSay(q),begin,q.lang);
   const bh=$("#b-help");if(bh)bh.onclick=()=>{const h=$("#q-help");h.hidden=!h.hidden;bh.setAttribute("aria-expanded",String(!h.hidden))};
   el.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say,null,"en"));
-  if(canSpeak()){$("#tlabel").textContent="Écoute…";speak(qSay(q),begin,q.lang)}else begin();
+  if(q.steps&&q.sayW){q.sayW(true)}else if(canSpeak()){$("#tlabel").textContent="Écoute…";speak(qSay(q),begin,q.lang)}else begin();
 }
 function tick(){
   if(!G||G.mode!=="q"||G.done||document.hidden||!G.t0||PAUSED||G.q.kind==="board"||!G.timed)return;
@@ -5895,7 +5910,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261109-145907";
+const APP_VER="20261109-152941";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
