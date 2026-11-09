@@ -391,7 +391,7 @@ b.en{color:var(--sea)}
 .row3{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .egrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px;width:100%}
 .egrid>div{text-align:center;border:2px solid var(--line);border-radius:12px;padding:6px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.egrid .emo{font-size:2rem}.egrid .num{font-family:var(--f-display);font-size:1.4rem}.egrid .dots-svg{height:30px}
+[data-w].said{opacity:1!important;animation:none!important}[data-w].say{outline:3px solid var(--c);outline-offset:2px;transform:scale(1.06);transition:transform .2s}.nwfr p{margin:4px 0}.egrid .emo{font-size:2rem}.egrid .num{font-family:var(--f-display);font-size:1.4rem}.egrid .dots-svg{height:30px}
 .sfig{margin:0;width:110px;text-align:center}.sfig figcaption{font-family:var(--f-display);font-weight:600;font-size:.95rem}
 .wherefig{margin:0;text-align:center}.wherefig .where{font-size:2.6rem}.wherefig figcaption{font-weight:700}
 .trace-card{gap:10px;scroll-margin-top:8px}
@@ -1254,7 +1254,7 @@ function bestVoice(){
 const FEM_EN=/samantha|karen|moira|tessa|serena|victoria|allison|ava|susan|zira|jenny|aria|clara|linda|heather|catherine|female|google us english|google uk english female/i,MALE_EN=/daniel|alex|fred|tom|david|mark|guy|ryan|aaron|arthur|oliver|george|\bmale\b/i;
 function bestVoiceEN(){const sc=v=>(/en[-_]CA/i.test(v.lang)?3:/en[-_]US/i.test(v.lang)?2:0)+(FEM_EN.test(v.name)?3:0)-(MALE_EN.test(v.name)?6:0)+(/enhanced|premium|natural|neural/i.test(v.name)?2:0);return VOICES_EN.slice().sort((a,b)=>sc(b)-sc(a))[0]||null}
 let SEQ=0;
-function speakSeq(list,onend){const id=++SEQ;let i=0;const nxt=()=>{if(id!==SEQ){onend&&onend();onend=null;return}if(i>=list.length){onend&&onend();return}const x=list[i++];if(typeof x==="number"){setTimeout(nxt,x);return}const [t,l,r]=x;speak(t,nxt,l,r,id)};nxt()}
+function speakSeq(list,onend){const id=++SEQ;let i=0;const nxt=()=>{if(id!==SEQ){onend&&onend();onend=null;return}if(i>=list.length){onend&&onend();return}const x=list[i++];if(typeof x==="number"){setTimeout(nxt,x);return}if(typeof x==="function"){try{x()}catch(e){}nxt();return}const [t,l,r]=x;speak(t,nxt,l,r,id)};nxt()}
 const VLOG=[];const vlog=m=>{VLOG.push(m);if(VLOG.length>6)VLOG.shift();const el=$("#p-vdiag");if(el)el.textContent=VLOG.join(" · ")};
 function speak(text,onend,lang,rate,sid){
   if(sid===undefined)SEQ++;
@@ -1873,6 +1873,16 @@ const STORIES=[
 ];
 
 const enq=(o)=>Object.assign({kind:"choice",lang:"en"},o);
+/* Vocabulaire anglais progressif (débutante) : on commence avec 6 mots. Quand presque tous les mots en cours
+   sont acquis (3 bonnes réponses et au moins 80 %), 3 nouveaux mots arrivent, présentés avec image et voix avant la partie. */
+const ENV_ORD=VOC.map((v,i)=>[v,i]).sort((a,b)=>a[0][4]-b[0][4]||a[1]-b[1]).map(x=>x[0]);
+const ENV_START=6,ENV_ADD=3;
+function envS(){const o=S.envoc||(S.envoc={on:ENV_ORD.slice(0,ENV_START).map(v=>v[0]),seen:{}});o.on=o.on.filter(w=>VOC.some(v=>v[0]===w));if(o.on.length<4)o.on=ENV_ORD.slice(0,ENV_START).map(v=>v[0]);return o}
+const envKnown=w=>{const x=S.wstats["en:"+w];return!!x&&x.r>=3&&x.r/x.t>=.8};
+const envPool=()=>{const on=envS().on;return VOC.filter(v=>on.includes(v[0]))};
+function envGrow(){const o=envS(),left=o.on.filter(w=>!envKnown(w)).length;
+  if(left<=2&&o.on.length<VOC.length){ENV_ORD.filter(v=>!o.on.includes(v[0])).slice(0,ENV_ADD).forEach(v=>o.on.push(v[0]));save()}
+  return envPool().filter(v=>!o.seen[v[0]])}
 const GEN_EN={
 en_words(L,force){
   const type=force||pick(L===1?["find","name","colour","number"]:L===2?["find","name","colour","number","name"]:["name","find","number","name"]);
@@ -1881,11 +1891,11 @@ en_words(L,force){
   if(type==="number"){let n,w;if(L<3){n=L===1?R(1,10):R(11,20);w=NUMS[n]}else{n=pick(Object.keys(TENS).map(Number));w=TENS[n]}
     const near=L<3?[n-1,n+1,n+2,n-2].filter(x=>x>0&&x<=20).map(x=>NUMS[x]):Object.values(TENS);
     return enq({notion:"Les nombres",prompt:"What number is it?",say:"What number is it?",fr:"Quel est ce nombre?",visual:`<div class="bigexpr">${n}</div>`,choices:choices(w,near),answer:w,rep:w,explain:`${n} se dit « ${w} » en anglais.${n>=13&&n<=19?" Les nombres de 13 à 19 finissent par -teen.":""}`})}
-  const pool=VOC.filter(v=>v[4]<=L),[w,e,fr,th]=pick(pool);
+  const pool=envPool(),[w,e,fr,th]=pickWord(pool,v=>"en:"+v[0]);
   const same=pool.filter(v=>v[0]!==w&&(L===3?v[3]===th:true));const others=shuffle(same.length>=3?same:pool.filter(v=>v[0]!==w)).slice(0,3);
   if(type==="find"){const disp={};[[w,e,fr],...others].forEach(v=>disp[v[0]]=EMO(v[1]));
-    return enq({notion:"Le vocabulaire",prompt:`Find: <b>${w}</b>`,say:`Find the ${w}.`,fr:`Trouve : ${fr}`,choices:shuffle([w,...others.map(v=>v[0])]),disp,emo:true,answer:w,rep:w,explain:`« ${w} » veut dire « ${fr} ».`})}
-  return enq({notion:"Le vocabulaire",prompt:"What is this?",say:"What is this?",fr:"Qu'est-ce que c'est?",visual:`<div class="bigemo">${EMO(e)}</div>`,choices:shuffle([w,...others.map(v=>v[0])]),answer:w,rep:w,explain:`C'est « ${w} » : ${fr}.`})
+    return enq({word:"en:"+w,notion:"Le vocabulaire",prompt:`Find: <b>${w}</b>`,say:`Find the ${w}.`,fr:`Trouve : ${fr}`,choices:shuffle([w,...others.map(v=>v[0])]),disp,emo:true,answer:w,rep:w,explain:`« ${w} » veut dire « ${fr} ».`})}
+  return enq({word:"en:"+w,notion:"Le vocabulaire",prompt:"What is this?",say:"What is this?",fr:"Qu'est-ce que c'est?",visual:`<div class="bigemo">${EMO(e)}</div>`,choices:shuffle([w,...others.map(v=>v[0])]),answer:w,rep:w,explain:`C'est « ${w} » : ${fr}.`})
 },
 en_listen(L){
   const type=pick(L===1?["count","count","instr"]:L===2?["count","instr","where"]:["instr","where","count"]);
@@ -2352,7 +2362,20 @@ const keysHTML=()=>`<div class="keys">${[1,2,3,4,5,6,7,8,9].map(n=>`<button clas
 document.addEventListener("visibilitychange",()=>{if(document.hidden){HID=performance.now()}else if(HID){const d=performance.now()-HID;HID=0;if(G){if(G.t0)G.t0+=d;if(G.end)G.end+=d;requestAnimationFrame(G.mode==="sprint"?stick:tick)}}});
 
 const headOf=()=>G.id==="defi"?{nom:"Révision mélangée",c:"--sun"}:G.id==="tableau"?{nom:"Défis au tableau",c:"--i2"}:byId(G.id);
-function start(id){G={mode:"q",id,subj:(id==="defi"||id==="tableau")?CUR:byId(id).subj,n:id==="tableau"?4:ROUND,boardAt:id!=="tableau"&&S.boardOn!==false?ROUND-1:-1,i:0,score:0,res:[],recent:[],eclairs:0,totalMs:0,events:[]};tone([[523,.08]]);next()}
+function showNewWords(nw,then){const o=envS(),el=$("#ecran-jeu"),z=byId("en_words");el.style.setProperty("--c",`var(${z.c})`);
+  el.innerHTML=`<div class="gamebar"><button class="back" id="b-retour">← ${SUBJ.anglais.nom}</button><span class="gtitle">${z.nom}</span><span class="levelchip">${o.on.length} mots</span></div>
+  <div class="card pop wex" style="--c:var(${z.c})"><div class="cardtop"><div class="notion">${nw.length>1?"Nouveaux mots":"Nouveau mot"}</div>${canSpeak()?`<span class="cardbtns"><button class="listen" id="nw-say">${SPK}Réécouter</button></span>`:""}</div>
+  <p class="wex-h">Regarde l'image, écoute le mot et répète-le à voix haute.</p>
+  <div id="l-vis">${egrid(nw.map(v=>[v[1],v[0]]))}</div>
+  <div class="nwfr">${nw.map(v=>`<p><b lang="en">${v[0]}</b> : ${v[2]}</p>`).join("")}</div>
+  <div class="row-btns"><button class="btn" id="b-cont">Je les connais, on joue!</button></div></div>`;
+  const seq=()=>lesSync([[nw.length>1?"Voici tes nouveaux mots.":"Voici ton nouveau mot.","fr"],400,...nw.flatMap(v=>[[v[0],"en",.7],500,[v[2],"fr"],700])]);
+  const sb=$("#nw-say");if(sb)sb.onclick=()=>speakSeq(seq());
+  $("#b-retour").onclick=()=>{SEQ++;G=null;renderCarte();go("carte")};
+  $("#b-cont").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}nw.forEach(v=>o.seen[v[0]]=1);save();then()};
+  go("jeu");if(canSpeak())speakSeq(seq())}
+function start(id){if(id==="en_words"){const nw=envGrow();if(nw.length&&!(G&&G.nwDone)){G={nwDone:true};showNewWords(nw,()=>start(id));return}}
+  G={mode:"q",id,subj:(id==="defi"||id==="tableau")?CUR:byId(id).subj,n:id==="tableau"?4:ROUND,boardAt:id!=="tableau"&&S.boardOn!==false?ROUND-1:-1,i:0,score:0,res:[],recent:[],eclairs:0,totalMs:0,events:[]};tone([[523,.08]]);next()}
 /* ---------- Choix des questions : viser ce qu'elle ne maîtrise pas encore ----------
    Pour chaque question : environ 55 % du temps, une notion « à travailler » ou « en progrès »
    (ses 10 dernières réponses, la même règle que dans l'espace parent); 25 % du temps, une notion
@@ -2538,10 +2561,12 @@ function answer(v,btn){
 function finish(){
   const sc=G.score,N=G.n,st=sc>=N?3:sc>=N*.75?2:sc>=N*.5?1:0;let lvlMsg="",recMsg="";
   if(G.id!=="defi"&&G.id!=="tableau"){const s=IS(G.id);s.played++;s.stars=Math.max(s.stars,st);
-    if(sc>=7&&s.level<3){s.level++;lvlMsg=`Tu passes au niveau ${s.level}! Les questions seront un peu plus difficiles.`}
-    else if(sc<=3&&s.level>1){s.level--;lvlMsg=`On revient au niveau ${s.level} pour bien pratiquer. Tu vas y arriver!`}
+    const ENZ=byId(G.id)&&byId(G.id).subj==="anglais",dn=dayNum();
+    if(sc>=7&&s.level<3&&ENZ&&!(s.upd!=null&&s.upd!==dn)){if(s.upd==null)s.upd=dn;lvlMsg="Très bien! Refais une aussi belle partie un autre jour et tu passeras au niveau suivant."}
+    else if(sc>=7&&s.level<3){s.level++;s.upd=null;lvlMsg=`Tu passes au niveau ${s.level}! Les questions seront un peu plus difficiles.`}
+    else if(sc<=3&&s.level>1){s.level--;s.upd=null;lvlMsg=`On revient au niveau ${s.level} pour bien pratiquer. Tu vas y arriver!`}
     if(sc>=6&&TIMED.has(G.id)){const prev=S.rec[G.id];if(!prev||G.totalMs<prev){S.rec[G.id]=Math.round(G.totalMs);recMsg=prev?`Nouveau record de vitesse! Avant : ${fmtDur(prev)}.`:"Premier record de vitesse enregistré!";if(prev)G.events.push({k:"vitesse",a:byId(G.id).a})}else recMsg=`Ton record : ${fmtDur(prev)}.`}
-    if(lvlMsg&&sc>=7)G.events.push({k:"niveau",L:s.level,a:byId(G.id).a,box:true});
+    if(lvlMsg&&sc>=7&&s.upd==null)G.events.push({k:"niveau",L:s.level,a:byId(G.id).a,box:true});
     if(st===3&&!S.ms.stars3[G.id]){S.ms.stars3[G.id]=1;G.events.push({k:"etoiles",a:byId(G.id).a,box:true})}}
   if(!S.ms.first){S.ms.first=1;G.events.unshift({k:"first"})}
   if(sc<=4){S.hard++;if(S.hard>=2){S.hard=0;G.events.push({k:"courage"})}}else S.hard=0;
@@ -2895,8 +2920,14 @@ const angleSVG=()=>`<svg class="svgvis anim" viewBox="0 0 170 120" role="img" ar
 function unequalBar(){const W=320,H=64,xs=[4,150,200,280,316];let s=`<svg class="fracvis" viewBox="0 0 ${W} ${H+34}" role="img" aria-label="Une bande coupée en parts pas égales">`;for(let i=0;i<4;i++)s+=`<rect x="${xs[i]}" y="4" width="${xs[i+1]-xs[i]}" height="${H-8}" fill="${i===0?"var(--c)":"var(--surface)"}" stroke="var(--ink)" stroke-width="3"/>`;return s+`<text x="${W/2}" y="${H+24}" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="600" font-size="20" fill="var(--bad)">Parts pas égales : ce n'est pas une fraction</text></svg>`}
 function conjTab(v,t,plain){const f=[0,1,2,3,4,5].map(k=>conj(v,t,k));let p=f[0];f.forEach(x=>{while(p&&!x.startsWith(p))p=p.slice(0,-1)});
   return`<div class="conjt anim"><div class="conjt-h">${v}</div>${f.map((x,k)=>{const pr=k===0&&/^[aeéèêiouh]/i.test(x)?"j'":PRO[k].join("/")+" ";return`<div class="st" style="--d:${k*.45}">${pr}${plain||!p?x:p+`<b class="end">${x.slice(p.length)}</b>`}</div>`}).join("")}</div>`}
-const egrid=items=>`<div class="egrid anim">${items.map(([e,w],i)=>`<div class="st" style="--d:${i*.35}"><span class="emo">${e}</span><b lang="en">${w}</b></div>`).join("")}</div>`;
-const whereH=(pos,l)=>`<figure class="wherefig"><div class="where" aria-hidden="true">${pos==="on"?"<span>🐱</span><span>📦</span>":pos==="under"?"<span>📦</span><span>🐱</span>":pos==="in"?"<span class='inbox'>📦<i>🐱</i></span>":"<span class='row'><span>📦</span><span>🐱</span></span>"}</div><figcaption lang="en">${l}</figcaption></figure>`;
+const nW=t=>String(t).toLowerCase().replace(/[.!?]/g,"").trim();
+const egrid=items=>`<div class="egrid anim">${items.map(([e,w],i)=>`<div class="st" data-w="${esc(nW(w))}" style="--d:${i*.35}"><span class="emo">${e}</span><b lang="en">${w}</b></div>`).join("")}</div>`;
+const ngrid=items=>`<div class="egrid anim">${items.map(([n,w],i)=>`<div class="st" data-w="${w}" style="--d:${i*.25}"><b class="num">${n}</b><span lang="en">${w}</span></div>`).join("")}</div>`;
+function hlVis(t){const v=$("#l-vis");if(!v)return;const toks=nW(t).split(/\s*,\s*/);let hit=false;
+  v.querySelectorAll("[data-w]").forEach(e=>{const on=toks.includes(e.dataset.w);e.classList.toggle("say",on);if(on){hit=true;e.classList.add("said")}});
+  if(!hit)v.querySelectorAll(".say").forEach(e=>e.classList.remove("say"))}
+const lesSync=list=>list.flatMap(x=>Array.isArray(x)&&x[1]==="en"?[()=>hlVis(x[0]),x]:[x]);
+const whereH=(pos,l)=>`<figure class="wherefig" data-w="${l}"><div class="where" aria-hidden="true">${pos==="on"?"<span>🐱</span><span>📦</span>":pos==="under"?"<span>📦</span><span>🐱</span>":pos==="in"?"<span class='inbox'>📦<i>🐱</i></span>":"<span class='row'><span>📦</span><span>🐱</span></span>"}</div><figcaption lang="en">${l}</figcaption></figure>`;
 const tbox=(a,b)=>`<div class="tbox"><small>${a}</small><b>${b}</b></div>`;
 const cmpRow=h=>`<div class="cmprow">${h}</div>`;
 const shapeFig=n=>`<figure class="sfig">${shapeSVG(n)}<figcaption>${n}</figcaption></figure>`;
@@ -3031,14 +3062,14 @@ lecture:[
 ],
 /* ===== ANGLAIS ===== */
 en_words:[
- {t:"Les couleurs",n:["Les couleurs"],p:["[[red]] : rouge. [[blue]] : bleu. [[green]] : vert. [[yellow]] : jaune.","[[orange]] : orange. [[purple]] : mauve. [[pink]] : rose.","[[black]] : noir. [[white]] : blanc. [[brown]] : brun."],v:()=>`<div class="egrid anim">${COLS.map(([w,fr,hex],i)=>`<div class="st" style="--d:${i*.25}">${dot(hex,1)}<b lang="en">${w}</b></div>`).join("")}</div>`},
- {t:"Les nombres de 1 à 20",n:["Les nombres","Write the number"],p:["[[one, two, three, four, five]]","[[six, seven, eight, nine, ten]]","De 13 à 19, les nombres finissent par -teen : [[thirteen]], [[fourteen]], [[fifteen]].","Attention : [[twelve]] veut dire 12, et [[twenty]] veut dire 20!"],v:()=>`<div class="egrid anim">${[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map((n,i)=>`<div class="st" style="--d:${i*.15}"><b class="num">${n}</b><span lang="en">${NUMS[n]}</span></div>`).join("")}</div>`},
- {t:"Les dizaines",n:["Les nombres"],p:["Les dizaines finissent par -ty : [[thirty]] (30), [[forty]] (40), [[fifty]] (50).","Attention à la différence : [[thirteen]], c'est 13. [[thirty]], c'est 30."]},
- {t:"Les mots de tous les jours",n:["Le vocabulaire"],p:["Animaux : [[cat]], [[dog]], [[bird]], [[fish]].","Nourriture : [[apple]], [[bread]], [[milk]], [[cake]].","Vêtements : [[shirt]], [[pants]], [[shoes]], [[coat]].","Truc : dis le mot en anglais chaque fois que tu vois l'objet dans la maison!"],v:()=>egrid([["🐱","cat"],["🐶","dog"],["🐦","bird"],["🐟","fish"],["🍎","apple"],["🍞","bread"],["🥛","milk"],["🎂","cake"]])}
+ {t:"Les couleurs",n:["Les couleurs"],p:["[[red]] : rouge. [[blue]] : bleu. [[green]] : vert. [[yellow]] : jaune.","[[orange]] : orange. [[purple]] : mauve. [[pink]] : rose.","[[black]] : noir. [[white]] : blanc. [[brown]] : brun."],v:()=>`<div class="egrid anim">${COLS.map(([w,fr,hex],i)=>`<div class="st" data-w="${w}" style="--d:${i*.25}">${dot(hex,1)}<b lang="en">${w}</b></div>`).join("")}</div>`},
+ {t:"Les nombres de 1 à 20",n:["Les nombres","Write the number"],p:["[[one, two, three, four, five]]","[[six, seven, eight, nine, ten]]","De 13 à 19, les nombres finissent par -teen : [[thirteen]], [[fourteen]], [[fifteen]].","Attention : [[twelve]] veut dire 12, et [[twenty]] veut dire 20!"],v:()=>`<div class="egrid anim">${[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map((n,i)=>`<div class="st" data-w="${NUMS[n]}" style="--d:${i*.15}"><b class="num">${n}</b><span lang="en">${NUMS[n]}</span></div>`).join("")}</div>`},
+ {t:"Les dizaines",n:["Les nombres"],p:["Les dizaines finissent par -ty : [[thirty]] (30), [[forty]] (40), [[fifty]] (50).","Attention à la différence : [[thirteen]], c'est 13. [[thirty]], c'est 30."],v:()=>ngrid([[30,"thirty"],[40,"forty"],[50,"fifty"],[13,"thirteen"]])},
+ {t:"Les mots de tous les jours",n:["Le vocabulaire"],p:["Animaux : [[cat]], [[dog]], [[bird]], [[fish]].","Nourriture : [[apple]], [[bread]], [[milk]], [[cake]].","Vêtements : [[shirt]], [[pants]], [[shoes]], [[coat]].","Truc : dis le mot en anglais chaque fois que tu vois l'objet dans la maison!"],v:()=>egrid([["🐱","cat"],["🐶","dog"],["🐦","bird"],["🐟","fish"],["🍎","apple"],["🍞","bread"],["🥛","milk"],["🎂","cake"],["👕","shirt"],["👖","pants"],["👟","shoes"],["🧥","coat"]])}
 ],
 en_listen:[
- {t:"Les consignes de classe",n:["Les consignes de classe"],p:["[[Listen]] : écoute. [[Look]] : regarde.","[[Sit down]] : assieds-toi. [[Stand up]] : lève-toi.","[[Raise your hand]] : lève la main.","[[Open your book]] : ouvre ton livre. [[Close the door]] : ferme la porte.","[[Line up]] : mets-toi en rang."]},
- {t:"Où est le chat?",n:["Les mots de position"],p:["[[on]] : sur. [[The cat is on the box.]]","[[under]] : sous. [[The cat is under the box.]]","[[next to]] : à côté de. [[The cat is next to the box.]]","[[in]] : dans. [[The cat is in the box.]]"],v:()=>seqH([whereH("on","on"),whereH("under","under"),whereH("next","next to")],"row")},
+ {t:"Les consignes de classe",n:["Les consignes de classe"],p:["[[Listen]] : écoute. [[Look]] : regarde.","[[Sit down]] : assieds-toi. [[Stand up]] : lève-toi.","[[Raise your hand]] : lève la main.","[[Open your book]] : ouvre ton livre. [[Close the door]] : ferme la porte.","[[Line up]] : mets-toi en rang."],v:()=>egrid([["👂","Listen"],["👀","Look"],["🪑","Sit down"],["🧍","Stand up"],["✋","Raise your hand"],["📖","Open your book"],["🚪","Close the door"],["🚶","Line up"]])},
+ {t:"Où est le chat?",n:["Les mots de position"],p:["[[on]] : sur. [[The cat is on the box.]]","[[under]] : sous. [[The cat is under the box.]]","[[next to]] : à côté de. [[The cat is next to the box.]]","[[in]] : dans. [[The cat is in the box.]]"],v:()=>seqH([whereH("on","on"),whereH("under","under"),whereH("next","next to"),whereH("in","in")],"row")},
  {t:"La couleur avant le nom",n:["Écouter : nombres et couleurs","La place de l'adjectif"],p:["En anglais, on dit la couleur AVANT la chose.","[[a red ball]] : un ballon rouge.","[[five blue circles]] : cinq cercles bleus.","Et la couleur ne prend jamais de s!"],v:()=>`<div class="anim"><div class="st" style="--d:0">${dot("#2F6FD0",5)}</div><div class="st" style="--d:1"><div class="phrase" lang="en">five blue circles</div></div></div>`}
 ],
 en_talk:[
@@ -3054,9 +3085,9 @@ en_read:[
 ],
 en_build:[
  {t:"I am ou I have?",n:["I am ou I have?"],p:["[[I am]] veut dire « je suis ». [[I have]] veut dire « j'ai ».","Piège! En anglais, on dit [[I am eight]], [[I am hungry]], [[I am cold]] : on « est » 8 ans, on « est » affamée, on « est » froide.","On utilise [[I have]] pour ce qu'on possède : [[I have a cat.]]"]},
- {t:"a ou an?",n:["A ou an?"],p:["[[a]] et [[an]] veulent dire « un » ou « une ».","Devant un son de voyelle (a, e, i, o, u), on dit [[an]] : [[an apple]], [[an egg]].","Sinon, on dit [[a]] : [[a cat]], [[a book]]."]},
- {t:"he, she, it",n:["He, she ou it?"],p:["[[he]] : il, pour un garçon ou un homme.","[[she]] : elle, pour une fille ou une femme.","[[it]] : pour un animal ou une chose. [[The dog is brown. It is brown.]]"]},
- {t:"Le pluriel en anglais",n:["Le pluriel"],p:["On ajoute un s : [[one cat, two cats]].","Après s, x, sh ou ch, on ajoute -es : [[one box, two boxes]].","Une consonne suivie de y devient -ies : [[one baby, two babies]]."]},
+ {t:"a ou an?",n:["A ou an?"],p:["[[a]] et [[an]] veulent dire « un » ou « une ».","Devant un son de voyelle (a, e, i, o, u), on dit [[an]] : [[an apple]], [[an egg]].","Sinon, on dit [[a]] : [[a cat]], [[a book]]."],v:()=>egrid([["🍎","an apple"],["🥚","an egg"],["🐱","a cat"],["📕","a book"]])},
+ {t:"he, she, it",n:["He, she ou it?"],p:["[[he]] : il, pour un garçon ou un homme.","[[she]] : elle, pour une fille ou une femme.","[[it]] : pour un animal ou une chose. [[The dog is brown. It is brown.]]"],v:()=>egrid([["👦","he"],["👧","she"],["🐶","it"]])},
+ {t:"Le pluriel en anglais",n:["Le pluriel"],p:["On ajoute un s : [[one cat, two cats]].","Après s, x, sh ou ch, on ajoute -es : [[one box, two boxes]].","Une consonne suivie de y devient -ies : [[one baby, two babies]]."],v:()=>egrid([["🐱","one cat"],["🐱🐱","two cats"],["📦","one box"],["📦📦","two boxes"],["👶","one baby"],["👶👶","two babies"]])},
  {t:"L'adjectif avant le nom",n:["La place de l'adjectif","Write in English"],p:["En français, on dit : un chien brun. En anglais : [[a brown dog]].","L'adjectif va AVANT le nom, et il ne prend jamais de s : [[two brown dogs]]."],v:()=>seqH([phrase("un chien <b>brun</b>"),`<div class="phrase" lang="en">a <b>brown</b> dog</div>`])}
 ],
 en_spell:[
@@ -3064,7 +3095,7 @@ en_spell:[
  {t:"Écrire un mot anglais",n:["Écrire les mots","Write the word","Words of the week"],p:["En anglais, on n'écrit pas toujours comme on entend.","Regarde le mot, épelle-le avec les lettres anglaises, cache-le, puis écris-le.","Pièges fréquents : [[school]] a deux o. [[yellow]] a deux l. Dans [[friend]], le i vient avant le e."]}
 ],
 en_verbs:[
- {t:"Les verbes d'action",n:["Les verbes d'action","Draw and write"],p:["[[run]] : courir. [[swim]] : nager. [[dance]] : danser.","[[sing]] : chanter. [[read]] : lire. [[write]] : écrire.","[[sleep]] : dormir. [[skate]] : patiner. [[climb]] : grimper."],v:()=>egrid([["🏃","run"],["🏊","swim"],["💃","dance"],["🎤","sing"],["📖","read"],["✍️","write"],["😴","sleep"],["⛸️","skate"]])},
+ {t:"Les verbes d'action",n:["Les verbes d'action","Draw and write"],p:["[[run]] : courir. [[swim]] : nager. [[dance]] : danser.","[[sing]] : chanter. [[read]] : lire. [[write]] : écrire.","[[sleep]] : dormir. [[skate]] : patiner. [[climb]] : grimper."],v:()=>egrid([["🏃","run"],["🏊","swim"],["💃","dance"],["🎤","sing"],["📖","read"],["✍️","write"],["😴","sleep"],["⛸️","skate"],["🧗","climb"]])},
  {t:"Ce qu'on fait maintenant : -ing",n:["Ce qu'on fait maintenant (-ing)","Draw and write"],p:["Pour dire ce qu'on fait en ce moment : [[is]], puis le verbe avec -ing.","[[She is reading.]] : elle est en train de lire.","Si le verbe finit par e, on l'enlève : [[dance]], [[dancing]].","Parfois, on double la dernière lettre : [[run]], [[running]]. [[swim]], [[swimming]]."]},
  {t:"He likes, she plays",n:["Likes, plays, can…"],p:["Avec [[he]], [[she]] ou [[it]], on ajoute un s au verbe : [[she likes]], [[he plays]].","Avec [[I]], [[you]], [[we]] ou [[they]], pas de s : [[I like]], [[they play]]."]},
  {t:"can + verbe",n:["Likes, plays, can…"],p:["[[can]] veut dire « peut » ou « sait ».","Après [[can]], le verbe ne change jamais : [[she can swim]].","[[I can run fast!]]"]}
@@ -3105,10 +3136,10 @@ function renderLes(){const box=$("#les-in");if(!box||!LES)return;SEQ++;if(TTS)tr
   on("l-close",closeLessons);on("l-back",()=>{LES.zone=null;renderLes()});
   on("l-prev",()=>{LES.i--;renderLes()});on("l-next",()=>{LES.i++;renderLes()});
   on("l-done",closeLessons);on("l-go",()=>{const zid=LES.zone;closeLessons();start(zid)});
-  on("l-say",()=>{LES.force=true;speakSeq(lesSpeech(c))});
+  on("l-say",()=>{LES.force=true;speakSeq(lesSync(lesSpeech(c)))});
   on("l-replay",()=>{const v=$("#l-vis");if(v)v.innerHTML=typeof c.v==="function"?c.v():c.v});
   box.scrollTop=0;
-  if(canSpeak())speakSeq(lesSpeech(c));
+  if(canSpeak())speakSeq(lesSync(lesSpeech(c)));
 }
 
 /* ---------- L'Atelier d'écriture : tracer chiffres et lettres dans le bon sens ---------- */
@@ -5507,7 +5538,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261108-204338";
+const APP_VER="20261108-212455";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
