@@ -2515,7 +2515,12 @@ function renderQ(){
   <div class="card pop" style="--c:var(${isl.c})"><div class="cardtop"><div class="notion">${q.notion}</div><span class="cardbtns">${q.fr?`<button class="listen" id="b-help" aria-expanded="false">Aide</button>`:""}${canSpeak()?`<button class="listen" id="b-listen">${SPK}Réécouter</button>`:""}</span></div><p class="prompt"${q.lang==="en"?' lang="en"':""}>${q.prompt}</p>${q.fr?`<p class="help" id="q-help" hidden>${q.fr}</p>`:""}<div class="visual">${q.visual||""}</div><div id="answer"></div><div id="fb"></div></div>`;
   $("#b-retour").onclick=()=>{G=null;renderCarte();go("carte")};
   const A=$("#answer");
-  if(typeOK(q)&&!q.notype){const L=IS(q.isl).level;if(L>=3||(L===2&&Math.random()<.5))q.kind="text";else q.notype=1}
+  if(typeOK(q)&&!q.notype){const L=IS(q.isl).level;if(L>=3||(L===2&&Math.random()<.5)){
+      /* « Quel mot est bien écrit? » n'a de sens qu'avec des choix. À l'écrit, on dicte le mot (voix obligatoire), sinon on garde les choix. */
+      const pickQ=/bien écrit\?$|spelled right\?$/.test(q.prompt);
+      if(pickQ&&!canSpeak())q.notype=1;
+      else{if(pickQ){const EN=q.lang==="en",w=String(q.answer);q.prompt=EN?"Listen and write the word.":"Écoute le mot et écris-le.";q.say=EN?w:`Écris le mot : ${w}.`;if(EN)q.fr="Écoute le mot et écris-le en anglais.";const pe=el.querySelector(".prompt");if(pe)pe.innerHTML=q.prompt;const he=el.querySelector("#q-help");if(he)he.textContent=q.fr||""}q.kind="text"}}
+    else q.notype=1}
   if(q.kind==="text"){const EN=q.lang==="en";A.innerHTML=`<form id="t-form" class="dform tform" autocomplete="off"><input id="tin" class="din" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" lang="${EN?"en":"fr"}" aria-label="Écris ta réponse ici" placeholder="${EN?"Write your answer":PRORX.test(tnorm(q.answer))?"Écris le verbe conjugué":"Écris ta réponse"}" enterkeyhint="done">
     ${EN?"":`<div class="acc">${DACC.map(a=>`<button type="button" class="acck" data-a="${a}">${a}</button>`).join("")}</div>`}<button class="btn" type="submit">Valider</button></form>`;
     const inp=$("#tin");A.querySelectorAll(".acck").forEach(b=>b.onpointerdown=ev=>{ev.preventDefault();const s0=inp.selectionStart??inp.value.length,en=inp.selectionEnd??s0;inp.value=inp.value.slice(0,s0)+b.dataset.a+inp.value.slice(en);inp.focus();inp.setSelectionRange(s0+1,s0+1)});
@@ -5910,7 +5915,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261109-181312";
+const APP_VER="20261109-225730";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
