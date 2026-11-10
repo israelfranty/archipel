@@ -57,7 +57,7 @@ main{padding-block:18px 40px}
 .namebox{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:10px}
 .namebox label{font-family:var(--f-display);font-size:1.3rem;font-weight:600}
 .namerow{display:flex;gap:8px;flex-wrap:wrap}
-.namerow input{flex:1;min-width:0;border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 12px;font-size:1.1rem}
+.namerow input{flex:1 1 180px;min-width:0;border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 12px;font-size:1.1rem}
 .btn{border:0;border-radius:14px;padding:12px 20px;font-family:var(--f-display);font-weight:600;font-size:1.1rem;background:var(--sea);color:var(--sea-ink)}
 .btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
 .btn.sun{background:var(--sun);color:#2A2100}
@@ -355,7 +355,7 @@ b.en{color:var(--sea)}
 .anim.row{flex-direction:row;flex-wrap:wrap;justify-content:center}
 .anim .st{opacity:0;animation:stIn .5s ease forwards;animation-delay:calc(var(--d)*.7s)}
 @keyframes stIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.pv{border-collapse:collapse;font-variant-numeric:tabular-nums;display:table;width:min(100%,420px);table-layout:fixed}
+.pv{border-collapse:collapse;font-variant-numeric:tabular-nums;display:table;width:min(100%,420px);table-layout:fixed;min-width:0}
 .pv th{font-size:.7rem;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);padding:4px 4px;border-bottom:2px solid var(--line);white-space:normal;line-height:1.2;vertical-align:bottom}
 .pv td{text-align:center;padding:4px 8px;font-family:var(--f-display);font-weight:600}
 .pv td.big{font-size:2.2rem;color:var(--c)}
@@ -571,7 +571,7 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .planbtn{flex:none;border:2px solid var(--c,var(--sea));background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font-weight:700;font-size:.9rem;cursor:pointer;min-height:40px}
 .exz{border-color:var(--i7)!important;border-style:solid!important}.exz .badge{background:var(--i7);font-size:1.6rem}.cjz{border-color:var(--i3)!important;border-style:solid!important}.cjz .badge{background:var(--i3);font-size:1.6rem}
 .cjbig{display:inline-block;margin-top:8px;font-family:var(--f-display);font-weight:700;font-size:clamp(1.4rem,5vw,2rem)}
-.cjtab{border-collapse:collapse;margin:6px auto;font-size:1.1rem}.cjtab td{padding:3px 12px;border-bottom:1px solid var(--line)}.cjtab td:first-child{text-align:right;color:var(--muted)}.cjtab tr.hi td{background:var(--good-bg)}.cjtab tr.hi td:first-child{color:var(--ink)}
+.cjtab{border-collapse:collapse;margin:6px auto;font-size:1.1rem;width:auto;min-width:0;max-width:100%}.cjtab td{padding:3px 12px;border-bottom:1px solid var(--line)}.cjtab td:first-child{text-align:right;color:var(--muted)}.cjtab tr.hi td{background:var(--good-bg)}.cjtab tr.hi td:first-child{color:var(--ink)}
 .cjpath{display:flex;flex-direction:column;gap:8px}.cjstep{display:flex;gap:12px;align-items:center;text-align:left;border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--bg);font:inherit;color:inherit;cursor:pointer}
 .cjstep:disabled{opacity:.5;cursor:default}.cjstep.now{border-color:var(--i3);box-shadow:0 0 0 2px var(--i3)}.cjstep.ok{border-color:var(--good)}.cjic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--surface);font-size:1.3rem;flex:none}.cjstep small{color:var(--muted)}
 .gnex{display:flex;flex-direction:column;gap:6px;text-align:left}.gnex span{background:var(--bg);border-radius:10px;padding:6px 10px}.gnex b{color:var(--c);margin-right:6px}
@@ -1742,7 +1742,7 @@ grammaire(L){
     return{notion:"Genre et nombre",prompt:`Le nom « <b>${w}</b> » est…`,kind:"choice",choices:["masculin singulier","masculin pluriel","féminin singulier","féminin pluriel"],answer:ans,explain:`Truc pour le genre : on dit « ${g==="m"?"un":"une"} ${s} », donc il est ${g==="m"?"masculin":"féminin"}. Truc pour le nombre : ${plur?`on dit « des ${pl} » (plusieurs), donc il est pluriel.`:`on dit « ${g==="m"?"un":"une"} ${s} » (un seul), donc il est singulier.`}`}}
   const toks=parseP(pick(PHRASES));
   if(type==="trouver"){const want=pick(["v","v","a","n"]),idx=toks.map((o,i)=>o.t===want?i:-1).filter(i=>i>=0);
-    if(idx.length===1){const w=toks[idx[0]].w,words=[...new Set(toks.filter(o=>o.w!==".").map(o=>o.w))];const nm=CLASSES[want];
+    if(idx.length===1){const w=toks[idx[0]].w,words=(()=>{const seen=new Set();return toks.filter(o=>o.w!=="."&&!seen.has(o.w.toLowerCase())&&seen.add(o.w.toLowerCase())).map(o=>o.w)})();const nm=CLASSES[want];
       return{notion:"Les classes de mots",prompt:`Quel mot est ${nm==="adjectif"?"l'":"le "}<b>${nm}</b> dans cette phrase?`,say:`Quel mot est ${nm==="adjectif"?"l'":"le "}${nm} dans cette phrase?`,visual:phrase(joinP(toks)),kind:"choice",choices:choices(w,words),answer:w,explain:`Le ${nm} est « ${w} ». ${DEF[nm]}`}}}
   const pool=toks.map((o,i)=>(o.t in CLASSES&&(L===3||o.t!=="p"))?i:-1).filter(i=>i>=0),i=pick(pool),o=toks[i],ans=CLASSES[o.t];
   const opts=L===3?["nom","déterminant","adjectif","verbe","pronom"]:["nom","déterminant","adjectif","verbe"];
@@ -2519,7 +2519,9 @@ function renderQ(){
       /* « Quel mot est bien écrit? » n'a de sens qu'avec des choix. À l'écrit, on dicte le mot (voix obligatoire), sinon on garde les choix. */
       const pickQ=/bien écrit\?$|spelled right\?$/.test(q.prompt);
       if(pickQ&&!canSpeak())q.notype=1;
-      else{if(pickQ){const EN=q.lang==="en",w=String(q.answer);q.prompt=EN?"Listen and write the word.":"Écoute le mot et écris-le.";q.say=EN?w:`Écris le mot : ${w}.`;if(EN)q.fr="Écoute le mot et écris-le en anglais.";const pe=el.querySelector(".prompt");if(pe)pe.innerHTML=q.prompt;const he=el.querySelector("#q-help");if(he)he.textContent=q.fr||""}q.kind="text"}}
+      else{if(pickQ){const EN=q.lang==="en",w=String(q.answer);q.prompt=EN?"Listen and write the word.":"Écoute le mot et écris-le.";q.say=EN?w:`Écris le mot : ${w}.`;if(EN)q.fr="Écoute le mot et écris-le en anglais."}
+        else{/* Les consignes « choisis / touche » deviennent « écris » quand on tape la réponse */const sw=t=>String(t||"").replace(/^Choisis /,"Écris ").replace(/^Touche /,"Écris ").replace(/^Listen and touch /,"Listen and write ").replace(/^Écoute et touche /,"Écoute et écris ");q.prompt=sw(q.prompt);if(q.say)q.say=sw(q.say);if(q.fr)q.fr=sw(q.fr)}
+        const pe=el.querySelector(".prompt");if(pe)pe.innerHTML=q.prompt;const he=el.querySelector("#q-help");if(he)he.textContent=q.fr||"";q.kind="text"}}
     else q.notype=1}
   if(q.kind==="text"){const EN=q.lang==="en";A.innerHTML=`<form id="t-form" class="dform tform" autocomplete="off"><input id="tin" class="din" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" lang="${EN?"en":"fr"}" aria-label="Écris ta réponse ici" placeholder="${EN?"Write your answer":PRORX.test(tnorm(q.answer))?"Écris le verbe conjugué":"Écris ta réponse"}" enterkeyhint="done">
     ${EN?"":`<div class="acc">${DACC.map(a=>`<button type="button" class="acck" data-a="${a}">${a}</button>`).join("")}</div>`}<button class="btn" type="submit">Valider</button></form>`;
@@ -2938,7 +2940,7 @@ function renderParent(){tbUse("add");
     z.innerHTML=`<p><small>Code de sauvegarde de ${esc(S.name||"l'enfant")} (${new Date().toLocaleDateString("fr-CA")}). Copiez-le ou téléchargez le fichier, puis importez-le sur l'autre appareil.</small></p><textarea id="p-xcode" readonly rows="4"></textarea><div class="confirm"><button class="btn" id="p-xcopy">Copier le code</button><button class="btn ghost" id="p-xdl">Télécharger le fichier</button></div>`;
     $("#p-xcode").value=code;
     $("#p-xcopy").onclick=async()=>{const t=$("#p-xcode");let ok=false;try{await navigator.clipboard.writeText(code);ok=true}catch(e){try{t.focus();t.select();ok=document.execCommand("copy")}catch(x){}}$("#p-xcopy").textContent=ok?"Code copié ✓":"Sélectionnez le code et copiez-le"};
-    $("#p-xdl").onclick=()=>{try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([code],{type:"text/plain"}));a.download=`archipel-${(S.name||"progression").replace(/[^\w-]+/g,"")}-${new Date().toISOString().slice(0,10)}.txt`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);$("#p-xdl").textContent="Fichier téléchargé ✓"}catch(e){$("#p-xdl").textContent="Téléchargement impossible : copiez le code"}}};
+    $("#p-xdl").onclick=()=>{try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([code],{type:"text/plain"}));a.download=`archipel-${(S.name||"progression").replace(/[^\w-]+/g,"")}-${today()}.txt`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);$("#p-xdl").textContent="Fichier téléchargé ✓"}catch(e){$("#p-xdl").textContent="Téléchargement impossible : copiez le code"}}};
   $("#p-imp").onclick=()=>{const z=$("#p-xzone");
     z.innerHTML=`<p><small>Collez le code de sauvegarde ou choisissez le fichier exporté.</small></p><textarea id="p-icode" rows="4" placeholder="ARCHIPEL1:…"></textarea><div class="confirm"><label class="btn ghost">Choisir le fichier<input type="file" id="p-ifile" accept=".txt,text/plain" hidden></label><button class="btn" id="p-igo">Vérifier le code</button></div><p id="p-imsg"></p>`;
     $("#p-ifile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$("#p-icode").value=String(r.result).trim();$("#p-igo").click()};r.readAsText(f)};
@@ -5915,7 +5917,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261109-225730";
+const APP_VER="20261110-004831";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
