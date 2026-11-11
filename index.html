@@ -5921,12 +5921,14 @@ function progItems0(){tbAlign();const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsW
   const tabItem=plan=>{const t=TBS(),T=TB_TABLES[t.cur],d=tbDay();return{id:"tab",nom:"Mes tables du jour",sous:d.done?`${T.nom} : ${TB_STREAK} séries réussies!`:`Table ${t.cur+1} : ${T.nom} · série ${d.streak} sur ${TB_STREAK}`,done:!!d.done,ic:T.ic,c:"--i5",go:startTables,started:d.streak>0||L("tables|")>0,plan}};
   PWEEK=null;
   /* 1. Le plan de la semaine d'abord : la grande dictée, puis chaque notion, dans l'ordre de l'école */
+  let exDict=false;
   if(examActive()){const e=DS().exam,W=examWords(),x=DS().exDay,n=x&&x.d===dn?x.w.length:0,need=Math.min(DN,W.length);
-    if(W.length)it.push({id:"exam",nom:`Révision : ${esc(e.label)}`,sous:`${examLeft()===0?"C'est aujourd'hui!":`Dans ${examLeft()} jour${examLeft()>1?"s":""}`} · ${examReady()} mots prêts sur ${W.length}`,done:n>=need,ic:"🎯",c:"--i3",go:startExam,started:n>0,plan:!!P})}
+    if(W.length){exDict=true;it.push({id:"exam",nom:`Révision : ${esc(e.label)}`,sous:`${examLeft()===0?"C'est aujourd'hui!":`Dans ${examLeft()} jour${examLeft()>1?"s":""}`} · ${examReady()} mots prêts sur ${W.length} · c'est ta dictée du jour`,done:n>=need,ic:"🎯",c:"--i3",go:startExam,started:n>0,plan:!!P})}}
   let hasTab=false,hasMul=false;
   /* Les notions de l'école sont réparties sur la semaine : au plus 3 par jour, les moins sûres d'abord.
      « Faite aujourd'hui » = 7 bonnes réponses (et au moins 3 sur 4), soit une partie presque parfaite. « Acquise » = réussie 2 jours cette semaine. */
   if(P){const ns=P.notions.filter(n=>n.go&&!/^dictee/.test(n.go)),wd=(new Date().getDay()+6)%7;
+    const exGo=P.exam&&P.exam.go&&!/^dictee/.test(P.exam.go)&&dn<=P.exam.d?P.exam.go:null,exL=P.exam?Math.max(0,P.exam.d-dn):0;
     const info=n=>{const pre=notionKey(n.go),m=k=>k.startsWith(pre),td=logSum(dn,dn,m),w=logSum(P.from,dn,m);let g=0;for(let d=P.from;d<=dn;d++){const x=logSum(d,d,m);if(DAYGOOD(x.r,x.t))g++}return{n,td,w,g,acq:g>=2}};
     const all=ns.filter(n=>!/^m?tables/.test(n.go)).map(info);
     S.pday=S.pday||{};let pd=S.pday;if(pd.d!==dn||pd.from!==P.from){const cand=all.filter(x=>!x.acq).sort((a,b)=>(a.w.t?a.w.r/a.w.t:-1)-(b.w.t?b.w.r/b.w.t:-1));
@@ -5934,11 +5936,14 @@ function progItems0(){tbAlign();const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsW
       pd=S.pday={d:dn,from:P.from,ids,rap:wd===4?ids[ids.length-1]:null};save()}
     ns.forEach(n=>{if(/^tables/.test(n.go)){hasTab=true;it.push(tabItem(true));return}
       if(/^mtables/.test(n.go)){hasMul=true;it.push(mtabItem(true));return}
-      if(!pd.ids.includes(n.go))return;const x=all.find(y=>y.n===n),t=x.td.t,r=x.td.r,rap=pd.rap===n.go,done=DAYGOOD(r,t)||(x.acq&&!rap)||(rap&&t>=5);
-      it.push({id:"n:"+n.go,nom:esc(n.label)+(rap?" (rappel)":""),sous:done?(DAYGOOD(r,t)?`${r} bonnes réponses aujourd'hui!`:"acquise cette semaine!"):rap?"5 questions pour ne pas l'oublier":t?`${Math.min(r,7)} bonne${r>1?"s":""} réponse${r>1?"s":""} sur 7 · continue!`:"7 bonnes réponses à trouver",done,ic:planIc(n.go),c:/^conj|^gn|^rep/.test(n.go)||(byId(n.go.split(":")[0])||{}).subj==="francais"?"--i2":"--i1",go:()=>planGo(n.go),started:t>0,plan:true})});
+      if(!pd.ids.includes(n.go)&&n.go!==exGo)return;const x=all.find(y=>y.n===n),t=x.td.t,r=x.td.r,rap=pd.rap===n.go,done=DAYGOOD(r,t)||(x.acq&&!rap)||(rap&&t>=5);
+      const o={id:"n:"+n.go,nom:esc(n.label)+(rap?" (rappel)":""),sous:done?(DAYGOOD(r,t)?`${r} bonnes réponses aujourd'hui!`:"acquise cette semaine!"):rap?"5 questions pour ne pas l'oublier":t?`${Math.min(r,7)} bonne${r>1?"s":""} réponse${r>1?"s":""} sur 7 · continue!`:"7 bonnes réponses à trouver",done,ic:planIc(n.go),c:/^conj|^gn|^rep/.test(n.go)||(byId(n.go.split(":")[0])||{}).subj==="francais"?"--i2":"--i1",go:()=>planGo(n.go),started:t>0,plan:true};
+      /* La notion de l'évaluation devient l'item « Révision » : une seule entrée, chaque jour jusqu'à l'évaluation */
+      if(n.go===exGo){o.nom=`Révision : ${esc(n.label)}`;o.ic="🎯";o.done=DAYGOOD(r,t);o.sous=`Évaluation ${exL===0?"aujourd'hui!":`dans ${exL} jour${exL>1?"s":""}`} · ${o.done?`${r} bonnes réponses aujourd'hui!`:t?`${Math.min(r,7)} bonne${r>1?"s":""} réponse${r>1?"s":""} sur 7 · continue!`:"7 bonnes réponses à trouver"}`}
+      it.push(o)});
     PWEEK={ok:all.filter(x=>x.acq).length,half:all.filter(x=>x.g===1).length,n:all.length}}
-  /* 2. La dictée du jour (mots des listes de l'école, en répétition espacée) */
-  if(dWeeks().length){const due=dDue(),t=L("dictee|");if(due||t)it.push({id:"dict",nom:"Ma dictée du jour",sous:due?`<b>${due}</b> mot${due>1?"s":""} de tes listes à réviser`:"tous tes mots du jour sont révisés!",done:!due,ic:PENICON,c:"--i7",go:startDictee,started:t>0})}
+  /* 2. La dictée du jour — sauf pendant la préparation d'une évaluation de dictée : la révision la remplace (pas deux fois la même chose) */
+  if(dWeeks().length&&!exDict){const due=dDue(),t=L("dictee|");if(due||t)it.push({id:"dict",nom:"Ma dictée du jour",sous:due?`<b>${due}</b> mot${due>1?"s":""} de tes listes à réviser`:"tous tes mots du jour sont révisés!",done:!due,ic:PENICON,c:"--i7",go:startDictee,started:t>0})}
   /* 3. Sans plan : les tables et la conjugaison suivent la progression d'Olivia */
   if(!hasTab)it.push(tabItem(false));
   if(!hasMul){tbUse("mul");const on=TBS().daily;tbUse("add");if(on)it.push(mtabItem(false))}
@@ -6060,7 +6065,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261111-020103";
+const APP_VER="20261111-083141";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
