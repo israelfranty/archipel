@@ -202,6 +202,27 @@ main{padding-block:18px 40px}
 .opAnim .opCap .opw4{animation:opC4 10s infinite}
 @keyframes opC4{0%,70%{opacity:0}75%,96%{opacity:1}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.opAnim .opw1,.opAnim .opw2,.opAnim .opw3,.opAnim .opw4,.opAnim .opCap span,.opHl,.opAnim .opc s.opw2{animation:none;opacity:1}}
+
+/* Section « Notions et compétences » */
+.ncdet{border:2px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden}
+.ncdet+.ncdet{margin-top:8px}
+.ncdet>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:56px;padding:10px 16px;font-family:var(--f-display);font-weight:700;font-size:1.15rem;color:var(--ink)}
+.ncdet>summary::-webkit-details-marker{display:none}
+.ncdet>summary::after{content:"";margin-left:auto;width:12px;height:12px;border-right:3px solid var(--muted);border-bottom:3px solid var(--muted);rotate:45deg;translate:0 -3px;transition:rotate .18s}
+.ncdet[open]>summary::after{rotate:-135deg;translate:0 3px}
+.ncdet>summary:hover{background:color-mix(in srgb,var(--line) 26%,transparent)}
+.ncsum{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ncsum small{font-family:var(--f-body,inherit);font-weight:600;font-size:.86rem;color:var(--muted)}
+.nczone{padding:2px 14px 12px}
+.nczh{display:flex;align-items:center;gap:8px;margin:6px 0 8px;font-family:var(--f-display);font-weight:700;font-size:1rem;color:var(--muted)}
+.ncdot{width:12px;height:12px;border-radius:50%;background:var(--c);flex:none}
+.nclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.ncbtn{display:flex;align-items:center;gap:10px;text-align:left;min-height:52px;padding:8px 14px;border:2px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);font-weight:600;font-size:1rem;line-height:1.25}
+.ncbtn:hover{border-color:var(--c);background:color-mix(in srgb,var(--c) 10%,var(--bg))}
+.ncbtn svg{width:22px;height:22px;flex:none;color:var(--c)}
+.ncbtn .en{color:var(--c)}
+.notb.wide{align-self:stretch;justify-content:center;margin-top:4px}
+@media (max-width:560px){.nclist{grid-template-columns:1fr}.ncdet>summary{font-size:1.05rem}}
 .bdstep{display:flex;flex-direction:column;align-items:center;gap:6px;margin:6px 0}.boardcard .row-btns .btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;min-height:48px;padding:10px 20px;width:auto;height:auto}.boardcard .row-btns .btn svg{width:20px;height:20px;flex:none}.bdnum{font-family:var(--f-display);font-weight:700;font-size:1.3rem}.bddots{display:flex;gap:8px}.bddots i{width:14px;height:14px;border-radius:50%;border:2px solid currentColor;opacity:.5}.bddots i.ok{background:currentColor;opacity:.8}.bddots i.now{opacity:1;background:var(--sun);border-color:var(--sun)}
 .result .score{font-family:var(--f-display);font-size:3.4rem;font-weight:700;color:var(--c);line-height:1;font-variant-numeric:tabular-nums}
 .result .stars svg{width:52px;height:52px}
@@ -219,7 +240,7 @@ th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertic
 th{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 td select{border:2px solid var(--line);border-radius:8px;padding:2px 6px;background:var(--bg)}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
-.nlist{display:flex;flex-direction:column;gap:10px}
+
 .nrow{display:grid;grid-template-columns:minmax(0,1fr) 120px 56px;gap:10px;align-items:center}
 .nrow .meter{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
 .nrow .meter i{display:block;height:100%}
@@ -2424,6 +2445,11 @@ function skyHead(lbl,id,right){return`<div class="herow short sky"><section clas
 function tCard(img,title,sub,extra,right){return`<div class="tcard"><img class="tci" src="${img}" alt=""><div class="tcb"><h2>${title}</h2>${sub?`<p>${sub}</p>`:""}${extra||""}</div>${right||""}</div>`}
 function cardBits(html){const g=r=>{const m=html.match(r);return m?m[1]:""};return{id:g(/id="([^"]+)"/),nom:g(/class="nom">([\s\S]*?)<\/span>/),sous:g(/class="sous">([\s\S]*?)<\/span><\/span><\/button>/)}}
 function skyOn(nav){document.body.classList.remove("skyin");document.body.classList.add("homew");document.body.classList.toggle("has-nav",!!nav);document.querySelectorAll("#bnav [data-nav]").forEach(b=>{const on=b.dataset.nav===nav;b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")})}
+/* Les notions, rangées dans les mêmes familles que les exercices de chaque île */
+const NGROUPS={
+ maths:[["Calcul",["foret","volcan"]],["Nombres",["port","baie"]],["Mesure et géométrie",["horloge","grotte"]],["Statistique et probabilité",["phare"]]],
+ francais:[["Orthographe",["orthographe","homophones"]],["Grammaire",["grammaire","accords","phrase"]],["Conjugaison",["conjugaison"]],["Lecture",["lecture"]]],
+ anglais:[["Les mots",["en_words","en_spell"]],["Écouter et parler",["en_listen","en_talk"]],["Les phrases",["en_build","en_verbs"]],["Lecture",["en_read"]]]};
 function renderCarte(){
   const el=$("#ecran-carte");
   const onb=!S.name||!S.comp.type||ONB_EDIT;document.body.classList.toggle("onb",onb);
@@ -2459,7 +2485,7 @@ function renderCarte(){
     const nm=esc(S.name),xs=k=>{const st=starsOf(k),max=zones(k).length*3;return`<span class="xmeta">${stars(Math.min(3,Math.floor(st/max*3+0.0001)))}<span class="lvl">${st} ÉTOILE${st>1?"S":""} SUR ${max}</span></span>`};
     const XD={francais:["livres","Français","Orthographe, grammaire, conjugaison, lecture"],maths:["blocs","Maths","Nombres, calculs, fractions, mesures, problèmes"],anglais:["hi","Anglais","Mots, écoute, petites conversations, lecture"]};
     h=`<div class="herow short"><section class="hero" aria-hidden="true"><img class="hero-img" src="${HERO}" alt=""></section><div class="hin"><div class="hgreet"><button class="hbuddy" id="b-buddy" aria-label="Parler à ${esc(BN())}">${buddySVG(S.comp.type,S.comp.items,"idle")}</button><div class="hbub"><b>Bonjour, ${nm} ! 👋</b><span>Sur quelle île veux-tu aller aujourd'hui ?</span></div></div></div></div>
-     <div class="xpage">${dDue()?`<p class="dnote"><img src="${XIC.crayon}" alt=""><span>Ta dictée du jour t'attend à L'Île aux Mots : <b>${dDue()} mot${dDue()>1?"s":""}</b> à réviser.</span></p>`:""}${searchBox(null)}${buddy.replace('id="b-buddy"','id="b-buddy2"')}${planCardHTML()}
+     <div class="xpage">${searchBox(null)}${buddy.replace('id="b-buddy"','id="b-buddy2"')}${planCardHTML()}
      <div class="xgrid">${SUBJS.map(k=>`<button class="xcard" data-subj="${k}"><img src="${XIC[XD[k][0]]}" alt=""><span class="xb"><b>${XD[k][1]}</b><small>${XD[k][2]}</small>${xs(k)}</span></button>`).join("")}
      <button class="xcard" id="b-atelier"><img src="${XIC.aa}" alt=""><span class="xb"><b>Atelier d'écriture</b><small>Tracer les lettres et les chiffres, soigner son écriture</small></span></button>
      ${S.gamesOn!==false?`<button class="xcard" id="b-biblio"><img src="${XIC.chateau}" alt=""><span class="xb"><b>Bibliothèque de jeux</b><small>Des jeux d'aventure pour pratiquer les notions : traverse le Donjon des nombres !</small></span></button>`:""}</div></div>`;
@@ -2471,12 +2497,19 @@ function renderCarte(){
     const zc=id=>{const i=byId(id);if(!i||i.subj!==CUR||(i.week&&!weekList(CUR).length))return"";const z=IS(id);return`<button class="zc" data-isle="${id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`};
     const ac=(id,ic,nom,sous,meta,today)=>`<button class="zc ac${today?" today":""}" id="${id}"><img src="${ic}" alt="">${today?`<span class="tbadge">Aujourd'hui</span>`:""}<span class="zb"><b>${nom}</b><span class="zs">${sous}</span>${meta?`<span class="zm">${meta}</span>`:""}</span></button>`;
     const sec=(t,d,cards)=>`<section class="fsec" aria-label="${t}"><h3 class="xh">${t}</h3><p class="fsd">${d}</p><div class="zgrid">${cards}</div></section>`;
+    /* Les notions et compétences du programme, rangées dans les mêmes familles que les exercices */
+    const notSec=()=>{const G=NGROUPS[CUR]||[];
+      const blocs=G.map(([gnom,ids])=>{const zz=ids.map(id=>[byId(id),zoneLessons(id)]).filter(([i,L])=>i&&L.length&&!(i.week&&!weekList(CUR).length));
+        if(!zz.length)return"";const tot=zz.reduce((n,[,L])=>n+L.length,0);
+        return`<details class="ncdet"><summary><span class="ncsum"><b>${esc(gnom)}</b><small>${tot} notion${tot>1?"s":""}</small></span></summary>${zz.map(([i,L])=>`<div class="nczone" style="--c:var(${i.c})"><p class="nczh"><span class="ncdot"></span>${esc(i.nom)}</p><div class="nclist">${L.map((c,k)=>`<button class="ncbtn" data-nz="${i.id}" data-ni="${k}">${BOOKICON}<span>${lesHTML(c.t)}</span></button>`).join("")}</div></div>`).join("")}</details>`}).join("");
+      return`<section class="fsec" aria-label="Notions et compétences"><h3 class="xh">Notions et compétences</h3><p class="fsd">Toutes les notions du programme de 3e année, expliquées pas à pas avec la voix. Ouvre une famille pour choisir.</p>${blocs}<button class="notb wide" id="b-notions"><img src="${IC3.pile}" alt="">Revoir toutes les notions</button></section>`};
     if(CUR==="maths"){tbUse("mul");const mt=TBS(),md=tbDay(),mT=TB_TABLES[mt.cur],mE=TB_ET[mt.et];tbUse("add");const t=TBS(),d=tbDay();
       mid=sec("Calcul","Calculer vite et bien, de tête et sur papier.",
         ac("b-tab",IC3.boulier,"Tables d'addition et de soustraction","Retenir les calculs par cœur, avec une astuce pour chaque table",d.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${t.cur+1} : ${TB_TABLES[t.cur].nom.toUpperCase()} · SÉRIE ${d.streak} SUR ${TB_STREAK}`,!d.done)+ac("b-mtab",IC3.n123,"Tables de multiplication","×2, ×10, ×5… puis la division : une astuce pour chaque table",md.done?"FINI POUR AUJOURD'HUI ✓":`TABLE ${mt.cur+1} : ${mT.nom.toUpperCase()} · ${mE.nom.toUpperCase()}`,mt.daily&&!md.done)+zc("foret")+ac("b-col",IC3.n123,"Calcul en colonnes","Additions avec retenue, soustractions avec emprunt, comme sur papier",`NIVEAU ${CLS_().lvl} · ${CLS_().lvl===1?"2 CHIFFRES":CLS_().lvl===2?"3 CHIFFRES":"4 CHIFFRES"}`)+zc("volcan")+ac("b-prob",IC3.loupe,"Problèmes à plusieurs étapes","Trouver ce qu'on cherche, les étapes, puis répondre par une phrase",`NIVEAU ${PBS().lvl} · ${PBS().lvl<3?"GUIDÉ":"SEULE"}`))
        +sec("Nombres","Comprendre, écrire et comparer les nombres et les fractions.",zc("port")+zc("baie"))
        +sec("Mesure et géométrie","Lire l'heure, mesurer et reconnaître les formes.",zc("horloge")+zc("grotte"))
-       +sec("Statistique et probabilité","Lire des diagrammes et prévoir le hasard.",zc("phare"))}
+       +sec("Statistique et probabilité","Lire des diagrammes et prévoir le hasard.",zc("phare"))
+       +notSec()}
     if(CUR==="francais"){const due=dDue(),ex=examActive()?DS().exam:null,u=cjCur();
       const exCard=ex?(()=>{const n=examWords().length,r=examReady(),L=examLeft();return ac("b-exam",IC3.cible,"Préparer l'évaluation",`${esc(ex.label)}, ${L===0?"aujourd'hui":dnFmt(ex.d,{weekday:"long",day:"numeric",month:"long"})}`,`${r} MOT${r>1?"S":""} PRÊT${r>1?"S":""} SUR ${n}${L>0?` · DANS ${L} JOUR${L>1?"S":""}`:""}`,L<=3)})():"";
       mid=sec("Orthographe","Écrire les mots sans faute.",
@@ -2488,16 +2521,18 @@ function renderCarte(){
         ac("b-conj",IC3.cahier,"Apprendre un verbe à la fois","Avoir, être, les verbes en -er, aller, les verbes en -ir, faire, puis le passé composé",`ÉTAPE ${CJ_UNITS.indexOf(u)+1} SUR ${CJ_UNITS.length} : ${esc(u.nom).toUpperCase()}`)+zc("conjugaison"))
        +sec("Lecture","Lire, comprendre et répondre.",
         zc("lecture")+ac("b-rep",IC3.conte,"Répondre en phrases complètes","Reprendre la question, expliquer avec « car », justifier avec le texte","UNE QUESTION À LA FOIS")+ac("b-oral",IC3.micro,"Lire à voix haute","Je m'enregistre, je me réécoute et je mesure ma vitesse de lecture","MOTS PAR MINUTE"))
-       +sec("Écriture","Planifier, écrire un court texte et se relire.",ac("b-redac",XIC.crayon,"J'écris un court texte","Je planifie, j'écris au moins "+rdTarget()+" phrases, puis je me relis",RDS().list.some(y=>y.lang!=="en"&&y.note&&!y.noteSeen)?"💬 UN MOT POUR TOI":RDS().draft?"TEXTE EN COURS":(RDS().list.length?RDS().list.length+" TEXTE"+(RDS().list.length>1?"S":"")+" ÉCRIT"+(RDS().list.length>1?"S":""):"8 SUJETS AU CHOIX")))}
+       +sec("Écriture","Planifier, écrire un court texte et se relire.",ac("b-redac",XIC.crayon,"J'écris un court texte","Je planifie, j'écris au moins "+rdTarget()+" phrases, puis je me relis",RDS().list.some(y=>y.lang!=="en"&&y.note&&!y.noteSeen)?"💬 UN MOT POUR TOI":RDS().draft?"TEXTE EN COURS":(RDS().list.length?RDS().list.length+" TEXTE"+(RDS().list.length>1?"S":"")+" ÉCRIT"+(RDS().list.length>1?"S":""):"8 SUJETS AU CHOIX")))
+       +notSec()}
     if(CUR==="anglais")mid=`<div class="tipc"><img src="${C3D[S.comp.type]||C3D.tortue}" alt=""><p><b>Le conseil de ${esc(BN())}</b>Touche le haut-parleur pour écouter chaque mot en anglais avant de répondre.</p></div>`
       +sec("Les mots","Apprendre les mots en anglais et bien les écrire.",zc("en_week")+zc("en_words")+zc("en_spell"))
       +sec("Écouter et parler","Comprendre ce qu'on entend et répondre.",zc("en_listen")+zc("en_talk"))
       +sec("Les phrases","Placer les mots dans le bon ordre et choisir le bon verbe.",zc("en_build")+zc("en_verbs"))
       +sec("Écriture","Écrire de courtes phrases en anglais.",ac("b-redacen",XIC.crayon,"J'écris en anglais","Des phrases modèles à compléter avec une banque de mots, puis je m'écoute",RDS().list.some(y=>y.lang==="en"&&y.note&&!y.noteSeen)?"💬 UN MOT POUR TOI":"6 SUJETS AU CHOIX"))
-      +sec("Lecture","Lire en anglais et comprendre.",zc("en_read")+ac("b-oralen",IC3.micro,"Lire à voix haute en anglais","Écouter le modèle, m'enregistrer, me réécouter","READ ALOUD"));
+      +sec("Lecture","Lire en anglais et comprendre.",zc("en_read")+ac("b-oralen",IC3.micro,"Lire à voix haute en anglais","Écouter le modèle, m'enregistrer, me réécouter","READ ALOUD"))
+      +notSec();
     const spr=(CUR==="maths"?"Le plus de calculs en 60 secondes":CUR==="francais"?"Homophones et conjugaison en 60 secondes":"Le plus de mots en 60 secondes")+(SPR(CUR).best?` · record : ${SPR(CUR).best}`:"");
     h=skyHead("Explorer","b-home")+`<div class="xpage">`
-     +tCard(XIC[{francais:"livres",maths:"blocs",anglais:"hi"}[CUR]],s.nom,{francais:"Orthographe, grammaire, conjugaison, lecture",maths:"Nombres, calculs, fractions, mesures, problèmes",anglais:"Mots, écoute, petites conversations, lecture"}[CUR],`<p class="tstars">${STARX}${st} ÉTOILE${st>1?"S":""} SUR ${max}</p>`,`<button class="notb" id="b-notions"><img src="${IC3.pile}" alt="">Notions et compétences</button>`)
+     +tCard(XIC[{francais:"livres",maths:"blocs",anglais:"hi"}[CUR]],s.nom,{francais:"Orthographe, grammaire, conjugaison, lecture",maths:"Nombres, calculs, fractions, mesures, problèmes",anglais:"Mots, écoute, petites conversations, lecture"}[CUR],`<p class="tstars">${STARX}${st} ÉTOILE${st>1?"S":""} SUR ${max}</p>`)
      +searchBox(CUR)+mid
      +(true?"":`<h3 class="xh">Les zones à explorer</h3><div class="zgrid">`+zs.map(i=>{const z=IS(i.id);return`<button class="zc${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`}).join("")+`</div>`)
      +`<h3 class="xh">Réviser toute l'île</h3><p class="fsd">Des questions de toutes les notions de l'île, pour vérifier ce que tu sais.</p><div class="dgrid">`
@@ -2509,6 +2544,7 @@ function renderCarte(){
   const bb2=$("#b-buddy2");if(bb2)bb2.onclick=()=>{const b=$("#b-buddy");if(b)b.click()};const bb=$("#b-buddy");if(bb)bb.onclick=()=>{const svg=$("#b-buddy .buddy");svg.classList.remove("m-idle","m-happy");void svg.getBoundingClientRect();svg.classList.add("m-happy");tone([[784,.08],[988,.1]]);speak(evText({k:"poke"}).replace(/<[^>]+>/g,""));setTimeout(()=>{svg.classList.remove("m-happy");svg.classList.add("m-idle")},2600)};
   const hb=$("#b-home");if(hb)hb.onclick=()=>{CUR=null;renderCarte();window.scrollTo(0,0)};
   const bnot=$("#b-notions");if(bnot)bnot.onclick=()=>openLessons(CUR,null);
+  el.querySelectorAll(".ncbtn").forEach(b=>b.onclick=()=>{openLessons(CUR,b.dataset.nz,null);LES.i=+b.dataset.ni;renderLes()});
   bindSearch(CUR);
   const bat=$("#b-atelier");if(bat)bat.onclick=renderAtelier;
   const bdi=$("#b-dict");if(bdi)bdi.onclick=startDictee;const brp=$("#b-rep");if(brp)brp.onclick=startRep;const brd=$("#b-redac");if(brd)brd.onclick=startRedac;const brde=$("#b-redacen");if(brde)brde.onclick=startRedacEn;const bor=$("#b-oral");if(bor)bor.onclick=()=>startOral("fr");const bore=$("#b-oralen");if(bore)bore.onclick=()=>startOral("en");const btb=$("#b-tab");if(btb)btb.onclick=()=>startTables("add");const bmt=$("#b-mtab");if(bmt)bmt.onclick=()=>startTables("mul");const bpb=$("#b-prob");if(bpb)bpb.onclick=startProb;const bcl=$("#b-col");if(bcl)bcl.onclick=startCol;const bex=$("#b-exam");if(bex)bex.onclick=startExam;const bcj=$("#b-conj");if(bcj)bcj.onclick=renderConj;const bgn=$("#b-gn");if(bgn)bgn.onclick=startGN;planBind(el);
@@ -6065,7 +6101,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261111-083141";
+const APP_VER="20261111-095951";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
