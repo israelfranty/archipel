@@ -392,7 +392,7 @@ b.en{color:var(--sea)}
 .row3{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .egrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px;width:100%}
 .egrid>div{text-align:center;border:2px solid var(--line);border-radius:12px;padding:6px;display:flex;flex-direction:column;align-items:center;gap:2px}
-[data-w].said{opacity:1!important;animation:none!important}[data-w].say{outline:3px solid var(--c);outline-offset:2px;transform:scale(1.06);transition:transform .2s}.nwfr p{margin:4px 0}.lblanks{display:flex;gap:8px;justify-content:center;margin-top:10px}.lblanks i{display:block;width:22px;border-bottom:3px solid var(--ink)}.lblanks i.sp{border:0;width:10px}#sp-fix{margin-top:6px}.spstep{margin:10px 0;padding:12px 14px;border:2px dashed var(--c,var(--line));border-radius:14px;background:var(--surface);text-align:center}.spstep p{margin:0 0 8px}.spstep.ok{border-style:solid;border-color:var(--good)}.spword{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(3px,1vw,6px);margin:6px 0 10px}.spword span{min-width:clamp(22px,6.4vw,34px);padding:6px 2px;border-radius:10px;background:var(--bg);border:2px solid var(--line);font:700 clamp(1.1rem,4.6vw,1.6rem)/1.1 "Andika","Atkinson Hyperlegible",sans-serif;color:var(--ink)}.spword i.sp{width:14px}.egrid .emo{font-size:2rem}.egrid .num{font-family:var(--f-display);font-size:1.4rem}.egrid .dots-svg{height:30px}
+[data-w].said{opacity:1!important;animation:none!important}[data-w].say{outline:3px solid var(--c);outline-offset:2px;transform:scale(1.06);transition:transform .2s}.nwfr p{margin:4px 0}.lblanks{display:flex;gap:8px;justify-content:center;margin-top:10px}.lblanks i{display:block;width:22px;border-bottom:3px solid var(--ink)}.lblanks i.sp{border:0;width:10px}#sp-fix{margin-top:6px}.spstep{margin:10px 0;padding:12px 14px;border:2px dashed var(--c,var(--line));border-radius:14px;background:var(--surface);text-align:center}.spstep p{margin:0 0 8px}.spstep.ok{border-style:solid;border-color:var(--good)}.spword{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(3px,1vw,6px);margin:6px 0 10px}.spword span{min-width:clamp(22px,6.4vw,34px);padding:6px 2px;border-radius:10px;background:var(--bg);border:2px solid var(--line);font:700 clamp(1.1rem,4.6vw,1.6rem)/1.1 "Andika","Atkinson Hyperlegible",sans-serif;color:var(--ink)}.spword i.sp{width:14px}.nwsp{margin:2px 0 10px}.nwsp span{font-size:clamp(1rem,4vw,1.3rem);min-width:clamp(20px,5.6vw,28px)}.egrid .emo{font-size:2rem}.egrid .num{font-family:var(--f-display);font-size:1.4rem}.egrid .dots-svg{height:30px}
 .sfig{margin:0;width:110px;text-align:center}.sfig figcaption{font-family:var(--f-display);font-weight:600;font-size:.95rem}
 .wherefig{margin:0;text-align:center}.wherefig .where{font-size:2.6rem}.wherefig figcaption{font-weight:700}
 .trace-card{gap:10px;scroll-margin-top:8px}
@@ -2446,11 +2446,11 @@ const headOf=()=>G.id==="defi"?{nom:"Révision mélangée",c:"--sun"}:G.id==="ta
 function showNewWords(nw,then){const o=envS(),el=$("#ecran-jeu"),z=byId("en_words");el.style.setProperty("--c",`var(${z.c})`);
   el.innerHTML=`<div class="gamebar"><button class="back" id="b-retour">← ${SUBJ.anglais.nom}</button><span class="gtitle">${z.nom}</span><span class="levelchip">${o.on.length} mots</span></div>
   <div class="card pop wex" style="--c:var(${z.c})"><div class="cardtop"><div class="notion">${nw.length>1?"Nouveaux mots":"Nouveau mot"}</div>${canSpeak()?`<span class="cardbtns"><button class="listen" id="nw-say">${SPK}Réécouter</button></span>`:""}</div>
-  <p class="wex-h">Regarde l'image, écoute le mot et répète-le à voix haute.</p>
+  <p class="wex-h">Regarde l'image, écoute le mot et répète-le. Puis <b>épelle chaque mot à voix haute</b>, lettre par lettre.</p>
   <div id="l-vis">${egrid(nw.map(v=>[v[1],v[0]]))}</div>
-  <div class="nwfr">${nw.map(v=>`<p><b lang="en">${v[0]}</b> : ${v[2]}</p>`).join("")}</div>
-  <div class="row-btns"><button class="btn" id="b-cont">Je les connais, on joue!</button></div></div>`;
-  const seq=()=>lesSync([[nw.length>1?"Voici tes nouveaux mots.":"Voici ton nouveau mot.","fr"],400,...nw.flatMap(v=>[[v[0],"en",.7],500,[v[2],"fr"],700])]);
+  <div class="nwfr">${nw.map(v=>`<p><b lang="en">${v[0]}</b> : ${v[2]}</p><div class="spword nwsp" lang="en" aria-hidden="true">${[...v[0]].map(c=>c===" "?`<i class="sp"></i>`:`<span>${esc(c)}</span>`).join("")}</div>`).join("")}</div>
+  <div class="row-btns"><button class="btn" id="b-cont">${nw.length>1?"J'ai épelé les mots, on joue!":"J'ai épelé le mot, on joue!"}</button></div></div>`;
+  const seq=()=>lesSync([[nw.length>1?"Voici tes nouveaux mots.":"Voici ton nouveau mot.","fr"],400,...nw.flatMap(v=>[[v[0],"en",.7],500,[v[2],"fr"],700]),[nw.length>1?"Maintenant, épelle chaque mot à voix haute, lettre par lettre. Quand tu as fini, touche le bouton pour jouer.":"Maintenant, épelle le mot à voix haute, lettre par lettre. Quand tu as fini, touche le bouton pour jouer.","fr"]]);
   const sb=$("#nw-say");if(sb)sb.onclick=()=>speakSeq(seq());
   $("#b-retour").onclick=()=>{SEQ++;G=null;renderCarte();go("carte")};
   $("#b-cont").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}nw.forEach(v=>o.seen[v[0]]=1);save();then()};
@@ -3739,9 +3739,9 @@ function dWord(){
   if(DC.cur.phase==="look")dLook();else if(!voice)dFlash();else dWrite(true);
 }
 function dLook(){const {e}=DC.cur;
-  $("#d-body").innerHTML=`<p class="prompt">Regarde bien ce mot. Dis chaque lettre dans ta tête, puis cache-le.</p><div class="dword">${esc(e.w)}</div>${e.c?`<p class="dcls">(${esc(sayClass(e.c))})</p>`:""}${e.d?`<p class="ddef"><b>Ça veut dire :</b> ${esc(e.d)}.</p>`:""}${e.p?`<p class="dctx">${esc(e.p)}</p>`:""}<button class="btn" id="d-hide">Je l'ai bien regardé : je le cache</button>`;
+  $("#d-body").innerHTML=`<p class="prompt">Regarde bien ce mot. <b>Épelle-le à voix haute</b>, lettre par lettre, puis cache-le.</p><div class="dword">${esc(e.w)}</div><div class="spword nwsp" lang="fr" aria-hidden="true">${[...e.w].map(c=>c===" "?`<i class="sp"></i>`:`<span>${esc(c)}</span>`).join("")}</div>${e.c?`<p class="dcls">(${esc(sayClass(e.c))})</p>`:""}${e.d?`<p class="ddef"><b>Ça veut dire :</b> ${esc(e.d)}.</p>`:""}${e.p?`<p class="dctx">${esc(e.p)}</p>`:""}<button class="btn" id="d-hide">J'ai épelé le mot : je le cache</button>`;
   $("#d-hide").onclick=()=>{DC.cur.phase="write";dWrite(false)};$("#d-hide").focus({preventScroll:true});
-  speakSeq([["Mot nouveau :","fr",dRate()],400,[e.w+".","fr",dRateW()],700,...(e.d?[["Ça veut dire : "+e.d+".","fr",dRate()],700]:[]),...(e.p?[["Par exemple : "+e.p,"fr",dRate()],700]:[]),["Regarde bien comment il s'écrit.","fr",dRate()]])}
+  speakSeq([["Mot nouveau :","fr",dRate()],400,[e.w+".","fr",dRateW()],700,...(e.d?[["Ça veut dire : "+e.d+".","fr",dRate()],700]:[]),...(e.p?[["Par exemple : "+e.p,"fr",dRate()],700]:[]),["Regarde bien comment il s'écrit. Maintenant, épelle-le à voix haute, lettre par lettre. Quand tu as fini, touche : j'ai épelé le mot.","fr",dRate()]])}
 /* Sans la voix : le mot apparaît 3 secondes, puis disparaît */
 function dFlash(){const {e}=DC.cur;let n=3;
   $("#d-body").innerHTML=`<p class="prompt">Regarde bien ce mot, il va disparaître!</p><div class="dword">${esc(e.w)}</div><p class="dcls" id="d-count">${n}</p>`;
@@ -5936,7 +5936,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261110-212952";
+const APP_VER="20261110-214210";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
