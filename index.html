@@ -169,6 +169,39 @@ main{padding-block:18px 40px}
 /* Fin */
 .result{text-align:center;align-items:center}
 .result h2{font-family:var(--f-display);font-weight:700;font-size:2rem;margin:0}
+
+/* Animations retenue / emprunt */
+.opAnim{display:grid;grid-template-columns:repeat(3,46px);justify-content:center;gap:2px 8px;font-family:var(--f-display);font-size:1.9rem;font-weight:700;color:var(--ink);position:relative;margin:10px auto;padding-top:20px}
+.opAnim span{text-align:center;line-height:1.25;position:relative;z-index:1}
+.opAnim .sign{color:var(--muted)}
+.opAnim .bar{grid-column:1/-1;height:3px;background:var(--ink);border-radius:2px}
+.opAnim .carry.bleft{left:16%}.opAnim .carry{position:absolute;top:-20px;left:50%;translate:-50% 0;font-size:1.05rem;color:var(--bad);opacity:0}
+.opAnim .opc s{text-decoration-color:var(--bad);text-decoration-thickness:3px}
+.opAnim s{opacity:1}
+.opAnim .opc s.opw2{animation:opCross 10s infinite}
+@keyframes opCross{0%,18%{text-decoration-color:transparent;color:var(--ink)}24%,100%{text-decoration-color:var(--bad);color:var(--muted)}}
+.opAnim .res{color:var(--c,var(--i5));opacity:0}
+.opAnim .opw1{animation:opW1 10s infinite}.opAnim .opw2{animation:opW2 10s infinite}.opAnim .opw3{animation:opW3 10s infinite}.opAnim .opw4{animation:opW4 10s infinite}
+@keyframes opW1{0%,8%{opacity:0}13%,96%{opacity:1}100%{opacity:0}}
+@keyframes opW2{0%,26%{opacity:0}32%,96%{opacity:1}100%{opacity:0}}
+@keyframes opW3{0%,48%{opacity:0}54%,96%{opacity:1}100%{opacity:0}}
+@keyframes opW4{0%,68%{opacity:0}74%,96%{opacity:1}100%{opacity:0}}
+.opHl{position:absolute;top:14px;bottom:calc(4em + 20px);width:50px;border:3px dashed var(--sun);border-radius:12px;opacity:0;z-index:0}
+.opHlU{right:calc(50% - 81px);animation:opHU 10s infinite}
+.opHlT{right:calc(50% - 27px);animation:opHT 10s infinite}
+@keyframes opHU{0%,4%{opacity:0}8%,44%{opacity:1}50%,100%{opacity:0}}
+@keyframes opHT{0%,52%{opacity:0}58%,90%{opacity:1}96%,100%{opacity:0}}
+.opAnim .opCap{grid-column:1/-1;position:relative;height:4em;margin-top:8px;font-size:.92rem;font-weight:600;font-family:var(--f-body,inherit)}
+.opAnim .opCap span{position:absolute;inset:0;text-align:center;color:var(--ink)}
+.opAnim .opCap .opw1{animation:opC1 10s infinite}
+@keyframes opC1{0%,8%{opacity:0}13%,26%{opacity:1}31%,100%{opacity:0}}
+.opAnim .opCap .opw2{animation:opC2 10s infinite}
+@keyframes opC2{0%,28%{opacity:0}33%,46%{opacity:1}51%,100%{opacity:0}}
+.opAnim .opCap .opw3{animation:opC3 10s infinite}
+@keyframes opC3{0%,50%{opacity:0}55%,66%{opacity:1}71%,100%{opacity:0}}
+.opAnim .opCap .opw4{animation:opC4 10s infinite}
+@keyframes opC4{0%,70%{opacity:0}75%,96%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.opAnim .opw1,.opAnim .opw2,.opAnim .opw3,.opAnim .opw4,.opAnim .opCap span,.opHl,.opAnim .opc s.opw2{animation:none;opacity:1}}
 .bdstep{display:flex;flex-direction:column;align-items:center;gap:6px;margin:6px 0}.boardcard .row-btns .btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;min-height:48px;padding:10px 20px;width:auto;height:auto}.boardcard .row-btns .btn svg{width:20px;height:20px;flex:none}.bdnum{font-family:var(--f-display);font-weight:700;font-size:1.3rem}.bddots{display:flex;gap:8px}.bddots i{width:14px;height:14px;border-radius:50%;border:2px solid currentColor;opacity:.5}.bddots i.ok{background:currentColor;opacity:.8}.bddots i.now{opacity:1;background:var(--sun);border-color:var(--sun)}
 .result .score{font-family:var(--f-display);font-size:3.4rem;font-weight:700;color:var(--c);line-height:1;font-variant-numeric:tabular-nums}
 .result .stars svg{width:52px;height:52px}
@@ -1191,7 +1224,7 @@ body.skyin .din.wrong,.din.wrong{border-color:var(--bad)!important;background:va
 .skyin #ecran-parent .pda{border-radius:999px;box-shadow:0 2px 6px rgba(10,60,80,.08)}
 .skyin #ecran-parent .pinbox{max-width:520px;margin:12px auto}
 .skyin #ecran-parent .pfm li,.skyin #ecran-parent .rdchk li{background:var(--chbg);border-color:var(--cream-line)}
-body.pskin .ptabs{position:static}
+body.pskin .ptabs{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-radius:0 0 14px 14px}
 .skyin #ecran-parent select{min-height:44px;border-radius:12px;border:2px solid var(--cream-line);background:var(--chbg);color:var(--ink);padding:0 10px;font:inherit;font-size:1rem}
 .gfig{display:block;margin:6px auto;max-width:100%;height:auto;color:var(--ink)}
 .rdeframes{display:grid;gap:10px;margin:.4rem 0 .8rem}
@@ -1326,16 +1359,36 @@ const VLOG=[];const vlog=m=>{VLOG.push(m);if(VLOG.length>6)VLOG.shift();const el
 function speak(text,onend,lang,rate,sid){
   if(sid===undefined)SEQ++;
   if(!canSpeak()||!text){onend&&onend();return}
-  let done=false;const fin=()=>{if(!done){done=true;duck(false);onend&&onend()}};
+  const en=lang==="en";if(!en)text=frSay(text);
+  /* Même phrase déjà en train d'être dite (double rendu, double touche) : on ne la recommence pas, on attend sa fin. */
+  if(window.__cur&&window.__cur.txt===text&&!window.__cur.done&&TTS.speaking){if(onend)window.__cur.after.push(onend);return}
+  const st={txt:text,done:false,after:onend?[onend]:[]};let iv=0;
+  const fin=()=>{if(st.done)return;st.done=true;clearInterval(iv);duck(false);if(window.__cur===st)window.__cur=null;st.after.forEach(f=>{try{f()}catch(e){}})};
   try{TTS.cancel();
-    const en=lang==="en";if(!en)text=frSay(text);const u=new SpeechSynthesisUtterance(text),v=en?bestVoiceEN():bestVoice();
+    const u=new SpeechSynthesisUtterance(text),v=en?bestVoiceEN():bestVoice();
     if(v){u.voice=v;u.lang=v.lang}else u.lang=en?"en-CA":"fr-CA";
     u.rate=rate||(en?Math.min(S.rate||.63,.81):S.rate||0.63);u.pitch=1.05;
     u.onstart=()=>vlog("parle ("+(v?v.name:u.lang)+")");
     u.onend=fin;u.onerror=e=>{vlog("erreur : "+(e&&e.error||"?"));fin()};
-    window.__u=u;duck(true);setTimeout(fin,Math.min(90000,2000+text.length*90/Math.max(.2,u.rate)));TTS.speak(u);
+    window.__u=u;window.__cur=st;duck(true);
+    /* Fin fiable : on attend que la synthèse ait VRAIMENT fini (l'ancien minuteur estimait la durée
+       et coupait les phrases longues pour passer à la suivante). */
+    let started=0,quiet=0;const t0=performance.now();
+    iv=setInterval(()=>{if(st.done){clearInterval(iv);return}
+      try{
+        if(window.__u!==u){fin();return} /* une autre phrase a pris la place */
+        const busy=TTS.speaking||TTS.pending,el=performance.now()-t0;
+        if(TTS.paused&&TTS.speaking)TTS.resume(); /* certains navigateurs mettent les longues phrases en pause */
+        if(busy){if(!started)started=performance.now();quiet=0;if(el>180000)fin();return}
+        quiet++;if((started&&quiet>=2)||(!started&&el>12000))fin();
+      }catch(e){fin()}
+    },400);
+    TTS.speak(u);
   }catch(e){vlog("exception : "+e.message);fin()}
 }
+/* Attendre que la voix ait fini avant d'enchaîner (célébrations, banque) */
+function whenQuiet(min,max,cb){const t0=performance.now();const iv=setInterval(()=>{const el=performance.now()-t0;
+  if(el>=min&&(!TTS||!canSpeak()||(!TTS.speaking&&!TTS.pending)||el>=max)){clearInterval(iv);cb()}},250)}
 const DENW={2:["demi","demis"],3:["tiers","tiers"],4:["quart","quarts"],5:["cinquième","cinquièmes"],6:["sixième","sixièmes"],8:["huitième","huitièmes"],10:["dixième","dixièmes"]};
 const fracSay=(k,d)=>DENW[d]?(k===1?`un ${DENW[d][0]}`:`${k} ${DENW[d][1]}`):`${k} sur ${d}`;
 function normSay(t){
@@ -1345,6 +1398,8 @@ function normSay(t){
   .replace(/(\d)[\s  ](?=\d{3}\b)/g,"$1")
   .replace(/×/g," fois ").replace(/÷/g," divisé par ").replace(/−/g," moins ").replace(/\+/g," plus ").replace(/\s<\s/g," est plus petit que ").replace(/\s>\s/g," est plus grand que ").replace(/=/g," égale ")
   .replace(/(\d+) h (\d+)/g,(m,h,mi)=>`${h} heures ${+mi}`).replace(/(\d+) h\b/g,(x,h)=>`${h} heure${h==="1"?"":"s"}`)
+  .replace(/(\d+) ?mL\b/g,(x,n)=>`${n} millilitre${n==="1"?"":"s"}`).replace(/(\d+) ?L\b/g,(x,n)=>`${n} litre${n==="1"?"":"s"}`).replace(/(\d+) ?kg\b/g,(x,n)=>`${n} kilogramme${n==="1"?"":"s"}`).replace(/(\d+) ?g\b/g,(x,n)=>`${n} gramme${n==="1"?"":"s"}`)
+  .replace(/\(mL\)/g,"").replace(/\(L\)/g,"").replace(/\(kg\)/g,"").replace(/\(g\)/g,"")
   .replace(/(\d+) ?(mm|cm|dm|km|m|min|s)\b/g,(x,n,u)=>{const w={mm:"millimètre",cm:"centimètre",dm:"décimètre",km:"kilomètre",m:"mètre",min:"minute",s:"seconde"}[u];return `${n} ${w}${n==="1"?"":"s"}`})
   .replace(/\bmm\b/g,"millimètre").replace(/\bcm\b/g,"centimètre").replace(/\bdm\b/g,"décimètre").replace(/\bkm\b/g,"kilomètre").replace(/\ble m\b/g,"le mètre").replace(/¢/g,"cent")
   .replace(/\s+/g," ").trim();
@@ -1419,7 +1474,10 @@ function decompText(n){const s=String(n);return s.split("").map((d,i)=>`${d} ${P
 const GEN={
 port(L){
   const lo=L===1?100:1000,hi=L===1?999:9999;
-  const type=pick(L===3?["pos","diz","cmp","suite","decomp"]:["pos","decomp","cmp","suite"]);
+  const type=pick(L===3?["pos","diz","cmp","suite","decomp","pair"]:["pos","decomp","cmp","suite","pair"]);
+  if(type==="pair"){const n=L===1?R(2,99):R(10,999),even=n%2===0;
+    return{notion:"Pair ou impair",prompt:`Le nombre <b>${nf(n)}</b> est-il pair ou impair?`,say:`Le nombre ${n}. Est-il pair ou impair?`,kind:"choice",choices:["pair","impair"],answer:even?"pair":"impair",lesT:"Pair ou impair",
+      explain:`${nf(n)} finit par ${n%10} : il est ${even?"pair":"impair"}. Un nombre pair finit par 0, 2, 4, 6 ou 8; un nombre impair finit par 1, 3, 5, 7 ou 9.`}}
   if(type==="pos"){const n=R(lo,hi),s=String(n),i=R(0,s.length-1),d=s[s.length-1-i];
     return{notion:"Position des chiffres",prompt:`Dans le nombre <b>${nf(n)}</b>, quel chiffre est à la position des <b>${POS[i]}</b>?`,kind:"choice",choices:choices(d,[...s.split(""),R(0,9),R(0,9),R(0,9)]),answer:d,explain:`${nf(n)}, c'est ${decompText(n)}. Le chiffre des ${POS[i]} est ${d}.`}}
   if(type==="decomp"){let s;do{s=String(R(lo,hi))}while(s.includes("0"));const n=+s,parts=s.split("").map((d,i)=>+d*10**(s.length-1-i)),j=R(0,parts.length-1),ans=parts[j],d=+s[j],p=s.length-1-j;
@@ -1474,7 +1532,20 @@ baie(L){
   return{notion:"Nommer une fraction",prompt:"Quelle fraction de la bande est coloriée?",visual:bar(d,k)+`<div class="fraclegend">La bande est partagée en ${d} parts égales.</div>`,kind:"choice",choices:choices(`${k}/${d}`,dist(k,d)),answer:`${k}/${d}`,explain:`On compte les parts égales : il y en a ${d} (le nombre du bas). ${k} sont coloriées (le nombre du haut). C'est ${k}/${d}, on lit « ${words(k,d)} ».`}
 },
 horloge(L){
-  const type=pick(L===1?["heure","heure","unite","aire"]:L===2?["heure","heure","conv","unite","aire","peri","pa"]:["heure","duree","conv","conv","aire","peri","peri","pa"]);
+  const type=pick(L===1?["heure","heure","unite","aire","capm"]:L===2?["heure","heure","conv","unite","aire","peri","pa","capm"]:["heure","duree","conv","conv","aire","peri","pa","capm"]);
+  if(type==="capm"){const cap=Math.random()<.5,kind=pick(L===1?["unit","unit","cmp"]:["unit","conv","conv","cmp"]),notion=cap?"La capacité (L et mL)":"La masse (g et kg)";
+    const OBJ=cap?[["le jus dans un verre","mL"],["l'eau d'une baignoire","L"],["le sirop dans une cuillère","mL"],["l'eau d'une piscine","L"],["le lait d'un biberon","mL"],["l'essence d'une auto","L"]]
+      :[["une pomme","g"],["un pupitre","kg"],["un crayon","g"],["ton sac d'école rempli","kg"],["une gomme à effacer","g"],["un vélo","kg"]];
+    const [un,gr]=cap?["millilitre","litre"]:["gramme","kilogramme"],[ab,AB]=cap?["mL","L"]:["g","kg"];
+    if(kind==="unit"){const [o,u]=pick(OBJ);
+      return{notion,prompt:`Quelle unité choisis-tu pour ${cap?"mesurer":"peser"} <b>${o}</b>?`,say:`Quelle unité choisis-tu pour ${cap?"mesurer":"peser"} ${o}?`,kind:"choice",choices:[ab,AB],answer:u,lesT:cap?"La capacité : litres et millilitres":"La masse : grammes et kilogrammes",
+        explain:`${CAP(o)} : c'est ${u===AB?(cap?"une grande quantité":"lourd"):(cap?"une petite quantité":"léger")}. On ${cap?"mesure":"pèse"} en ${u===AB?gr:un}s (${u}).`}}
+    if(kind==="conv"){const n=L===1?R(1,3):R(2,9);
+      return{notion,prompt:`Combien de ${un}s dans <b>${n} ${AB}</b>?`,say:`Combien de ${un}s dans ${n} ${gr}${n>1?"s":""}?`,kind:"num",answer:String(n*1000),lesT:cap?"La capacité : litres et millilitres":"La masse : grammes et kilogrammes",
+        explain:`1 ${AB} = 1 000 ${ab}. Donc ${n} ${AB} = ${nf(n*1000)} ${ab}.`}}
+    const a=R(2,5),b=R(2,9)*100,big=`${a} ${AB}`,small=`${b} ${ab}`;
+    return{notion,prompt:cap?`Où y a-t-il <b>le plus de liquide</b>?`:`Qu'est-ce qui est <b>le plus lourd</b>?`,say:cap?"Où y a-t-il le plus de liquide?":"Qu'est-ce qui est le plus lourd?",kind:"choice",choices:shuffle([big,small]),answer:big,lesT:cap?"La capacité : litres et millilitres":"La masse : grammes et kilogrammes",
+      explain:`${a} ${AB} = ${nf(a*1000)} ${ab}, et ${nf(a*1000)} est plus grand que ${nf(b)}. 1 ${AB} = 1 000 ${ab}.`}}
   if(type==="aire"){const w=L===1?R(2,4):R(3,6),h=L===1?R(2,3):R(2,5),cut=L>1&&Math.random()<.5?[R(1,w-1),R(1,h-1)]:null,A=w*h-(cut?cut[0]*cut[1]:0);
     return{notion:"L'aire",prompt:"Combien de carrés couvrent cette figure? C'est son <b>aire</b>.",say:"Combien de carrés couvrent cette figure? C'est son aire.",visual:gridFig(w,h,cut),kind:"num",answer:String(A),
       explain:cut?`On compte les carrés à l'intérieur de la figure : ${A} carrés. Truc : le grand rectangle aurait ${w} × ${h} = ${w*h} carrés, moins les ${cut[0]*cut[1]} du coin enlevé : ${A}.`:`L'aire, c'est la surface couverte. Il y a ${h} rangées de ${w} carrés : ${h} × ${w} = ${A} carrés.`}}
@@ -1546,7 +1617,7 @@ const ISL_M=[
  {id:"foret",a:"en additions et soustractions",nom:"Additions et soustractions",sous:"Calculer, trouver le nombre manquant, résoudre des problèmes écrits",glyph:"+ −",c:"--i2"},
  {id:"volcan",a:"en multiplications et divisions",nom:"Multiplications et divisions",sous:"Groupes égaux, tables de multiplication, partages",glyph:"× ÷",c:"--i3"},
  {id:"baie",a:"dans les fractions",nom:"Les fractions",sous:"Nommer, lire et comparer des parties d'un tout",glyph:"½",c:"--i4"},
- {id:"horloge",a:"dans l'heure et les mesures",nom:"L'heure et les mesures",sous:"Lire l'heure, calculer une durée, mesurer des longueurs, le périmètre et l'aire",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2"/></svg>`,c:"--i5"},
+ {id:"horloge",a:"dans l'heure et les mesures",nom:"L'heure et les mesures",sous:"Lire l'heure, les durées, les longueurs, le périmètre et l'aire, la capacité et la masse",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2"/></svg>`,c:"--i5"},
  {id:"grotte",a:"en géométrie",nom:"Les figures et les solides",sous:"Figures planes, quadrilatères, côtés et faces des solides",glyph:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2.5 21 20H3z"/><path d="M12 2.5 15 20" stroke-dasharray="2.5 2.5"/></svg>`,c:"--i6"},
  {id:"phare",a:"en diagrammes et probabilités",nom:"Diagrammes et probabilités",sous:"Lire un diagramme; dire si c'est certain, possible ou impossible",glyph:`<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="5" width="4" height="16" rx="1"/><rect x="17" y="9" width="4" height="12" rx="1"/></svg>`,c:"--i7"}
 ];
@@ -1735,7 +1806,7 @@ const NEG=[["Je mange des pommes.","Je ne mange pas de pommes.",["Je mange pas d
  ["Elle regarde la télévision.","Elle ne regarde pas la télévision.",["Elle regarde pas la télévision.","Elle ne pas regarde la télévision.","Elle regarde ne pas la télévision."],""],
  ["Les enfants jouent dehors.","Les enfants ne jouent pas dehors.",["Les enfants jouent pas dehors.","Les enfants ne pas jouent dehors.","Les enfants n'jouent pas dehors."],""]];
 const PRONOMS=[["Léa","elle"],["le chien","il"],["Maya et Jade","elles"],["Noah et Samuel","ils"],["Léa et Noah","ils"],["ma mère et moi","nous"],["toi et ton frère","vous"],["les fleurs","elles"],["mon père","il"],["les ballons","ils"],["la voiture","elle"],["toi et moi","nous"],["Félix","il"],["mes tantes","elles"]];
-const SUJETS=[["Les enfants",5],["Léa",2],["Mon frère et moi",3],["Tu",1],["Les oiseaux",5],["Noah et Maya",5],["Ma grand-mère",2],["Vous",4],["Je",0],["Nous",3],["Mes cousines",5],["Le chat",2]];
+const SUJETS=[["Les enfants",5],["Léa",2],["Mon frère et moi",3],["Tu",1],["Les oiseaux",5,["chanter","jouer","regarder","sauter"]],["Noah et Maya",5],["Ma grand-mère",2],["Vous",4],["Je",0],["Nous",3],["Mes cousines",5],["Le chat",2,["jouer","regarder","marcher","sauter"]]];
 const VCOMP=[["jouer","dans la cour"],["chanter","une chanson"],["danser","au salon"],["dessiner","un château"],["regarder","la neige"],["écouter","de la musique"],["marcher","jusqu'au parc"],["parler","fort"],["sauter","dans les feuilles"],["ramasser","des cailloux"]];
 const PERS=["je","tu","il ou elle","nous","vous","ils ou elles"];
 
@@ -1765,7 +1836,7 @@ accords(L){
   const [s,g,pl]=pick(NOMSF);
   if(type==="det"){const plur=Math.random()<.4,opts=plur?["les","le","la","un"]:g==="m"?["le","la","les","des"]:["la","le","les","des"],ans=plur?"les":g==="m"?"le":"la",w=plur?pl:s;
     return{notion:"Le déterminant",prompt:"Quel déterminant va avec ce nom?",say:`Quel déterminant va avec le nom ${w}?`,visual:phrase(`${BLANK} ${w}`),kind:"choice",choices:shuffle(opts),answer:ans,explain:`« ${w} » est ${g==="m"?"masculin":"féminin"} ${plur?"pluriel":"singulier"}. Le déterminant s'accorde avec le nom : « ${ans} ${w} ».`}}
-  if(type==="sv"){let [sj,k]=pick(SUJETS),[v,c]=pick(VCOMP);while(k===0&&/^[aeéèêiouh]/.test(v))[v,c]=pick(VCOMP);
+  if(type==="sv"){const [sj,k,okv]=pick(SUJETS),pool=okv?VCOMP.filter(x=>okv.includes(x[0])):VCOMP;let [v,c]=pick(pool);while(k===0&&/^[aeéèêiouh]/.test(v))[v,c]=pick(pool);
     const forms=[0,1,2,3,4,5].map(x=>conj(v,"p",x)),ans=forms[k];const sub=["je","tu","il ou elle","nous","vous","ils ou elles"][k];
     return{notion:"Accord du verbe avec le sujet",prompt:`Choisis la bonne forme du verbe <b>${v}</b>.`,say:`Choisis la bonne forme du verbe ${v}. ${sj} … ${c}.`,visual:phrase(`${sj} ${BLANK} ${c}.`),kind:"choice",choices:choices(ans,forms),answer:ans,
       explain:`Le sujet est « ${sj} »${/^(Je|Tu|Nous|Vous)$/.test(sj)?"":`. On peut le remplacer par « ${sub} »`}. Le verbe s'accorde avec son sujet : ${sj} ${ans}. ${k===5?"Avec ils ou elles, la terminaison est -ent.":k===3?"Avec nous, la terminaison est -ons.":k===4?"Avec vous, la terminaison est -ez.":k===1?"Avec tu, on ajoute un s.":""}`}}
@@ -2426,7 +2497,7 @@ function renderCarte(){
       +sec("Lecture","Lire en anglais et comprendre.",zc("en_read")+ac("b-oralen",IC3.micro,"Lire à voix haute en anglais","Écouter le modèle, m'enregistrer, me réécouter","READ ALOUD"));
     const spr=(CUR==="maths"?"Le plus de calculs en 60 secondes":CUR==="francais"?"Homophones et conjugaison en 60 secondes":"Le plus de mots en 60 secondes")+(SPR(CUR).best?` · record : ${SPR(CUR).best}`:"");
     h=skyHead("Explorer","b-home")+`<div class="xpage">`
-     +tCard(XIC[{francais:"livres",maths:"blocs",anglais:"hi"}[CUR]],s.nom,{francais:"Orthographe, grammaire, conjugaison, lecture",maths:"Nombres, calculs, fractions, mesures, problèmes",anglais:"Mots, écoute, petites conversations, lecture"}[CUR],`<p class="tstars">${STARX}${st} ÉTOILE${st>1?"S":""} SUR ${max}</p>`,`<button class="notb" id="b-notions"><img src="${IC3.pile}" alt="">Revoir les règles</button>`)
+     +tCard(XIC[{francais:"livres",maths:"blocs",anglais:"hi"}[CUR]],s.nom,{francais:"Orthographe, grammaire, conjugaison, lecture",maths:"Nombres, calculs, fractions, mesures, problèmes",anglais:"Mots, écoute, petites conversations, lecture"}[CUR],`<p class="tstars">${STARX}${st} ÉTOILE${st>1?"S":""} SUR ${max}</p>`,`<button class="notb" id="b-notions"><img src="${IC3.pile}" alt="">Notions et compétences</button>`)
      +searchBox(CUR)+mid
      +(true?"":`<h3 class="xh">Les zones à explorer</h3><div class="zgrid">`+zs.map(i=>{const z=IS(i.id);return`<button class="zc${i.week?" weekz":""}" data-isle="${i.id}" style="--c:var(${i.c})"><span class="med">${i.glyph}</span><span class="zb"><b>${i.nom}</b><span class="zs">${i.sous}</span><span class="zm">${stars(z.stars)}<span>NIVEAU ${z.level}</span></span></span></button>`}).join("")+`</div>`)
      +`<h3 class="xh">Réviser toute l'île</h3><p class="fsd">Des questions de toutes les notions de l'île, pour vérifier ce que tu sais.</p><div class="dgrid">`
@@ -2719,7 +2790,7 @@ function finish(){
   tone(st>=2?[[523,.12],[659,.12],[784,.12],[1047,.25]]:[[523,.15],[659,.2]]);go("fin");
   if(ENG)speak(`${sc>=N*.75?"Great job":"Good try"}${S.name?", "+S.name:""}! ${sc} out of ${N}. ${msg}`,null,"en");else
   speak(`${sc>=N*.75?"Bravo":"Partie terminée"}${S.name?", "+S.name:""}! ${sc} sur ${N}. ${G.id==="tableau"||!G.anyT?"":G.eclairs+" éclair"+(G.eclairs>1?"s":"")+". "}${msg} ${revSay((G.review||[]).slice(0,4))}`);
-  const evs=G.events.concat(PEND.splice(0));if(evs.length&&S.comp.type)setTimeout(()=>{if(!$("#ecran-fin").hidden&&!BYE)celebrate(evs);else PEND.push(...evs)},1200);
+  const evs=G.events.concat(PEND.splice(0));if(evs.length&&S.comp.type)whenQuiet(1200,15000,()=>{if(!$("#ecran-fin").hidden&&!BYE)celebrate(evs);else PEND.push(...evs)});
 }
 
 /* ---------- Course Éclair : 60 secondes (maths : calculs au clavier; français : homophones et conjugaison) ---------- */
@@ -3073,6 +3144,26 @@ const solidFig=n=>`<figure class="sfig">${solidSVG(n)}<figcaption>${n}</figcapti
 const mark=(s,ws)=>s.split(" ").map(w=>ws.includes(w.replace(/[.,!?]/g,""))?`<mark class="hl">${w}</mark>`:w).join(" ");
 
 let _LD=null;
+
+/* ---------- Animations des opérations en colonnes (boucle de 10 s) ---------- */
+function caAnim(){/* 47 + 38 : la retenue */
+  return`<div class="opAnim" aria-label="47 plus 38 en colonnes, avec la retenue">
+   <i class="opHl opHlU" aria-hidden="true"></i><i class="opHl opHlT" aria-hidden="true"></i>
+   <span></span><span class="opc oc1" ><b class="carry opw2">1</b>4</span><span class="opc oc0">7</span>
+   <span class="sign">+</span><span class="opc oc1">3</span><span class="opc oc0">8</span>
+   <div class="bar"></div>
+   <span></span><span class="res opw4">8</span><span class="res opw1">5</span>
+   <div class="opCap"><span class="opw1">7 + 8 = 15 : j'écris 5…</span><span class="opw2">… et je retiens 1 en haut des dizaines.</span><span class="opw4">1 + 4 + 3 = 8. Réponse : 85!</span></div>
+  </div>`}
+function cbAnim(){/* 52 − 27 : l'emprunt */
+  return`<div class="opAnim" aria-label="52 moins 27 en colonnes, avec l'emprunt">
+   <i class="opHl opHlU" aria-hidden="true"></i><i class="opHl opHlT" aria-hidden="true"></i>
+   <span></span><span class="opc oc1"><s class="opw2">5</s><b class="carry opw2">4</b></span><span class="opc oc0"><b class="carry bleft opw2">1</b>2</span>
+   <span class="sign">−</span><span class="opc oc1">2</span><span class="opc oc0">7</span>
+   <div class="bar"></div>
+   <span></span><span class="res opw4">2</span><span class="res opw3">5</span>
+   <div class="opCap"><span class="opw1">2 − 7 : impossible!</span><span class="opw2">J'emprunte 1 dizaine : le 5 devient 4, le 2 devient 12.</span><span class="opw3">12 − 7 = 5</span><span class="opw4">4 − 2 = 2. Réponse : 25!</span></div>
+  </div>`}
 function lessonsData(){if(_LD)return _LD;_LD={
 /* ===== MATHS ===== */
 port:[
@@ -3082,14 +3173,15 @@ port:[
  {t:"Comparer deux nombres",n:["Comparer des nombres"],p:["On compare les chiffres un par un, en commençant par la gauche.","Dès que deux chiffres sont différents, le nombre qui a le plus grand chiffre est le plus grand.","<b>&lt;</b> veut dire « est plus petit que ». <b>&gt;</b> veut dire « est plus grand que ».","Truc : la bouche ouverte du signe mange toujours le plus grand nombre. La pointe montre le plus petit."],
   s:["On compare les chiffres un par un, en commençant par la gauche.","Dès que deux chiffres sont différents, le nombre qui a le plus grand chiffre est le plus grand.","Le signe pointu vers la gauche veut dire : est plus petit que. Le signe pointu vers la droite veut dire : est plus grand que.","Truc : la bouche ouverte du signe mange toujours le plus grand nombre. La pointe montre le plus petit."],
   v:()=>seqH([cmpRow("<b>4</b>82 et <b>4</b>71 : les centaines sont pareilles"),cmpRow("4<b>8</b>2 et 4<b>7</b>1 : 8 est plus grand que 7"),`<div class="bigexpr">482 &gt; 471</div>`]),ex:["482 &gt; 471","1 305 &lt; 1 350"]},
+ {t:"Pair ou impair",n:["Pair ou impair"],p:["Un nombre pair peut se partager en 2 équipes égales, sans qu'il reste personne.","Un nombre impair ne peut pas : il reste toujours 1 tout seul.","Truc : regarde seulement le dernier chiffre. S'il finit par 0, 2, 4, 6 ou 8, le nombre est pair. S'il finit par 1, 3, 5, 7 ou 9, il est impair."],v:()=>seqH([tbox("8 : pair","👫👫👫👫"),tbox("7 : impair","👫👫👫🧍")],"row"),ex:["346 finit par 6 : il est pair.","1 205 finit par 5 : il est impair."]},
  {t:"Les suites de nombres",n:["Suites de nombres"],p:["Dans une suite, on ajoute ou on enlève toujours le même nombre.","Trouve la règle : de combien avance-t-on entre deux nombres?","Ensuite, applique la même règle pour trouver le nombre suivant."],v:()=>numline([25,50,75,100],["+25","+25","+25"]),ex:["100, 200, 300… La règle est + 100, donc le nombre suivant est 400."]},
  {t:"Lire et écrire un grand nombre",n:["Dictée de nombres","Position des chiffres"],p:["On laisse un petit espace entre les unités de mille et les centaines : 3 482.","On lit d'abord les milliers, puis le reste : trois mille quatre cent quatre-vingt-deux.","Quand une place est vide, on écrit un 0 : deux mille cinq, c'est 2 005."],v:()=>pvTable(2005)}
 ],
 foret:[
  {t:"L'addition",n:["Addition"],p:["Additionner, c'est mettre ensemble. Le résultat s'appelle la somme.","Truc de calcul mental : ajoute d'abord les dizaines, puis les unités."],v:()=>numline([47,77,85],["+30","+8"]),ex:["47 + 38 : 47 + 30 = 77, puis 77 + 8 = 85."]},
- {t:"Additionner en colonnes",n:["Calcul en colonnes","Addition"],p:["On place les unités sous les unités, et les dizaines sous les dizaines.","On commence toujours par la droite : les unités.","Si une colonne fait 10 ou plus, on écrit les unités et on fait une retenue en haut de la colonne suivante."],v:()=>`<div class="anim"><div class="st" style="--d:0">${colonnes(47,38,"+")}</div></div>`,ex:["7 + 8 = 15 : j'écris 5 et je retiens 1.","1 + 4 + 3 = 8. La réponse est 85."]},
+ {t:"Additionner en colonnes",n:["Calcul en colonnes","Addition"],p:["On place les unités sous les unités, et les dizaines sous les dizaines.","On commence toujours par la droite : les unités.","Si une colonne fait 10 ou plus, on écrit les unités et on fait une retenue en haut de la colonne suivante."],v:caAnim,ex:["7 + 8 = 15 : j'écris 5 et je retiens 1.","1 + 4 + 3 = 8. La réponse est 85."]},
  {t:"La soustraction",n:["Soustraction"],p:["Soustraire, c'est enlever. Le résultat s'appelle la différence.","Truc de calcul mental : enlève d'abord les dizaines, puis les unités.","Pour vérifier, fais une addition."],v:()=>numline([41,46,76],["−5","−30"]),ex:["76 − 35 : 76 − 30 = 46, puis 46 − 5 = 41.","Vérification : 41 + 35 = 76."]},
- {t:"Soustraire en colonnes : l'emprunt",n:["Calcul en colonnes","Soustraction"],p:["On commence par les unités.","Si le chiffre du haut est plus petit que celui du bas, on emprunte une dizaine à la colonne de gauche.","Le chiffre du haut gagne 10. La colonne de gauche perd 1."],v:()=>seqH([cmpRow("52 − 27 : 2 − 7, c'est impossible!"),cmpRow("J'emprunte une dizaine : 12 − 7 = 5"),cmpRow("Il reste 4 dizaines : 4 − 2 = 2"),`<div class="bigexpr">52 − 27 = 25</div>`])},
+ {t:"Soustraire en colonnes : l'emprunt",n:["Calcul en colonnes","Soustraction"],p:["On commence par les unités.","Si le chiffre du haut est plus petit que celui du bas, on emprunte une dizaine à la colonne de gauche.","Le chiffre du haut gagne 10. La colonne de gauche perd 1."],v:cbAnim},
  {t:"Le nombre manquant",n:["Nombre manquant"],p:["Dans 25 + ? = 40, il manque un morceau.","Pour le trouver, on fait l'opération contraire : une soustraction.","40 − 25 = 15. Le nombre manquant est 15."],v:()=>`<div class="barmodel anim"><div class="bm-top st" style="--d:0">40</div><div class="bm-row"><div class="bm-a st" style="--d:1">25</div><div class="bm-b st" style="--d:2">?</div></div></div>`},
  {t:"Résoudre un problème écrit",n:["Problème écrit"],p:["Lis le problème deux fois.","Cherche la question : qu'est-ce qu'on veut savoir?","Si la quantité augmente (on reçoit, on ajoute, de plus), c'est une addition.","Si elle diminue (on donne, on perd, il reste), c'est une soustraction.","À la fin, écris une phrase-réponse."],ex:["Léa a 12 billes. On lui en donne 5. Combien en a-t-elle? 12 + 5 = 17. Elle a 17 billes."]},
  ...TB_TABLES.slice(0,8).map(T=>({t:"Astuce des tables : "+T.nom,n:["Tables : "+T.nom],p:T.ast,ex:[T.ex]}))
@@ -3114,7 +3206,9 @@ horloge:[
  {t:"Et quart, et demie, moins quart",n:["Lire l'heure"],p:["15 minutes, c'est un quart d'heure : 3 h 15, c'est 3 heures et quart.","30 minutes, c'est une demi-heure : 3 h 30, c'est 3 heures et demie.","3 h 45, c'est aussi 4 heures moins quart.","Attention : quand la grande aiguille a passé le 6, la petite aiguille est presque sur l'heure suivante. Mais c'est encore l'heure d'avant!"],v:()=>seqH([miniClock(3,15,"3 h et quart"),miniClock(3,30,"3 h et demie"),miniClock(3,45,"4 h moins quart")],"row")},
  {t:"Calculer une durée",n:["Calculer une durée"],p:["Pour trouver l'heure de fin, on avance la grande aiguille.","Si on dépasse le 12, l'heure avance de 1.","Il est 2 h 50. 20 minutes plus tard, il est 3 h 10."],v:()=>seqH([miniClock(2,50,"Début : 2 h 50"),`<div class="bigexpr">+ 20 min →</div>`,miniClock(3,10,"Fin : 3 h 10")],"row")},
  {t:"Les unités de longueur",n:["Choisir une unité"],p:["Le millimètre (mm) : pour les toutes petites choses, comme une fourmi.","Le centimètre (cm) : pour ce qu'on tient dans la main, comme un crayon.","Le mètre (m) : pour une pièce, une porte ou une cour.","Le kilomètre (km) : pour aller d'une ville à une autre."],s:["Le millimètre : pour les toutes petites choses, comme une fourmi.","Le centimètre : pour ce qu'on tient dans la main, comme un crayon.","Le mètre : pour une pièce, une porte ou une cour.","Le kilomètre : pour aller d'une ville à une autre."],v:()=>`<div class="egrid anim">${[["🐜","mm"],["✏️","cm"],["🚪","m"],["🚗","km"]].map(([e,u],i)=>`<div class="st" style="--d:${i*.5}"><span class="emo">${e}</span><b>${u}</b></div>`).join("")}</div>`},
- {t:"Convertir des longueurs",n:["Convertir des longueurs"],p:["1 cm = 10 mm.","1 dm = 10 cm.","1 m = 100 cm.","Donc 3 m = 300 cm, et 2 cm 5 mm = 25 mm."],v:()=>`<div class="anim">${ruler()}</div>`}
+ {t:"Convertir des longueurs",n:["Convertir des longueurs"],p:["1 cm = 10 mm.","1 dm = 10 cm.","1 m = 100 cm.","Donc 3 m = 300 cm, et 2 cm 5 mm = 25 mm."],v:()=>`<div class="anim">${ruler()}</div>`},
+ {t:"La capacité : litres et millilitres",n:["La capacité (L et mL)"],p:["La capacité, c'est la place qu'il y a pour un liquide dans un contenant.","On la mesure en litres (L) pour les grandes quantités, et en millilitres (mL) pour les petites.","1 litre = 1 000 millilitres.","Un carton de lait : environ 1 L. Une cuillère : environ 5 mL. Une bouteille d'eau : environ 500 mL."],v:()=>seqH([tbox("1 L","carton de lait 🥛"),tbox("500 mL","bouteille d'eau 💧"),tbox("5 mL","cuillère 🥄")],"row"),ex:["2 L = 2 000 mL.","Une demi-bouteille de 1 L, c'est 500 mL."]},
+ {t:"La masse : grammes et kilogrammes",n:["La masse (g et kg)"],p:["La masse, c'est ce que pèse un objet.","On la mesure en grammes (g) pour les objets légers, et en kilogrammes (kg) pour les objets lourds.","1 kilogramme = 1 000 grammes.","Une pomme : environ 150 g. Un sac de farine : environ 2 kg. Toi : environ 25 kg!"],v:()=>seqH([tbox("150 g","une pomme 🍎"),tbox("2 kg","sac de farine 🎒"),tbox("1 kg","= 1 000 g ⚖️")],"row"),ex:["3 kg = 3 000 g.","500 g + 500 g = 1 000 g = 1 kg."]}
 ],
 grotte:[
  {t:"Les figures planes",n:["Figures planes","Côtés","Dessiner des figures"],p:["Une figure plane est toute plate, comme un dessin sur une feuille.","Un côté est un trait droit. Un sommet est un coin, là où deux côtés se rencontrent.","Le triangle a 3 côtés. Le carré et le rectangle en ont 4. Le cercle n'a pas de côté."],v:()=>seqH(["triangle","carré","rectangle","cercle"].map(shapeFig),"row")},
@@ -3263,7 +3357,7 @@ function closeLessons(){SEQ++;if(TTS)try{TTS.cancel()}catch(e){}const o=$("#les-
 function renderLes(){const box=$("#les-in");if(!box||!LES)return;SEQ++;if(TTS)try{TTS.cancel()}catch(e){}
   const S0=SUBJ[LES.subj];
   if(!LES.zone){const zs=zones(LES.subj).filter(z=>zoneLessons(z.id).length);
-    box.innerHTML=`<div class="les-top"><span class="gtitle">Les notions · ${S0.nom}</span><button class="listen" id="l-close">Fermer</button></div><p class="les-intro">Choisis une zone pour revoir ses notions. Chaque notion est expliquée pas à pas, avec la voix.</p><div class="zlist">${zs.map(z=>`<button class="zbtn" data-z="${z.id}" style="--c:var(${z.c})"><span class="zdot"></span><span class="zname">${z.nom}</span><span class="zcount">${zoneLessons(z.id).length} notion${zoneLessons(z.id).length>1?"s":""}</span></button>`).join("")}</div>`;
+    box.innerHTML=`<div class="les-top"><span class="gtitle">Notions et compétences · ${S0.nom}</span><button class="listen" id="l-close">Fermer</button></div><p class="les-intro">Toutes les notions du programme de 3e année, zone par zone. Chaque notion est expliquée pas à pas, avec la voix.</p><div class="zlist">${zs.map(z=>`<button class="zbtn" data-z="${z.id}" style="--c:var(${z.c})"><span class="zdot"></span><span class="zname">${z.nom}</span><span class="zcount">${zoneLessons(z.id).length} notion${zoneLessons(z.id).length>1?"s":""}</span></button>`).join("")}</div>`;
     box.querySelector("#l-close").onclick=closeLessons;box.querySelectorAll("[data-z]").forEach(b=>b.onclick=()=>{LES.zone=b.dataset.z;LES.i=0;renderLes()});box.scrollTop=0;return}
   const z=byId(LES.zone),L=zoneLessons(LES.zone),c=L[LES.i],last=LES.i===L.length-1,vis=typeof c.v==="function"?c.v():(c.v||"");
   box.style.setProperty("--c",`var(${z.c})`);
@@ -4576,7 +4670,7 @@ const PFEQ_MAP={francais:[
  maths:[
   ["Arithmétique",[["Nombres naturels (valeur de position, comparer)",["port"],"Lire et comparer les nombres"],["Fractions",["baie"],"Les fractions"],["Addition et soustraction (faits et calcul)",["foret","tables"],"Additions et soustractions · Tables"],["Calcul écrit en colonnes (retenue, emprunt)",["col"],"Calcul en colonnes"],["Multiplication et division (sens et tables)",["volcan","mtables"],"Multiplications et divisions · Tables ×"],["Nombres décimaux (dixièmes, centièmes)",null,"pas encore dans l'app (souvent en 4e année)"]]],
   ["Résoudre une situation-problème",[["Problèmes à plusieurs étapes",["prob"],"Problèmes à plusieurs étapes"]]],
-  ["Géométrie et mesure",[["Figures, quadrilatères, solides",["grotte"],"Les figures et les solides"],["Temps et longueur",["horloge"],"L'heure et les mesures"],["Périmètre et aire",["horloge|Le périmètre","horloge|L'aire","horloge|Périmètre ou aire?"],"L'heure et les mesures"],["Capacité et masse",null,"pas encore dans l'app"]]],
+  ["Géométrie et mesure",[["Figures, quadrilatères, solides",["grotte"],"Les figures et les solides"],["Temps et longueur",["horloge"],"L'heure et les mesures"],["Périmètre et aire",["horloge|Le périmètre","horloge|L'aire","horloge|Périmètre ou aire?"],"L'heure et les mesures"],["Capacité (L, mL) et masse (g, kg)",["horloge|La capacité (L et mL)","horloge|La masse (g et kg)"],"L'heure et les mesures"]]],
   ["Statistique et probabilité",[["Diagrammes, certain / possible / impossible",["phare"],"Diagrammes et probabilités"]]]],
  anglais:[
   ["Interagir oralement",[["Comprendre et répondre à l'oral",["en_listen","en_talk"],"Écouter et comprendre · Petites conversations"],["Lire à voix haute",["oral|en"],"Lire à voix haute en anglais"]]],
@@ -4677,7 +4771,7 @@ function colKeys(on){if(CL_KEYH){window.removeEventListener("keydown",CL_KEYH);C
 const COL_AST=["J'aligne les chiffres : unités sous les unités, dizaines sous les dizaines.","Je commence toujours par la colonne des unités, à droite.","Addition : si une colonne fait 10 ou plus, j'écris les unités et je retiens 1 dans la colonne suivante.","Soustraction : si le chiffre du haut est plus petit, j'emprunte 1 dizaine à la colonne de gauche."];
 function colIntro(){const el=$("#ecran-jeu"),L=CL.L;el.style.setProperty("--c","var(--i5)");
   el.innerHTML=colBar()+`<div class="card pop tbcard" style="--c:var(--i5)"><div class="notion">Niveau ${L} · ${L===1?"guidé, 2 chiffres":L===2?"guidé, 3 chiffres":"seule, 4 chiffres"}</div><h2 class="tbh">🧮 Calcul en colonnes</h2>
-   <div class="tbast"><b>À retenir</b>${COL_AST.map(x=>`<p>${esc(x)}</p>`).join("")}</div>${colGrid({a:47,b:28,op:"+",r:75},{res:{0:5,1:7},carry:{1:1},cur:-1})}
+   <div class="tbast"><b>À retenir</b>${COL_AST.map(x=>`<p>${esc(x)}</p>`).join("")}</div>${caAnim()}
    <div class="row-btns">${TTS?`<button class="listen" id="cl-say">${SPK}Écouter</button>`:""}<button class="btn" id="cl-go">Commencer</button></div></div>`;
   colBack();go("jeu");const sy=$("#cl-say");if(sy)sy.onclick=()=>{FORCEV=true;speakSeq(COL_AST.map(x=>[x,"fr"]),()=>{FORCEV=false})};
   $("#cl-go").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}CL.started=true;colKeys(true);colNext()}}
@@ -4849,7 +4943,7 @@ function cjQ(u,rev){if(u.gen)return u.gen(rev);const v=pick(u.verbs),kind=Math.r
     return{notion:u.nom,key:"conj|"+u.id,rev,prompt:`Quel pronom va avec le verbe ?<br><span class="cjbig">___ ${form}</span>`,say:`Quel pronom va avec ${form} ?`,choices:ch,answer:CJ_PR[p],
       explain:`On écrit « ${CJ_PR[p]} ${form} ». Verbe ${v.inf} : ${v.f.map((f,i)=>(i===0&&cjVowel(f)?"j'":CJ_PR[i]+" ")+f).join(", ")}.`,table:cjTable(v,p)}}
   const p=Math.floor(Math.random()*6),form=v.f[p],c=pick(v.c);
-  const subj=p===0?(cjVowel(form)?"J'":"Je"):p===1?"Tu":p===2?pick(["Il","Elle","On","Léa","Mon chien"]):p===3?pick(["Nous","Nous"]):p===4?"Vous":pick(["Ils","Elles","Les enfants","Mes amis"]);
+  const subj=p===0?(cjVowel(form)?"J'":"Je"):p===1?"Tu":p===2?pick(["Il","Elle","On","Léa","Mon ami"]):p===3?pick(["Nous","Nous"]):p===4?"Vous":pick(["Ils","Elles","Les enfants","Mes amis"]);
   const others=shuffle([...new Set(v.f.filter(f=>f!==form))]),errs=(u.err?u.err(v):[]).filter(f=>f!==form&&!v.f.includes(f));
   const pool=(errs.length&&Math.random()<.5?[pick(errs),...others]:others).slice(0,3);
   const ch=shuffle([form,...pool]);
@@ -5031,7 +5125,7 @@ function dContentHTML(){const L=dSorted(),cur=dCurList(),dn=dayNum();
   const rows=L.map((l,i)=>dRowHTML(l,i,L.length,cur,dn)),past=L.filter(l=>l.start<=dn&&!(cur&&l.id===cur.id)).length;
   const words=Object.keys(dLists().by).length;
   return pcard("Listes de dictée",`${L.length} liste${L.length>1?"s":""}, ${words} mots. Le jeu passe tout seul à la liste suivante à sa date de début. ▲ ▼ échangent deux listes (les numéros et les dates restent en place).`,
-    dAlignHTML(L,cur)+acts+(past?`<details class="dlpast"><summary>Semaines passées (${past})</summary><div class="dllist">${rows.slice(0,past).join("")}</div></details>`:"")+`<div class="dllist">${rows.slice(past).join("")}</div>`)}
+    dAlignHTML(L,cur)+acts+(past?`<details class="dlpast"><summary>Semaines passées (${past})</summary><div class="dllist">${rows.slice(0,past).join("")}</div></details>`:"")+`<div class="dllist">${rows.slice(past,past+2).join("")}</div>`+(rows.length>past+2?`<details class="dlpast"><summary>Semaines à venir (${rows.length-past-2})</summary><div class="dllist">${rows.slice(past+2).join("")}</div></details>`:""))}
 function undoToast(msg,undo){const old=$(".utoast");if(old)old.remove();
   const t=document.createElement("div");t.className="utoast";t.setAttribute("role","status");t.innerHTML=`<span>${msg}</span><button class="btn">Annuler</button>`;document.body.appendChild(t);
   const tm=setTimeout(()=>t.remove(),15000);t.querySelector("button").onclick=()=>{clearTimeout(tm);t.remove();undo()}}
@@ -5966,7 +6060,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261110-222415";
+const APP_VER="20261111-020103";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
