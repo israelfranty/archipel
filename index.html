@@ -2536,9 +2536,9 @@ function renderQ(){
     const inp=$("#tin");A.querySelectorAll(".acck").forEach(b=>b.onpointerdown=ev=>{ev.preventDefault();const s0=inp.selectionStart??inp.value.length,en=inp.selectionEnd??s0;inp.value=inp.value.slice(0,s0)+b.dataset.a+inp.value.slice(en);inp.focus();inp.setSelectionRange(s0+1,s0+1)});
     $("#t-form").addEventListener("submit",ev=>{ev.preventDefault();const v=inp.value;if(!v.trim()){inp.focus();return}const A0=tnorm(q.answer),A1=A0.replace(PRORX,""),V=tnorm(v),good=V===A0||(A1!==A0&&V===A1),near=!good&&(tbare(v)===tbare(q.answer)||tbare(v)===tbare(A1));
       if(q.spell&&!good&&!q.tried){q.tried=1;tone([[440,.1],[392,.14]]);$("#fb").innerHTML=`<div class="feedback warnfb pop" role="status"><h3>Oups! Petite erreur.</h3><p>Regarde bien chaque lettre et corrige ton mot. Tu as encore une chance.</p></div>`;
-        speak("Oups! Regarde bien chaque lettre et corrige ton mot.");inp.focus({preventScroll:true});return}
+        speak("Oups! Regarde bien chaque lettre et trouve l'erreur dans ton mot.");inp.focus({preventScroll:true});return}
       answer(good?q.answer:v);
-      if(q.spell&&good&&q.tried)spellStep(q.answer,q.lang,$("#b-cont"),"Bravo, tu l'as corrigé!");
+      if(q.spell&&good&&q.tried)spellStep(q.answer,q.lang,$("#b-cont"),"Bravo, c'est bien écrit maintenant!");
       if(q.spell&&!good){const c=$("#b-cont"),fb=$("#fb .feedback");if(c&&fb){c.style.display="none";
         c.insertAdjacentHTML("beforebegin",`<form id="sp-fix" class="dform" autocomplete="off"><label for="sp-in"><b>Recopie le mot pour bien le retenir :</b></label><input id="sp-in" class="din" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" lang="${q.lang==="en"?"en":"fr"}"><button class="btn" type="submit">Vérifier</button><p id="sp-msg" aria-live="polite"></p></form>`);
         const fi=$("#sp-in");setTimeout(()=>fi.focus({preventScroll:true}),400);
@@ -3770,7 +3770,7 @@ function dCheck(val){const C=DC.cur,{e}=C,it=C.it,ok=dOk(val,e.w);if(C.phase!=="
   if(!ok&&!C.second&&it.mode!=="retry"){C.second=true;const inp=$("#d-in");tone([[440,.1],[392,.14]]);
     $("#fb").innerHTML=`<div class="feedback warnfb pop" role="status"><h3>Oups! Petite erreur.</h3><p>Relis bien ton mot, lettre par lettre, et corrige-le. Tu as encore une chance : ça ne compte pas encore comme une faute.</p></div>`;
     inp.focus({preventScroll:true});const L=inp.value.length;try{inp.setSelectionRange(L,L)}catch(_){}
-    speak("Oups! Il y a une petite erreur. Relis ton mot et corrige-le. Tu as encore une chance.");$("#fb").scrollIntoView({behavior:"smooth",block:"nearest"});return}
+    speak("Oups! Il y a une petite erreur. Relis ton mot, lettre par lettre, et trouve l'erreur. Tu as encore une chance.");$("#fb").scrollIntoView({behavior:"smooth",block:"nearest"});return}
   C.phase="done";
   const firstTime=it.mode!=="retry"&&!(it.w in DC.first);
   if(firstTime){DC.first[it.w]=ok;dRecord(it,ok);if(ok)DC.ok++}
@@ -3781,7 +3781,7 @@ function dCheck(val){const C=DC.cur,{e}=C,it=C.it,ok=dOk(val,e.w);if(C.phase!=="
   tone(ok?[[660,.1],[880,.16]]:[[300,.18]]);
   if(ok){const x=DS().bank[it.w]||{};const next=x.due-dayNum();
     $("#fb").innerHTML=`<div class="feedback good pop"><h3>${pick(["Bravo!","Parfait!","Tu l'as!","Bien écrit!"])}</h3><p>${it.mode==="new"?"Super! Ce mot reviendra demain pour bien rester dans ta mémoire.":it.mode==="retry"?"Cette fois, c'est la bonne!":x.b>=DMAST&&firstTime?"Ce mot est maintenant bien rangé dans ta mémoire!":firstTime&&it.mode==="rev"?`Ce mot reviendra dans ${next} jour${next>1?"s":""}.`:"Bien joué!"}</p>${e.d&&it.mode!=="new"?dDefBtn():""}<button class="btn" id="b-cont">${DC.i>=DC.list.length-1?"Voir mon résultat":"Mot suivant"}</button></div>`;bindDef(e);
-    if(C.second||it.mode==="retry")spellStep(e.w,"fr",$("#b-cont"),"Bravo, tu l'as corrigé!");else speak(pick(["Bravo!","Parfait!","Bien écrit!"]))}
+    if(C.second||it.mode==="retry")spellStep(e.w,"fr",$("#b-cont"),"Bravo, c'est bien écrit maintenant!");else speak(pick(["Bravo!","Parfait!","Bien écrit!"]))}
   else{const df=dDiff(val,e.w);
     if(it.mode!=="retry"&&!DC.retried.has(it.w)){DC.retried.add(it.w);DC.list.push({w:it.w,mode:"retry"})}
     $("#fb").innerHTML=`<div class="feedback bad pop"><h3>Presque!</h3><div class="dcmp"><div><small>Tu as écrit</small><span class="dword sm">${df.you}</span></div><div><small>On écrit</small><span class="dword sm">${df.good}</span></div></div>
@@ -5936,7 +5936,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261110-214210";
+const APP_VER="20261110-214529";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
