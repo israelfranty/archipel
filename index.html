@@ -1318,6 +1318,9 @@ function frSay(t){return String(t)
   .replace(/(^|[\s(«"“:,;])-([a-zàâçéèêîôû]{1,7})-?(?=$|[\s,.;:!?)»"”])/gi,(m,a,w)=>a+frSpell(w))
   .replace(/(^|[^\p{L}'’-])((?:[a-zàâçéèêîôû]-){1,9}[a-zàâçéèêîôû])(?![\p{L}-])/gu,(m,a,w)=>a+frSpell(w.replace(/-/g,"")))
   .replace(/\s\/\s/g," ou ")}
+/* Île anglaise : dès qu'on est dans l'anglais, la voix parle anglais (consignes, réponses, encouragements). */
+const isENq=q=>!!q&&(q.lang==="en"||/^en_/.test(q.isl||""));
+const enLetters=w=>String(w).replace(/[^A-Za-z]/g,"").toUpperCase().split("").join(", ");
 function speakSeq(list,onend){const id=++SEQ;let i=0;const nxt=()=>{if(id!==SEQ){onend&&onend();onend=null;return}if(i>=list.length){onend&&onend();return}const x=list[i++];if(typeof x==="number"){setTimeout(nxt,x);return}if(typeof x==="function"){try{x()}catch(e){}nxt();return}const [t,l,r]=x;speak(t,nxt,l,r,id)};nxt()}
 const VLOG=[];const vlog=m=>{VLOG.push(m);if(VLOG.length>6)VLOG.shift();const el=$("#p-vdiag");if(el)el.textContent=VLOG.join(" · ")};
 function speak(text,onend,lang,rate,sid){
@@ -2088,14 +2091,14 @@ francais(L,zone){
 anglais(L,zone){
   const t=zone||pick(["en_spell","en_spell","en_words","en_build","en_talk","en_verbs"]);
   if(t==="en_spell"){const [w,fr]=pick(SPELL.slice(0,L===1?12:SPELL.length));
-    return{isl:"en_spell",lang:"en",notion:"Write the word",prompt:`Écris en anglais le mot que tu entends (« ${fr} »).`,say:w,dictee:w,reveal:`<div class="phrase" lang="en">${w}</div>`,rep:w,answer:"ok",explain:`On écrit « ${w} » : ${w.toUpperCase().split("").join("-")}.`}}
+    return{isl:"en_spell",lang:"en",notion:"Write the word",prompt:`Write the English word you hear (« ${fr} »).`,say:w,dictee:w,reveal:`<div class="phrase" lang="en">${w}</div>`,rep:w,answer:"ok",explain:`On écrit « ${w} » : ${w.toUpperCase().split("").join("-")}.`}}
   if(t==="en_words"){const n=R(1,L===1?10:20);
-    return{isl:"en_words",notion:"Write the number",prompt:`Écris en anglais, en lettres : <b>${n}</b>`,reveal:`<div class="phrase" lang="en">${NUMS[n]}</div>`,rep:NUMS[n],answer:"ok",explain:`${n} s'écrit « ${NUMS[n]} ».`}}
+    return{isl:"en_words",lang:"en",notion:"Write the number",prompt:`Write this number in English, in letters: <b>${n}</b>`,say:"Write this number in English, in letters.",reveal:`<div class="phrase" lang="en">${NUMS[n]}</div>`,rep:NUMS[n],answer:"ok",explain:`${n} s'écrit « ${NUMS[n]} ».`}}
   if(t==="en_build"){const [nw,nfr]=pick([["ball","un ballon"],["car","une voiture"],["dog","un chien"],["book","un livre"]]),[cw,cfr]=pick(COLS.slice(0,4)),fem=nfr.startsWith("une");
-    return{isl:"en_build",notion:"Write in English",prompt:`Écris en anglais : <b>${nfr} ${fem&&!/e$/.test(cfr)?cfr+"e":cfr}</b>`,reveal:`<div class="phrase" lang="en">a ${cw} ${nw}</div>`,rep:`a ${cw} ${nw}`,answer:"ok",explain:"En anglais, la couleur va avant le nom."}}
+    return{isl:"en_build",lang:"en",notion:"Write in English",prompt:`Write it in English: <b>${nfr} ${fem&&!/e$/.test(cfr)?cfr+"e":cfr}</b>`,say:"Write it in English.",reveal:`<div class="phrase" lang="en">a ${cw} ${nw}</div>`,rep:`a ${cw} ${nw}`,answer:"ok",explain:"En anglais, la couleur va avant le nom."}}
   if(t==="en_talk")return{isl:"en_talk",lang:"en",notion:"Write your answer",prompt:"Write your answer: <b>What's your name?</b>",say:"What's your name?",reveal:`<div class="phrase" lang="en">My name is ${esc(S.name||"…")}.</div>`,rep:`My name is ${S.name||"Olivia"}.`,answer:"ok",explain:"Une majuscule à « My » et à ton prénom, un point à la fin."};
   const [b,ing,e,fr]=pick(VERBS),who=pick(["She","He"]);
-  return{isl:"en_verbs",notion:"Draw and write",prompt:`Dessine quelqu'un qui est en train de <b>${fr}</b>, puis écris la phrase en anglais.`,reveal:`<div class="bigemo">${EMO(e)}</div><div class="phrase" lang="en">${who} is ${ing}.</div>`,rep:`${who} is ${ing}.`,answer:"ok",explain:`« ${who} is ${ing} » : ${who==="She"?"elle":"il"} est en train de ${fr}.`}
+  return{isl:"en_verbs",lang:"en",notion:"Draw and write",prompt:`Draw someone doing this: <b>${fr}</b>. Then write the sentence in English.`,say:"Draw someone doing this action. Then write the sentence in English.",reveal:`<div class="bigemo">${EMO(e)}</div><div class="phrase" lang="en">${who} is ${ing}.</div>`,rep:`${who} is ${ing}.`,answer:"ok",explain:`« ${who} is ${ing} » : ${who==="She"?"elle":"il"} est en train de ${fr}.`}
 }};
 const boardFor=(subj,L,zone)=>{const q=BOARD[subj](L,zone);q.kind="board";q.choices=[];return q};
 /* ---------- Mots de la semaine (listes de l'école, entrées par le parent) ---------- */
@@ -2144,7 +2147,7 @@ const WEEK_ISL=[
  BOARD.francais=(L,zone)=>{const ws=weekFR();if(ws.length&&(zone==="fr_week"||(zone==="orthographe"&&Math.random()<.5))){const pk=shuffle(ws).slice(0,Math.min(ws.length,L===1?3:4));
    return{isl:zone==="orthographe"?"orthographe":"fr_week",notion:zone==="orthographe"?"Dictée de mots":"Mots de la semaine",words:pk,prompt:`Dictée de ta liste au tableau : écris les ${pk.length} mots que tu entends, un à la fois.`,say:pk.join(". … ")+".",dictee:pk.join(", "),reveal:`<div class="phrase">${pk.join("<br>")}</div>`,answer:"ok",explain:"Pour chaque mot mal écrit, recopie-le trois fois au tableau."}}return b1(L,zone==="fr_week"?"orthographe":zone)};
  BOARD.anglais=(L,zone)=>{const ws=weekEN();if(ws.length&&(zone==="en_week"||(zone==="en_spell"&&Math.random()<.5))){const pk=shuffle(ws).slice(0,Math.min(ws.length,3));
-   return{isl:zone==="en_spell"?"en_spell":"en_week",lang:"en",notion:zone==="en_spell"?"Write the word":"Words of the week",words:pk.map(x=>x.w),prompt:`Au tableau : écris en anglais les ${pk.length} mots que tu entends, un à la fois.`,say:pk.map(x=>x.w).join(". … ")+".",dictee:pk.map(x=>x.w+(x.fr?` (${x.fr})`:"")).join(", "),reveal:`<div class="phrase" lang="en">${pk.map(x=>x.w).join("<br>")}</div>`,rep:pk.map(x=>x.w).join(", "),answer:"ok",explain:"Pour chaque mot mal écrit, recopie-le trois fois au tableau."}}return b2(L,zone==="en_week"?"en_spell":zone)};}
+   return{isl:zone==="en_spell"?"en_spell":"en_week",lang:"en",notion:zone==="en_spell"?"Write the word":"Words of the week",words:pk.map(x=>x.w),prompt:`At the board: write the ${pk.length} English words you hear, one at a time.`,say:pk.map(x=>x.w).join(". … ")+".",dictee:pk.map(x=>x.w+(x.fr?` (${x.fr})`:"")).join(", "),reveal:`<div class="phrase" lang="en">${pk.map(x=>x.w).join("<br>")}</div>`,rep:pk.map(x=>x.w).join(", "),answer:"ok",explain:"Pour chaque mot mal écrit, recopie-le trois fois au tableau."}}return b2(L,zone==="en_week"?"en_spell":zone)};}
 ISL.unshift(...WEEK_ISL);
 
 /* ---------- Compagnon ---------- */
@@ -2445,12 +2448,12 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden){HID=perfor
 const headOf=()=>G.id==="defi"?{nom:"Révision mélangée",c:"--sun"}:G.id==="tableau"?{nom:"Défis au tableau",c:"--i2"}:byId(G.id);
 function showNewWords(nw,then){const o=envS(),el=$("#ecran-jeu"),z=byId("en_words");el.style.setProperty("--c",`var(${z.c})`);
   el.innerHTML=`<div class="gamebar"><button class="back" id="b-retour">← ${SUBJ.anglais.nom}</button><span class="gtitle">${z.nom}</span><span class="levelchip">${o.on.length} mots</span></div>
-  <div class="card pop wex" style="--c:var(${z.c})"><div class="cardtop"><div class="notion">${nw.length>1?"Nouveaux mots":"Nouveau mot"}</div>${canSpeak()?`<span class="cardbtns"><button class="listen" id="nw-say">${SPK}Réécouter</button></span>`:""}</div>
-  <p class="wex-h">Regarde l'image, écoute le mot et répète-le. Puis <b>épelle chaque mot à voix haute</b>, lettre par lettre.</p>
+  <div class="card pop wex" style="--c:var(${z.c})"><div class="cardtop"><div class="notion">${nw.length>1?"New words":"New word"}</div>${canSpeak()?`<span class="cardbtns"><button class="listen" id="nw-say">${SPK}Listen again</button></span>`:""}</div>
+  <p class="wex-h">Look at the picture, listen to the word and say it. Then <b>spell each word out loud</b>, letter by letter.</p>
   <div id="l-vis">${egrid(nw.map(v=>[v[1],v[0]]))}</div>
   <div class="nwfr">${nw.map(v=>`<p><b lang="en">${v[0]}</b> : ${v[2]}</p><div class="spword nwsp" lang="en" aria-hidden="true">${[...v[0]].map(c=>c===" "?`<i class="sp"></i>`:`<span>${esc(c)}</span>`).join("")}</div>`).join("")}</div>
-  <div class="row-btns"><button class="btn" id="b-cont">${nw.length>1?"J'ai épelé les mots, on joue!":"J'ai épelé le mot, on joue!"}</button></div></div>`;
-  const seq=()=>lesSync([[nw.length>1?"Voici tes nouveaux mots.":"Voici ton nouveau mot.","fr"],400,...nw.flatMap(v=>[[v[0],"en",.7],500,[v[2],"fr"],700]),[nw.length>1?"Maintenant, épelle chaque mot à voix haute, lettre par lettre. Quand tu as fini, touche le bouton pour jouer.":"Maintenant, épelle le mot à voix haute, lettre par lettre. Quand tu as fini, touche le bouton pour jouer.","fr"]]);
+  <div class="row-btns"><button class="btn" id="b-cont">${nw.length>1?"I spelled the words, let's play!":"I spelled the word, let's play!"}</button></div></div>`;
+  const seq=()=>lesSync([[nw.length>1?"Here are your new words.":"Here is your new word.","en"],400,...nw.flatMap(v=>[[v[0],"en",.7],900]),[nw.length>1?"Now spell each word out loud, letter by letter. When you're done, tap the button to play.":"Now spell the word out loud, letter by letter. When you're done, tap the button to play.","en"]]);
   const sb=$("#nw-say");if(sb)sb.onclick=()=>speakSeq(seq());
   $("#b-retour").onclick=()=>{SEQ++;G=null;renderCarte();go("carte")};
   $("#b-cont").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}nw.forEach(v=>o.seen[v[0]]=1);save();then()};
@@ -2479,22 +2482,22 @@ function needEx(q){if(!q||q.kind==="board"||G.id==="tableau"||(G.exn||0)>=3)retu
 function exampleFor(q){for(let n=0;n<14;n++){const L=n<10?IS(q.isl).level:1+(n%3),e=GEN[q.isl](L);e.isl=q.isl;if(e.notion===q.notion&&e.kind!=="board"&&e.prompt+(e.visual||"")!==q.prompt+(q.visual||""))return e}return null}
 const fillEx=(h,a)=>String(h).replace(/<span class="(box|blank)"[^>]*><\/span>/g,`<span class="wexfill">${a}</span>`);
 function showExample(ex,q){const k=nkey(q);(S.wex||(S.wex={}))[k]=1;save();G.exn=(G.exn||0)+1;G.done=true;G.q=q;
-  const isl=byId(q.isl),head=headOf(),el=$("#ecran-jeu"),EN=ex.lang==="en",ans=ex.disp?ex.disp[ex.answer]:show(ex.answer);
+  const isl=byId(q.isl),head=headOf(),el=$("#ecran-jeu"),EN=isENq(ex),ans=ex.disp?ex.disp[ex.answer]:show(ex.answer);
   el.style.setProperty("--c",`var(${head.c})`);
   el.innerHTML=`<div class="gamebar"><button class="back" id="b-retour">← ${SUBJ[G.subj].nom}</button><span class="gtitle">${head.nom}</span><span class="levelchip">Niveau ${IS(q.isl).level}</span></div>
   <div class="card pop wex" style="--c:var(${isl.c})"><div class="cardtop"><div class="notion">Nouvelle notion : ${q.notion}</div>${canSpeak()?`<span class="cardbtns"><button class="listen" id="b-listen">${SPK}Réécouter</button></span>`:""}</div>
-  <p class="wex-h">Regarde d'abord un exemple résolu.</p>
+  <p class="wex-h">${EN?"First, look at an example.":"Regarde d'abord un exemple résolu."}</p>
   <div class="wex-q"><p class="prompt"${EN?' lang="en"':""}>${fillEx(ex.prompt,ans)}</p><div class="visual">${fillEx(ex.visual||"",ans)}</div></div>
-  <div class="wex-a"><span class="wex-l">La réponse</span><b${EN?' lang="en"':""}>${ans}</b></div>
+  <div class="wex-a"><span class="wex-l">${EN?"The answer":"La réponse"}</span><b${EN?' lang="en"':""}>${ans}</b></div>
   <div class="wex-w"><span class="wex-l">Pourquoi</span><p>${ex.explain}</p></div>
-  <div class="row-btns"><button class="btn" id="b-cont">J'ai compris, à moi!</button></div></div>`;
+  <div class="row-btns"><button class="btn" id="b-cont">${EN?"I got it, my turn!":"J'ai compris, à moi!"}</button></div></div>`;
   el.querySelectorAll(".wex-q button,.wex-q input").forEach(b=>{if(!b.dataset.say)b.disabled=true});
   el.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say,null,"en"));
   $("#b-retour").onclick=()=>{G=null;renderCarte();go("carte")};
   $("#b-cont").onclick=()=>{if(!G)return;G.done=false;renderQ()};
   go("jeu");$("#b-cont").focus({preventScroll:true});
   const say=()=>{if(!canSpeak())return;const pr=el.querySelector(".wex-q .prompt"),pt=ex.say?(EN?ex.say:normSay(ex.say)):nodeSay(pr);
-    speakSeq([["Nouvelle notion. Regarde d'abord un exemple.","fr"],[pt,EN?"en":"fr"],["La réponse est :","fr"],[EN?(ex.rep||String(ex.answer)):sayAns(ex.answer),EN?"en":"fr"],[normSay(ex.explain),"fr"]])};
+    speakSeq(EN?[["New lesson. First, look at an example.","en"],[pt,"en"],["The answer is:","en"],[ex.rep||String(ex.answer),"en",.72]]:[["Nouvelle notion. Regarde d'abord un exemple.","fr"],[pt,"fr"],["La réponse est :","fr"],[sayAns(ex.answer),"fr"],[normSay(ex.explain),"fr"]])};
   const bl=$("#b-listen");if(bl)bl.onclick=say;say()}
 function next(){
   let q,tries=0;
@@ -2520,7 +2523,7 @@ function renderQ(){
   el.innerHTML=`<div class="gamebar"><button class="back" id="b-retour">← ${SUBJ[G.subj].nom}</button><span class="gtitle">${head.nom}</span><span class="levelchip">Niveau ${IS(q.isl).level}</span></div>
   <div class="dots" aria-label="Question ${G.i+1} sur ${G.n}">${Array.from({length:G.n},(_,i)=>`<span class="${i<G.i?(G.res[i]?"ok":"ko"):i===G.i?"now":""}"></span>`).join("")}</div>
   <div class="timerow" id="trow">${BOLT}<div class="fuse"><i id="fuse"></i></div><span id="tlabel"></span></div>
-  <div class="card pop" style="--c:var(${isl.c})"><div class="cardtop"><div class="notion">${q.notion}</div><span class="cardbtns">${q.fr?`<button class="listen" id="b-help" aria-expanded="false">Aide</button>`:""}${canSpeak()?`<button class="listen" id="b-listen">${SPK}Réécouter</button>`:""}</span></div><p class="prompt"${q.lang==="en"?' lang="en"':""}>${q.prompt}</p>${q.fr?`<p class="help" id="q-help" hidden>${q.fr}</p>`:""}<div class="visual">${q.visual||""}</div><div id="answer"></div><div id="fb"></div></div>`;
+  <div class="card pop" style="--c:var(${isl.c})"><div class="cardtop"><div class="notion">${q.notion}</div><span class="cardbtns">${q.fr?`<button class="listen" id="b-help" aria-expanded="false">${isENq(q)?"Help":"Aide"}</button>`:""}${canSpeak()?`<button class="listen" id="b-listen">${SPK}${isENq(q)?"Listen again":"Réécouter"}</button>`:""}</span></div><p class="prompt"${q.lang==="en"?' lang="en"':""}>${q.prompt}</p>${q.fr?`<p class="help" id="q-help" hidden>${q.fr}</p>`:""}<div class="visual">${q.visual||""}</div><div id="answer"></div><div id="fb"></div></div>`;
   $("#b-retour").onclick=()=>{G=null;renderCarte();go("carte")};
   const A=$("#answer");
   if(typeOK(q)&&!q.notype){const L=IS(q.isl).level;if(L>=3||(L===2&&Math.random()<.5)){
@@ -2528,44 +2531,45 @@ function renderQ(){
       const pickQ=/bien écrit\?$|spelled right\?$/.test(q.prompt);
       if(pickQ&&!canSpeak())q.notype=1;
       else{if(pickQ){const EN=q.lang==="en",w=String(q.answer);q.spell=true;q.prompt=EN?"Listen and write the word.":"Écoute le mot et écris-le.";q.say=EN?w:`Écris le mot : ${w}.`;if(EN)q.fr="Écoute le mot et écris-le en anglais."}
-        else{/* Les consignes « choisis / touche » deviennent « écris » quand on tape la réponse */const sw=t=>String(t||"").replace(/^Choisis /,"Écris ").replace(/^Touche /,"Écris ").replace(/^Listen and touch /,"Listen and write ").replace(/^Écoute et touche /,"Écoute et écris ");q.prompt=sw(q.prompt);if(q.say)q.say=sw(q.say);if(q.fr)q.fr=sw(q.fr)}
+        else{if(isENq(q)&&/^[A-Za-z]+$/.test(String(q.answer)))q.spell=true;/* Les consignes « choisis / touche » deviennent « écris » quand on tape la réponse */const sw=t=>String(t||"").replace(/^Choisis /,"Écris ").replace(/^Touche /,"Écris ").replace(/^Listen and touch /,"Listen and write ").replace(/^Écoute et touche /,"Écoute et écris ");q.prompt=sw(q.prompt);if(q.say)q.say=sw(q.say);if(q.fr)q.fr=sw(q.fr)}
         const pe=el.querySelector(".prompt");if(pe)pe.innerHTML=q.prompt;const he=el.querySelector("#q-help");if(he)he.textContent=q.fr||"";q.kind="text"}}
     else q.notype=1}
   if(q.kind==="text"){const EN=q.lang==="en";A.innerHTML=`<form id="t-form" class="dform tform" autocomplete="off"><input id="tin" class="din" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" lang="${EN?"en":"fr"}" aria-label="Écris ta réponse ici" placeholder="${EN?"Write your answer":PRORX.test(tnorm(q.answer))?"Écris le verbe conjugué":"Écris ta réponse"}" enterkeyhint="done">
     ${EN?"":`<div class="acc">${DACC.map(a=>`<button type="button" class="acck" data-a="${a}">${a}</button>`).join("")}</div>`}<button class="btn" type="submit">Valider</button></form>`;
     const inp=$("#tin");A.querySelectorAll(".acck").forEach(b=>b.onpointerdown=ev=>{ev.preventDefault();const s0=inp.selectionStart??inp.value.length,en=inp.selectionEnd??s0;inp.value=inp.value.slice(0,s0)+b.dataset.a+inp.value.slice(en);inp.focus();inp.setSelectionRange(s0+1,s0+1)});
     $("#t-form").addEventListener("submit",ev=>{ev.preventDefault();const v=inp.value;if(!v.trim()){inp.focus();return}const A0=tnorm(q.answer),A1=A0.replace(PRORX,""),V=tnorm(v),good=V===A0||(A1!==A0&&V===A1),near=!good&&(tbare(v)===tbare(q.answer)||tbare(v)===tbare(A1));
-      if(q.spell&&!good&&!q.tried){q.tried=1;tone([[440,.1],[392,.14]]);$("#fb").innerHTML=`<div class="feedback warnfb pop" role="status"><h3>Oups! Petite erreur.</h3><p>Regarde bien chaque lettre et corrige ton mot. Tu as encore une chance.</p></div>`;
-        speak("Oups! Regarde bien chaque lettre et trouve l'erreur dans ton mot.");inp.focus({preventScroll:true});return}
+      if(q.spell&&!good&&!q.tried){q.tried=1;tone([[440,.1],[392,.14]]);const EN=isENq(q);$("#fb").innerHTML=`<div class="feedback warnfb pop" role="status"><h3>${EN?"Oops! Small mistake.":"Oups! Petite erreur."}</h3><p>${EN?"Look at each letter and fix your word. You have one more try.":"Regarde bien chaque lettre et corrige ton mot. Tu as encore une chance."}</p></div>`;
+        EN?speak("Oops! Small mistake. Look at each letter and fix your word. You have one more try.",null,"en"):speak("Oups! Regarde bien chaque lettre et trouve l'erreur dans ton mot.");inp.focus({preventScroll:true});return}
       answer(good?q.answer:v);
-      if(q.spell&&good&&q.tried)spellStep(q.answer,q.lang,$("#b-cont"),"Bravo, c'est bien écrit maintenant!");
+      if(q.spell&&good&&q.tried)spellStep(q.answer,isENq(q)?"en":"fr",$("#b-cont"),isENq(q)?"Great, now it's spelled right!":"Bravo, c'est bien écrit maintenant!");
       if(q.spell&&!good){const c=$("#b-cont"),fb=$("#fb .feedback");if(c&&fb){c.style.display="none";
-        c.insertAdjacentHTML("beforebegin",`<form id="sp-fix" class="dform" autocomplete="off"><label for="sp-in"><b>Recopie le mot pour bien le retenir :</b></label><input id="sp-in" class="din" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" lang="${q.lang==="en"?"en":"fr"}"><button class="btn" type="submit">Vérifier</button><p id="sp-msg" aria-live="polite"></p></form>`);
+        c.insertAdjacentHTML("beforebegin",`<form id="sp-fix" class="dform" autocomplete="off"><label for="sp-in"><b>${isENq(q)?"Copy the word to remember it:":"Recopie le mot pour bien le retenir :"}</b></label><input id="sp-in" class="din" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" lang="${q.lang==="en"?"en":"fr"}"><button class="btn" type="submit">${isENq(q)?"Check":"Vérifier"}</button><p id="sp-msg" aria-live="polite"></p></form>`);
         const fi=$("#sp-in");setTimeout(()=>fi.focus({preventScroll:true}),400);
-        $("#sp-fix").addEventListener("submit",ev=>{ev.preventDefault();if(tnorm(fi.value)===A0){fi.readOnly=true;fi.classList.add("right");$("#sp-fix .btn").disabled=true;$("#sp-msg").innerHTML="";tone([[660,.1],[880,.12]]);spellStep(q.answer,q.lang,c,"Bravo, c'est bien recopié!")}
-          else{$("#sp-msg").innerHTML=`<b style="color:var(--bad)">Pas tout à fait. Regarde le mot lettre par lettre.</b>`;fi.select()}})}}if(near){const f=$("#fb .feedback");if(f)f.insertAdjacentHTML("afterbegin",`<p class="accnote"><b>${EN?"So close!":"Presque!"}</b> ${EN?"Only the spelling marks are different.":"Seuls les accents sont différents : regarde-les bien."}</p>`)}});
+        $("#sp-fix").addEventListener("submit",ev=>{ev.preventDefault();if(tnorm(fi.value)===A0){fi.readOnly=true;fi.classList.add("right");$("#sp-fix .btn").disabled=true;$("#sp-msg").innerHTML="";tone([[660,.1],[880,.12]]);spellStep(q.answer,isENq(q)?"en":"fr",c,isENq(q)?"Great, you copied it right!":"Bravo, c'est bien recopié!")}
+          else{$("#sp-msg").innerHTML=`<b style="color:var(--bad)">${isENq(q)?"Not quite. Look at the word letter by letter.":"Pas tout à fait. Regarde le mot lettre par lettre."}</b>`;fi.select()}})}}if(near){const f=$("#fb .feedback");if(f)f.insertAdjacentHTML("afterbegin",`<p class="accnote"><b>${EN?"So close!":"Presque!"}</b> ${EN?"Only the spelling marks are different.":"Seuls les accents sont différents : regarde-les bien."}</p>`)}});
     setTimeout(()=>{if(G&&G.q===q&&!G.done)inp.focus({preventScroll:true})},300)}
   else if(q.kind==="choice"){const lg=!q.disp&&q.choices.some(x=>String(x).length>12);A.innerHTML=`<div class="choices${q.choices.length===3?" three":""}${!q.disp&&q.choices.some(c=>String(c).length>24)?" one":""}${q.emo?" emo":""}"${q.lang==="en"?' lang="en"':""}>${q.choices.map(c=>`<button class="choice${lg?" long":""}" data-v="${esc(c)}">${q.disp?q.disp[c]:show(c)}</button>`).join("")}</div>`;
     A.querySelectorAll(".choice").forEach(b=>b.onclick=()=>answer(b.dataset.v,b))}
   else if(q.kind==="board"&&q.words&&q.words.length&&canSpeak()){q.steps=1;q.wi=0;const N=q.words.length;
-    A.innerHTML=`<div class="boardcard"><div class="board-h">Moment de pratique au tableau</div><p class="board-tip">Écris chaque mot à ton tableau. Quand tu as fini de l'écrire, touche «&nbsp;Mot suivant&nbsp;».</p>
-     <div class="bdstep" id="bd-step" aria-live="polite"></div><div class="row-btns"><button class="btn ghost" id="bd-again" type="button">${SPK}Réécouter le mot</button><button class="btn chalk" id="bd-next" type="button">Mot suivant →</button></div>
-     ${G.id!=="tableau"?`<button class="btn ghost" id="b-skip">Je n'ai pas de tableau : passer</button>`:""}</div>`;
+    const EN=isENq(q);
+    A.innerHTML=`<div class="boardcard"><div class="board-h">${EN?"Practice time at your board":"Moment de pratique au tableau"}</div><p class="board-tip">${EN?"Write each word on your board. When you're done, tap «&nbsp;Next word&nbsp;».":"Écris chaque mot à ton tableau. Quand tu as fini de l'écrire, touche «&nbsp;Mot suivant&nbsp;»."}</p>
+     <div class="bdstep" id="bd-step" aria-live="polite"></div><div class="row-btns"><button class="btn ghost" id="bd-again" type="button">${SPK}${EN?"Hear the word again":"Réécouter le mot"}</button><button class="btn chalk" id="bd-next" type="button">${EN?"Next word →":"Mot suivant →"}</button></div>
+     ${G.id!=="tableau"?`<button class="btn ghost" id="b-skip">${EN?"I don't have a board: skip":"Je n'ai pas de tableau : passer"}</button>`:""}</div>`;
     const bsk=$("#b-skip");if(bsk)bsk.onclick=()=>{SEQ++;G.noBoard=true;next()};
-    const sayW=(intro)=>{const i=q.wi,w=q.words[i],ord=["Premier","Deuxième","Troisième","Quatrième","Cinquième","Sixième"][i]||`Mot ${i+1}`;
-      $("#bd-step").innerHTML=`<span class="bdnum">Mot ${i+1} sur ${N}</span><span class="bddots">${q.words.map((_,j)=>`<i class="${j<i?"ok":j===i?"now":""}"></i>`).join("")}</span>`;
-      $("#bd-next").textContent=i===N-1?"J'ai fini, on vérifie !":"Mot suivant →";
-      speakSeq([...(intro?[["Moment de pratique sur ton tableau à la maison. Écris les mots suivants, un à la fois.","fr"],500]:[]),[`${ord} mot :`,"fr"],300,[w,q.lang==="en"?"en":"fr",q.lang==="en"?.72:dRateW()],900,[w,q.lang==="en"?"en":"fr",q.lang==="en"?.72:dRateW()]],begin)};
+    const sayW=(intro)=>{const i=q.wi,w=q.words[i],ord=EN?(["First","Second","Third","Fourth","Fifth","Sixth"][i]||`Word ${i+1}`):(["Premier","Deuxième","Troisième","Quatrième","Cinquième","Sixième"][i]||`Mot ${i+1}`);
+      $("#bd-step").innerHTML=`<span class="bdnum">${EN?`Word ${i+1} of ${N}`:`Mot ${i+1} sur ${N}`}</span><span class="bddots">${q.words.map((_,j)=>`<i class="${j<i?"ok":j===i?"now":""}"></i>`).join("")}</span>`;
+      $("#bd-next").textContent=i===N-1?(EN?"I'm done, let's check!":"J'ai fini, on vérifie !"):(EN?"Next word →":"Mot suivant →");
+      speakSeq([...(intro?[EN?["Practice time on your board at home. Write the following words, one at a time.","en"]:["Moment de pratique sur ton tableau à la maison. Écris les mots suivants, un à la fois.","fr"],500]:[]),EN?[`${ord} word:`,"en"]:[`${ord} mot :`,"fr"],300,[w,q.lang==="en"?"en":"fr",q.lang==="en"?.72:dRateW()],900,[w,q.lang==="en"?"en":"fr",q.lang==="en"?.72:dRateW()]],begin)};
     q.sayW=sayW;
     $("#bd-again").onclick=()=>sayW(false);
     $("#bd-next").onclick=()=>{if(q.wi<N-1){q.wi++;sayW(false);return}
-      SEQ++;if(TTS)try{TTS.cancel()}catch(e){}$("#bd-next").parentElement.remove();A.insertAdjacentHTML("beforeend",`<div class="reveal pop"><p class="reveal-h">Compare avec ce que tu as écrit :</p>${q.reveal}<div class="row-btns"><button class="btn good" id="b-ok">C'est bon ✓</button><button class="btn ghost" id="b-ko">À reprendre</button></div></div>`);
-      $("#b-ok").onclick=()=>answer("ok");$("#b-ko").onclick=()=>answer("ko");$(".reveal").scrollIntoView({behavior:"smooth",block:"nearest"});speak("Compare avec ce que tu as écrit.")}}
-  else if(q.kind==="board"){A.innerHTML=`<div class="boardcard"><div class="board-h">Va à ton tableau!</div><p class="board-tip">${q.dictee?(canSpeak()?"Écoute bien. Touche « Réécouter » pour entendre encore.":"Demande à papa ou maman de te dicter."):"Écris ou dessine au tableau ou sur une feuille."}</p>${q.dictee&&!canSpeak()?`<button class="btn ghost" id="b-dict">Papa ou maman : voir la dictée</button><p class="board-dict" id="dict" hidden>${q.dictee}</p>`:""}<button class="btn chalk" id="b-done">J'ai fini, on vérifie!</button>${G.id!=="tableau"?`<button class="btn ghost" id="b-skip">Je n'ai pas de tableau : passer</button>`:""}</div>`;
+      SEQ++;if(TTS)try{TTS.cancel()}catch(e){}$("#bd-next").parentElement.remove();A.insertAdjacentHTML("beforeend",`<div class="reveal pop"><p class="reveal-h">${EN?"Compare with what you wrote:":"Compare avec ce que tu as écrit :"}</p>${q.reveal}<div class="row-btns"><button class="btn good" id="b-ok">${EN?"It's right ✓":"C'est bon ✓"}</button><button class="btn ghost" id="b-ko">${EN?"Not yet":"À reprendre"}</button></div></div>`);
+      $("#b-ok").onclick=()=>answer("ok");$("#b-ko").onclick=()=>answer("ko");$(".reveal").scrollIntoView({behavior:"smooth",block:"nearest"});EN?speak("Compare with what you wrote.",null,"en"):speak("Compare avec ce que tu as écrit.")}}
+  else if(q.kind==="board"){const EN=isENq(q);A.innerHTML=`<div class="boardcard"><div class="board-h">${EN?"Go to your board!":"Va à ton tableau!"}</div><p class="board-tip">${q.dictee?(canSpeak()?(EN?"Listen carefully. Tap « Listen again » to hear it again.":"Écoute bien. Touche « Réécouter » pour entendre encore."):"Demande à papa ou maman de te dicter."):(EN?"Write or draw on your board or on a sheet of paper.":"Écris ou dessine au tableau ou sur une feuille.")}</p>${q.dictee&&!canSpeak()?`<button class="btn ghost" id="b-dict">Papa ou maman : voir la dictée</button><p class="board-dict" id="dict" hidden>${q.dictee}</p>`:""}<button class="btn chalk" id="b-done">${EN?"I'm done, let's check!":"J'ai fini, on vérifie!"}</button>${G.id!=="tableau"?`<button class="btn ghost" id="b-skip">${EN?"I don't have a board: skip":"Je n'ai pas de tableau : passer"}</button>`:""}</div>`;
     const bsk=$("#b-skip");if(bsk)bsk.onclick=()=>{G.noBoard=true;next()};
     const bd=$("#b-dict");if(bd)bd.onclick=()=>{$("#dict").hidden=!$("#dict").hidden};
-    $("#b-done").onclick=()=>{$("#b-done").remove();A.insertAdjacentHTML("beforeend",`<div class="reveal pop"><p class="reveal-h">Compare avec ce que tu as écrit :</p>${q.reveal}<div class="row-btns"><button class="btn good" id="b-ok">C'est bon ✓</button><button class="btn ghost" id="b-ko">À reprendre</button></div></div>`);
-      $("#b-ok").onclick=()=>answer("ok");$("#b-ko").onclick=()=>answer("ko");$(".reveal").scrollIntoView({behavior:"smooth",block:"nearest"});if(canSpeak())speak("Compare avec ce que tu as écrit.")}}
+    $("#b-done").onclick=()=>{$("#b-done").remove();A.insertAdjacentHTML("beforeend",`<div class="reveal pop"><p class="reveal-h">${EN?"Compare with what you wrote:":"Compare avec ce que tu as écrit :"}</p>${q.reveal}<div class="row-btns"><button class="btn good" id="b-ok">${EN?"It's right ✓":"C'est bon ✓"}</button><button class="btn ghost" id="b-ko">${EN?"Not yet":"À reprendre"}</button></div></div>`);
+      $("#b-ok").onclick=()=>answer("ok");$("#b-ko").onclick=()=>answer("ko");$(".reveal").scrollIntoView({behavior:"smooth",block:"nearest"});if(canSpeak())EN?speak("Compare with what you wrote.",null,"en"):speak("Compare avec ce que tu as écrit.")}}
   else{A.innerHTML=`<div class="numpad"><div class="numdisplay" id="nd" aria-live="polite">&nbsp;</div>${keysHTML()}</div>`;
     A.querySelectorAll(".key").forEach(b=>b.onclick=()=>key(b.dataset.k))}
   go("jeu");
@@ -2648,13 +2652,13 @@ function answer(v,btn){
   tone(fast?[[660,.08],[880,.08],[1175,.16]]:ok?[[660,.1],[880,.16]]:[[300,.18]]);
   const last=G.i===G.n-1;
   const REV=ok?[]:lessonsFor(q.isl,q.notion,q);if(!ok)REV.forEach(r=>{if(!(G.review||(G.review=[])).some(x=>revKey(x)===revKey(r)))G.review.push(r)});
-  const EN=q.lang==="en",title=timeout?"Temps écoulé!":fast?`<span class="bolt">${BOLT}Éclair!</span>`:ok?pick(EN?["Great job!","Well done!","Awesome!","Yes!"]:["Bravo!","Bonne réponse!","Tu l'as!","Bien joué!"]):(EN?"Almost!":"Presque!");
+  const EN=isENq(q),title=timeout?(EN?"Time's up!":"Temps écoulé!"):fast?`<span class="bolt">${BOLT}${EN?"Lightning fast!":"Éclair!"}</span>`:ok?pick(EN?["Great job!","Well done!","Awesome!","Yes!"]:["Bravo!","Bonne réponse!","Tu l'as!","Bien joué!"]):(EN?"Almost!":"Presque!");
   const time=!BRD&&!G.timed?"":BRD?(ok?"Tu as pris le temps de bien écrire. Bravo!":"Recopie la bonne réponse au tableau pour bien la retenir."):timeout?`L'objectif était ${secs(G.target)} s. Tu feras mieux à la prochaine!`:fast?`Réponse en ${secs(ms)} s : plus vite que l'objectif de ${secs(G.target)} s!`:ok?`Réponse en ${secs(ms)} s. Objectif : ${secs(G.target)} s. Essaie d'aller un peu plus vite!`:`Temps : ${secs(ms)} s.`;
-  $("#fb").innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${title}</h3><p class="fbtime">${time}</p>${ok||BRD?"":`<p>La bonne réponse est <b>${q.disp?q.disp[q.answer]:show(q.answer)}</b>.</p>${(()=>{const dg=timeout?"":diagnose(q,v);return dg?`<p class="diag">${dg}</p>`:""})()}`}${ok&&Math.random()<.6&&!EN?"":`<p>${q.explain}</p>`}${!ok&&q.hm&&q.hm[1]?`<div class="fbclock">${clock(q.hm[0],q.hm[1],true).replace(/<div class="fraclegend">.*<\/div><\/div>$/s,"</div>")}<p><small>La petite aiguille est dans la zone jaune, <b>entre le ${q.hm[0]} et le ${q.hm[0]%12+1}</b>. Elle n'a pas encore atteint le ${q.hm[0]%12+1} : l'heure est donc <b>${q.hm[0]} h</b>.</small></p></div>`:""}${q.rep&&TTS?`<button class="listen rep" id="b-rep">${SPK}Répète après moi : <b lang="en">${esc(q.rep)}</b></button>`:""}${!ok?reviewHTML(REV,"fb-rev"):""}<button class="btn" id="b-cont">${last?"Voir mon résultat":"Question suivante"}</button></div>`;
+  $("#fb").innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${title}</h3><p class="fbtime">${time}</p>${ok||BRD?"":`<p>${EN?"The right answer is":"La bonne réponse est"} <b>${q.disp?q.disp[q.answer]:show(q.answer)}</b>.</p>${(()=>{const dg=timeout?"":diagnose(q,v);return dg?`<p class="diag">${dg}</p>`:""})()}`}${ok&&Math.random()<.6&&!EN?"":`<p>${q.explain}</p>`}${!ok&&q.hm&&q.hm[1]?`<div class="fbclock">${clock(q.hm[0],q.hm[1],true).replace(/<div class="fraclegend">.*<\/div><\/div>$/s,"</div>")}<p><small>La petite aiguille est dans la zone jaune, <b>entre le ${q.hm[0]} et le ${q.hm[0]%12+1}</b>. Elle n'a pas encore atteint le ${q.hm[0]%12+1} : l'heure est donc <b>${q.hm[0]} h</b>.</small></p></div>`:""}${q.rep&&TTS?`<button class="listen rep" id="b-rep">${SPK}${EN?"Say it with me:":"Répète après moi :"} <b lang="en">${esc(q.rep)}</b></button>`:""}${!ok?reviewHTML(REV,"fb-rev"):""}<button class="btn" id="b-cont">${last?(EN?"See my score":"Voir mon résultat"):(EN?"Next question":"Question suivante")}</button></div>`;
   const c=$("#b-cont");c.onclick=()=>{if(c.disabled)return;G.i++;if(G.i>=G.n)finish();else next()};
   /* Après une erreur, le bouton reste bloqué tant que l'explication n'est pas terminée */
   const LBLC=c.textContent;let unlock=null;
-  if(!ok){c.disabled=true;c.classList.add("wait");c.textContent=EN?"Écoute bien l'explication…":"Écoute bien l'explication…";
+  if(!ok){c.disabled=true;c.classList.add("wait");c.textContent=EN?"Listen carefully…":"Écoute bien l'explication…";
     unlock=()=>{if(!c.isConnected||!c.disabled)return;c.disabled=false;c.classList.remove("wait");c.textContent=LBLC;c.focus({preventScroll:true})};
     setTimeout(()=>unlock&&unlock(),45000);
     if(!canSpeak()){let n=Math.min(25,Math.max(6,Math.round($("#fb").textContent.length/14)));c.textContent=`Lis bien l'explication… ${n}`;
@@ -2663,7 +2667,15 @@ function answer(v,btn){
   $("#fb").scrollIntoView({behavior:"smooth",block:"nearest"});
   bindReview($("#fb"),G.subj,true);
   const br=$("#b-rep");if(br)br.onclick=()=>{const was=S.voice;S.voice=true;speak(q.rep,null,"en",Math.min(.72,S.rate||.63));S.voice=was};
-  if(canSpeak()){const ttl=timeout?"Temps écoulé!":fast?"Éclair!":ok?$("#fb h3").textContent:(EN?"Almost!":"Presque!");
+  if(canSpeak()&&EN){const ttl=$("#fb h3").textContent,rt=Math.min(.75,S.rate||.63),A=String(q.answer),rep=q.rep||"",
+      word=/^[A-Za-z]+$/.test(rep||A)&&(q.spell||q.kind==="text"||/^en_(spell|week)$/.test(q.isl||"")||/spell|word/i.test(q.notion||"")),L=[];
+    if(BRD){if(ok)L.push(["Great job! You wrote it well.","en"]);else{L.push(["That's okay! Copy the right answer on your board.","en"]);if(rep)L.push([rep,"en",rt])}}
+    else if(ok){L.push([ttl,"en"]);if(rep)L.push([rep,"en",rt])}
+    else{if(rep&&tnorm(rep)!==tnorm(A)&&!/^[A-Za-z' ?!.,-]+$/.test(A)&&q.kind==="choice")L.push(["Almost! Listen:","en"],[rep,"en",rt]);
+      else L.push(["Almost! The right answer is:","en"],[rep&&tnorm(rep)===tnorm(A)?rep:A,"en",rt]);
+      if(word)L.push(300,[`It's spelled: ${enLetters(rep||A)}.`,"en",rt])}
+    speakSeq(L,unlock)}
+  else if(canSpeak()){const ttl=timeout?"Temps écoulé!":fast?"Éclair!":ok?$("#fb h3").textContent:(EN?"Almost!":"Presque!");
     if(BRD)speak(ok?"Bravo! Tu as bien écrit.":"Pas grave! Recopie la bonne réponse au tableau pour bien la retenir. "+revSay(REV),unlock);
     else if(EN)speakSeq(ok?[[ttl,"en"],[q.rep,"en",Math.min(.75,S.rate||.63)]]:[["Presque! La bonne réponse est :","fr"],[q.rep||q.answer,"en",Math.min(.75,S.rate||.63)],[normSay(q.explain),"fr"],[revSay(REV),"fr"]],unlock);
     else speak(ok?ttl:`${ttl} La bonne réponse est ${sayAns(q.answer)}. ${normSay(q.explain)} ${revSay(REV)}`,unlock)}
@@ -2682,14 +2694,16 @@ function finish(){
   if(sc<=4){S.hard++;if(S.hard>=2){S.hard=0;G.events.push({k:"courage"})}}else S.hard=0;
   save();
   const head=headOf();
-  const msg=sc===N?"Parfait! Tu maîtrises ces notions.":sc>=N*.75?"Très bon travail! Encore un peu de pratique et ce sera parfait.":sc>=N*.5?"Bon effort! Relis bien les explications quand tu te trompes.":"Ce n'est pas grave de se tromper : c'est comme ça qu'on apprend. Essaie encore!";
+  const ENG=G.subj==="anglais";
+  const msg=ENG?(sc===N?"Perfect! You know it all.":sc>=N*.75?"Great work! A little more practice and it will be perfect.":sc>=N*.5?"Good effort! Read the explanations when you make a mistake.":"Mistakes help you learn. Try again!"):sc===N?"Parfait! Tu maîtrises ces notions.":sc>=N*.75?"Très bon travail! Encore un peu de pratique et ce sera parfait.":sc>=N*.5?"Bon effort! Relis bien les explications quand tu te trompes.":"Ce n'est pas grave de se tromper : c'est comme ça qu'on apprend. Essaie encore!";
   const el=$("#ecran-fin");el.style.setProperty("--c",`var(${head.c})`);
-  el.innerHTML=`<div class="card result pop" style="--c:var(${head.c})"><div class="notion">${head.nom}</div><h2>${sc>=N*.75?"Bravo":"Partie terminée"}${S.name?", "+esc(S.name):""}!</h2><div class="score">${sc} / ${N}</div>${stars(st)}
+  el.innerHTML=`<div class="card result pop" style="--c:var(${head.c})"><div class="notion">${head.nom}</div><h2>${ENG?(sc>=N*.75?"Great job":"Good try"):(sc>=N*.75?"Bravo":"Partie terminée")}${S.name?", "+esc(S.name):""}!</h2><div class="score">${sc} / ${N}</div>${stars(st)}
   ${G.id==="tableau"||!G.anyT?"":`<p class="msg"><span class="bolt">${BOLT}<b>${G.eclairs} éclair${G.eclairs>1?"s":""} sur ${N}</b></span><br>Temps total : ${fmtDur(G.totalMs)}</p>`}${recMsg?`<p class="msg"><b>${recMsg}</b></p>`:""}
-  <p class="msg">${msg}</p>${lvlMsg?`<p class="msg"><b>${lvlMsg}</b></p>`:""}${reviewHTML((G.review||[]).slice(0,4),"end-rev")}<div class="row-btns"><button class="btn" id="b-again">Rejouer</button><button class="btn ghost" id="b-map">Retour à ${SUBJ[G.subj]?SUBJ[G.subj].nom:"la carte"}</button></div></div>`;
+  <p class="msg">${msg}</p>${lvlMsg?`<p class="msg"><b>${lvlMsg}</b></p>`:""}${reviewHTML((G.review||[]).slice(0,4),"end-rev")}<div class="row-btns"><button class="btn" id="b-again">${ENG?"Play again":"Rejouer"}</button><button class="btn ghost" id="b-map">${ENG?"Back to":"Retour à"} ${SUBJ[G.subj]?SUBJ[G.subj].nom:"la carte"}</button></div></div>`;
   bindReview(el,G.subj,false);
   const id=G.id;$("#b-again").onclick=()=>start(id);$("#b-map").onclick=()=>{G=null;renderCarte();go("carte")};
   tone(st>=2?[[523,.12],[659,.12],[784,.12],[1047,.25]]:[[523,.15],[659,.2]]);go("fin");
+  if(ENG)speak(`${sc>=N*.75?"Great job":"Good try"}${S.name?", "+S.name:""}! ${sc} out of ${N}. ${msg}`,null,"en");else
   speak(`${sc>=N*.75?"Bravo":"Partie terminée"}${S.name?", "+S.name:""}! ${sc} sur ${N}. ${G.id==="tableau"||!G.anyT?"":G.eclairs+" éclair"+(G.eclairs>1?"s":"")+". "}${msg} ${revSay((G.review||[]).slice(0,4))}`);
   const evs=G.events.concat(PEND.splice(0));if(evs.length&&S.comp.type)setTimeout(()=>{if(!$("#ecran-fin").hidden&&!BYE)celebrate(evs);else PEND.push(...evs)},1200);
 }
@@ -2717,7 +2731,7 @@ function startSprint(){
   ${pad?`<div class="visual"><div class="bigexpr" id="sq"></div></div><div class="numpad"><div class="numdisplay" id="nd">&nbsp;</div>${keysHTML()}</div>`:`<div id="sq"></div>`}</div>`;
   $("#b-retour").onclick=()=>{G=null;renderCarte();go("carte")};
   el.querySelectorAll(".key").forEach(b=>b.onclick=()=>key(b.dataset.k));
-  go("jeu");tone([[523,.1],[659,.1],[784,.15]]);speak("C'est parti!");sprintNext();requestAnimationFrame(stick);
+  go("jeu");tone([[523,.1],[659,.1],[784,.15]]);G.subj==="anglais"?speak("Let's go!",null,"en"):speak("C'est parti!");sprintNext();requestAnimationFrame(stick);
 }
 function sprintNext(){G.lock=false;
   if(G.pad){G.sq=sprintQM();G.input="";$("#sq").innerHTML=`${G.sq.txt} = <span class="box"></span>`;const d=$("#nd");d.className="numdisplay";d.innerHTML="&nbsp;";return}
@@ -3218,6 +3232,7 @@ return _LD}
 const lesFill=x=>String(x).replace(/\{NOM\}/g,esc(S.name||"Olivia"));
 const lesHTML=x=>lesFill(x).replace(/\[\[(.+?)\]\]/g,'<b class="en" lang="en">$1</b>');
 function lesSpeech(c){const lines=[c.t,...(c.s||c.p),...(c.ex&&c.ex.length?["Exemple.",...c.ex]:[])],out=[];
+  if(LES&&LES.subj==="anglais"){lines.forEach(line=>{const en=[...lesFill(line).matchAll(/\[\[(.+?)\]\]/g)].map(m=>m[1].replace(/<[^>]+>/g,"").trim()).filter(Boolean);en.forEach(t=>out.push([t,"en"],350))});if(typeof out[out.length-1]==="number")out.pop();return out}
   lines.forEach(line=>{lesFill(line).split(/\[\[(.+?)\]\]/).forEach((part,i)=>{
     if(i%2){const t=part.replace(/<[^>]+>/g,"").trim();if(t)out.push([t,"en"])}
     else{let t=part.replace(/<[^>]+>/g,"").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").replace(/→/g,", ").replace(/[✓✗↺]/g,"");t=normSay(t);t.split(/(?<=[.!?])\s+/).forEach(x=>{if(/[A-Za-zÀ-ÿ0-9]/.test(x)){out.push([x.trim(),"fr"]);if(/[.!?]["»”)]*$/.test(x.trim()))out.push(LES_PAUSE)}})}});
@@ -3703,12 +3718,12 @@ const spellOut=w=>[...w].filter(c=>c!==" ").map(c=>LNAME[c]||c).join(", ");
    Le bouton « Continuer » reste caché tant que l'enfant n'a pas touché « J'ai épelé le mot ». */
 function spellStep(word,lang,cont,lead){if(!cont)return;const en=lang==="en",w=String(word);cont.style.display="none";
   const old=document.getElementById("sp-step");if(old)old.remove();
-  cont.insertAdjacentHTML("beforebegin",`<div class="spstep pop" id="sp-step"><p>${lead?`<b>${lead}</b> `:""}Maintenant, regarde bien le mot et <b>épelle-le à voix haute</b>, lettre par lettre.</p>
+  cont.insertAdjacentHTML("beforebegin",`<div class="spstep pop" id="sp-step"><p>${lead?`<b>${lead}</b> `:""}${en?"Now look at the word carefully and <b>spell it out loud</b>, letter by letter.":"Maintenant, regarde bien le mot et <b>épelle-le à voix haute</b>, lettre par lettre."}</p>
     <div class="spword" lang="${en?"en":"fr"}" aria-label="${esc(w)}">${[...w].map(c=>c===" "?`<i class="sp"></i>`:`<span>${esc(c)}</span>`).join("")}</div>
-    <button class="btn ghost" type="button" id="sp-done">J'ai épelé le mot ✓</button></div>`);
+    <button class="btn ghost" type="button" id="sp-done">${en?"I spelled the word ✓":"J'ai épelé le mot ✓"}</button></div>`);
   const b=document.getElementById("sp-done");b.onclick=()=>{SEQ++;try{TTS&&TTS.cancel()}catch(e){}const st=document.getElementById("sp-step");if(st){st.classList.add("ok");b.remove()}cont.style.display="";cont.focus({preventScroll:true})};
   setTimeout(()=>{try{b.focus({preventScroll:true})}catch(e){}},50);
-  if(canSpeak())speakSeq([[(lead?lead+" ":"")+"Maintenant, regarde bien le mot.","fr"],[w,en?"en":"fr"],300,["Épelle-le à voix haute, lettre par lettre. Quand tu as fini, touche : j'ai épelé le mot.","fr"]])}
+  if(canSpeak())speakSeq(en?[[(lead?lead+" ":"")+"Now look at the word carefully.","en"],[w,"en",.72],300,["Spell it out loud, letter by letter. When you're done, tap: I spelled the word.","en"]]:[[(lead?lead+" ":"")+"Maintenant, regarde bien le mot.","fr"],[w,"fr"],300,["Épelle-le à voix haute, lettre par lettre. Quand tu as fini, touche : j'ai épelé le mot.","fr"]])}
 const DACC=["é","è","ê","à","â","ç","î","ô","û","'","-"];
 let DC=null;
 function startDictee(){dSync();const list=dPick();
@@ -5936,7 +5951,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261110-214529";
+const APP_VER="20261110-220621";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
