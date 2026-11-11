@@ -4069,7 +4069,7 @@ function tbIntro(){tbUse(TB&&TB.k||TK);const t=TBS(),T=TB_TABLES[t.cur],E=TB_ET[
    <h2 class="tbh">${T.ic} ${T.nom}</h2>
    <div class="tbast"><b>L'astuce</b>${T.ast.map(x=>`<p>${esc(x)}</p>`).join("")}<p class="tbex">Exemple : ${esc(T.ex)}</p></div>
    ${t.et?(TK==="mul"?`<p class="msg">Maintenant <b>avec la division</b> : 24 ÷ 6, c'est chercher combien de fois 6 font 24. Pense à la multiplication : 6 × 4 = 24, donc 24 ÷ 6 = 4.</p>`:`<p class="msg">Maintenant avec des <b>${E.nom}</b> : c'est la même table, avec des nombres plus grands. ${t.et===1?"30 + 50, c'est comme 3 + 5!":"300 + 500, c'est comme 3 + 5!"}</p>`):""}
-   <p class="msg">Réponds juste <b>et vite</b> : la réponse doit venir sans compter sur tes doigts. Pour réussir ta journée : <b>10 sur 10, ${TB_STREAK} fois</b>. Un 9 sur 10 garde ta série; en dessous, elle recommence.</p><p class="msg">Série d'aujourd'hui : ${tbDots(tbDay().streak)} ${tbDay().streak} sur ${TB_STREAK}</p>
+   <p class="msg">Réponds juste <b>et vite</b> : la réponse doit venir sans compter sur tes doigts. Pour réussir ta journée : <b>${TB_STREAK} fois de suite 10 sur 10 ou 9 sur 10</b>. Un 9 sur 10 compte aussi; en dessous, la série recommence.</p><p class="msg">Série d'aujourd'hui : ${tbDots(tbDay().streak)} ${tbDay().streak} sur ${TB_STREAK}</p>
    <div class="row-btns">${TTS?`<button class="listen" id="tb-say">${SPK}Écouter l'astuce</button>`:""}<button class="btn" id="tb-go">Commencer</button></div></div>`;
   tbBack();go("jeu");
   const sy=$("#tb-say");if(sy)sy.onclick=()=>{TB.force=true;speakSeq([[T.nom+".","fr"],300,...T.ast.flatMap(x=>[[x,"fr"],250]),["Exemple : "+T.ex,"fr"]],()=>{if(TB)TB.force=false})};
@@ -4124,7 +4124,7 @@ function tbMemo(q,cont){tbUse(TB&&TB.k||TK);const el=$("#ecran-jeu"),eq=`${nf(q.
 function tbDone(){const el=$("#ecran-jeu");el.style.setProperty("--c","var(--i5)");G={mode:"tables",subj:"maths"};
   el.innerHTML=tbBar()+`<div class="card pop tbcard" style="--c:var(--i5)"><h2 class="tbh">🌟 C'est fini pour aujourd'hui!</h2><p class="msg">Tu as réussi tes tables <b>${TB_STREAK} fois de suite sans faute</b>. Ton cerveau a bien travaillé : prends une pause et reviens demain!</p><div class="row-btns"><button class="btn" id="tb-home">Retour à l'île</button></div></div>`;
   tbBack();$("#tb-home").onclick=()=>{G=null;TB=null;renderCarte();go("carte")};go("jeu")}
-function tbFinish(){tbUse(TB&&TB.k||TK);tbKeys(false);const t=TBS(),dn=dayNum(),key=tbPK(),T=TB_TABLES[t.cur],E=TB_ET[t.et],day=tbDay(),perfect=TB.cur>0&&TB.fast===TB.cur,near=!perfect&&TB.cur>=10&&TB.fast>=TB.cur-1;day.streak=perfect?day.streak+1:near?day.streak:0;const passed=day.streak>=TB_STREAK;if(passed)day.done=true;let msg,up="";
+function tbFinish(){tbUse(TB&&TB.k||TK);tbKeys(false);const t=TBS(),dn=dayNum(),key=tbPK(),T=TB_TABLES[t.cur],E=TB_ET[t.et],day=tbDay(),perfect=TB.cur>0&&TB.fast===TB.cur,near=!perfect&&TB.cur>=10&&TB.fast>=TB.cur-1;day.streak=perfect||near?day.streak+1:0;const passed=day.streak>=TB_STREAK;if(passed)day.done=true;let msg,up="";
   t.hist.unshift({d:dn,t:t.cur,e:t.et,ok:TB.ok,fast:TB.fast,n:TB.cur});t.hist.length=Math.min(t.hist.length,60);
   if(passed){const P=t.pass[key]||(t.pass[key]=[]);if(!P.includes(dn))P.push(dn)}
   const days=(t.pass[key]||[]).length;
@@ -4133,9 +4133,9 @@ function tbFinish(){tbUse(TB&&TB.k||TK);tbKeys(false);const t=TBS(),dn=dayNum(),
     else up="Tu as maîtrisé toutes les tables! 🏆"}
   msg=passed?`Bravo pour ta belle progression! Tu as réussi ${TB_STREAK} fois de suite sans faute. ${up||(days<TB_DAYS?`Encore <b>${TB_DAYS-days} autre jour</b> comme celui-ci, et tu passes à l'étape suivante.`:"")} Prends une pause : tes tables t'attendent demain!`
    :perfect?`Sans faute! ${TB_STREAK-day.streak===1?"Encore <b>une fois</b>":`Encore <b>${TB_STREAK-day.streak} fois de suite</b>`} et ta journée est réussie.`
-   :near?`Presque parfait : ${TB.fast} sur ${TB.cur}! Ta série est gardée (${day.streak} sur ${TB_STREAK}). ${TB_STREAK-day.streak===1?"Encore <b>une fois</b> 10 sur 10":`Encore <b>${TB_STREAK-day.streak} fois</b> 10 sur 10`} et ta journée est réussie.`
-   :TB.ok===TB.cur?`Tout est juste, mais pas assez rapide (${TB.fast} rapides sur ${TB.cur}). Ta série recommence : il faut ${TB_STREAK} fois 10 sur 10 d'affilée.`
-   :`${TB.ok} justes sur ${TB.cur}. Ta série recommence : il faut ${TB_STREAK} fois 10 sur 10 d'affilée. Tu vas y arriver!`;
+   :near?`Presque parfait : ${TB.fast} sur ${TB.cur}! Ça compte dans ta série (${day.streak} sur ${TB_STREAK}). ${TB_STREAK-day.streak===1?"Encore <b>une fois</b>":`Encore <b>${TB_STREAK-day.streak} fois de suite</b>`} et ta journée est réussie.`
+   :TB.ok===TB.cur?`Tout est juste, mais pas assez rapide (${TB.fast} rapides sur ${TB.cur}). Ta série recommence : il faut ${TB_STREAK} fois de suite 9 ou 10 sur 10.`
+   :`${TB.ok} justes sur ${TB.cur}. Ta série recommence : il faut ${TB_STREAK} fois de suite 9 ou 10 sur 10. Tu vas y arriver!`;
   save();const el=$("#ecran-fin"),st=perfect||near?3:TB.ok>=TB_PASS?2:TB.ok>=6?1:0;el.style.setProperty("--c","var(--i5)");
   el.innerHTML=`<div class="card result pop" style="--c:var(--i5)"><div class="notion">${TK==="mul"?"Mes tables de multiplication":"Mes tables du jour"} · ${T.nom} · ${E.nom}</div><h2>${passed?"🌟 Bravo":perfect?"Sans faute":near?"Presque parfait":"Bien travaillé"}${S.name?", "+esc(S.name):""}!</h2>
    <div class="score">${TB.fast} / ${TB.cur}</div><p class="msg"><small>justes et rapides</small></p>${stars(st)}<p class="msg">Série : ${tbDots(day.streak)} ${Math.min(day.streak,TB_STREAK)} sur ${TB_STREAK}</p><p class="msg">${msg}</p>
@@ -4143,13 +4143,13 @@ function tbFinish(){tbUse(TB&&TB.k||TK);tbKeys(false);const t=TBS(),dn=dayNum(),
   const ag=$("#tb-again");if(ag){const k0=TK;ag.onclick=()=>startTables(k0)}$("#tb-map").onclick=()=>{G=null;TB=null;renderCarte();go("carte")};
   tone(passed?[[523,.12],[659,.12],[784,.12],[1047,.25]]:[[523,.15],[659,.2]]);go("fin");
   speak(`${TB.fast} sur ${TB.cur}, justes et rapides. `+msg.replace(/<[^>]+>/g,"").replace(/[🎉🏆]/gu,""))}
-function tbCardHTML(){const t=TBS(),T=TB_TABLES[t.cur],d=tbDay();if(d.done)return`<button class="isle defi tabz tbfini" id="b-tab"><span class="badge">🌟</span><span class="body"><span class="nom">Mes tables du jour : fini!</span><span class="sous">${TB_STREAK} fois 10 sur 10 aujourd'hui. Bravo! Prends une pause, tes tables reviennent demain.</span></span></button>`;return`<button class="isle defi tabz" id="b-tab"><span class="badge">${T.ic}</span><span class="body"><span class="nom">Mes tables du jour</span><span class="sous">Table ${t.cur+1} : <b>${T.nom}</b> · ${TB_ET[t.et].nom} · série du jour : ${d.streak} sur ${TB_STREAK}. Additions et soustractions, avec une astuce pour retenir.</span></span></button>`}
+function tbCardHTML(){const t=TBS(),T=TB_TABLES[t.cur],d=tbDay();if(d.done)return`<button class="isle defi tabz tbfini" id="b-tab"><span class="badge">🌟</span><span class="body"><span class="nom">Mes tables du jour : fini!</span><span class="sous">${TB_STREAK} séries réussies aujourd'hui. Bravo! Prends une pause, tes tables reviennent demain.</span></span></button>`;return`<button class="isle defi tabz" id="b-tab"><span class="badge">${T.ic}</span><span class="body"><span class="nom">Mes tables du jour</span><span class="sous">Table ${t.cur+1} : <b>${T.nom}</b> · ${TB_ET[t.et].nom} · série du jour : ${d.streak} sur ${TB_STREAK}. Additions et soustractions, avec une astuce pour retenir.</span></span></button>`}
 /* Espace parent */
 function tbParentHTML(){const t=TBS(),T=TB_TABLES[t.cur],wk=Math.floor((dayNum()-t.start[t.cur])/7),H=t.hist.slice(0,6);
   const hard=Object.entries(t.facts).filter(([,f])=>f.miss+f.slow>0).sort((a,b)=>(b[1].miss*2+b[1].slow)-(a[1].miss*2+a[1].slow)).slice(0,10);
   return`<div class="tbprog">${TB_TABLES.map((x,i)=>`<span class="${i<t.cur?"ok":i===t.cur?"now":""}" title="${esc(x.nom)}">${x.ic}</span>`).join("")}</div>
   <p>Table ${t.cur+1} sur ${TB_TABLES.length} : <b>${T.nom}</b>, étape <b>${TB_ET[t.et].nom}</b> (${t.et+1} sur ${TB_ET.length}) · ${tbDays()} jour réussi sur ${TB_DAYS}.</p>
-  <p class="pdesc">${wk?`Commencée il y a ${wk} semaine${wk>1?"s":""}`:"Commencée cette semaine"} (rythme visé : une table aux ${TB_WEEKS} semaines; elle n'avance que lorsqu'elle maîtrise). Réussir un jour : 10 sur 10 justes en moins de ${TB_ET[t.et].lim/1000} s chacune, ${TB_STREAK} séances d'affilée; ensuite, l'activité se ferme jusqu'au lendemain. Aujourd'hui : ${tbDay().done?"<b>réussi ✓</b>":`série de ${tbDay().streak} sur ${TB_STREAK}`}.</p>
+  <p class="pdesc">${wk?`Commencée il y a ${wk} semaine${wk>1?"s":""}`:"Commencée cette semaine"} (rythme visé : une table aux ${TB_WEEKS} semaines; elle n'avance que lorsqu'elle maîtrise). Réussir un jour : 9 ou 10 sur 10 justes en moins de ${TB_ET[t.et].lim/1000} s chacune, ${TB_STREAK} séances d'affilée; ensuite, l'activité se ferme jusqu'au lendemain. Aujourd'hui : ${tbDay().done?"<b>réussi ✓</b>":`série de ${tbDay().streak} sur ${TB_STREAK}`}.</p>
   ${H.length?`<div class="days">${H.map(h=>`<div class="d"><span>${dnFmt(h.d)}<br><span class="dsub">${TB_TABLES[h.t].nom} · ${TB_ET[h.e].nom}</span></span><span class="meter"><i style="width:${h.n?h.fast/h.n*100:0}%;background:var(--good)"></i></span><span>${h.fast}/${h.n}${h.n&&h.fast===h.n?" ✓":""}</span></div>`).join("")}</div>`:`<p class="pdesc">Pas encore de séance.</p>`}
   ${hard.length?`<p class="pdesc"><b>Calculs à revoir</b> (erreurs ou trop lents) :</p><div class="redo">${hard.map(([k,f])=>`<span class="rv">${k.replace("+"," + ").replace("×"," × ")}${f.miss?` <small>×${f.miss}</small>`:""}</span>`).join("")}</div>`:""}`}
 function tbSettingsHTML(){const t=TBS(),P=TK==="mul"?"p-mt":"p-tb",M=TK==="mul";return pcard(TBNAME(),M?"Une table à la fois, dans l'ordre des astuces : ×2, ×10, ×5, ×1 et ×0, ×4, ×3, ×9, ×6, puis ×7 et ×8. Étape 1 : les multiplications; étape 2 : avec la division. Ajoutez-les au programme du jour quand l'école commence la multiplication.":"Une table à la fois, dans l'ordre des astuces. Si elle connaît déjà certaines tables, vous pouvez la placer plus loin.",
@@ -5793,8 +5793,8 @@ function progItems(){const k0=TK;tbUse("add");try{return progItems0()}finally{tb
 function progItems0(){tbAlign();const dn=dayNum(),L=p=>logSum(dn,dn,k=>k.startsWith(p)).t,it=[],P=planActive()?S.plan:null;
   const wk=p=>logSum(Math.max(P.from,dn-6),dn,k=>k.startsWith(p)).t;
   const q10=(t)=>t>=10?"bravo, c'est fait pour aujourd'hui!":t?`${t} sur 10 questions`:"10 questions pour pratiquer";
-  const mtabItem=plan=>{tbUse("mul");const t=TBS(),T=TB_TABLES[t.cur],E=TB_ET[t.et],d=tbDay(),o={id:"mtab",nom:"Mes tables de multiplication",sous:d.done?`${T.nom} : ${TB_STREAK} fois 10 sur 10!`:`Table ${t.cur+1} : ${T.nom} · ${E.nom} · série ${d.streak} sur ${TB_STREAK}`,done:!!d.done,ic:"✖️",c:"--i5",go:()=>startTables("mul"),started:d.streak>0||L("mtables|")>0,plan};tbUse("add");return o};
-  const tabItem=plan=>{const t=TBS(),T=TB_TABLES[t.cur],d=tbDay();return{id:"tab",nom:"Mes tables du jour",sous:d.done?`${T.nom} : ${TB_STREAK} fois 10 sur 10!`:`Table ${t.cur+1} : ${T.nom} · série ${d.streak} sur ${TB_STREAK}`,done:!!d.done,ic:T.ic,c:"--i5",go:startTables,started:d.streak>0||L("tables|")>0,plan}};
+  const mtabItem=plan=>{tbUse("mul");const t=TBS(),T=TB_TABLES[t.cur],E=TB_ET[t.et],d=tbDay(),o={id:"mtab",nom:"Mes tables de multiplication",sous:d.done?`${T.nom} : ${TB_STREAK} séries réussies!`:`Table ${t.cur+1} : ${T.nom} · ${E.nom} · série ${d.streak} sur ${TB_STREAK}`,done:!!d.done,ic:"✖️",c:"--i5",go:()=>startTables("mul"),started:d.streak>0||L("mtables|")>0,plan};tbUse("add");return o};
+  const tabItem=plan=>{const t=TBS(),T=TB_TABLES[t.cur],d=tbDay();return{id:"tab",nom:"Mes tables du jour",sous:d.done?`${T.nom} : ${TB_STREAK} séries réussies!`:`Table ${t.cur+1} : ${T.nom} · série ${d.streak} sur ${TB_STREAK}`,done:!!d.done,ic:T.ic,c:"--i5",go:startTables,started:d.streak>0||L("tables|")>0,plan}};
   PWEEK=null;
   /* 1. Le plan de la semaine d'abord : la grande dictée, puis chaque notion, dans l'ordre de l'école */
   if(examActive()){const e=DS().exam,W=examWords(),x=DS().exDay,n=x&&x.d===dn?x.w.length:0,need=Math.min(DN,W.length);
@@ -5936,7 +5936,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261110-204605";
+const APP_VER="20261110-212952";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
