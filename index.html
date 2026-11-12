@@ -1380,7 +1380,14 @@ const VLOG=[];const vlog=m=>{VLOG.push(m);if(VLOG.length>6)VLOG.shift();const el
 function speak(text,onend,lang,rate,sid){
   if(sid===undefined)SEQ++;
   if(!canSpeak()||!text){onend&&onend();return}
-  const en=lang==="en";if(!en)text=frSay(text);
+  const en=lang==="en";
+  /* Filet de sécurité : TOUT ce qui sort par la voix passe par normSay (symboles, unités) et perd ses balises.
+     normSay peut s'appliquer deux fois sans rien abîmer, donc les appels déjà faits ailleurs restent corrects. */
+  text=String(text).replace(/<br\s*\/?>/gi,". ");
+  if(!en)text=normSay(text);
+  text=text.replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
+  if(!text){onend&&onend();return}
+  if(!en)text=frSay(text);
   /* Même phrase déjà en train d'être dite (double rendu, double touche) : on ne la recommence pas, on attend sa fin. */
   if(window.__cur&&window.__cur.txt===text&&!window.__cur.done&&TTS.speaking){if(onend)window.__cur.after.push(onend);return}
   const st={txt:text,done:false,after:onend?[onend]:[]};let iv=0;
@@ -1413,16 +1420,25 @@ function whenQuiet(min,max,cb){const t0=performance.now();const iv=setInterval((
 const DENW={2:["demi","demis"],3:["tiers","tiers"],4:["quart","quarts"],5:["cinquième","cinquièmes"],6:["sixième","sixièmes"],8:["huitième","huitièmes"],10:["dixième","dixièmes"]};
 const fracSay=(k,d)=>DENW[d]?(k===1?`un ${DENW[d][0]}`:`${k} ${DENW[d][1]}`):`${k} sur ${d}`;
 function normSay(t){
-  return String(t)
+  /* Tout ce qui est dit à voix haute passe par ici : symboles, unités et signes deviennent des mots.
+     Règle d'or : la fonction doit pouvoir s'appliquer deux fois sans rien abîmer (NL = « pas suivi d'une lettre »). */
+  const NL=String.raw`(?![\p{L}])`;
+  const U=(re,f)=>s2=>s2.replace(new RegExp(re,"gu"),f);
+  let x=String(t)
+  .replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").replace(/&nbsp;/g," ")
+  /* Les symboles ne se lisent pas : la voix doit dire un mot, pas « flèche à droite » */
+  .replace(/\s*(?:→|⇒|⟶|->|=>)\s*/g," devient ")
+  .replace(/[✓✔✗✘↺↻⭐★☆🎯🏫⏱💬📅🔒]/gu,"")
   .replace(/(\d+)\/(\d+)/g,(m,k,d)=>fracSay(+k,+d))
-  .replace(/\?\s?(mm|cm|dm|km|m)\b/g,(x,u)=>"combien de "+{mm:"millimètres",cm:"centimètres",dm:"décimètres",km:"kilomètres",m:"mètres"}[u]).replace(/([+=:]\s*)\?/g,"$1combien")
-  .replace(/(\d)[\s  ](?=\d{3}\b)/g,"$1")
+  .replace(/\?\s?(mm|cm|dm|km|m)(?![\p{L}])/gu,(x2,u)=>"combien de "+{mm:"millimètres",cm:"centimètres",dm:"décimètres",km:"kilomètres",m:"mètres"}[u]).replace(/([+=:]\s*)\?/g,"$1combien")
+  .replace(/(\d)[\s  ](?=\d{3}(?![\p{L}\d]))/gu,"$1")
   .replace(/×/g," fois ").replace(/÷/g," divisé par ").replace(/−/g," moins ").replace(/\+/g," plus ").replace(/\s<\s/g," est plus petit que ").replace(/\s>\s/g," est plus grand que ").replace(/=/g," égale ")
-  .replace(/(\d+) h (\d+)/g,(m,h,mi)=>`${h} heures ${+mi}`).replace(/(\d+) h\b/g,(x,h)=>`${h} heure${h==="1"?"":"s"}`)
-  .replace(/(\d+) ?mL\b/g,(x,n)=>`${n} millilitre${n==="1"?"":"s"}`).replace(/(\d+) ?L\b/g,(x,n)=>`${n} litre${n==="1"?"":"s"}`).replace(/(\d+) ?kg\b/g,(x,n)=>`${n} kilogramme${n==="1"?"":"s"}`).replace(/(\d+) ?g\b/g,(x,n)=>`${n} gramme${n==="1"?"":"s"}`)
-  .replace(/\(mL\)/g,"").replace(/\(L\)/g,"").replace(/\(kg\)/g,"").replace(/\(g\)/g,"")
-  .replace(/(\d+) ?(mm|cm|dm|km|m|min|s)\b/g,(x,n,u)=>{const w={mm:"millimètre",cm:"centimètre",dm:"décimètre",km:"kilomètre",m:"mètre",min:"minute",s:"seconde"}[u];return `${n} ${w}${n==="1"?"":"s"}`})
-  .replace(/\bmm\b/g,"millimètre").replace(/\bcm\b/g,"centimètre").replace(/\bdm\b/g,"décimètre").replace(/\bkm\b/g,"kilomètre").replace(/\ble m\b/g,"le mètre").replace(/¢/g,"cent")
+  .replace(/(\d+) h (\d+)/g,(m,h,mi)=>`${h} heures ${+mi}`).replace(/(\d+) h(?![\p{L}])/gu,(x2,h)=>`${h} heure${h==="1"?"":"s"}`);
+  const UNITS=[["mL","millilitre"],["L","litre"],["kg","kilogramme"],["g","gramme"],["mm","millimètre"],["cm","centimètre"],["dm","décimètre"],["km","kilomètre"],["m","mètre"],["min","minute"],["s","seconde"]];
+  for(const [ab,w] of UNITS)x=x.replace(new RegExp(String.raw`(\d+) ?`+ab+NL,"gu"),(x2,n)=>`${n} ${w}${n==="1"?"":"s"}`);
+  return x
+  .replace(/\((?:mL|L|kg|g)\)/g,"")
+  .replace(/\bmm(?![\p{L}])/gu,"millimètre").replace(/\bcm(?![\p{L}])/gu,"centimètre").replace(/\bdm(?![\p{L}])/gu,"décimètre").replace(/\bkm(?![\p{L}])/gu,"kilomètre").replace(/\ble m(?![\p{L}])/gu,"le mètre").replace(/¢/g,"cent")
   .replace(/\s+/g," ").trim();
 }
 function nodeSay(el,boxWord){const c=el.cloneNode(true);c.querySelectorAll(".frac").forEach(f=>{const p=[...f.children].map(x=>x.textContent);f.replaceWith(fracSay(+p[0],+p[1]))});c.querySelectorAll(".box").forEach(b=>b.replaceWith(" "+(boxWord||"combien")+" "));return normSay(c.textContent)}
@@ -3379,7 +3395,7 @@ function lesSpeech(c){const lines=[c.t,...(c.s||c.p),...(c.ex&&c.ex.length?["Exe
   if(LES&&LES.subj==="anglais"){lines.forEach(line=>{const en=[...lesFill(line).matchAll(/\[\[(.+?)\]\]/g)].map(m=>m[1].replace(/<[^>]+>/g,"").trim()).filter(Boolean);en.forEach(t=>out.push([t,"en"],350))});if(typeof out[out.length-1]==="number")out.pop();return out}
   lines.forEach(line=>{lesFill(line).split(/\[\[(.+?)\]\]/).forEach((part,i)=>{
     if(i%2){const t=part.replace(/<[^>]+>/g,"").trim();if(t)out.push([t,"en"])}
-    else{let t=part.replace(/<[^>]+>/g,"").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").replace(/→/g,", ").replace(/[✓✗↺]/g,"");t=normSay(t);t.split(/(?<=[.!?])\s+/).forEach(x=>{if(/[A-Za-zÀ-ÿ0-9]/.test(x)){out.push([x.trim(),"fr"]);if(/[.!?]["»”)]*$/.test(x.trim()))out.push(LES_PAUSE)}})}});
+    else{let t=normSay(part.replace(/<[^>]+>/g,""));t.split(/(?<=[.!?])\s+/).forEach(x=>{if(/[A-Za-zÀ-ÿ0-9]/.test(x)){out.push([x.trim(),"fr"]);if(/[.!?]["»”)]*$/.test(x.trim()))out.push(LES_PAUSE)}})}});
     if(out.length&&typeof out[out.length-1]!=="number")out.push(LES_PAUSE)});
   if(typeof out[out.length-1]==="number")out.pop();return out}
 const LES_PAUSE=250; /* pause (ms) après chaque phrase et chaque ligne d'une notion */
@@ -4891,7 +4907,7 @@ function drQ(){const q=DR.list[DR.i],c=DR.cfg,el=$("#ecran-jeu");
   el.innerHTML=drBar()+`<div class="dots">${DR.list.map((_,i)=>`<span class="${i<DR.i?(DR.res[i]?"ok":"ko"):i===DR.i?"now":""}"></span>`).join("")}</div>
    <div class="card pop" style="--c:${c.color||"var(--i3)"}"><div class="cardtop"><div class="notion">${q.again?"On réessaie":q.rev?"Révision":esc(q.notion)}</div>${TTS?`<span class="cardbtns"><button class="listen" id="dr-l">${SPK}Réécouter</button></span>`:""}</div>
    <p class="prompt">${q.prompt}</p>${q.visual||""}<div class="choices${q.choices.some(x=>x.length>14)?" one":""}">${q.choices.map((x,i)=>`<button class="choice${x.length>12?" long":""}" data-i="${i}">${esc(x)}</button>`).join("")}</div><div id="fb"></div></div>`;
-  drBack();go("jeu");const l=$("#dr-l");if(l)l.onclick=()=>speak(q.say);if(canSpeak())speak(q.say);
+  drBack();go("jeu");const l=$("#dr-l");if(l)l.onclick=()=>speak(normSay(q.say));if(canSpeak())speak(normSay(q.say));
   el.querySelectorAll(".choice").forEach(b=>b.onclick=()=>drAns(q,b))}
 function drAns(q,b){const ok=q.choices[+b.dataset.i]===q.answer,box=$("#ecran-jeu");box.querySelectorAll(".choice").forEach(x=>{x.disabled=true;if(q.choices[+x.dataset.i]===q.answer)x.classList.add("right")});if(!ok)b.classList.add("wrong");
   DR.res[DR.i]=ok;if(!q.again&&!q.rev){DR.cur++;if(ok)DR.ok++}if(!q.again)logAct(q.key,ok);if(DR.cfg.onAns)DR.cfg.onAns(q,ok);
@@ -4899,14 +4915,14 @@ function drAns(q,b){const ok=q.choices[+b.dataset.i]===q.answer,box=$("#ecran-je
   tone(ok?[[660,.1],[880,.15]]:[[300,.2]]);
   const fb=$("#fb");fb.innerHTML=`<div class="feedback ${ok?"good":"bad"} pop"><h3>${ok?pick(["Bravo!","Parfait!","Super!"]):"Presque!"}</h3>${ok?"":`<p>La bonne réponse : <b>${esc(q.answer)}</b>.</p>`}<p>${q.explain}</p>${!ok&&q.table?q.table:""}<button class="btn" id="dr-next">${DR.i+1<DR.list.length?"Question suivante":"Terminer"}</button></div>`;
   const nb=$("#dr-next"),next=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}DR.i++;if(DR.i<DR.list.length)drQ();else drFinish()};nb.onclick=next;
-  if(!ok){nb.disabled=true;const un=()=>{if($("#dr-next")===nb)nb.disabled=false};const t=q.explain.replace(/<[^>]+>/g,"");if(canSpeak())speakSeq([["Presque! La bonne réponse est "+q.answer+".","fr"],[t,"fr"]],un);else setTimeout(un,Math.min(9000,Math.max(3000,t.length*50)))}
+  if(!ok){nb.disabled=true;const un=()=>{if($("#dr-next")===nb)nb.disabled=false};const t=normSay(q.explain.replace(/<[^>]+>/g,""));if(canSpeak())speakSeq([["Presque! La bonne réponse est "+normSay(String(q.answer))+".","fr"],[t,"fr"]],un);else setTimeout(un,Math.min(9000,Math.max(3000,t.length*50)))}
   else if(canSpeak())speak(pick(["Bravo!","Super!","Oui!"]));
   fb.scrollIntoView({behavior:"smooth",block:"nearest"})}
 function drFinish(){const c=DR.cfg,r=c.onEnd?c.onEnd(DR):{msg:"",up:""},el=$("#ecran-fin"),st=DR.ok>=DR.cur?3:DR.ok>=DR.cur*.8?2:DR.ok>=DR.cur*.5?1:0;el.style.setProperty("--c",c.color||"var(--i3)");save();
   el.innerHTML=`<div class="card result pop" style="--c:${c.color||"var(--i3)"}"><div class="notion">${esc(c.title)}</div><h2>${st>=2?"Bravo":"Bien travaillé"}${S.name?", "+esc(S.name):""}!</h2><div class="score">${DR.ok} / ${DR.cur}</div>${stars(st)}<p class="msg">${r.msg||""}</p>
    <div class="row-btns"><button class="btn" id="dr-again">Encore</button><button class="btn ghost" id="dr-map">Retour</button></div></div>`;
   $("#dr-again").onclick=()=>c.again();$("#dr-map").onclick=()=>{G=null;DR=null;if(DR_BACK)DR_BACK();else{renderCarte();go("carte")}};
-  tone(st>=2?[[523,.12],[659,.12],[784,.2]]:[[523,.15],[659,.2]]);go("fin");speak(`${DR.ok} sur ${DR.cur}. `+(r.msg||"").replace(/<[^>]+>/g,""))}
+  tone(st>=2?[[523,.12],[659,.12],[784,.2]]:[[523,.15],[659,.2]]);go("fin");speak(`${DR.ok} sur ${DR.cur}. `+normSay((r.msg||"").replace(/<[^>]+>/g,"")))}
 
 /* ======================================================================
    MA CONJUGAISON — parcours : avoir, être, -er, aller, -ir (finir), faire
@@ -6101,7 +6117,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261111-095951";
+const APP_VER="20261111-210943";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
