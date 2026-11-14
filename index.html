@@ -646,7 +646,7 @@ mark.dx{background:var(--bad-bg);color:var(--bad);text-decoration:line-through}m
 .rhelp{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}.rhelp p{margin:0;color:var(--ink)}
 .rtxt summary{cursor:pointer;color:var(--muted);padding:4px 0}.rtxt .readtext{margin-top:8px}
 .rq{background:var(--surface);border:2px solid var(--c);border-radius:14px;padding:10px 14px;text-align:left}.rqlab{font-size:.8rem;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.04em}.rq .prompt{margin:4px 0 0}
-.rsteps{display:flex;gap:8px;justify-content:center}.rsteps span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:var(--line);color:var(--muted)}.rsteps .now{background:var(--c);color:#fff}.rsteps .ok{background:var(--good-bg);color:var(--good)}
+.rsteps{display:flex;gap:10px;justify-content:center}.rsteps button{width:38px;height:38px;min-width:38px;padding:0;border:0;border-radius:50%;display:grid;place-items:center;font:inherit;font-weight:700;font-size:1rem;background:var(--line);color:var(--muted);cursor:default;transition:transform .12s}.rsteps .now{background:var(--c);color:#fff}.rsteps .ok{background:var(--good-bg);color:var(--good)}.rsteps button:not([disabled]){cursor:pointer;box-shadow:inset 0 0 0 2px var(--good)}.rsteps button:not([disabled]):hover,.rsteps button:not([disabled]):focus-visible{transform:scale(1.1)}.rsteps button:not([disabled]):active{transform:scale(.92)}.rsnav{text-align:center;color:var(--muted);font-size:.82rem;margin:8px 0 0}@media(prefers-reduced-motion:reduce){.rsteps button{transition:none}.rsteps button:not([disabled]):hover,.rsteps button:not([disabled]):active,.rsteps button:not([disabled]):focus-visible{transform:none}}
 .rstep-q{font-family:var(--f-display);font-weight:600;font-size:1.25rem;margin:0}.rchoices .choice{min-height:56px;text-align:left;justify-items:start;padding:12px 16px}
 .rparts{display:flex;flex-wrap:wrap;gap:8px}.rparts span{background:var(--bg);border:2px dashed var(--line);border-radius:12px;padding:6px 10px;display:flex;flex-direction:column;text-align:left}.rparts small{font-size:.75rem;color:var(--muted);font-weight:700}
 #r-ans{width:100%;border:3px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);padding:12px;font:inherit;font-size:1.2rem;line-height:1.5}#r-ans:focus{border-color:var(--c);outline:none}
@@ -1368,7 +1368,18 @@ let SEQ=0;
    sont lus lettre par lettre (sinon la voix les prononce comme des mots), et « il / elle » devient « il ou elle ». */
 const FR_LN={a:"a",b:"bé",c:"cé",d:"dé",e:"e",f:"èf",g:"gé",h:"ache",i:"i",j:"ji",k:"ka",l:"èl",m:"èm",n:"èn",o:"o",p:"pé",q:"ku",r:"èr",s:"èss",t:"té",u:"u",v:"vé",w:"double vé",x:"iks",y:"i grec",z:"zèd","é":"é","è":"e accent grave","ê":"e accent circonflexe","à":"a accent grave","â":"a accent circonflexe","î":"i accent circonflexe","ô":"o accent circonflexe","û":"u accent circonflexe","ç":"cé cédille"};
 const frSpell=w=>[...w.toLowerCase()].map(c=>FR_LN[c]||c).join(" ");
+/* Certaines voix françaises lisent à l'anglaise les mots qui s'écrivent pareil dans les deux langues
+   (« il range » lu « rèïndj »). On les remplace par une graphie qui se lit exactement pareil en français.
+   Rien ne change à l'écran : seule la voix est concernée. */
+const FR_FIX={range:"ranje",ranges:"ranjes",rangent:"ranjent",rangeons:"ranjons",ranger:"ranjé",rangez:"ranjé",
+  orange:"oranje",oranges:"oranjes",page:"paje",pages:"pajes",image:"imaje",images:"imajes",
+  village:"vilaje",villages:"vilajes",garage:"garaje",garages:"garajes",message:"messaje",messages:"messajes",
+  courage:"couraje",nuage:"nuaje",nuages:"nuajes",plage:"plaje",plages:"plajes",fromage:"fromaje",
+  voyage:"voyaje",voyages:"voyajes",chance:"chanse",chances:"chanses",parent:"parant",parents:"parants",
+  important:"importan",accident:"accidan",patient:"passian"};
+const FR_FIX_RX=new RegExp("(^|[^\\p{L}'\u2019-])("+Object.keys(FR_FIX).join("|")+")(?![\\p{L}-])","giu");
 function frSay(t){return String(t)
+  .replace(FR_FIX_RX,(m,pre,w)=>{const f=FR_FIX[w.toLowerCase()]||w;return pre+(w[0]===w[0].toUpperCase()?f[0].toUpperCase()+f.slice(1):f)})
   .replace(/(^|[\s(«"“:,;])-([a-zàâçéèêîôû]{1,7})-?(?=$|[\s,.;:!?)»"”])/gi,(m,a,w)=>a+frSpell(w))
   .replace(/(^|[^\p{L}'’-])((?:[a-zàâçéèêîôû]-){1,9}[a-zàâçéèêîôû])(?![\p{L}-])/gu,(m,a,w)=>a+frSpell(w.replace(/-/g,"")))
   .replace(/\s\/\s/g," ou ")}
@@ -1701,7 +1712,7 @@ const FEMF=[["petit","petite","petitte","petit",1],["grand","grande","grante","g
  ["gentil","gentille","gentile","gentil",2],["gros","grosse","grose","gros",2],["heureux","heureuse","heureuxe","heureuze",2],["sportif","sportive","sportife","sportiffe",2],["bon","bonne","bone","bonn",2],["peureux","peureuse","peureuxe","peureuze",2],
  ["blanc","blanche","blanque","blance",3],["beau","belle","beaue","bele",3],["nouveau","nouvelle","nouveaue","nouvele",3],["long","longue","longe","longgue",3],["doux","douce","douxe","douse",3],["vieux","vieille","vieuxe","vieile",3]];
 const MOTS=[["maison",["méson","maizon","maisson"]],["école",["écol","aicole","écolle"]],["toujours",["toujour","toujoures","tojours"]],["beaucoup",["boucoup","beaucou","bocoup"]],["maintenant",["maintenent","mintenant","maintenan"]],["aujourd'hui",["aujourdhui","aujourd'hu","ojourd'hui"]],["chocolat",["chocola","chaucolat","chocolas"]],["famille",["famile","famiye","phamille"]],["cheval",["chevale","cheuval","chevall"]],["anniversaire",["aniversaire","anniverssaire","anniversère"]],["bonjour",["bonjours","bonjoure","bonjur"]],["souvent",["souvant","souvan","souvens"]],["parce que",["parsque","parce-que","parceque"]],["jardin",["jardain","jardun","jardinn"]],["enfant",["enfent","anfant","enfan"]],["dimanche",["dimenche","dimache","dimanch"]],["semaine",["semène","semainne","cemaine"]],["ensemble",["ansemble","ensamble","ensembl"]],["devant",["devent","devan","devand"]],["après",["aprés","aprè","appré"]],["pendant",["pendent","pandant","pendan"]],["hiver",["iver","hivére","hivert"]],["neige",["nège","neije","neig"]],["fenêtre",["fenètre","fenêtr","fenaitre"]],["forêt",["forè","forait","forrêt"]],["oiseau",["oiseo","oizeau","oisau"]],["ami",["ammi","amit","ammie"]],["vacances",["vacanses","vaquances","vaccances"]],["dehors",["dehor","déhors","dehorre"]],["matin",["matain","mattin","matun"]],["soleil",["solei","soleille","solail"]],["bateau",["bato","bateaut","batteau"]],["pomme",["pome","paume","pommme"]],["merci",["mersi","mercie","mairci"]],["quand",["kan","quant","quend"]]];
-const MOTS_P={"maison": "Je rentre à la maison après l'école.", "école": "Mon école est tout près du parc.", "toujours": "Elle arrive toujours la première.", "beaucoup": "Il y a beaucoup de neige ce matin.", "maintenant": "On part maintenant, le film commence!", "aujourd'hui": "Aujourd'hui, il fait très beau.", "chocolat": "J'adore le gâteau au chocolat.", "famille": "Toute ma famille vient souper.", "cheval": "Le cheval galope dans le champ.", "anniversaire": "C'est mon anniversaire samedi.", "bonjour": "Je dis bonjour à mon enseignante.", "souvent": "Je vais souvent à la bibliothèque.", "parce que": "Je suis content parce que c'est congé.", "jardin": "Papa plante des carottes dans le jardin.", "enfant": "Chaque enfant reçoit un livre.", "dimanche": "Le dimanche, on déjeune tard.", "semaine": "Il reste trois jours dans la semaine.", "ensemble": "Nous jouons ensemble à la récréation.", "devant": "Le camion est stationné devant la maison.", "après": "On range après le souper.", "pendant": "Il a plu pendant toute la nuit.", "hiver": "En hiver, je mets ma tuque.", "neige": "La neige tombe sur les sapins.", "fenêtre": "J'ouvre la fenêtre de ma chambre.", "forêt": "On se promène dans la forêt.", "oiseau": "Un oiseau chante sur la branche.", "ami": "Mon ami Noah vient jouer chez moi.", "vacances": "Les vacances commencent vendredi.", "dehors": "Les enfants jouent dehors.", "matin": "Je me lève tôt le matin.", "soleil": "Le soleil brille très fort.", "bateau": "Le bateau flotte sur le lac.", "pomme": "Je croque une pomme verte.", "merci": "Je dis merci pour le cadeau.", "quand": "Quand il pleut, je lis un livre."};
+const MOTS_P={"maison": "Je rentre à la maison après l'école.", "école": "Mon école est tout près du parc.", "toujours": "Elle arrive toujours la première.", "beaucoup": "Il y a beaucoup de neige ce matin.", "maintenant": "On part maintenant, le spectacle commence!", "aujourd'hui": "Aujourd'hui, il fait très beau.", "chocolat": "J'adore le gâteau au chocolat.", "famille": "Toute ma famille vient souper.", "cheval": "Le cheval galope dans le champ.", "anniversaire": "C'est mon anniversaire samedi.", "bonjour": "Je dis bonjour à mon enseignante.", "souvent": "Je vais souvent à la bibliothèque.", "parce que": "Je suis content parce que c'est congé.", "jardin": "Papa plante des carottes dans le jardin.", "enfant": "Chaque enfant reçoit un livre.", "dimanche": "Le dimanche, on déjeune tard.", "semaine": "Il reste trois jours dans la semaine.", "ensemble": "Nous jouons ensemble à la récréation.", "devant": "Le camion est stationné devant la maison.", "après": "On fait la vaisselle après le souper.", "pendant": "Il a plu pendant toute la nuit.", "hiver": "En hiver, je mets ma tuque.", "neige": "La neige tombe sur les sapins.", "fenêtre": "J'ouvre la fenêtre de ma chambre.", "forêt": "On se promène dans la forêt.", "oiseau": "Un oiseau chante sur la branche.", "ami": "Mon ami Noah vient jouer chez moi.", "vacances": "Les vacances commencent vendredi.", "dehors": "Les enfants jouent dehors.", "matin": "Je me lève tôt le matin.", "soleil": "Le soleil brille très fort.", "bateau": "Le bateau flotte sur le lac.", "pomme": "Je croque une pomme verte.", "merci": "Je dis merci pour le cadeau.", "quand": "Quand il pleut, je lis un livre."};
 
 
 const HOMO=[
@@ -2672,7 +2683,9 @@ function renderQ(){
       if(pickQ&&!canSpeak())q.notype=1;
       else{const ctxPh=pickQ&&q.lang!=="en"?motCtx(String(q.answer)):"";
         if(pickQ&&!ctxPh)q.notype=1; /* sans phrase, « quand » et « camp » s'entendent pareil : on garde les choix */
-        else{if(pickQ){const w=String(q.answer);q.spell=true;q.prompt="Écoute le mot et écris-le dans la phrase.";q.visual=`<p class="dctx">${blankIn(ctxPh,w)||esc(ctxPh)}</p>`;q.say=`Écris le mot : ${w}. Par exemple : ${ctxPh}`}
+        else{if(pickQ){const w=String(q.answer);q.spell=true;q.prompt="Écoute le mot et écris-le dans la phrase.";q.visual=`<p class="dctx">${blankIn(ctxPh,w)||esc(ctxPh)}</p>`;q.say=`Écris le mot : ${w}. Dans la phrase : ${ctxPh}`;
+          /* On marque une vraie pause avant et après le mot : sinon « écris le mot après » s'entend comme une seule phrase */
+          q.saySeq=()=>[["Écoute bien le mot à écrire.","fr",dRate()],700,[w+".","fr",dRateW()],900,["Dans la phrase :","fr",dRate()],400,[ctxPh,"fr",dRate()],800,["Le mot à écrire est :","fr",dRate()],500,[w+".","fr",dRateW()]]}
         else{if(isENq(q)&&/^[A-Za-z]+$/.test(String(q.answer)))q.spell=true;/* Les consignes « choisis / touche » deviennent « écris » quand on tape la réponse */const sw=t=>String(t||"").replace(/^Choisis /,"Écris ").replace(/^Touche /,"Écris ").replace(/^Listen and touch /,"Listen and write ").replace(/^Écoute et touche /,"Écoute et écris ");q.prompt=sw(q.prompt);if(q.say)q.say=sw(q.say);if(q.fr)q.fr=sw(q.fr)}
         const pe=el.querySelector(".prompt");if(pe)pe.innerHTML=q.prompt;const he=el.querySelector("#q-help");if(he)he.textContent=q.fr||"";const ve=el.querySelector(".visual");if(ve)ve.innerHTML=q.visual||"";q.kind="text"}}}
     else q.notype=1}
@@ -2717,10 +2730,10 @@ function renderQ(){
   go("jeu");
   G.target=targetMs(q);G.over=false;G.t0=0;G.timed=TIMED.has(q.isl)&&q.kind!=="board";if(G.timed)G.anyT=true;if(!G.timed)$("#trow").hidden=true;
   const begin=()=>{if(!G||G.q!==q||G.done||G.t0)return;G.t0=performance.now();requestAnimationFrame(tick)};
-  const bl=$("#b-listen");if(bl)bl.onclick=()=>q.steps?q.sayW(false):speak(qSay(q),begin,q.lang);
+  const bl=$("#b-listen");if(bl)bl.onclick=()=>q.steps?q.sayW(false):q.saySeq?speakSeq(q.saySeq(),begin):speak(qSay(q),begin,q.lang);
   const bh=$("#b-help");if(bh)bh.onclick=()=>{const h=$("#q-help");h.hidden=!h.hidden;bh.setAttribute("aria-expanded",String(!h.hidden))};
   el.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say,null,"en"));
-  if(q.steps&&q.sayW){q.sayW(true)}else if(canSpeak()){$("#tlabel").textContent="Écoute…";speak(qSay(q),begin,q.lang)}else begin();
+  if(q.steps&&q.sayW){q.sayW(true)}else if(canSpeak()){$("#tlabel").textContent="Écoute…";q.saySeq?speakSeq(q.saySeq(),begin):speak(qSay(q),begin,q.lang)}else begin();
 }
 function tick(){
   if(!G||G.mode!=="q"||G.done||document.hidden||!G.t0||PAUSED||G.q.kind==="board"||!G.timed)return;
@@ -4076,6 +4089,17 @@ function repChecks(txt,it,open){const T=repText(it),t=txt.trim(),o=(open||"").re
 const repR=()=>.40;
 const repRead=t=>String(t).split(/(?<=[.!?:])\s+/).filter(x=>/[\p{L}0-9]/u.test(x)).flatMap((x,i,a)=>i<a.length-1?[[x,"fr",repR()],250]:[[x,"fr",repR()]]);
 let RC=null;
+/* Les cinq étapes de l'activité. Olivia peut toucher un numéro déjà fait pour y revenir. */
+const REP_STEPS=["type","start","marq","proof","write"];
+const REP_STEP_L=["la sorte de question","le début de ta réponse","le mot pour expliquer","la phrase du texte","l'écriture de ta réponse"];
+function repStepsHTML(){const done=RC.step==="done",cur=done?REP_STEPS.length:REP_STEPS.indexOf(RC.step);
+  const b=REP_STEPS.map((k,i)=>{const back=!done&&i<cur,cls=cur>i?"ok":cur===i?"now":"";
+    return`<button class="${cls}" data-s="${i}"${back?"":" disabled"} aria-label="Étape ${i+1} : ${REP_STEP_L[i]}${back?" — y revenir":""}">${i+1}</button>`}).join("");
+  return`<div class="rsteps">${b}</div>${!done&&cur>0?`<p class="rsnav">↩ Touche un numéro pour revenir à une étape.</p>`:""}`}
+/* Revenir à une étape déjà faite : on ne peut que reculer, jamais sauter en avant. */
+function repGo(i){if(!RC||RC.step==="done")return;const cur=REP_STEPS.indexOf(RC.step);if(i<0||i>=cur)return;
+  SEQ++;if(TTS)try{TTS.cancel()}catch(e){}if(RC.rd&&RC.rd.playing)rdPause();
+  RC.back=1;RC.step=REP_STEPS[i];repShell();[repType,repStart,repMarq,repProof,repWrite][i]()}
 function startRep(){const r=RS(),pool=REP_ITEMS.filter(it=>repText(it)).slice().sort((a,b)=>(r.n[a.id]||0)-(r.n[b.id]||0)||Math.random()-.5);
   const list=[];for(const it of pool){if(list.length>=3)break;if(!list.some(x=>x.t===it.t))list.push(it)}
   FORCEV=false;G={mode:"rep",subj:"francais",events:[]};RC={list:shuffle(list),i:0,first:0,tot:0,written:0};repItem()}
@@ -4083,9 +4107,10 @@ function repShell(){if(RC.rd&&RC.rd.playing)rdPause();const it=RC.list[RC.i],T=r
   el.innerHTML=`<div class="gamebar"><button class="back" id="r-back">← L'Île aux Mots</button><span class="gtitle">Répondre en phrases complètes</span><span class="levelchip">${RC.i+1} / ${RC.list.length}</span></div>
   <div class="card pop rcard" style="--c:var(--i6)"><div class="rhelp">${RC.step==="type"?`<p>📖 <b>Prends le temps de lire le texte et la question par toi-même.</b> Si tu as besoin d'aide, je peux te les lire.</p>`:""}${TTS?`<div class="rdctl" id="r-rd"></div>`:""}</div><details class="rtxt" ${RC.step==="type"?"open":""}><summary>Le texte : <b>${esc(T.titre)}</b></summary><article class="readtext"><p>${T.texte}</p></article></details>
    <div class="rq"><span class="rqlab">Question</span><p class="prompt readq">${esc(it.q)}</p></div>
-   <div class="rsteps">${["type","start","marq","proof","write"].map((k,i)=>`<span class="${k===RC.step?"now":["type","start","marq","proof","write"].indexOf(RC.step)>i||RC.step==="done"?"ok":""}">${i+1}</span>`).join("")}</div>
+   ${repStepsHTML()}
    <div id="r-step"></div><div id="fb"></div></div>`;
   $("#r-back").onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}G=null;RC=null;renderCarte();go("carte")};
+  el.querySelectorAll(".rsteps button:not([disabled])").forEach(b=>b.onclick=()=>repGo(+b.dataset.s));
   if(!RC.rd||RC.rd.id0!==RC.i)RC.rd={id0:RC.i,i:0,playing:false,list:[...repRead(T.titre+"."),300,...repRead(T.texte),600,...repRead("Question : "+it.q)]};
   rdUI();go("jeu")}
 /* Lecteur « Je lis pour t'aider » : pause, reprendre (à la phrase en cours), recommencer */
@@ -4099,8 +4124,9 @@ function rdPlay(){const rd=RC.rd,id=++SEQ;if(TTS)try{TTS.cancel()}catch(e){}rd.p
     const x=rd.list[rd.i];if(typeof x==="number"){rd.t=setTimeout(()=>{rd.i++;step()},x);return}
     speak(x[0],()=>{if(rd.sid!==id||!rd.playing)return;rd.i++;step()},x[1],x[2],id)};step()}
 function rdPause(){if(!RC||!RC.rd)return;const rd=RC.rd;clearTimeout(rd.t);if(rd.playing){rd.playing=false;rd.sid=0;SEQ++;if(TTS)try{TTS.cancel()}catch(e){}}if(rd.i>0&&typeof rd.list[rd.i]==="number")rd.i++;RC.force=false;rdUI()}
-function repItem(){RC.step="type";RC.open="";RC.marq="";RC.proof="";repShell();const it=RC.list[RC.i],T=repText(it);
-  repChoice("Quelle sorte de question est-ce?",Object.entries(REPT).map(([k,v])=>({t:`${v.ic} ${v.l}`,sub:v.s,ok:k===it.type,why:k===it.type?`Oui! C'est une question de ${v.l.toLowerCase()} : ${v.d}`:`Pas tout à fait. C'est une question de ${REPT[it.type].l.toLowerCase()} : ${REPT[it.type].d}`})),()=>{RC.step="start";repShell();repStart()},true)}
+function repItem(){RC.step="type";RC.open="";RC.marq="";RC.proof="";RC.draft="";RC.back=0;repShell();repType()}
+function repType(){const it=RC.list[RC.i],mute=!RC.back;RC.back=0;
+  repChoice("Quelle sorte de question est-ce?",Object.entries(REPT).map(([k,v])=>({t:`${v.ic} ${v.l}`,sub:v.s,ok:k===it.type,why:k===it.type?`Oui! C'est une question de ${v.l.toLowerCase()} : ${v.d}`:`Pas tout à fait. C'est une question de ${REPT[it.type].l.toLowerCase()} : ${REPT[it.type].d}`})),()=>{RC.step="start";repShell();repStart()},mute)}
 function repStart(){const it=RC.list[RC.i];
   repChoice("Comment commencer ta réponse?",shuffle([...it.ok.map(t=>({t,ok:true,why:"Oui! Ce début reprend les mots de la question."+(it.ok.length>1?" (L'autre début aurait été bon aussi : c'est ton avis qui compte.)":"")})),...it.ko.map(t=>({t,ok:false,why:`Ce début ne reprend pas les mots de la question. Commence plutôt par : « ${it.ok[0]} »`}))]),
     v=>{RC.open=v&&v.ok?v.t:it.ok[0];RC.step="marq";repShell();repMarq()})}
@@ -4108,25 +4134,29 @@ function repMarq(){repChoice("Pour expliquer ta réponse, quel mot vas-tu utilis
 function repProof(){const it=RC.list[RC.i];
   repChoice(`Quelle phrase du texte justifie le mieux ta réponse?${(RS().jx||0)>=3?"":`<small class="csub">Justifier, c'est montrer avec le texte pourquoi ta réponse est bonne.</small>`}`,shuffle(it.pr.map((t,i)=>({t:`« ${t} »`,ok:i===0,why:REP_PR_WHY[i]+(i?` La phrase qui justifie le mieux : « ${it.pr[0]} »`:"")}))),()=>{RC.proof=it.pr[0];RC.step="write";repShell();repWrite()},false,true);RS().jx=(RS().jx||0)+1;save()}
 /* Choix à une seule bonne réponse (ou plusieurs bonnes). Après une erreur, l'explication doit être entendue avant de continuer. */
-function repChoice(prompt,opts,next,first,showTxt){const box=$("#r-step");
+function repChoice(prompt,opts,next,first,showTxt){const box=$("#r-step"),sk=RC.i+":"+RC.step;
   box.innerHTML=`<p class="rstep-q">${prompt}</p><div class="choices one rchoices">${opts.map((o,i)=>`<button class="choice long" data-i="${i}"><span>${esc(o.t)}${o.sub?`<small class="csub">${esc(o.sub)}</small>`:""}</span></button>`).join("")}</div>`;
   if(canSpeak()&&!first)speak(prompt.replace(/<[^>]+>/g," "));
   box.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{if(RC.rd&&RC.rd.playing)rdPause();const o=opts[+b.dataset.i];box.querySelectorAll(".choice").forEach((x,i)=>{x.disabled=true;if(opts[i].ok&&(o.ok?x===b:true))x.classList.add("right")});if(!o.ok)b.classList.add("wrong");
-    RC.tot++;if(o.ok)RC.first++;logAct("rep|"+RC.list[RC.i].type,o.ok);tone(o.ok?[[660,.1],[880,.15]]:[[300,.2]]);
+    if(!RC.cnt)RC.cnt={};if(!RC.cnt[sk]){RC.cnt[sk]=1;RC.tot++;if(o.ok)RC.first++;logAct("rep|"+RC.list[RC.i].type,o.ok)}tone(o.ok?[[660,.1],[880,.15]]:[[300,.2]]);
     const fb=$("#fb");fb.innerHTML=`<div class="feedback ${o.ok?"good":"bad"} pop"><h3>${o.ok?"Bravo!":"Presque!"}</h3><p>${esc(o.why)}</p><button class="btn" id="r-next">Continuer</button></div>`;
     const nb=$("#r-next");nb.onclick=()=>{SEQ++;if(TTS)try{TTS.cancel()}catch(e){}next(o)};
     if(!o.ok){nb.disabled=true;const un=()=>{if($("#r-next")===nb)nb.disabled=false};if(canSpeak())speakSeq([["Presque!","fr"],[o.why,"fr"]],un);else setTimeout(un,Math.min(12000,Math.max(4000,o.why.length*60)))}
     else if(canSpeak())speak("Bravo! "+o.why);
     fb.scrollIntoView({behavior:"smooth",block:"nearest"})})}
+/* Si Olivia revient en arrière puis revient ici, on lui rend ce qu'elle avait déjà écrit,
+   sauf si elle a changé de début : la phrase ne commencerait plus par les bons mots. */
+function repDraft(pre){const d=(RC.draft||"").trim(),n=Math.min(10,pre.length);
+  return d.length>pre.length&&d.slice(0,n).toLowerCase()===pre.slice(0,n).toLowerCase()?RC.draft:pre}
 function repWrite(){const it=RC.list[RC.i],box=$("#r-step"),pre=RC.open.replace(/…$/,"");
   box.innerHTML=`<p class="rstep-q">À toi! Écris ta réponse complète.</p>
    <div class="rparts"><span><small>Début</small>${esc(RC.open)}</span><span><small>Pour expliquer</small>${esc(RC.marq)}</span><span><small>Ce qui justifie ma réponse</small>« ${esc(RC.proof)} »</span></div>
-   <textarea id="r-ans" rows="4" lang="fr" spellcheck="false" autocapitalize="sentences">${esc(pre)}</textarea>
+   <textarea id="r-ans" rows="4" lang="fr" spellcheck="false" autocapitalize="sentences">${esc(repDraft(pre))}</textarea>
    <ul class="rcheck" id="r-chk" aria-live="polite"></ul>
    <div class="row-btns"><button class="btn" id="r-done" disabled>J'ai fini</button></div>`;
   if(canSpeak())speak("À toi! Écris ta réponse complète. Commence par le début choisi, explique avec "+RC.marq+", puis justifie avec la phrase du texte.");
   const ta=$("#r-ans"),dn=$("#r-done"),draw=()=>{const C=repChecks(ta.value,it,RC.open);$("#r-chk").innerHTML=C.map(([l,ok])=>`<li class="${ok?"ok":""}">${ok?"✓":"○"} ${l}</li>`).join("");dn.disabled=ta.value.trim().length<pre.length+12};
-  ta.oninput=()=>{if(RC.rd&&RC.rd.playing)rdPause();draw()};draw();ta.focus({preventScroll:true});ta.setSelectionRange(ta.value.length,ta.value.length);
+  ta.oninput=()=>{if(RC.rd&&RC.rd.playing)rdPause();RC.draft=ta.value;draw()};RC.draft=ta.value;draw();ta.focus({preventScroll:true});ta.setSelectionRange(ta.value.length,ta.value.length);
   dn.onclick=()=>{const C=repChecks(ta.value,it,RC.open),n=C.filter(c=>c[1]).length;RC.written++;
     const r=RS();r.n[it.id]=(r.n[it.id]||0)+1;r.log.unshift({d:today(),id:it.id,a:ta.value.trim().slice(0,600),ck:C.map(c=>c[1]?1:0),cl:C.map(c=>c[0])});r.log.length=Math.min(r.log.length,40);save();
     RC.step="done";repShell();const all=n===C.length;
@@ -6126,7 +6156,7 @@ syncSon();renderCarte();go("carte");
 
 <div id="upd" hidden style="position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:99;background:#17707F;color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 1rem system-ui,sans-serif"><span>Une nouvelle version du jeu est prête!</span><button id="upd-go" style="border:0;border-radius:12px;padding:10px 18px;background:#E9A800;color:#2A2100;font:700 1rem system-ui,sans-serif">Mettre à jour</button></div>
 <script>
-const APP_VER="20261111-214647";
+const APP_VER="20261114-112034";
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{try{r.update()}catch(e){}}).catch(()=>{}));
 let UPD_T=0;
 function checkUpd(){if(Date.now()-UPD_T<20000)return;UPD_T=Date.now();
